@@ -113,22 +113,27 @@ Invoque **sempre, em paralelo**:
 
 **Não há mais "dispensa de auditores"**. Mesmo mudança cosmética passa pelos 3 — eles são rápidos e a dispensa virou o caminho mais usado, esvaziando o gate.
 
-**Para cada auditor, registre o veredito como marker (mecânico):**
+**Para cada auditor, registre o veredito com hash do diff auditado (mecânico):**
 
-```
-# Se aprovou:
-touch .claude/.runtime/auditor-seg-pass-${CLAUDE_SESSION_ID}
-touch .claude/.runtime/auditor-qual-pass-${CLAUDE_SESSION_ID}
-touch .claude/.runtime/auditor-prod-pass-${CLAUDE_SESSION_ID}
+```bash
+# Compute o hash do que voce DE FATO auditou (impede 'touch sem auditar'):
+AUDIT_SHA=$(git diff HEAD | shasum -a 256 | awk '{print $1}')
+SESS="${CLAUDE_SESSION_ID}"
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Se aprovou (auditor-seguranca):
+printf '{"audit_sha":"%s","auditor":"seg","ts":"%s"}\n' "$AUDIT_SHA" "$TS" \
+  > .claude/.runtime/auditor-seg-pass-${SESS}
+# (analogo pra qual e prod com auditor=qual / auditor=prod)
 
 # Se BLOQUEOU (apontou ressalva bloqueante):
-touch .claude/.runtime/auditor-seg-blocked-${CLAUDE_SESSION_ID}
+touch .claude/.runtime/auditor-seg-blocked-${SESS}
 # (idem qual / prod)
 ```
 
-Se qualquer auditor retornar BLOQUEADO: voltar pra Dev Sênior. Re-rodar Etapa 5 e 6. Antes de re-rodar, **remova o marker blocked correspondente**.
+Se qualquer auditor retornar BLOQUEADO: voltar pra Dev Sênior. Re-rodar Etapa 5 e 6. Antes de re-rodar, **remova o marker blocked correspondente**. Apos correcao, o hash do diff muda — auditor precisa gerar marker novo (o antigo fica STALE e o hook bloqueia).
 
-> O hook `require-auditors-pass-before-commit.sh` bloqueia `git commit`/`merge`/`push` (em sessão `/feature` ativa) enquanto os 3 markers `auditor-{seg,qual,prod}-pass-*` não existirem. Marker `blocked` também impede.
+> O hook `require-auditors-pass-before-commit.sh` bloqueia `git commit`/`merge`/`push` (em sessão `/feature` ativa) se: (a) algum marker `pass` faltar, (b) qualquer marker `blocked` existir, ou (c) o `audit_sha` do marker `pass` não bater com o `git diff HEAD` atual (codigo mudou depois da aprovacao).
 
 ## Etapa 7 — Checkpoint (walkthrough antes de mergear)
 

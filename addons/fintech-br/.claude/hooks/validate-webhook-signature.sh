@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # validate-webhook-signature.sh — bloqueia handler de webhook sem validacao de assinatura.
 # Hook PreToolUse, matcher: Write|Edit.
-# PIX-002 — webhook Pix valida assinatura HMAC na primeira linha do handler.
+# PIX-EXT-002 — webhook Pix valida assinatura HMAC na primeira linha do handler.
 
 set -u
 
@@ -55,7 +55,7 @@ if grep -qiE '(verify.*signature|validate.*signature|hmac|verifyHMAC|verify_hmac
 fi
 
 # Tem excecao explicita?
-if grep -qE 'PIX-002-exception|SEC-WEBHOOK-exception' "$TMPF"; then
+if grep -qE 'PIX-EXT-002-exception|SEC-WEBHOOK-exception' "$TMPF"; then
   exit 0
 fi
 
@@ -72,13 +72,13 @@ Arquivo: $FILE_PATH
 Detectada rota POST com palavra-chave de pagamento (pix/payment/webhook/callback),
 mas nao foi encontrada validacao de assinatura HMAC ou mTLS no handler.
 
-Regra: PIX-002 — webhook que dispara acao financeira (Pix recebido, devolucao,
+Regra: PIX-EXT-002 — webhook que dispara acao financeira (Pix recebido, devolucao,
 status) DEVE validar a assinatura na primeira linha. Sem isso, qualquer um pode
 forjar pedido e marcar Pix como pago.
 
 Como corrigir:
 
-  // PIX-002: validar assinatura HMAC primeiro
+  // PIX-EXT-002: validar assinatura HMAC primeiro
   const signature = req.headers['x-signature'];
   const expected = crypto
     .createHmac('sha256', process.env.WEBHOOK_SECRET)
@@ -94,6 +94,6 @@ Como corrigir:
 Alternativas aceitas: mTLS com certificado cliente, IP whitelist do PSP.
 
 Excecao na primeira linha do arquivo (use com aval do auditor-seguranca):
-  // PIX-002-exception: <razao tecnica>
+  // PIX-EXT-002-exception: <razao tecnica>
 EOF
 exit 2

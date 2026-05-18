@@ -2,6 +2,74 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.11.0] — 2026-05-18
+
+**Auditoria 10-agentes round 6** — varredura sem viés (relatórios e memórias dos rounds anteriores deletados antes da execução pra evitar enviesamento dos auditores). 10 agentes paralelos, escopos independentes: segurança de hooks, qualidade JS, testes, DX, consistência de docs, cross-platform, regulatório BR, agentes/workflows, addons, empacotamento. **86 achados (13 P0 + 38 P1 + 35 P2)**. Onda 1 e 2 aplicadas: P0 + maioria dos P1 fechados. Testes: 132/132 OK.
+
+### Corrigido — bugs de execução
+
+- **`bin/install.js:399` regex `addonMarker` quebrada.** Multilinha com `$` antes de `[\s\S]*?` casava posições erradas; resultado: `npx roldao-method list` sempre mostrava todos os addons como "não instalado". Reescrito como parser linha-a-linha estável.
+- **`installAddon` matava o wizard em loop.** `process.exit(1)` no meio do `install()` quando um addon do perfil estava malformado abortava toda a instalação. Agora propaga erro via flag e o wizard segue, reportando addons que falharam no fim.
+- **`installAddon` sem `isDangerousCwd`.** `npx roldao-method add` rodando em `~/` ou raiz derramava `addons/` na home. Agora bloqueia igual ao `install`.
+- **`_test-runner.sh:15` mktemp fallback usava `$BASE` antes de definir.** Sob `set -u` quebrava. Reescrito com `${TMPDIR:-/tmp}` nominal.
+- **`evals/run.js` `--agent=X` ignorado.** Aceitava só `--agent X` (espaço); CI que usa `=` rodava todos os agentes silenciosamente. Aceita ambos agora.
+- **`.bak` sobrescrito em update consecutivo.** Segundo `update` apagava backup original. Agora se `.bak` existir e diferir do `dest` atual, novo backup ganha sufixo timestamp.
+
+### Corrigido — segurança
+
+- **`validate-test-pyramid.sh:29` path traversal via `FILE_PATH`.** Entrada do JSON do Claude (não-sanitizada) ia direto pra `find` — prompt manipulado podia escanear fora do projeto. Adicionada rejeição de `..` e validação que o caminho normalizado fica dentro de `PROJDIR`.
+- **`require-readiness-before-feature.sh` e `validate-story-dependencies.sh`** trocam `ls "$DIR/"${US_ID}-*.md` (glob fora de aspas, fragilidade defensiva) por `find ... -name "${US_ID}-*.md"`.
+- **Auditores no `/feature` agora gravam hash do diff auditado.** Marker antes era `touch` vazio — agente podia "aprovar mentalmente" e burlar. Marker `pass` agora é JSON `{"audit_sha":"<sha256 do git diff>","auditor":"seg|qual|prod","ts":"<iso>"}`. Hook `require-auditors-pass-before-commit.sh` recusa commit se hash do diff atual não bater (STALE — código mudou depois da aprovação).
+
+### Corrigido — papéis dos agentes (sobreposição)
+
+- **`revisor` agora olha só o diff.** Removida "Aderência à US/AC" e "Cobertura agregada" do checklist — eram duplicação com `auditor-produto` e `auditor-qualidade`. Sem regra de desempate, divergências entre os 3 paralisavam o `/feature`.
+- **`gerente-produto` sem "Modo Brief".** Conflitava com `analista` modo 1. PM começa em PRD/Story/Decomposição. Reduzido de 4 modos pra 3.
+
+### Corrigido — regulatório BR
+
+- **LGPD "15 dias úteis" → "15 dias corridos"** em `dpo-virtual.md`, `ripd-modelo.md`, `politica-privacidade.md`. Art. 19 II fala em prazo corrido; "úteis" é erro recorrente de consultoria.
+- **Árvore Art. 7 da skill `checklist-lgpd` completa.** Listava 5 incisos (V, II, VI, IX, I); agora cobre os 10 (III administração pública, IV pesquisa, VII proteção da vida, VIII tutela da saúde, X proteção do crédito) antes de cair em consentimento.
+- **DIRF na KB fiscal**: nota explícita de substitutos (EFD-Reinf R-4010/R-4020/R-4040, DCTFWeb) — não é "extinção sem substituto".
+- **BR Code TxId `{26,35}` em `cob`/`cobv`** (era `{1,25}`/`{1,35}` divergente em 3 lugares). Manual Pix v2.7+ exige mínimo 26.
+- **MCC ISO 18245 em `gerar-br-code`.** Tag 52 fixada em `0000` agora é parametrizada — PJ usa MCC do ramo, `0000` só pra PF.
+- **CRC16 BR Code: explicação corrigida.** Texto antigo dizia "excluindo os 4 caracteres do valor" — confuso; valor ainda não existe quando se calcula.
+
+### Corrigido — addons
+
+- **`fintech-br` renomeia `PIX-001..003` → `PIX-EXT-001..004`.** Colidiam com `PIX-001..005` do core (DICT/validação) — semântica diferente. Atualizado em yaml, README, hook, skill e agente. Adicionado `PIX-EXT-004` (Open Finance via FAPI+mTLS) que faltava como regra numerada.
+- **`fiscal-br-completo` renomeia pasta `validar-cnpj-alfanumerico` → `migrar-cnpj-alfanumerico`.** Pasta divergia do `addon.yaml` e do frontmatter da skill. Discovery do Claude usa nome da pasta — addon não funcionava com identidade declarada.
+- **`lgpd-compliance` `addon.yaml` lista 6 templates.** Antes `templates: []` mas pasta tinha 6 arquivos (RIPD, DPA, política de privacidade, 3 respostas a titular). `npx roldao-method list` mostrava info enganosa.
+- **`addons/README.md` lista os 6 addons reais** (era 4) e remove "Em construção" do bloco de instalação (`npx roldao-method add` funciona desde a v0.4).
+
+### Corrigido — empacotamento e release
+
+- **`.npmignore` criado** pra excluir `docs/PUBLICAR.md` e `docs/PUBLICAR-NPM.md` (guias internos de release vazando no tarball).
+- **`package.json` description encurtada** (730 → 220 chars; npm trunca em ~200).
+- **`package.json` keywords** ganha `cli`, `scaffolding`, `developer-tools`, `aider` para descoberta.
+- **`package.json` author** agora objeto com URL; **`repository.url`** prefixado `git+https://` (formato canônico npm).
+- **Tags git criadas pra v0.4, v0.5, v0.6** (estavam faltando — CHANGELOG documentava, git não tinha tag).
+- **CI sanity `node --check`** em todos os `.js` do projeto antes de rodar testes.
+- **CI matrix Python em Windows/macOS/Linux.** Antes só ubuntu; `python3` vs `python` (Windows) detectado dinamicamente.
+- **CI `concurrency.cancel-in-progress`** — pushes consecutivos cancelam runs anteriores em vez de empilhar.
+
+### Mudanças nas docs
+
+- Todas as contagens sincronizadas com a realidade: **12 agentes, 22 bloqueadores + 4 auxiliares + 2 utilitários = 28 hooks core, 19 commands, 22 skills (8 core + 14 addons), 6 addons, 132/132 testes**. README, QUICKSTART, COMO-FUNCIONA, ARQUITETURA, TROUBLESHOOTING, CONTRIBUTORS, PUBLICAR-NPM, EXEMPLO-FEATURE-COMPLETA atualizados.
+- README badge `hooks_bloqueadores`: 21 → 22.
+- README tabela de capacidades: "v0.9" → "v0.11".
+- README lista os 22 bloqueadores explicitamente (eram 19 listados).
+
+### Tooling / qualidade
+
+- `bin/install.js` `fetchRemoteVersion` valida `typeof parsed.version === 'string'` antes de exibir.
+- `bin/install.js` `checkUpdate` aguardado antes do exit pra banner não vazar fora de ordem.
+- `evals/run.js` comentário `v1.0.0` corrigido para `v0.10.0`.
+
+### Hash semântico
+
+- 22 bloqueadores · 4 auxiliares · 2 utilitários · 12 agentes · 19 commands · 8 + 14 = 22 skills · 6 addons · 132/132 testes.
+
 ## [0.10.0] — 2026-05-18
 
 **Auditoria 10-agentes round 5** — varredura cruzada com 10 focos distintos (segurança de hooks, qualidade JS, cobertura de testes, DX, consistência de docs, cross-platform, performance, corretude regulatória BR, paridade multi-IDE, posicionamento de produto). Fechou **10 P0 críticos + 8 P1**. Testes: 124→132 OK.
@@ -191,7 +259,6 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 **Documentação:**
 - `docs/examples/README.md` + `docs/examples/stories/US-001-*.md` — exemplos materializados.
-- Auditoria documentada em `docs/AUDITORIA-10-AGENTES-2026-05-18.md` (já existia, agora referenciada).
 
 ### Test coverage
 

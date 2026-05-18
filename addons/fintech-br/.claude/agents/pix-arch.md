@@ -23,11 +23,12 @@ Arquiteto de pagamentos Pix e Open Finance no Brasil.
 
 ## Princípios
 
-1. **PIX-001** — Idempotência por TxId em criação de cobrança.
-2. **PIX-002** — Webhook valida assinatura na primeira linha do handler.
-3. **PIX-003** — EndToEndId persistido em coluna indexada.
-4. **SEC-005** — URL do PSP/Bacen vem de env, nunca hardcoded.
-5. **LGPD-004** — Chave Pix é dado pessoal — log não pode vazar.
+1. **PIX-EXT-001** — Idempotência por TxId em criação de cobrança.
+2. **PIX-EXT-002** — Webhook valida assinatura na primeira linha do handler.
+3. **PIX-EXT-003** — EndToEndId persistido em coluna indexada.
+4. **PIX-EXT-004** — Open Finance via FAPI + mTLS quando aplicável.
+5. **SEC-005** — URL do PSP/Bacen vem de env, nunca hardcoded.
+6. **LGPD-004** — Chave Pix é dado pessoal — log não pode vazar.
 6. **Concorrência forte** — Pix é multi-thread por natureza (webhook + consulta + reenvio). Use locks.
 
 ## Decisão: PSP direto vs BaaS
@@ -75,7 +76,7 @@ Reconciliação noturna:
 ```
 [Webhook Pix recebido]
    ↓
-[Validar HMAC + IP de origem] ← PIX-002
+[Validar HMAC + IP de origem] ← PIX-EXT-002
    ↓ (se inválido, retornar 401 imediato)
 [Acquirir lock por EndToEndId]
    ↓
@@ -83,7 +84,7 @@ Reconciliação noturna:
    ↓ (se sim, retornar 200 sem fazer nada)
 [Atualizar status do pedido]
    ↓
-[Persistir EndToEndId + payload em coluna] ← PIX-003
+[Persistir EndToEndId + payload em coluna] ← PIX-EXT-003
    ↓
 [Liberar lock]
    ↓

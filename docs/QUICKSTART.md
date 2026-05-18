@@ -22,10 +22,10 @@ Confirme com `s`. O comando copia:
 - `.specify/memory/constitution.md` — 6 princípios universais.
 - `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
 - `.agent/CURRENT.md` — estado da sessão.
-- `.claude/agents/` — 11 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR).
-- `.claude/hooks/` — 7 bloqueadores + 5 auxiliares.
-- `.claude/commands/` — 11 workflows.
-- `.claude/skills/` — 6 skills BR (CPF/CNPJ alfanum, Pix, CEP, LGPD, ADR, traduzir jargão).
+- `.claude/agents/` — 12 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer).
+- `.claude/hooks/` — 22 bloqueadores + 4 auxiliares + 2 utilitários (lib + test-runner) = 28 hooks core.
+- `.claude/commands/` — 19 workflows.
+- `.claude/skills/` — 8 skills BR core (CPF/CNPJ alfanum, Pix, CEP, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +14.
 - `.claude/output-styles/pt-br-conciso.md`.
 - `.claude/settings.json` — permissões + hooks.
 
@@ -49,7 +49,7 @@ Esse arquivo é a **fonte da verdade** que todo agente lê primeiro. Bem preench
 bash .claude/hooks/_test-runner.sh
 ```
 
-Deve mostrar `Total: 124  |  OK: 124  |  FAIL: 0`. Se falhar, abra issue.
+Deve mostrar `Total: 132  |  OK: 132  |  FAIL: 0`. Se falhar, abra issue.
 
 ## 4. Ative o estilo PT-BR conciso
 

@@ -20,15 +20,21 @@ provoca:
     - gerar-ripd
     - gerar-canal-dpo
     - resposta-titular
-  templates: []
+  templates:
+    - ripd-modelo
+    - dpa-operador
+    - politica-privacidade
+    - resposta-titular/acesso
+    - resposta-titular/exclusao
+    - resposta-titular/portabilidade
 
 regras:
   - id: LGPD-EXT-001
     titulo: "RIPD obrigatório em alto risco"
-    descricao: "Tratamento de alto risco exige Relatório de Impacto à Proteção de Dados antes de ir pra produção."
+    descricao: "Tratamento de alto risco exige Relatório de Impacto à Proteção de Dados antes de ir pra produção (Art. 38 LGPD)."
   - id: LGPD-EXT-002
-    titulo: "Canal do titular vivo em &lt;15 dias"
-    descricao: "Solicitação LGPD do titular respondida em até 15 dias (ANPD orientação)."
+    titulo: "Canal do titular vivo em até 15 dias corridos"
+    descricao: "Solicitação LGPD do titular respondida em até 15 dias corridos (Art. 19 II — acesso em formato completo)."
 
 requisitos:
   - "projeto com tratamento de dado pessoal"

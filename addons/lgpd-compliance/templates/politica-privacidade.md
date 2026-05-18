@@ -75,7 +75,7 @@ Você pode exercer a qualquer momento:
 9. **Revogação do consentimento.**
 10. **Revisão de decisão automatizada** que afete seus interesses (Art. 20).
 
-**Como exercer:** envie email para _(dpo@empresa.com.br)_. Resposta em até **15 dias**.
+**Como exercer:** envie email para _(dpo@empresa.com.br)_. Resposta em até **15 dias corridos** (Art. 19 II da LGPD).
 
 ## 7. Decisão automatizada
 

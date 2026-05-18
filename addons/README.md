@@ -48,14 +48,20 @@ non-goals:
 
 ## Como instalar um addon
 
-> **Em construção.** Por enquanto, instalação é manual: copie o conteúdo de `addons/<nome>/.claude/` pro `.claude/` do seu projeto.
+```bash
+npx roldao-method add <nome>        # instala addon individual
+npx roldao-method list              # mostra IDEs detectadas + addons disponíveis + instalados
+```
 
-Roadmap (próximas versões):
+Exemplos:
+
+```bash
+npx roldao-method add electron-br
+npx roldao-method add fiscal-br-completo
+npx roldao-method add lgpd-compliance
 ```
-npx roldao-method addon install electron-br
-npx roldao-method addon list
-npx roldao-method addon uninstall electron-br
-```
+
+Pra desinstalar, remova manualmente a pasta `addons/<nome>/` do seu projeto e desfaça as entradas correspondentes em `.claude/`.
 
 ## Como criar um addon
 
@@ -68,12 +74,14 @@ npx roldao-method addon uninstall electron-br
 
 ## Addons disponíveis
 
-| Addon | Estado | Foco |
-|---|---|---|
-| `electron-br` | exemplo de referência | App Electron com IPC + migrações SQLite + LGPD local |
-| `fiscal-br-completo` | piloto v0.1 | NF-e mod 55, NFC-e, NFS-e, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033, contingência SEFAZ |
-| `lgpd-compliance` | piloto v0.1 | DPO virtual, RIPD (Art. 38), canal do titular, plano de incidente 72h, respostas padronizadas a direitos (Art. 18) |
-| `fintech-br` | piloto v0.1 | Pix completo (5 tipos de chave, BR Code, webhook HMAC, devolução, MED, Pix Automático), Open Finance Brasil (FAPI + mTLS) |
+| Addon | Foco |
+|---|---|
+| `electron-br` | App Electron com IPC seguro + migrações SQLite com backup + LGPD local |
+| `fiscal-br-completo` | NF-e mod 55, CNPJ alfanumérico (jul/2026), contingência SEFAZ, base pra Reforma Tributária 2026-2033 |
+| `lgpd-compliance` | DPO virtual, RIPD (Art. 38), canal do titular, plano de incidente 72h, respostas padronizadas a direitos (Art. 18) |
+| `fintech-br` | Pix completo (5 tipos de chave, BR Code, webhook HMAC, devolução, MED, Pix Automático), Open Finance Brasil (FAPI + mTLS) |
+| `esocial-completo` | Eventos S-1000 a S-3000, prazos legais, retificação via S-3000, layout S-1.3 vigente |
+| `varejo-pdv-br` | SAT-CF-e (SP), NFC-e (demais UF), TEF, integração com balança e impressora não-fiscal |
 
 ## Roadmap de addons (sugestões)
 
@@ -81,9 +89,7 @@ npx roldao-method addon uninstall electron-br
 - **`saude-br-completo`** — TISS/EDI, CFM, ANS, dado sensível em escala.
 - **`govtech-br`** — APIs do Governo (CPF, CNPJ, CNJ), e-Protocolo, assinatura ICP-Brasil.
 - **`agro-br`** — CAR (Cadastro Ambiental Rural), nota fiscal de produtor, SISBOV.
-- **`varejo-br`** — PDV com cupom fiscal, SAT/ECF, NFC-e.
 - **`logistica-br`** — RNTRC, rastreamento de carga, CT-e + MDF-e.
 - **`educacao-br`** — Portarias CNE, ENADE, e-Docente, histórico escolar seguro.
-- **`esocial-completo`** — eventos S-1000 a S-3000, REINF, DCTFWeb consolidado.
 
 Quer contribuir? Abra issue em https://github.com/roldaobatista/roldao-method/issues.

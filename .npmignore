@@ -1,0 +1,9 @@
+# Guias internos de release — nao vao pro tarball npm.
+docs/PUBLICAR.md
+docs/PUBLICAR-NPM.md
+
+# Defesa: nao deve aparecer no whitelist, mas garante.
+**/node_modules
+**/.DS_Store
+**/*.log
+**/*.tgz

@@ -29,7 +29,7 @@ Exemplo: `0002BR` = Tag 00, Length 02, Value "BR".
 |---|---|---|
 | `00` | Payload Format Indicator | `01` |
 | `26` | Merchant Account Info (Pix) | sub-TLV: GUI + chave/URL |
-| `52` | Merchant Category Code | `0000` (genérico) |
+| `52` | Merchant Category Code | MCC ISO 18245 do ramo. Use `0000` apenas pra PF sem categoria. PJ usa o MCC do ramo (ex: `5411` supermercado, `5812` restaurante, `5814` fast-food, `5912` farmácia, `7372` software/SaaS). |
 | `53` | Currency | `986` (BRL) |
 | `58` | Country Code | `BR` |
 | `59` | Merchant Name | até 25 chars, ASCII |
@@ -59,7 +59,10 @@ Tag 26 → Length total → conteúdo:
 
 ```
 Tag 62 → Length total → conteúdo:
-  Tag 05 → Length → TxId (max 25 ou 35 chars)
+  Tag 05 → Length → TxId
+    - Pix avulso (sem cob/cobv): 1 a 25 chars
+    - cob (cobrança imediata): 26 a 35 chars (Manual Pix v2.7+, DICT/SPI-API)
+    - cobv (cobrança com vencimento): 26 a 35 chars
 ```
 
 ## Cálculo do CRC16
@@ -67,7 +70,7 @@ Tag 62 → Length total → conteúdo:
 CRC16/CCITT-FALSE:
 - Polinômio: `0x1021`
 - Initial value: `0xFFFF`
-- Calcula sobre toda a string **incluindo "6304"** (tag e length do CRC) mas **excluindo** os 4 caracteres do valor.
+- Calcula sobre toda a string até e incluindo `"6304"` (tag e length do campo CRC). O valor de 4 dígitos do CRC ainda não existe nesse momento — só é anexado depois.
 - Resultado: 4 dígitos hex em maiúsculo.
 
 ## Implementação (TypeScript)
@@ -95,7 +98,7 @@ interface BRCodeInput {
   nomeRecebedor: string;   // max 25 ASCII
   cidade: string;          // max 15
   valor?: number;          // BRL, ex 10.50
-  txId?: string;           // max 25 (cobv) ou 35 (cob)
+  txId?: string;           // 1..25 (Pix avulso) ou 26..35 (cob e cobv — exige tamanho mínimo 26)
   descricao?: string;
   dinamico?: boolean;
 }
@@ -120,7 +123,8 @@ export function gerarBRCode(input: BRCodeInput): string {
     tlv('00', '01'),  // payload format
     input.dinamico ? tlv('01', '12') : '',  // point of initiation
     tlv('26', merchantAccount),
-    tlv('52', '0000'),
+    // MCC ISO 18245 — use 0000 só pra PF sem categoria; PJ usa MCC do ramo.
+    tlv('52', input.mcc ?? '0000'),
     tlv('53', '986'),
     input.valor ? tlv('54', input.valor.toFixed(2)) : '',
     tlv('58', 'BR'),
@@ -158,7 +162,7 @@ const qrDataUrl = await QRCode.toDataURL(brCode);
 - [ ] Nome recebedor em ASCII (sem acentos), max 25 chars.
 - [ ] Cidade em ASCII, max 15 chars.
 - [ ] Valor com 2 casas decimais, separador `.`.
-- [ ] TxId: alfanumérico, `[A-Za-z0-9]{1,25}` (cobv) ou `{1,35}` (cob).
+- [ ] TxId: alfanumérico `[A-Za-z0-9]`. Pix avulso: `{1,25}`. Cobranças `cob` e `cobv`: `{26,35}` (mínimo 26 caracteres — manual Pix v2.7+).
 - [ ] CRC16 calculado corretamente.
 
 ## Casos de teste

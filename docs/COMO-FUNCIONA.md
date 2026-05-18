@@ -18,10 +18,10 @@ seu-projeto/
 ├── .claude/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
-│   ├── agents/                    <- 11 especialistas
-│   ├── hooks/                     <- 6 hooks bloqueadores + 5 auxiliares
-│   ├── commands/                  <- 11 workflows
-│   ├── skills/                    <- 6 skills BR
+│   ├── agents/                    <- 12 especialistas
+│   ├── hooks/                     <- 22 bloqueadores + 4 auxiliares + 2 utilitários
+│   ├── commands/                  <- 19 workflows
+│   ├── skills/                    <- 8 skills BR core (+14 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
 ├── .specify/
@@ -201,45 +201,26 @@ ações com dono
 docs/retros/AAAA-MM-DD.md + atualiza AGENTS.md §10
 ```
 
-## Os 11 agentes
+## Os 12 agentes
 
 | Agente | Papel | Modelo |
 |---|---|---|
 | `analista` | Pesquisa de mercado, brief, PRFAQ, regulamentação | haiku |
-| `gerente-produto` | PRD, story, decomposição (4 modos) | haiku |
+| `gerente-produto` | PRD, story, decomposição (3 modos) | haiku |
 | `ux-designer` | Wireframe ASCII, estados, mensagens PT-BR | haiku |
 | `tech-lead` | Arquitetura, ADR, ARQ, readiness check | sonnet |
 | `investigador` | Lê estado real antes de mudar (REGRA #0) | sonnet |
 | `dev-senior` | Implementa com TDD onde aplicável | sonnet |
-| `revisor` | Aderência à US, anti-padrões | sonnet |
+| `revisor` | Defeitos técnicos no diff (não AC nem cobertura geral) | sonnet |
 | `auditor-seguranca` | LGPD, secrets, OWASP | sonnet |
-| `auditor-qualidade` | Cobertura, mocks indevidos, TST-* | sonnet |
+| `auditor-qualidade` | Cobertura agregada, mocks indevidos, TST-* | sonnet |
 | `auditor-produto` | Aderência ao pedido, non-goals | haiku |
 | `fiscal-br` | NF-e, certificado, eSocial, reforma tributária | sonnet |
+| `tech-writer` | CHANGELOG, release notes, msg de commit, anúncio | haiku |
 
-## Os 6 hooks bloqueadores
+Lista canônica de hooks (bloqueadores + auxiliares + utilitários) em [`README.md` seção "22 hooks bloqueadores"](../README.md#22-hooks-bloqueadores--4-auxiliares--2-infra-_lib--test-runner--28-hooks-core-5-em-addons). Test-runner cobre **132 casos**.
 
-| Hook | Quando dispara | O que barra |
-|---|---|---|
-| `block-destructive` | PreToolUse Bash | `rm -rf`, `git push --force`, `DROP TABLE`, `curl | bash`, `--no-verify` |
-| `secrets-scanner` | PreToolUse Write/Edit | `.env`, chaves, PEMs, tokens (AWS, OpenAI, Anthropic, GitHub, Slack) |
-| `anti-mascaramento` | PreToolUse Write/Edit | `@ts-ignore`, `.skip`, `assertTrue(true)`, `|| true` (sem exceção) |
-| `block-mock-in-integration` | PreToolUse Write/Edit | mock em arquivo de integration/e2e |
-| `block-todo-without-issue` | PreToolUse Write/Edit | `TODO`/`FIXME` sem ID rastreável |
-| `commit-message-validator` | PreToolUse Bash | commit misturando prefixos OU primeira linha > 72 chars |
-| `no-amend-after-push` | PreToolUse Bash | `git commit --amend` em commit já pushado |
-
-## Os 5 hooks auxiliares (avisam, não bloqueiam)
-
-| Hook | Quando | O que faz |
-|---|---|---|
-| `context-budget` | SessionStart | avisa se AGENTS.md > 200 linhas ou CLAUDE.md > 150 |
-| `mcp-validator` | SessionStart | avisa sobre MCP server fora da allowlist conservadora |
-| `regra-zero-reminder` | UserPromptSubmit | injeta lembrete da REGRA #0 quando detecta gatilho de bug |
-| `paths-frontmatter-validator` | PreToolUse Write/Edit | exige frontmatter em docs/*.md |
-| `_test-runner` | manual | roda 35 casos contra os hooks |
-
-## Os 6 skills BR
+## Os 8 skills BR core
 
 | Skill | Função |
 |---|---|
@@ -249,6 +230,10 @@ docs/retros/AAAA-MM-DD.md + atualiza AGENTS.md §10
 | `validar-pix` | Valida chave Pix + EndToEndId + TxId |
 | `validar-cep` | Valida CEP (formato + opcional ViaCEP) |
 | `checklist-lgpd` | Aplica árvore de decisão de base legal + 10 checks |
+| `brainstormar-ideia` | Menu de 15 técnicas BR (Seis Chapéus, SCAMPER, 5 Porquês...) |
+| `gerar-test-fixture-br` | CPF/CNPJ/CEP/E.164 válidos pra mock |
+
+Addons trazem +14 skills (Pix, NF-e, NFC-e, SAT, eSocial, LGPD operacional, balança/impressora, Open Finance, SQLite seguro pro Electron).
 
 ## A regra mestre
 

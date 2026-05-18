@@ -15,7 +15,12 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, 'agents');
 const args = process.argv.slice(2);
-const wantAgent = args.find((a, i) => args[i - 1] === '--agent');
+// Aceita "--agent X" e "--agent=X" (formato comum em CI).
+const wantAgent = (() => {
+  const inline = args.find((a) => a.startsWith('--agent='));
+  if (inline) return inline.slice('--agent='.length);
+  return args.find((a, i) => args[i - 1] === '--agent');
+})();
 const jsonMode = args.includes('--json');
 
 const HAS_KEY = !!process.env.ANTHROPIC_API_KEY;
@@ -57,7 +62,7 @@ function lintScenario(s) {
   return issues;
 }
 
-// applyValidation removida em v1.0.0 (auditoria round 5): era stub
+// applyValidation removida em v0.10.0 (auditoria round 5): era stub
 // chamada apenas em codigo comentado. Quando modo live for implementado,
 // restaurar de evals/ inicial ou git log antes de 2026-05-18.
 

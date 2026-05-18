@@ -18,7 +18,7 @@ import { db } from './db';
 const redis = new Redis(process.env.REDIS_URL!);
 
 export async function pixWebhookHandler(req: Request, res: Response) {
-  // 1. Validar assinatura HMAC — PIX-002, primeira linha
+  // 1. Validar assinatura HMAC — PIX-EXT-002, primeira linha
   if (!validarAssinatura(req)) {
     return res.status(401).send();
   }
@@ -45,7 +45,7 @@ export async function pixWebhookHandler(req: Request, res: Response) {
       return res.status(200).send();
     }
 
-    // 4. Persistir antes de qualquer side effect — PIX-003
+    // 4. Persistir antes de qualquer side effect — PIX-EXT-003
     await db.pixEvent.upsert({
       where: { e2eId },
       create: {
@@ -85,7 +85,7 @@ export async function pixWebhookHandler(req: Request, res: Response) {
 }
 
 function validarAssinatura(req: Request): boolean {
-  // PIX-002: HMAC ou mTLS dependendo do PSP
+  // PIX-EXT-002: HMAC ou mTLS dependendo do PSP
   const sig = req.headers['x-pix-signature'] as string;
   if (!sig) return false;
 

@@ -12,7 +12,12 @@ RESULTS=()
 
 # Diretorio temporario isolado por execucao (evita colisao entre rodadas
 # paralelas e poluicao de /tmp). Removido automaticamente no exit.
-BASE=$(mktemp -d -t roldao-test-XXXXXX 2>/dev/null || mktemp -d "$BASE/roldao-test-$$.XXXXXX" 2>/dev/null || echo "$BASE/roldao-test-$$")
+# Ordem de fallback: mktemp -d sem args (GNU/BSD/macOS), depois mktemp -t,
+# depois fallback nominal em $TMPDIR (nunca em "" — set -u acima quebraria).
+_TMP_ROOT="${TMPDIR:-/tmp}"
+BASE=$(mktemp -d 2>/dev/null \
+  || mktemp -d -t roldao-test-XXXXXX 2>/dev/null \
+  || { mkdir -p "$_TMP_ROOT/roldao-test-$$" && echo "$_TMP_ROOT/roldao-test-$$"; })
 mkdir -p "$BASE"
 trap 'rm -rf "$BASE"' EXIT
 

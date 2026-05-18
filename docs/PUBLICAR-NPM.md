@@ -88,7 +88,7 @@ Não precisa logar de novo enquanto a sessão npm não expirar.
 ## O que estamos publicando
 
 - 290 kB compactado, 805 kB descompactado.
-- 194 arquivos: CLI + 28 hooks + 12 agentes + 19 commands + 17 skills + 6 addons + docs.
+- 194 arquivos: CLI + 28 hooks (+5 em addons) + 12 agentes + 19 commands + 22 skills (8 core + 14 addons) + 6 addons + docs.
 - Zero dependências runtime (só Node + bash + perl no PC do usuário).
 - Licença MIT.
 

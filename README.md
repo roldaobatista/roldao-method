@@ -4,23 +4,23 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.10.0-blue.svg)](#)
-[![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-21-red.svg)](#)
+[![Versão](https://img.shields.io/badge/versão-0.11.0-blue.svg)](#)
+[![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-22-red.svg)](#)
 [![Testes do framework](https://img.shields.io/badge/test_runner-132%2F132-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
 
-## 🆕 Novidades na v0.10.0 (auditoria 10-agentes — round 5)
+## 🆕 Novidades na v0.11.0 (auditoria 10-agentes — round 6, sem viés)
 
-- **Adapters Cline/Aider/Roo arrumados**: `.clinerules`, `.aider.conf.yml`, `.roorules` agora ficam na **raiz** (antes em subpastas inertes que as ferramentas nunca liam).
-- **Install seletivo**: padrão instala só Claude Code; `--all-adapters` instala todos; `--adapters=cursor,windsurf` escolhe lista. Antes copiava 7 IDEs em todo projeto.
-- **Corretude regulatória**: base legal LGPD (Art. 7 V vs II), assinatura NF-e (RSA-SHA-256 padrão MOC 7.00+), regex BR Code com escape unicode explícito (`̀-ͯ`), Pix TxId mínimo 26 chars em `cob`/`cobv`.
-- **Cross-platform**: `_test-runner.sh` agora usa `mktemp -d` isolado (não polui `/tmp`) e `perl -i -pe` no lugar de `sed -i` (que quebrava em macOS BSD).
-- **+8 testes novos**: `context-budget` (cobertura zero antes), `mcp-validator` com bloqueio real, `no-amend-after-push` com repo bare local. Total: **132/132** OK.
-- **Hardening de hooks**: `block-jargon-pt-br` e `block-confirmation-questions` geram JSON via `encode_json` (heredoc cru quebrava com payload do agente); `no-amend-after-push` agora usa `_lib.sh` (PROJDIR sanitizado) e regex bound `\b--amend\b`.
-- **Skills Python com nota Windows**: 5 SKILL.md adicionam aviso "Windows: substitua `python3` por `python`" (instalador oficial Windows só cria `python.exe`).
-- **`.gitattributes` cobre `*.py`, `*.pl`, `*.js`** com `text eol=lf` (evita shebang quebrado por CRLF).
+- **Round 6 sem viés**: relatórios e memórias dos rounds anteriores deletados antes da execução pra evitar viés nos auditores. 86 achados (13 P0 + 38 P1 + 35 P2).
+- **Bugs reais fechados**: regex `addonMarker` em `bin/install.js` (`list` mostrava todo addon como ausente); `installAddon` parando wizard em loop; `_test-runner.sh` mktemp fallback quebrando com `set -u`.
+- **Auditores agora gravam hash do diff** — marker `pass` virou JSON com `audit_sha`. Se o código mudou depois da aprovação, hook bloqueia (`STALE`). Fecha o vetor "agente da `touch` sem auditar".
+- **Papéis limpos**: `revisor` olha só o diff; `auditor-produto` faz AC; `auditor-qualidade` faz cobertura agregada; `auditor-seguranca` faz arquitetura. Sem sobreposição.
+- **LGPD `15 dias corridos`** (era "úteis" — erro recorrente de consultoria). Árvore Art. 7 da skill `checklist-lgpd` agora cobre todos os 10 incisos.
+- **`fintech-br`**: renomeação `PIX-001..003` → `PIX-EXT-001..004` (colidia com `PIX-001..005` do core, semântica diferente).
+- **`fiscal-br-completo`**: pasta da skill renomeada pra bater com `addon.yaml` e frontmatter — antes Claude carregava com identidade errada.
+- **CI matrix Python em Windows/macOS/Linux**, sanity `node --check` em todos os `.js`, tags git pra v0.4/v0.5/v0.6 criadas.
 
 Detalhes em [CHANGELOG.md](CHANGELOG.md).
 
@@ -123,7 +123,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | `/help` | Catálogo dos comandos com códigos curtos |
 | `/shard` | Quebra PRD/ARQ longo em chunks navegáveis com índice |
 
-## 21 hooks bloqueadores + 5 auxiliares + 2 infra (_lib + test-runner) = 28 hooks core (+5 em addons)
+## 22 hooks bloqueadores + 4 auxiliares + 2 infra (_lib + test-runner) = 28 hooks core (+5 em addons)
 
 **Bloqueadores** (retornam exit 2 ou `decision: block`, barram a ação):
 
@@ -134,25 +134,28 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `block-mock-in-integration` — mock em arquivo de integration/e2e (TST-003)
 - `block-todo-without-issue` — `TODO`/`FIXME` sem ID rastreável
 - `commit-message-validator` — commits misturando prefixos ou primeira linha > 72
+- `mcp-validator` — MCP server fora da allowlist (top-20 conhecidos)
 - `no-amend-after-push` — `git commit --amend` em commit já pushado
 - `no-test-data-in-fixtures` — CPF/email/telefone real em fixture (TST-004)
 - `no-hardcoded-env-urls` — URL SEFAZ/Pix/Stripe/etc. hardcoded em código (SEC-005)
 - `paths-frontmatter-validator` — exige frontmatter em `docs/*.md`
 - `fiscal-br-validator` — ambiente SEFAZ=1, certificado hardcoded, regex CNPJ apenas numérica (FISCAL-001/002/003/005)
-- `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006 (usa `decision: block` JSON)
 - `require-investigador-before-fix` — Edit/Write em código de negócio sem `investigador` ter sido invocado quando bug foi reportado
 - `require-readiness-before-feature` — Edit/Write em código quando `/feature` ativo mas `docs/readiness/EP-NNN-status.md` ≠ `PRONTO` (gate mecânico de planejamento)
-- `require-agent-sequence-before-dev` — Edit/Write em código quando `/feature` ativo mas Sofia (gerente-produto), Detetive (investigador) ou Rafael (tech-lead) não rodaram — codifica o pipeline 3-etapas obrigatório (v0.7)
+- `require-agent-sequence-before-dev` — Edit/Write em código quando `/feature` ativo mas Sofia, Detetive ou Rafael não rodaram (pipeline obrigatório)
+- `require-checkpoint-before-merge` — `git merge`/`push` em `/feature` ativo sem checkpoint salvo em `docs/checkpoints/`
+- `require-auditors-pass-before-commit` — `git commit`/`merge`/`push` sem os 3 auditores aprovados com hash do diff
 - `validate-story-dependencies` — Edit/Write em código quando US-NNN ativa tem `depende-de:` apontando pra US não-entregue
-- `validate-quick-dev-scope` — `/quick-dev` ativo e mudança já tocou >3 arquivos de código — força escalar pra `/feature` (v0.7)
+- `validate-story-approvals` — story marcada `entregue` sem audit trail completo no frontmatter
+- `validate-quick-dev-scope` — `/quick-dev` ativo e mudança já tocou >3 arquivos de código — força escalar pra `/feature`
 - `validate-test-pyramid` — criação de E2E sem unit tests no mesmo módulo
 
 **Auxiliares** (avisam, não bloqueiam):
 
 - `context-budget` — AGENTS.md > 200 ou CLAUDE.md > 150 linhas
-- `mcp-validator` — MCP server fora da allowlist (top-20 conhecidos)
 - `regra-zero-reminder` — injeta REGRA #0 quando detecta gatilho de bug
 - `block-jargon-pt-br` — flag de jargão técnico em resposta ao usuário não-programador (PostToolUse, soft warning)
+- `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006 (PostToolUse, soft warning)
 
 **Test-runner:** `_test-runner.sh` com **132 casos** contra os hooks (manual + CI cross-platform).
 
@@ -171,7 +174,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - **validar-cep** — valida CEP (formato + opcional ViaCEP)
 - **checklist-lgpd** — árvore de decisão de base legal (Art. 7 / Art. 11) + 10 checks
 
-**Addons (9 skills BR):** `migration-sqlite-segura`, `estruturar-open-finance`, `gerar-br-code`, `validar-webhook-pix`, `emitir-nfe-55`, `validar-cnpj-alfanumerico`, `gerar-canal-dpo`, `gerar-ripd`, `resposta-titular`.
+**Addons (14 skills BR):** `migration-sqlite-segura` (electron-br) · `estruturar-open-finance`, `gerar-br-code`, `validar-webhook-pix` (fintech-br) · `emitir-nfe-55`, `migrar-cnpj-alfanumerico` (fiscal-br-completo) · `gerar-canal-dpo`, `gerar-ripd`, `resposta-titular` (lgpd-compliance) · `emitir-evento-esocial`, `validar-pis-pasep` (esocial-completo) · `emitir-nfce`, `emitir-sat-cfe`, `integrar-balanca-impressora` (varejo-pdv-br).
 
 ## Cobertura BR — IDs rastreáveis em commit
 
@@ -231,7 +234,7 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 
 ## Capacidades em uma tabela
 
-| Categoria | ROLDAO-METHOD v0.9 |
+| Categoria | ROLDAO-METHOD v0.11 |
 |---|---|
 | Idioma | 🇧🇷 PT-BR nativo |
 | Mercado-foco | Brasil (LGPD, fiscal, Pix, eSocial, BR) |

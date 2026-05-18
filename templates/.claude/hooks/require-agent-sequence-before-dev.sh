@@ -3,6 +3,11 @@
 # e (quando aplicavel) Rafael (tech-lead) ANTES de Edit/Write em codigo de negocio durante /feature.
 # Hook PreToolUse, matcher: Write|Edit.
 #
+# **Ordem temporal entre Sofia e Detetive nao e validada** — feature que muda
+# comportamento existente pode rodar Detetive ANTES de Sofia (REGRA #0:
+# investigar antes de propor solucao). O hook so checa presenca dos 3 markers
+# antes de liberar dev. Rafael e condicional.
+#
 # Resolve gap auditado em 2026-05-18 (auditor 2/10):
 # Pipeline 3 etapas do /feature antes era so convencional — agora e mecanico (16o bloqueador).
 #

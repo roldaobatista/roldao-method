@@ -23,15 +23,20 @@ provoca:
   templates: []
 
 regras:
-  - id: PIX-001
-    titulo: "Webhook Pix com HMAC obrigatório"
-    descricao: "Toda notificação do PSP é verificada com HMAC + replay protection antes de processar."
-  - id: PIX-002
-    titulo: "Idempotência em recebimento Pix"
-    descricao: "EndToEndId é chave única — handler trata duplicata sem regravar."
-  - id: PIX-003
+  # IDs prefixados PIX-EXT-* pra nao colidir com PIX-001..005 do core
+  # (que tratam de DICT, validacao de chave e TxId — semantica diferente).
+  - id: PIX-EXT-001
+    titulo: "Idempotência por TxId em criação de cobrança"
+    descricao: "TxId é chave única — handler trata duplicata sem regravar."
+  - id: PIX-EXT-002
+    titulo: "Webhook Pix valida assinatura HMAC na primeira linha"
+    descricao: "Toda notificação do PSP é verificada com HMAC + replay protection antes de processar. Codificado em validate-webhook-signature.sh."
+  - id: PIX-EXT-003
+    titulo: "EndToEndId persistido em coluna indexada"
+    descricao: "Pra rastreabilidade e idempotência no recebimento. Coluna única em DB."
+  - id: PIX-EXT-004
     titulo: "Open Finance via FAPI + mTLS"
-    descricao: "OAuth 2.0 + FAPI + DCR + mTLS. Sem atalho."
+    descricao: "OAuth 2.0 + FAPI + DCR + mTLS. Sem atalho. Skill estruturar-open-finance."
 
 requisitos:
   - "PSP integrado (banco, BaaS, ou direto Bacen com homologação)"

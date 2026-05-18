@@ -34,7 +34,21 @@ case "$MODULE_DIR" in
     ;;
 esac
 
+# Sanitizacao defensiva: FILE_PATH vem do JSON do Claude (atacante via prompt
+# manipulado pode tentar "../../../etc/passwd.e2e.ts"). Recusa qualquer '..'
+# ou caminho absoluto fora do projeto.
+case "$MODULE_DIR" in
+  *..*|/*|*:\\*) exit 0 ;;
+esac
+
 PROJDIR=$(sanitize_projdir) || exit 2
+
+# Normaliza e exige que esteja dentro de PROJDIR
+ABS_MODULE=$(cd "$PROJDIR" 2>/dev/null && cd "$MODULE_DIR" 2>/dev/null && pwd) || ABS_MODULE=""
+case "$ABS_MODULE" in
+  "$PROJDIR"|"$PROJDIR"/*) ;;
+  *) exit 0 ;;
+esac
 
 # Procura unit tests no mesmo modulo (extensao .test, .spec OR dentro de __tests__/)
 UNIT_COUNT=0

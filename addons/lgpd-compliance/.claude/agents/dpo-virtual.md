@@ -87,14 +87,16 @@ Skill `gerar-ripd` gera template estruturado.
 
 ## Direitos do titular — SLA
 
-- **Confirmação + acesso** (Art. 18 I, II): 15 dias.
-- **Correção** (Art. 18 III): 15 dias.
-- **Anonimização/bloqueio/exclusão** (Art. 18 IV): 15 dias.
-- **Portabilidade** (Art. 18 V): 15 dias, em formato estruturado (JSON, CSV).
-- **Eliminação dos dados tratados com consentimento** (Art. 18 VI): 15 dias.
-- **Informação sobre compartilhamento** (Art. 18 VII): 15 dias.
+Base legal do prazo: Art. 19 II (acesso em formato completo): "em até 15 dias contados da data do requerimento". A lei fala em **dias corridos** (não úteis). Para os demais incisos do Art. 18 (III–IX), a lei usa "prazo razoável" — a prática ANPD/jurisprudência consolida o mesmo SLA de 15 dias corridos.
+
+- **Confirmação + acesso** (Art. 18 I, II / Art. 19 II): até 15 dias corridos (ou imediato em formato simplificado, conforme Art. 19 §1º).
+- **Correção** (Art. 18 III): até 15 dias corridos.
+- **Anonimização/bloqueio/exclusão** (Art. 18 IV): até 15 dias corridos.
+- **Portabilidade** (Art. 18 V): até 15 dias corridos, em formato estruturado (JSON, CSV).
+- **Eliminação dos dados tratados com consentimento** (Art. 18 VI): até 15 dias corridos.
+- **Informação sobre compartilhamento** (Art. 18 VII): até 15 dias corridos.
 - **Revogação de consentimento** (Art. 18 IX): imediato + log de revogação.
-- **Revisão de decisão automatizada** (Art. 20): "tempo razoável" — recomendar 15 dias.
+- **Revisão de decisão automatizada** (Art. 20): "tempo razoável" — recomendar 15 dias corridos.
 
 Skill `resposta-titular` gera templates por tipo de pedido.
 

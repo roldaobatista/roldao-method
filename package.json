@@ -1,14 +1,17 @@
 {
   "name": "roldao-method",
-  "version": "0.10.0",
-  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 12 agentes especialistas, 21 hooks bloqueadores (gates mecânicos pra readiness/sequência de agentes/dependências/escopo de quick-dev/REGRA #0/checkpoint/auditores/audit trail), 19 workflows, 8 skills BR no core + 14 nos addons (CPF/CNPJ alfanumérico 2026, Pix, CEP, LGPD, eSocial, varejo-PDV, brainstorming, fixtures BR), 8 checklists auditáveis, 7 knowledge bases, 6 addons especializados (electron, fiscal, LGPD, fintech, eSocial, varejo-PDV), spec-driven com 12 templates PT-BR. Adapters reais (na raiz do projeto) para Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider — instalação seletiva com --adapters/--all-adapters.",
+  "version": "0.11.0",
+  "description": "Framework agentic em PT-BR. 12 agentes, 22 hooks bloqueadores, 19 workflows, 22 skills BR (CNPJ alfanumérico 2026, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider.",
   "keywords": [
     "ai",
     "claude-code",
     "cursor",
     "windsurf",
+    "cli",
     "agile",
     "framework",
+    "scaffolding",
+    "developer-tools",
     "brazil",
     "portugues",
     "pt-br",
@@ -28,7 +31,8 @@
     "ripd",
     "addons",
     "cline",
-    "roo"
+    "roo",
+    "aider"
   ],
   "scripts": {
     "validar": "node tools/validar-templates.js",
@@ -38,7 +42,10 @@
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",
-  "author": "Roldão",
+  "author": {
+    "name": "Roldão Batista",
+    "url": "https://github.com/roldaobatista"
+  },
   "bin": {
     "roldao-method": "./bin/install.js",
     "roldao": "./bin/install.js"
@@ -49,7 +56,6 @@
     "addons",
     "docs",
     "tools",
-    "evals",
     "README.md",
     "CHANGELOG.md",
     "ROADMAP.md",
@@ -65,6 +71,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/roldaobatista/roldao-method.git"
+    "url": "git+https://github.com/roldaobatista/roldao-method.git"
   }
 }

@@ -6,7 +6,7 @@ status: stable
 
 # Exemplo — feature ponta-a-ponta com /feature
 
-Transcrição realista de uma feature passando pelos 6 agentes, da demanda informal até o código entregue.
+Transcrição realista de uma feature passando pelos 7 agentes principais (PM, investigador, tech-lead, dev, revisor + 3 auditores ao final), da demanda informal até o código entregue.
 
 ## Cenário
 
@@ -223,7 +223,7 @@ Proximo passo: agendar migracao em janela noturna e fazer release.
 
 ## O que aconteceu por baixo
 
-- **6 agentes**, cada um com função clara, sem misturar papéis.
+- **7 agentes** (Sofia, Detetive, Rafael, Bruno, revisor + 3 auditores), cada um com função clara, sem misturar papéis.
 - **Story em disco** (`docs/stories/US-042-cnpj-alfanumerico.md`), rastreável.
 - **ADR registrado** (`docs/adr/ADR-0007-cnpj-alfanumerico.md`).
 - **TDD nos pontos críticos** (validator com 100% cobertura).

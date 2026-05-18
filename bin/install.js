@@ -281,7 +281,20 @@ function copyFile(src, dest, mode) {
     return;
   }
 
-  const bak = `${dest}.bak`;
+  let bak = `${dest}.bak`;
+  // Se ja existe um .bak DIFERENTE do dest atual, esse .bak provavelmente
+  // veio de um update anterior — preservar com sufixo timestamp pra nao
+  // destruir o backup original do usuario.
+  if (fs.existsSync(bak)) {
+    try {
+      const prevBak = fs.readFileSync(bak);
+      const curDest = fs.readFileSync(dest);
+      if (!prevBak.equals(curDest)) {
+        const ts = new Date().toISOString().replace(/[:.]/g, '-');
+        bak = `${dest}.bak.${ts}`;
+      }
+    } catch { /* se falhar a leitura, segue pro try abaixo */ }
+  }
   try {
     fs.copyFileSync(dest, bak);
   } catch (e) {
@@ -342,7 +355,7 @@ function fetchRemoteVersion(timeoutMs = 2000) {
       res.on('end', () => {
         try {
           const parsed = JSON.parse(data);
-          resolve(parsed.version || null);
+          resolve(typeof parsed.version === 'string' ? parsed.version : null);
         } catch { resolve(null); }
       });
     });
@@ -393,9 +406,27 @@ function addonMarker(addonName) {
   const yamlPath = path.join(ADDONS_DIR, addonName, 'addon.yaml');
   if (!fs.existsSync(yamlPath)) return null;
   const text = fs.readFileSync(yamlPath, 'utf8');
-  // procura bloco "provoca:" seguido de "agents:" com primeiro item "- nome"
-  const m = text.match(/^provoca:\s*$[\s\S]*?^\s*agents:\s*$\s*-\s*([\w-]+)/m);
-  return m ? `.claude/agents/${m[1]}.md` : null;
+  // Parser linha-a-linha: localiza "provoca:", entao "agents:" dentro, entao
+  // primeiro item "- nome". Regex multilinha previa quebrava em YAMLs validos.
+  const lines = text.split(/\r?\n/);
+  let inProvoca = false;
+  let inAgents = false;
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, '');
+    if (/^[A-Za-z_][\w-]*:\s*$/.test(line)) {
+      inProvoca = /^provoca:\s*$/.test(line);
+      inAgents = false;
+      continue;
+    }
+    if (!inProvoca) continue;
+    if (/^\s+agents:\s*$/.test(line)) { inAgents = true; continue; }
+    if (inAgents) {
+      const m = line.match(/^\s+-\s*([\w-]+)\s*$/);
+      if (m) return `.claude/agents/${m[1]}.md`;
+      if (/^\s+\w[\w-]*:\s*$/.test(line)) inAgents = false;
+    }
+  }
+  return null;
 }
 
 function listAddonsInstalled() {
@@ -432,8 +463,9 @@ async function install() {
     process.exit(2);
   }
 
-  // Update check assincrono em background — nao bloqueia
-  checkUpdate().catch(() => {});
+  // Update check assincrono — guarda a Promise pra aguardar antes do exit final,
+  // assim o banner de "nova versao disponivel" nao vaza no meio de outro output.
+  const updateCheckP = checkUpdate().catch(() => {});
 
   const tools = detectTools();
   const adapters = resolveAdapters();
@@ -475,10 +507,20 @@ async function install() {
 
   resumo();
 
-  // Instala addons do perfil
+  // Instala addons do perfil. Falha em um addon nao mata o wizard inteiro —
+  // continua e reporta o que falhou no final.
+  const addonFailures = [];
   for (const addonName of addonsEscolhidos) {
     log(`instalando addon ${c.cyan}${addonName}${c.reset}...`);
-    await installAddon(addonName, true);
+    try {
+      await installAddon(addonName, true, true);
+    } catch (e) {
+      err(`addon ${addonName} falhou (${e.message}); seguindo com o resto`);
+      addonFailures.push(addonName);
+    }
+  }
+  if (addonFailures.length) {
+    err(`addons que falharam: ${addonFailures.join(', ')} — rode 'add <nome>' depois pra tentar de novo.`);
   }
 
   if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
@@ -494,6 +536,9 @@ async function install() {
   console.log('');
   console.log(`${c.dim}docs: https://github.com/roldaobatista/roldao-method${c.reset}`);
   console.log('');
+  // Aguarda a checagem de versao terminar (com timeout interno) pra o banner
+  // de update aparecer ordenado, sem vazar no meio do output do proximo comando.
+  await updateCheckP;
 }
 
 async function update() {
@@ -518,11 +563,18 @@ async function update() {
   log('arquivos sobrescritos tem .bak ao lado.');
 }
 
-async function installAddon(name, skipConfirm = false) {
+async function installAddon(name, skipConfirm = false, throwOnError = false) {
+  if (isDangerousCwd(CWD)) {
+    err(`recusando addon: pasta sensivel ${CWD}`);
+    log('rode dentro de uma pasta de projeto, nao da home/raiz.');
+    if (throwOnError) throw new Error('dangerous_cwd');
+    process.exit(2);
+  }
   const available = listAddonsAvailable();
   if (!available.includes(name)) {
     err(`addon desconhecido: ${name}`);
     log(`disponiveis: ${available.join(', ')}`);
+    if (throwOnError) throw new Error('addon_not_found');
     process.exit(1);
   }
   const addonDir = path.join(ADDONS_DIR, name);
@@ -530,7 +582,7 @@ async function installAddon(name, skipConfirm = false) {
 
   if (!skipConfirm && !YES && !FORCE) {
     const a = await ask(`Confirmar instalacao do addon ${name}? [s/N] `);
-    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+    if (a.toLowerCase() !== 's') { log('cancelado.'); return false; }
   }
 
   // Copia .claude/ do addon pro .claude/ do projeto (merge)
@@ -555,6 +607,7 @@ async function installAddon(name, skipConfirm = false) {
   resumo();
   ok(`addon ${name} instalado.`);
   log(`Veja: ${c.cyan}addons/${name}/README.md${c.reset} pra detalhes.`);
+  return true;
 }
 
 async function listCommand() {

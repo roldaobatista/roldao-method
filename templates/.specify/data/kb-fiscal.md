@@ -106,7 +106,7 @@ Skill `validar-cpf-cnpj` cobre os dois formatos.
 | **eSocial** | Eventos trabalhistas | Eventos com prazo variado (S-1000 cadastro, S-2200 admissão, S-1200 folha) |
 | **REINF** | Retenções (PIS/COFINS/CSLL, INSS) | Dia 15 do mês seguinte |
 | **DCTFWeb** | Consolida eSocial + REINF | Dia 15 do mês seguinte |
-| **DIRF** | Imposto de Renda Retido | **Extinta** a partir de fatos geradores ≥ 2025 (IN RFB 2.181/2024). Substituída pela DCTFWeb + eSocial + EFD-Reinf. Última entrega: fevereiro/2025 referente a 2024. |
+| **DIRF** | Imposto de Renda Retido | **Descontinuada** a partir de fatos geradores ≥ 2025 (IN RFB 2.181/2024). Substituída por **EFD-Reinf** (eventos da série R-4000: R-4010/R-4020 para retenções a PF/PJ residentes, R-4040 para beneficiários sem CPF/CNPJ, R-4080 para reembolsos), **DCTFWeb** e **eSocial**. Última DIRF entregue: fev/2025 referente a 2024. Antes de remover validações de "rendimentos pra DIRF" do código, garanta cobertura nos R-4000 — não é "extinção sem substituto", é troca de via. |
 
 ## Certificado digital
 

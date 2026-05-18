@@ -89,15 +89,17 @@ status: rascunho
 
 ## 10. Direitos do titular (Art. 18)
 
+SLA padrão: **15 dias corridos** (Art. 19 II — acesso em formato completo; demais direitos seguem o mesmo prazo por prática consolidada).
+
 | Direito | Como o titular exerce | SLA atendimento | Implementado? |
 |---|---|---|---|
-| Confirmação + acesso | Canal DPO | 15 dias | [ ] |
-| Correção | Tela "Meus dados" | 15 dias | [ ] |
-| Anonimização/bloqueio/eliminação | Canal DPO | 15 dias | [ ] |
-| Portabilidade | Exporta JSON/CSV no app | 15 dias | [ ] |
+| Confirmação + acesso | Canal DPO | 15 dias corridos | [ ] |
+| Correção | Tela "Meus dados" | 15 dias corridos | [ ] |
+| Anonimização/bloqueio/eliminação | Canal DPO | 15 dias corridos | [ ] |
+| Portabilidade | Exporta JSON/CSV no app | 15 dias corridos | [ ] |
 | Informação de compartilhamento | Política de privacidade | n/a | [ ] |
 | Revogação de consentimento | Tela de privacidade | imediata | [ ] |
-| Revisão de decisão automatizada (Art. 20) | Canal DPO | 15 dias | [ ] |
+| Revisão de decisão automatizada (Art. 20) | Canal DPO | 15 dias corridos | [ ] |
 
 ## 11. Decisão automatizada (se aplicável)
 

@@ -49,7 +49,7 @@ MARK_DEPS_OK="$PROJDIR/.claude/.runtime/deps-checked-${SESSION_HASH}"
 US_ID=$(head -1 "$MARK_FEATURE" 2>/dev/null | perl -ne 'print $1 if /\b(US-\d+)\b/')
 [ -z "$US_ID" ] && exit 0
 
-STORY_FILE=$(ls "$PROJDIR/docs/stories/"${US_ID}-*.md 2>/dev/null | head -1)
+STORY_FILE=$(find "$PROJDIR/docs/stories" -maxdepth 1 -name "${US_ID}-*.md" 2>/dev/null | head -1)
 [ -z "$STORY_FILE" ] || [ ! -f "$STORY_FILE" ] && exit 0
 
 # Extrai lista do campo depende-de (formato: [US-001, US-002] ou - US-001 multiline)
@@ -71,7 +71,7 @@ fi
 BLOCKERS=""
 while IFS= read -r DEP; do
   [ -z "$DEP" ] && continue
-  DEP_FILE=$(ls "$PROJDIR/docs/stories/"${DEP}-*.md 2>/dev/null | head -1)
+  DEP_FILE=$(find "$PROJDIR/docs/stories" -maxdepth 1 -name "${DEP}-*.md" 2>/dev/null | head -1)
   if [ -z "$DEP_FILE" ] || [ ! -f "$DEP_FILE" ]; then
     BLOCKERS="${BLOCKERS}  - ${DEP}: arquivo nao encontrado em docs/stories/\n"
     continue

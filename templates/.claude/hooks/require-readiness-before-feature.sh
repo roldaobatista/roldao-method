@@ -53,7 +53,7 @@ US_ID=$(head -1 "$MARK_FEATURE" 2>/dev/null | perl -ne 'print $1 if /\b(US-\d+)\
 EP_HINT=""
 STATUS_HINT=""
 if [ -n "$US_ID" ]; then
-  STORY_FILE=$(ls "$PROJDIR/docs/stories/"${US_ID}-*.md 2>/dev/null | head -1)
+  STORY_FILE=$(find "$PROJDIR/docs/stories" -maxdepth 1 -name "${US_ID}-*.md" 2>/dev/null | head -1)
   if [ -n "$STORY_FILE" ] && [ -f "$STORY_FILE" ]; then
     EP_HINT=$(perl -ne 'print $1 if /^epico:\s*(EP-\d+)/' "$STORY_FILE" | head -1)
     if [ -n "$EP_HINT" ]; then

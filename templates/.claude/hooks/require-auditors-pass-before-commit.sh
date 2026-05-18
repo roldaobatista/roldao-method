@@ -15,6 +15,15 @@
 #   .claude/.runtime/auditor-qual-blocked-<sess> — Julia BLOQUEOU
 #   .claude/.runtime/auditor-prod-pass-<sess>    — Pedro (produto) aprovou
 #   .claude/.runtime/auditor-prod-blocked-<sess> — Pedro BLOQUEOU
+#
+# **Pass marker contem JSON com hash do diff auditado** (audit_sha). Se o diff
+# atual nao bater com audit_sha, marker e considerado stale (o codigo mudou
+# depois da aprovacao) e exige re-auditoria. Isso fecha o vetor "agente da
+# touch sem auditar de fato": pra criar o marker correto, o agente precisa
+# computar o hash do diff atual.
+#
+# Formato esperado do PASS_MARK:
+#   {"audit_sha":"<sha256-de-git-diff-HEAD>","auditor":"seg","ts":"<iso8601>"}
 
 set -u
 
@@ -59,8 +68,21 @@ auditor_label() {
   esac
 }
 
+# Hash atual do diff (staged + working). Se git nao estiver disponivel ou nao
+# for repo, hash fica vazio — nesse caso a checagem de stale e ignorada (volta
+# ao comportamento antigo: presenca de marker basta).
+CURRENT_SHA=""
+if command -v git >/dev/null 2>&1 && git -C "$PROJDIR" rev-parse --git-dir >/dev/null 2>&1; then
+  CURRENT_SHA=$(git -C "$PROJDIR" diff HEAD 2>/dev/null | shasum -a 256 2>/dev/null | awk '{print $1}')
+  # Fallback se shasum nao existir (alguns Windows minimal)
+  if [ -z "$CURRENT_SHA" ]; then
+    CURRENT_SHA=$(git -C "$PROJDIR" diff HEAD 2>/dev/null | sha256sum 2>/dev/null | awk '{print $1}')
+  fi
+fi
+
 BLOCKED=()
 MISSING=()
+STALE=()
 
 for key in seg qual prod; do
   PASS_MARK="$PROJDIR/.claude/.runtime/auditor-${key}-pass-${SESSION_HASH}"
@@ -70,11 +92,20 @@ for key in seg qual prod; do
     BLOCKED+=("$(auditor_label "$key")")
   elif [ ! -f "$PASS_MARK" ]; then
     MISSING+=("$(auditor_label "$key")")
+  elif [ -n "$CURRENT_SHA" ] && [ -s "$PASS_MARK" ]; then
+    # Marker tem conteudo JSON — checar se o hash bate com o diff atual.
+    AUDIT_SHA=$(perl -MJSON::PP -e '
+      local $/;
+      eval { my $j = decode_json(<STDIN>); print $j->{audit_sha} // ""; } or print "";
+    ' < "$PASS_MARK" 2>/dev/null)
+    if [ -n "$AUDIT_SHA" ] && [ "$AUDIT_SHA" != "$CURRENT_SHA" ]; then
+      STALE+=("$(auditor_label "$key")")
+    fi
   fi
 done
 
 # Tudo verde — libera
-[ "${#BLOCKED[@]}" -eq 0 ] && [ "${#MISSING[@]}" -eq 0 ] && exit 0
+[ "${#BLOCKED[@]}" -eq 0 ] && [ "${#MISSING[@]}" -eq 0 ] && [ "${#STALE[@]}" -eq 0 ] && exit 0
 
 US_HINT=$(head -1 "$MARK_FEATURE" 2>/dev/null | perl -ne 'print $1 if /\b(US-\d+)\b/')
 
@@ -96,6 +127,12 @@ fi
 if [ "${#MISSING[@]}" -gt 0 ]; then
   printf '%s\n' "Auditores que ainda NAO rodaram:" >&2
   for a in "${MISSING[@]}"; do printf '  ⏳ %s\n' "$a" >&2; done
+  echo "" >&2
+fi
+
+if [ "${#STALE[@]}" -gt 0 ]; then
+  printf '%s\n' "Auditores cuja aprovacao esta STALE (codigo mudou depois):" >&2
+  for a in "${STALE[@]}"; do printf '  ⚠  %s\n' "$a" >&2; done
   echo "" >&2
 fi
 

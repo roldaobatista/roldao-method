@@ -14,7 +14,7 @@ Pix tem 5 tipos de chave, BR Code com 15+ campos EMV, webhook com HMAC, devoluç
   - `gerar-br-code` — gera BR Code EMV padrão Bacen.
   - `validar-webhook-pix` — valida HMAC, idempotência, status.
   - `estruturar-open-finance` — guia de implementação Open Finance Brasil.
-- **3 regras novas:** `PIX-001`, `PIX-002`, `PIX-003`.
+- **4 regras novas:** `PIX-EXT-001`, `PIX-EXT-002`, `PIX-EXT-003`, `PIX-EXT-004` (prefixadas `EXT` pra não colidir com `PIX-001..005` do core, que tratam DICT/validação de chave).
 
 ## Quando usar
 
@@ -29,14 +29,17 @@ Copie `addons/fintech-br/.claude/` pro `.claude/` do seu projeto. Mescle `settin
 
 ## Regras
 
-### PIX-001 — Idempotência por TxId
+### PIX-EXT-001 — Idempotência por TxId
 Toda criação de cobrança Pix usa TxId determinístico ou idempotency key. Reenvio com mesmo TxId não duplica cobrança.
 
-### PIX-002 — Webhook Pix valida assinatura na primeira linha
+### PIX-EXT-002 — Webhook Pix valida assinatura na primeira linha
 Handler de webhook Pix valida assinatura HMAC + IP de origem antes de processar payload. Hook `validate-webhook-signature` força.
 
-### PIX-003 — Persistir EndToEndId pra rastreabilidade
+### PIX-EXT-003 — Persistir EndToEndId pra rastreabilidade
 Todo Pix recebido/enviado tem EndToEndId (E2EID) persistido em coluna indexada. EndToEndId é o identificador único do SPI — sem ele, não há rastreamento.
+
+### PIX-EXT-004 — Open Finance via FAPI + mTLS
+OAuth 2.0 + FAPI + DCR + mTLS. Sem atalho. Guia em skill `estruturar-open-finance`.
 
 ## Cenários cobertos
 
