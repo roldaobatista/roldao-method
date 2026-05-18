@@ -44,6 +44,9 @@ User input, API externa, payload. Nunca confiar.
 ### SEC-004 — Princípio do menor privilégio
 Permissões mínimas necessárias. Roles segregados.
 
+### SEC-005 — URLs/hosts de serviço externo via variável de ambiente
+URLs de SEFAZ, Pix Bacen, gateways de pagamento, APIs pagas e webservices sensíveis vêm de variável de ambiente, nunca hardcoded em código. Permite trocar homologação ↔ produção sem deploy, evita chamar produção em teste, deixa dependência visível pro operador. Hook `no-hardcoded-env-urls` bloqueia.
+
 ---
 
 ## TST — Testes
@@ -56,6 +59,9 @@ Corrigir código. Não relaxar assertiva. Não comentar teste.
 
 ### TST-003 — Não testar com mock o que vai pra produção real
 Integrações críticas (banco, fiscal, pagamento) testar em ambiente que reproduz produção. Mock só pra testes unitários.
+
+### TST-004 — Dados de teste sintéticos
+Fixtures, seeds e dados de teste usam valores sintéticos — nunca CPF/CNPJ/email/telefone de cliente real. Dado real em fixture vaza pra repo, CI, ambiente dev e logs de teste. Use domínios reservados (`example.com`, `test.local`, `exemplo.com.br`), CPFs com padrão de teste (`12345678909`), telefones (11) 99999-9999. Hook `no-test-data-in-fixtures` bloqueia.
 
 ---
 

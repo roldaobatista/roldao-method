@@ -142,6 +142,54 @@ run_case "ignora comando sem -m" "commit-message-validator.sh" \
 run_case "session start sem .mcp.json passa" "mcp-validator.sh" \
   '' 0
 
+# ------- no-test-data-in-fixtures --------
+run_case "permite CPF sintético em fixture" "no-test-data-in-fixtures.sh" \
+  '{"tool_input":{"file_path":"./fixtures/users.json","content":"\"cpf\": \"00000000000\""}}' 0
+
+run_case "bloqueia email gmail em fixture" "no-test-data-in-fixtures.sh" \
+  '{"tool_input":{"file_path":"./tests/fixtures/users.js","content":"const u = { email: \"joao.silva@gmail.com\" };"}}' 2
+
+run_case "permite email example.com em fixture" "no-test-data-in-fixtures.sh" \
+  '{"tool_input":{"file_path":"./tests/fixtures/users.js","content":"const u = { email: \"joao@example.com\" };"}}' 0
+
+run_case "permite TST-004-exception" "no-test-data-in-fixtures.sh" \
+  '{"tool_input":{"file_path":"./tests/fixtures/users.js","content":"const u = { email: \"x@gmail.com\" }; // TST-004-exception: caso reproduzido em prod"}}' 0
+
+run_case "ignora arquivo fora de fixture" "no-test-data-in-fixtures.sh" \
+  '{"tool_input":{"file_path":"./src/index.js","content":"const u = { email: \"x@gmail.com\" };"}}' 0
+
+# ------- no-hardcoded-env-urls --------
+run_case "bloqueia URL SEFAZ hardcoded" "no-hardcoded-env-urls.sh" \
+  '{"tool_input":{"file_path":"./src/nfe.js","content":"const url = \"https://nfe.fazenda.gov.br/portal\";"}}' 2
+
+run_case "permite URL via env" "no-hardcoded-env-urls.sh" \
+  '{"tool_input":{"file_path":"./src/nfe.js","content":"const url = process.env.SEFAZ_URL || \"https://nfe.fazenda.gov.br/portal\";"}}' 0
+
+run_case "bloqueia api.stripe.com hardcoded" "no-hardcoded-env-urls.sh" \
+  '{"tool_input":{"file_path":"./src/pay.js","content":"fetch(\"https://api.stripe.com/v1/charges\")"}}' 2
+
+run_case "permite SEC-005-exception" "no-hardcoded-env-urls.sh" \
+  '{"tool_input":{"file_path":"./src/nfe.js","content":"const url = \"https://nfe.fazenda.gov.br/portal\"; // SEC-005-exception: documentacao publica"}}' 0
+
+run_case "ignora .env.example" "no-hardcoded-env-urls.sh" \
+  '{"tool_input":{"file_path":"./.env.example","content":"SEFAZ_URL=https://nfe.fazenda.gov.br/portal"}}' 0
+
+# ------- fiscal-br-validator --------
+run_case "bloqueia ambiente=1 hardcoded" "fiscal-br-validator.sh" \
+  '{"tool_input":{"file_path":"./src/nfe.js","content":"const tpAmb = 1;"}}' 2
+
+run_case "permite ambiente via env" "fiscal-br-validator.sh" \
+  '{"tool_input":{"file_path":"./src/nfe.js","content":"const tpAmb = process.env.SEFAZ_AMBIENTE;"}}' 0
+
+run_case "bloqueia regex CNPJ apenas numerica" "fiscal-br-validator.sh" \
+  '{"tool_input":{"file_path":"./src/validador.js","content":"const cnpj = /^[0-9]{14}$/"}}' 2
+
+run_case "bloqueia senha de certificado hardcoded" "fiscal-br-validator.sh" \
+  '{"tool_input":{"file_path":"./src/cert.js","content":"const cert_pass = \"senha123\";"}}' 2
+
+run_case "permite com FISCAL-exception" "fiscal-br-validator.sh" \
+  '{"tool_input":{"file_path":"./src/nfe.js","content":"const tpAmb = 1; // FISCAL-003-exception: codigo legado"}}' 0
+
 # ------- relatório --------
 echo ""
 for r in "${RESULTS[@]}"; do
