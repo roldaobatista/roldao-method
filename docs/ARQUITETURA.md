@@ -27,7 +27,7 @@ roldao-method/                        <- raiz do framework
 │       ├── settings.json
 │       ├── agents/                   <- 12 agentes
 │       ├── hooks/                    <- 28 hooks (22 bloqueadores + 4 aux + 2 utilitários)
-│       ├── commands/                 <- 19 commands
+│       ├── commands/                 <- 21 commands
 │       ├── skills/                   <- 8 skills BR core (+14 em addons)
 │       └── output-styles/
 ├── tools/
@@ -131,7 +131,7 @@ Compatibilidade do `update`: sempre preserva `AGENTS.md`, `CLAUDE.md`, `REGRAS-I
 
 Antes de publicar:
 1. `node tools/validar-templates.js` — verde.
-2. `bash templates/.claude/hooks/_test-runner.sh` — 132/132.
+2. `bash templates/.claude/hooks/_test-runner.sh` — 147/147.
 3. `node test/install.test.js` — verde.
 4. `npm pack --dry-run` — confirmar que `files` inclui só o necessário.
 5. Atualizar `CHANGELOG.md`.

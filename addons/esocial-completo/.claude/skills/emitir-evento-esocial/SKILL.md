@@ -36,7 +36,7 @@ Skill que orienta implementação de cada tipo de evento eSocial com checklist e
 
 **Quando:** novo colaborador.
 **Conteúdo:** PIS/PASEP (validar com `validar-pis-pasep`), CPF, dados pessoais, contrato, CBO, dependentes, deficiência, CTPS.
-**Prazo:** **até o dia anterior ao início das atividades.**
+**Prazo:** **até o dia imediatamente anterior ao do início da prestação dos serviços** (MOS, leiaute S-1.3). Para contratação de última hora (admissão no mesmo dia), use o **S-2190 (Admissão Preliminar)** antes do início e complete com o S-2200 depois.
 **Atenção:** atraso vira multa (R$ 500-24k).
 
 ### S-2206 — Alteração contratual

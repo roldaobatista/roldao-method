@@ -90,7 +90,7 @@ Skill `gerar-ripd` gera template estruturado.
 
 ## Direitos do titular — SLA
 
-Base legal do prazo: Art. 19 II (acesso em formato completo): "em até 15 dias contados da data do requerimento". A lei fala em **dias corridos** (não úteis). Para os demais incisos do Art. 18 (III–IX), a lei usa "prazo razoável" — a prática ANPD/jurisprudência consolida o mesmo SLA de 15 dias corridos.
+Base legal do prazo: Art. 19 II (acesso em formato completo): "em até 15 dias contados da data do requerimento". A lei fala em **dias corridos** (não úteis). **Importante:** o prazo legal de 15 dias é fixado *apenas* para o acesso (Art. 19 II). Para os demais incisos do Art. 18 (III–IX), a LGPD **não fixa prazo** — não existe Resolução ANPD nem jurisprudência consolidada que estenda os 15 dias a esses direitos. Adotamos 15 dias corridos para os demais como **boa prática de mercado** (recomendação, não obrigação legal); ajuste conforme orientação jurídica do projeto.
 
 - **Confirmação + acesso** (Art. 18 I, II / Art. 19 II): até 15 dias corridos (ou imediato em formato simplificado, conforme Art. 19 §1º).
 - **Correção** (Art. 18 III): até 15 dias corridos.

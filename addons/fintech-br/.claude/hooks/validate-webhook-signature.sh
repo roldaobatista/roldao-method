@@ -85,7 +85,12 @@ Como corrigir:
     .update(JSON.stringify(req.body))
     .digest('hex');
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+  // timingSafeEqual lança RangeError se os buffers tiverem tamanhos diferentes
+  // (header ausente/malformado vira erro 500 e vira oráculo de timing). Compare
+  // o tamanho ANTES e proteja com try/catch.
+  const sigBuf = Buffer.from(String(signature || ''), 'hex');
+  const expBuf = Buffer.from(expected, 'hex');
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
     return res.status(401).send();
   }
 

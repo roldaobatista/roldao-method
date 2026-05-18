@@ -21,8 +21,8 @@ Valida PIS (Programa de Integração Social), PASEP (Programa de Formação do P
 ## Uso
 
 ```bash
-python3 scripts/validar-pis.py "12068306449"
-python3 scripts/validar-pis.py "120.6830.644-9"
+python3 scripts/validar-pis.py "17033259504"
+python3 scripts/validar-pis.py "170.33259.50-4"
 ```
 > **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
 
@@ -30,8 +30,8 @@ python3 scripts/validar-pis.py "120.6830.644-9"
 Output:
 ```
 OK PIS/PASEP/NIS válido
-INVALIDO PIS/PASEP/NIS com DV errado
-INVALIDO formato esperado: 11 dígitos
+INVÁLIDO DV de PIS/PASEP/NIS inválido
+INVÁLIDO formato esperado: 11 dígitos
 ```
 
 ## Algoritmo
@@ -56,7 +56,7 @@ def valida_pis(s: str) -> bool:
 ## Sinteticos pra teste
 
 Use em fixture:
-- `12068306449` — válido (PIS público de teste)
+- `17033259504` — válido (sintético, DV correto por módulo 11)
 - `00000000000` — REJEITADO (sintético óbvio inválido)
 
 Gere algoritmicamente com `gerar-test-fixture-br` (extensão pendente — TODO).

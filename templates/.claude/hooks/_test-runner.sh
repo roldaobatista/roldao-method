@@ -827,6 +827,14 @@ done
 echo ""
 echo "Total: $((PASS + FAIL))  |  OK: $PASS  |  FAIL: $FAIL"
 
+# Invariante: se um bloco de setup pular (perl/git/mktemp ausente), o total cai
+# e a suite ainda daria verde. Checar o numero esperado impede esse falso-verde.
+EXPECTED_TOTAL=147
+if [ "$((PASS + FAIL))" -ne "$EXPECTED_TOTAL" ]; then
+  echo "ERRO: rodaram $((PASS + FAIL)) testes, esperado $EXPECTED_TOTAL (setup pulado? dependencia ausente?)" >&2
+  exit 1
+fi
+
 if [ "$FAIL" -gt 0 ]; then
   exit 1
 fi

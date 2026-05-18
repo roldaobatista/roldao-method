@@ -1,34 +1,28 @@
 # ROLDAO-METHOD
 
-> Framework de desenvolvimento ágil assistido por IA, **em português brasileiro**, com especialistas virtuais, regras automáticas e fluxos guiados para Claude Code, Cursor, Windsurf, Cline e Roo.
+> Framework de desenvolvimento ágil assistido por IA, **em português brasileiro**, com especialistas virtuais, regras automáticas e fluxos guiados para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI e Codex CLI.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.12.0-blue.svg)](#)
+[![Versão](https://img.shields.io/badge/versão-0.13.1-blue.svg)](#)
 [![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-22-red.svg)](#)
 [![Testes do framework](https://img.shields.io/badge/test_runner-147%2F147-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
 
-## 🆕 Novidades na v0.12.0 (auditoria 10-agentes — round 6 completo)
+## 🆕 Novidades na v0.13.1 (paridade SDD + auditoria 10-agentes round 7)
 
-Round 6 sem viés (rounds anteriores deletados antes da execução). **86 achados** identificados. **v0.11.0** fechou Onda 1+2 (P0). **v0.12.0** fecha Onda 3+4+5+6 — P1 + maioria dos P2.
+Fecha gaps táticos de spec-driven sem mexer na identidade — hooks bloqueadores e cobertura BR continuam o diferencial. 147/147 mantidos.
 
-- **+15 testes novos** (132 → 147). Coberturas que estavam zeradas: anti-mascaramento `|| true`/`--silent`/`expect(true).toBe(true)`, secrets-scanner `ghp_`/`sk_live_`/JWT, jargão em `tool_response.content`, "voce prefere A ou B", commit `improvement:` (tipo inventado), `_lib.sh` `sanitize_projdir` e `sanitize_session_hash` unit-tested.
-- **Hooks ampliados**: `anti-mascaramento` + `--silent`/`--quiet`; `secrets-scanner` + GitHub PAT/Stripe/JWT; `block-jargon-pt-br` e `block-confirmation-questions` agora leem `tool_response.content` (antes só `response`); `commit-message-validator` rejeita tipo Conventional Commit inventado.
-- **Investigador grava JSON estruturado** em `.claude/.runtime/investigation-US-NNN.json` — dev-senior consome via schema, não mais texto livre.
-- **Tech-writer com template fixo por modo** (CHG/REL/MSG/ANN/RDM) — sem mais saída heterogênea.
-- **`/prd`** salva caminho do brief em `.claude/.runtime/last-research-path` pro PM consumir explicitamente.
-- **`validate-quick-dev-scope`** bloqueia quando toca arquivo com palavra-gatilho fiscal/LGPD/Pix/eSocial — dominios sensíveis NUNCA são triviais.
-- **Models corrigidos**: `gerente-produto` e `auditor-produto` haiku → sonnet (PRD/AC exigem raciocínio multi-passo).
-- **Checklist `audit-trail.md` criado** — agora são 8 checklists auditáveis (estava em 7).
-- **Frontmatter completo em 29 arquivos** (8 SKILL.md core + 21 em addons) com `owner`/`revisado-em`/`status`.
-- **Path traversal travado** em `validate-test-pyramid` (FILE_PATH não-sanitizado virava `find` em paths externos).
-- **`_lib.sh::safe_tmpfile`** centraliza criação segura de tmp (defesa contra symlink-race em /tmp world-writable).
-- **Paths inconsistentes** `docs/epics/` → `docs/epicos/` (PT-BR padronizado).
-- **eSocial declara layout S-1.3** explicitamente no manifesto (Portaria Conjunta RFB/MTE 71/2024).
-- **Mensagens de erro mais acionáveis** em `bin/install.js` (`isDangerousCwd`, templates ausentes, npm cache clean orientado).
+- **Comando `/consistencia`** — cross-check PRD↔ARQ↔stories↔tasks↔código (caça órfãos).
+- **Comando `/clarificar`** — questionamento estruturado ANTES de codar. Total: **21 workflows**.
+- **CLI `roldao remove <addon>`** — remoção cirúrgica preservando core e demais addons.
+- **CLI `roldao search [termo]`** — lista/filtra addons, marca instalados.
+- **CLI `roldao tasks-to-issues`** — varre `T-NNN` das stories e cria GitHub Issues (idempotente).
+- **Overrides por projeto sem fork** — `.specify/overrides/` vence o oficial e nunca é tocado por `update`.
+- **Adapters Gemini CLI (`GEMINI.md`) e Codex CLI (`.codex/`)** — **9 IDEs suportadas**.
+- **Round 7 (auditoria 10-agentes):** REGRA #0 destravada de fato no `/bug` (marcador `investigator-invoked` agora é criado), hash de sessão consistente entre comandos e hooks, `investigador`/`analista` → sonnet, CNPJ de base repetida agora rejeitado, hooks de segurança endurecidos (segredo via `git commit -F`, exceção de confirmação por linha, regex case-insensitive), `test/` incluído no pacote npm.
 
 Detalhes em [CHANGELOG.md](CHANGELOG.md).
 
@@ -45,7 +39,7 @@ E pior: a maioria pula direto pra escrever código. **Sem investigar.** Sem ler 
 Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 
 - 🇧🇷 **PT-BR nativo** — não é tradução. Tabela de jargão integrada pra usuário não-programador.
-- 🛡️ **21 hooks bloqueadores** — retornam exit 2 e barram a ação na hora (secret, destrutivo, mascaramento, mock indevido, jargão técnico, fix sem investigação, escopo estourado, commit sem rastreio).
+- 🛡️ **22 hooks bloqueadores** — retornam exit 2 e barram a ação na hora (secret, destrutivo, mascaramento, mock indevido, jargão técnico, fix sem investigação, escopo estourado, commit sem rastreio).
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada no workflow `/bug` e em hook mecânico (`require-investigador-before-fix`).
 - 🧾 **Cobertura BR real** — LGPD, NF-e, NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto rodando em paralelo no fim de cada feature, bloqueando commit se reprovado.
@@ -57,7 +51,7 @@ Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 - 🇧🇷 **Fala português nativo** — não é tradução
 - 🔍 **Investiga antes de mexer** — REGRA #0 codificada no workflow `/bug`
 - 👥 **12 especialistas virtuais** com papéis claros (analista, PM, UX, tech-lead, investigador, dev, revisor, 3 auditores, fiscal-BR, tech-writer)
-- 🛡️ **21 regras automáticas que bloqueiam** erros antes de acontecer (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
+- 🛡️ **22 regras automáticas que bloqueiam** erros antes de acontecer (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
 - 📜 **Spec-driven total** — 12 templates (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico) em PT-BR
 - ✅ **8 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance, audit-trail
 - 📚 **7 knowledge bases** que os agentes consultam — PT-BR (glossário), fiscal, LGPD, Pix, stack BR, brainstorming, elicitation
@@ -69,13 +63,16 @@ Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 npx roldao-method install
 ```
 
-Detecta Claude Code, Cursor, Windsurf, Continue, Aider, **Cline, Roo**. Sub-comandos:
+Detecta Claude Code, Cursor, Windsurf, Continue, Aider, Cline, Roo, **Gemini CLI, Codex CLI**. Sub-comandos:
 
 ```bash
 npx roldao-method update              # atualiza framework, preserva customizações
 npx roldao-method doctor              # diagnostica instalação
 npx roldao-method list                # lista IDEs detectadas + addons disponíveis + versão remota
 npx roldao-method add <addon>         # instala addon (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
+npx roldao-method remove <addon>      # remove um addon (preserva core e demais addons)
+npx roldao-method search [termo]      # lista/filtra addons disponíveis
+npx roldao-method tasks-to-issues     # cria GitHub Issues a partir dos T-NNN das stories
 npx roldao-method uninstall           # remove (preserva AGENTS.md, CLAUDE.md, REGRAS)
 npx roldao-method help
 ```
@@ -94,8 +91,8 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 
 | Agente | Papel | Modelo |
 |---|---|---|
-| **Analista** (Mariana 🔎) | Pesquisa de mercado, brief, PRFAQ, regulamentação BR | haiku |
-| **Gerente de Produto** (Sofia 📋) | PRD, story, decomposição (4 modos: brief/PRD/story/decomp) | haiku |
+| **Analista** (Mariana 🔎) | Pesquisa de mercado, brief, PRFAQ, regulamentação BR | sonnet |
+| **Gerente de Produto** (Sofia 📋) | PRD, story, decomposição (3 modos: PRD/story/decomp; brief é do analista) | sonnet |
 | **UX Designer** (Lia 🎨) | Wireframe ASCII, 5 estados por tela, mensagens PT-BR | haiku |
 | **Tech Lead** (Rafael 🏛️) | Arquitetura, ADR, ARQ, checklist de readiness | sonnet |
 | **Investigador** (Detetive 🔬) | Lê estado real antes de mexer. Obrigatório em `/bug` | sonnet |
@@ -103,7 +100,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | **Revisor** (Inês ✅) | Aderência à US + anti-padrões | sonnet |
 | **Auditor de Segurança** (Caio 🛡️) | LGPD, secrets, OWASP, supply chain | sonnet |
 | **Auditor de Qualidade** (Júlia 🧪) | Cobertura, mocks indevidos, TST-* | sonnet |
-| **Auditor de Produto** (Pedro 🎯) | Aderência ao pedido, non-goals | haiku |
+| **Auditor de Produto** (Pedro 🎯) | Aderência ao pedido, non-goals | sonnet |
 | **Fiscal BR** (Dona Marta 🧾) | NF-e, certificado, eSocial, Reforma Tributária, CNPJ alfanum. | sonnet |
 | **Tech Writer** (Camila 📝) | CHANGELOG, README, docs de release | haiku |
 
@@ -167,7 +164,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `block-jargon-pt-br` — flag de jargão técnico em resposta ao usuário não-programador (PostToolUse, soft warning)
 - `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006 (PostToolUse, soft warning)
 
-**Test-runner:** `_test-runner.sh` com **132 casos** contra os hooks (manual + CI cross-platform).
+**Test-runner:** `_test-runner.sh` com **147 casos** contra os hooks (manual + CI cross-platform).
 
 **Addons trazem +5 hooks:** `block-ipc-without-validation` (electron-br), `validate-webhook-signature`, `require-sefaz-env`, `validate-tef-flow`, `validate-esocial-prazo`.
 
@@ -244,12 +241,12 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 
 ## Capacidades em uma tabela
 
-| Categoria | ROLDAO-METHOD v0.11 |
+| Categoria | ROLDAO-METHOD v0.13 |
 |---|---|
 | Idioma | 🇧🇷 PT-BR nativo |
 | Mercado-foco | Brasil (LGPD, fiscal, Pix, eSocial, BR) |
 | Investigação em bug | **Obrigatória** (REGRA #0, hook mecânico) |
-| Hooks que bloqueiam o erro | **21 bloqueadores** + 5 auxiliares + test-runner |
+| Hooks que bloqueiam o erro | **22 bloqueadores** + 4 auxiliares + 2 infra (`_lib`, test-runner) |
 | Filosofia | **Impede o agente de errar** (exit 2), não só orienta |
 | Auditores dedicados | 3 (segurança, qualidade, produto) |
 | Agente fiscal BR | `fiscal-br` (Dona Marta) — NF-e, eSocial, Reforma Tributária |
@@ -268,7 +265,7 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 | eSocial | Addon `esocial-completo` |
 | Varejo/PDV BR | Addon `varejo-pdv-br` (SAT-CF-e, NFC-e, TEF) |
 | Addons verticais BR | 6 (e crescendo) |
-| IDEs suportadas | 7+ (Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider) |
+| IDEs suportadas | 9 (Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider, Gemini CLI, Codex CLI) |
 | Quando usar | Time BR, projeto regulado, dono de produto não-programador |
 
 ## Documentação

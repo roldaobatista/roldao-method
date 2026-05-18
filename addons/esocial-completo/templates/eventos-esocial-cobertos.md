@@ -17,7 +17,7 @@ status: stable
 | S-1005 | Estabelecimento | S-1005.xsd | Anterior ao uso | R$ 500-24k | ✅ |
 | S-1010 | Tabela rubricas | S-1010.xsd | Anterior ao uso | R$ 500-24k | ✅ |
 | S-1020 | Tabela lotações | S-1020.xsd | Anterior ao uso | R$ 500-24k | ✅ |
-| S-2200 | Admissão | S-2200.xsd | **Dia anterior ao início** | R$ 500-24k | ✅ |
+| S-2200 | Admissão | S-2200.xsd | **Dia imediatamente anterior à prestação de serviço** (S-2190 p/ última hora) | R$ 500-24k | ✅ |
 | S-2205 | Alteração dados cadastrais | S-2205.xsd | Dia 15 mês seguinte | R$ 500-24k | ✅ |
 | S-2206 | Alteração contratual | S-2206.xsd | Dia 15 mês seguinte | R$ 500-24k | ✅ |
 | S-2210 | CAT (acidente) | S-2210.xsd | **1 dia útil (imediato se fatal)** | **Alta** | ✅ |

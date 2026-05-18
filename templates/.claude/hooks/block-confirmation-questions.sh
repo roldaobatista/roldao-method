@@ -51,21 +51,23 @@ LEGIT_EXCEPTIONS=(
   '\bgastos com terceiros\b'
 )
 
-# Se a resposta menciona algo destrutivo/custo, confirmacao e legitima
-for excep in "${LEGIT_EXCEPTIONS[@]}"; do
-  if printf '%s\n' "$RESP" | grep -qiE -- "$excep"; then
-    exit 0
-  fi
-done
+# Monta o regex combinado das excecoes legitimas (destrutivo / custo / credencial).
+# A excecao so vale se estiver NA MESMA LINHA da pergunta de confirmacao —
+# mencionar "credencial" em outro paragrafo NAO pode desligar a checagem inteira.
+LEGIT_RE=$(IFS='|'; printf '%s' "${LEGIT_EXCEPTIONS[*]}")
 
-# Olha primeiros 8 padroes
 VIOLATIONS=()
 for pat in "${PATTERNS[@]}"; do
-  HIT=$(printf '%s\n' "$RESP" | grep -oiE -- "$pat" | head -n1 || true)
-  if [ -n "$HIT" ]; then
-    CTX=$(printf '%s\n' "$RESP" | grep -iE -- "$pat" | head -n1 || true)
-    VIOLATIONS+=("pergunta de confirmacao: '$HIT' -> $CTX")
-  fi
+  # Linhas que contem a pergunta de confirmacao
+  while IFS= read -r ctx_line || [ -n "$ctx_line" ]; do
+    [ -z "$ctx_line" ] && continue
+    # Se a propria linha da pergunta cita operacao destrutiva/custo, e legitima
+    if printf '%s\n' "$ctx_line" | grep -qiE -- "$LEGIT_RE"; then
+      continue
+    fi
+    HIT=$(printf '%s\n' "$ctx_line" | grep -oiE -- "$pat" | head -n1 || true)
+    VIOLATIONS+=("pergunta de confirmacao: '$HIT' -> $ctx_line")
+  done < <(printf '%s\n' "$RESP" | grep -iE -- "$pat" || true)
 done
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then

@@ -96,4 +96,4 @@ Verificar consistência manifesto ↔ regras ↔ código: rode `/consistencia`.
 
 ---
 
-_Framework: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method). Inspirado em Spec Kit._
+_Framework: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

@@ -30,10 +30,12 @@ Se qualquer item falhar, **abortar e chamar `/feature`** em vez de `/quick-dev`.
 
 ## Etapa 0 — Marcar sessão (mecânico)
 
-Antes de qualquer mudança, crie marker pra ativar o gate de escopo:
+Antes de qualquer mudança, crie marker pra ativar o gate de escopo. O sufixo PRECISA ser o mesmo hash que os hooks usam (CLAUDE_SESSION_ID só alfanumérico), senão o marcador não casa:
 
-```
-mkdir -p .claude/.runtime && touch .claude/.runtime/quick-dev-active-${CLAUDE_SESSION_ID}
+```bash
+SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
+[ -z "$SESSION_HASH" ] && SESSION_HASH=default
+mkdir -p .claude/.runtime && touch .claude/.runtime/quick-dev-active-${SESSION_HASH}
 ```
 
 > O hook `validate-quick-dev-scope.sh` conta arquivos únicos tocados nesta sessão. Se passar de 3, bloqueia com exit 2 e sugere `/feature`. Isso codifica o limite "≤3 arquivos" que antes era só checklist visual.
@@ -107,8 +109,8 @@ Commit: T-NNN <hash curto>
 
 Ao final, limpe os markers da sessão:
 ```
-rm -f .claude/.runtime/quick-dev-active-${CLAUDE_SESSION_ID}
-rm -f .claude/.runtime/quick-dev-files-${CLAUDE_SESSION_ID}
+rm -f .claude/.runtime/quick-dev-active-${SESSION_HASH}
+rm -f .claude/.runtime/quick-dev-files-${SESSION_HASH}
 ```
 
 ## Importante

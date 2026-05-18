@@ -18,14 +18,23 @@ case "$CMD" in
   *) exit 0 ;;
 esac
 
-# Extrai mensagem de -m / heredoc / --message
-MSG=$(printf '%s\n' "$CMD" | perl -ne '
-  if (/-m\s+(["\x27])(.*?)\1/s) { print $2; exit }
-  if (/--message[=\s]+(["\x27])(.*?)\1/s) { print $2; exit }
-  if (/<<\s*\x27?(\w+)\x27?\s*\n(.*?)\n\1/s) { print $2; exit }
+# Extrai TODAS as mensagens de -m/--message (git concatena multiplos -m) + heredoc.
+MSG=$(printf '%s' "$CMD" | perl -e '
+  local $/; my $c = <STDIN>;
+  my @parts;
+  while ($c =~ /-m\s+(["\x27])(.*?)\1/sg)              { push @parts, $2 }
+  while ($c =~ /--message[=\s]+(["\x27])(.*?)\1/sg)    { push @parts, $2 }
+  if ($c =~ /<<\s*\x27?(\w+)\x27?\s*\n(.*?)\n\1/s)     { push @parts, $2 }
+  print join("\n", @parts);
 ')
 
-[ -z "$MSG" ] && exit 0
+# Fail-closed: se nao deu pra extrair a mensagem (commit via -F/--file, editor,
+# ou parsing falhou), NAO libera silenciosamente — escaneia o comando inteiro.
+# Um segredo passado por `git commit -F leak.txt` ou `--file` ainda aparece se
+# o caminho/conteudo estiver no comando; e protege contra bypass do parser.
+if [ -z "$MSG" ]; then
+  MSG="$CMD"
+fi
 
 # Padroes de segredo no texto da mensagem
 PATTERNS=(

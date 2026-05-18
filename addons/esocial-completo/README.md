@@ -39,7 +39,7 @@ Eventos trabalhistas têm prazos rígidos:
 |---|---|
 | S-1000 (informações do empregador) | Antes do primeiro evento operacional |
 | S-1005 a S-1099 (tabelas) | Antes do primeiro evento que usa |
-| S-2200 (admissão) | **Até o dia anterior ao início das atividades** |
+| S-2200 (admissão) | **Até o dia imediatamente anterior ao do início da prestação dos serviços** (S-2190 p/ admissão de última hora) |
 | S-2206 (alteração contratual) | Até o dia 15 do mês seguinte |
 | S-2210 (CAT — acidente) | **Até o primeiro dia útil seguinte ao acidente** (fatal: imediato) |
 | S-2230 (afastamento temporário) | Até o dia 15 do mês seguinte (afastamento > 15 dias) |

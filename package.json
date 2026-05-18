@@ -1,6 +1,6 @@
 {
   "name": "roldao-method",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Framework agentic em PT-BR. 12 agentes, 22 hooks bloqueadores, 21 workflows, 22 skills BR (CNPJ alfanumérico 2026, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
@@ -56,12 +56,15 @@
     "addons",
     "docs",
     "tools",
+    "test",
     "README.md",
     "CHANGELOG.md",
     "ROADMAP.md",
     "SECURITY.md",
     "CONTRIBUTORS.md",
-    "LICENSE"
+    "LICENSE",
+    "!docs/PUBLICAR.md",
+    "!docs/PUBLICAR-NPM.md"
   ],
   "bugs": {
     "url": "https://github.com/roldaobatista/roldao-method/issues"

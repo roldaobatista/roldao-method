@@ -64,8 +64,8 @@ def valida_cnpj(s: str) -> tuple[bool, str]:
         return False, "CNPJ precisa ter 14 caracteres"
     if not re.fullmatch(r"[A-Z0-9]{12}\d{2}", raw):
         return False, "CNPJ alfanumérico: 12 alfanum + 2 dígitos DV"
-    if raw == raw[0] * 14:
-        return False, "CNPJ inválido (todos caracteres iguais)"
+    if raw[:12] == raw[0] * 12:
+        return False, "CNPJ inválido (base repetida)"
     if _cnpj_dv(raw[:12], _PESOS_CNPJ_1) != raw[12]:
         return False, "primeiro DV de CNPJ inválido"
     if _cnpj_dv(raw[:13], _PESOS_CNPJ_2) != raw[13]:

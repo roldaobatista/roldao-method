@@ -2,6 +2,25 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.13.1] — 2026-05-18
+
+**Auditoria 10-agentes round 7 (sem viés).** 10 auditores independentes, escopos isolados. Correção dos P0 e P1 que comprometiam o diferencial central. 147/147 mantidos.
+
+### Corrigido
+
+- **REGRA #0 destravada de fato (P0).** O workflow `/bug` nunca criava o marcador `investigator-invoked-${SESSION_HASH}` que o hook `require-investigador-before-fix.sh` exige — o dev-senior ficava bloqueado para sempre numa investigação real. `/bug` agora cria o marcador (com o mesmo hash sanitizado dos hooks) ao final da investigação.
+- **Hash de sessão consistente (P0).** `feature.md`, `quick-dev.md`, `checkpoint.md` usavam `${CLAUDE_SESSION_ID}` cru nos `touch`, mas os hooks procuram o ID reduzido a alfanumérico — UUIDs com hífen nunca casavam, travando os gates. Comandos agora derivam `SESSION_HASH` igual ao `_lib.sh`.
+- **`investigador` e `analista` → sonnet (P0).** Estavam em `haiku` contrariando o README; são papéis de raciocínio multi-passo (REGRA #0, análise regulatória).
+- **CNPJ de base repetida agora rejeitado (P1).** `11.111.111/1111-80` (e análogos) era aceito como válido em `validar-cpf-cnpj` e `validar-pix` — o guard exigia base *e* DV repetidos. Agora rejeita base repetida como o SKILL.md promete.
+- **Exemplos falsos na documentação (P1).** SKILL.md do PIS citava `12068306449` como "válido" (o script rejeita) → trocado por `17033259504`; chave Pix aleatória de exemplo era UUID v1 (validador exige v4) → corrigida; saída documentada do PIS alinhada ao programa real.
+- **Hooks de segurança endurecidos (P0/P1).** `block-secrets-in-commit-message`: segredo via `git commit -F`/editor/múltiplos `-m` não era detectado (fail-open) → agora escaneia o comando inteiro. `block-confirmation-questions`: termo de exceção em qualquer parte da resposta desligava toda a checagem → exceção só vale na mesma linha da pergunta. `anti-mascaramento`: regex case-sensitive e `# noqa:`/`# type: ignore[` não casavam o uso real → `grep -i`, padrões corrigidos, exceção exige razão explícita, cobre `xit/fit/fdescribe/pytest.mark.skip`.
+- **`test/` incluído no pacote npm (P1).** `npm test` quebrava em qualquer instalação (`test/install.test.js` fora do `files`). `docs/PUBLICAR*.md` (guias internos) removidos do tarball.
+- **Falso-verde de teste travado (P1).** `_test-runner.sh` agora exige total == 147 (setup pulado por dependência ausente não passa mais como verde); `validar-templates.js` trava contagem mínima por diretório.
+- **Imprecisões legais (P1).** eSocial S-2200: prazo reescrito para "dia imediatamente anterior ao início da prestação dos serviços" + menção ao S-2190 (admissão de última hora). LGPD: removida a afirmação infundada de que "jurisprudência consolida 15 dias" para todos os direitos do Art. 18 — 15 dias é legal só para acesso (Art. 19 II); demais são boa prática. Cancelamento de NF-e: 24h é prazo padrão, extemporâneo possível por UF.
+- **Regras fiscais divergentes (P1).** README do `fiscal-br-completo` descrevia NFE-001/002/003 com significado diferente do `addon.yaml` (manifesto que a CLI lê) e citava skill inexistente `validar-cnpj-alfanumerico` → README alinhado ao manifesto, skill corrigida para `migrar-cnpj-alfanumerico`.
+- **Webhook Pix timing-safe (P1).** Hook `validate-webhook-signature` ensinava `crypto.timingSafeEqual` sem checar tamanho — `RangeError`/oráculo de timing com assinatura malformada. Agora compara comprimento antes.
+- **Deriva de versão/contagem (P0 docs).** README estava congelado em 0.12.0 e mandava esperar "132 testes" (real 147); contagens de hooks divergiam entre arquivos (18/21/22), Continue em 0.5.0, "Inspirado em Spec Kit" na constituição. Tudo sincronizado em 0.13.1, 22 bloqueadores, 9 IDEs, modelos reais dos agentes.
+
 ## [0.13.0] — 2026-05-18
 
 **Fechamento de paridade SDD (issues #1–#4 + itens 7 e 10 da auditoria comparativa).** Fecha gaps táticos sem mexer na identidade — hooks bloqueadores e cobertura BR continuam o diferencial. Não altera comportamento de hook nenhum; 147/147 mantidos.

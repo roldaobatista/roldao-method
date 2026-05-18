@@ -34,13 +34,17 @@ PATTERNS=(
   '@ts-nocheck'
   '// eslint-disable'
   '/\* eslint-disable'
-  '# noqa[^:]'
-  '# type: ignore[^[]'
+  '# noqa'
+  '# type:[[:space:]]*ignore'
   '@SuppressWarnings'
   'assertTrue\(true\)'
   'assertEquals\(1,[[:space:]]*1\)'
   'expect\(true\)\.toBe\(true\)'
   '\.skip\('
+  '\bxit\('
+  '\bfit\('
+  '\bfdescribe\('
+  'pytest\.mark\.skip'
   '\.todo\('
   '@Disabled'
   '\|\|[[:space:]]*true[[:space:]]*$'
@@ -55,9 +59,10 @@ PATTERNS=(
 VIOLATIONS=()
 while IFS= read -r line || [ -n "$line" ]; do
   for pat in "${PATTERNS[@]}"; do
-    if printf '%s\n' "$line" | grep -qE -- "$pat"; then
-      # Permitir se mesma linha tem justificativa explícita
-      if printf '%s\n' "$line" | grep -qE 'TST-001-exception|justificativa-mascaramento'; then
+    if printf '%s\n' "$line" | grep -qiE -- "$pat"; then
+      # Permitir SOMENTE se mesma linha tem justificativa explícita COM razão
+      # (TST-001-exception: <texto>). Palavra-mágica sem razão não libera.
+      if printf '%s\n' "$line" | grep -qiE 'TST-001-exception:[[:space:]]*[^[:space:]]+'; then
         continue
       fi
       VIOLATIONS+=("$pat  →  $line")

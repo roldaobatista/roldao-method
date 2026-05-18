@@ -25,6 +25,13 @@ Esse desvio é codificado em `templates/CLAUDE.md` REGRA #0 e `regra-zero-remind
 
 **Esta etapa bloqueia mecanicamente o início da feature** — o hook `require-readiness-before-feature.sh` verifica o estado antes de qualquer Edit/Write em código.
 
+> **Hash de sessão (MECÂNICO):** os hooks procuram marcadores com o sufixo `${SESSION_HASH}` = `CLAUDE_SESSION_ID` reduzido a caracteres alfanuméricos. Os marcadores que você cria PRECISAM usar o mesmo hash, senão nunca casam e o gate trava. Defina uma vez no início da sessão e use `${SESSION_HASH}` em todos os `touch`:
+>
+> ```bash
+> SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
+> [ -z "$SESSION_HASH" ] && SESSION_HASH=default
+> ```
+
 1. Identifique a US-NNN alvo (de `$ARGUMENTS` ou pergunte ao usuário).
 2. Abra `docs/stories/US-NNN-*.md` e leia o frontmatter — extraia o campo `epico:` (EP-NNN).
 3. Verifique se existe `docs/readiness/EP-NNN-status.md` com `status: PRONTO` no frontmatter.
@@ -33,8 +40,8 @@ Esse desvio é codificado em `templates/CLAUDE.md` REGRA #0 e `regra-zero-remind
    - Diga ao usuário: "O épico EP-NNN não passou no /readiness ainda. Rode `/readiness EP-NNN` antes."
    - Não escreva código. Não invoque dev-senior.
 5. Se readiness está `PRONTO`:
-   - Crie marcador: `mkdir -p .claude/.runtime && touch .claude/.runtime/readiness-passed-${CLAUDE_SESSION_ID}` (com hash igual ao usado pelos outros hooks).
-   - Crie marcador: `touch .claude/.runtime/feature-active-${CLAUDE_SESSION_ID}` com o conteúdo `US-NNN`.
+   - Crie marcador: `mkdir -p .claude/.runtime && touch .claude/.runtime/readiness-passed-${SESSION_HASH}` (com hash igual ao usado pelos outros hooks).
+   - Crie marcador: `touch .claude/.runtime/feature-active-${SESSION_HASH}` com o conteúdo `US-NNN`.
    - Prossiga para Etapa 1.
 
 > O hook `require-readiness-before-feature.sh` valida que `feature-active-*` E `readiness-passed-*` existem antes de permitir Edit/Write em código de negócio. Tentar pular essa etapa resulta em exit 2.
@@ -51,7 +58,7 @@ Apresentar US e **confirmar** com o usuário.
 
 Ao terminar, crie marker:
 ```
-touch .claude/.runtime/sofia-done-${CLAUDE_SESSION_ID}
+touch .claude/.runtime/sofia-done-${SESSION_HASH}
 ```
 
 ## Etapa 2 — Investigador (Detetive 🔬)
@@ -65,7 +72,7 @@ Esse passo **NÃO escreve código.** Só reporta o que existe.
 
 Ao terminar, crie marker:
 ```
-touch .claude/.runtime/detetive-done-${CLAUDE_SESSION_ID}
+touch .claude/.runtime/detetive-done-${SESSION_HASH}
 ```
 
 ## Etapa 3 — Tech Lead (Rafael 🏛️)
@@ -76,12 +83,12 @@ Invoque `tech-lead` SOMENTE se:
 
 Se a feature é trivial (campo novo em form, regra de validação simples), **pode pular para Dev Sênior** — mas precisa declarar explicitamente:
 ```
-touch .claude/.runtime/rafael-skipped-${CLAUDE_SESSION_ID}
+touch .claude/.runtime/rafael-skipped-${SESSION_HASH}
 ```
 
 Quando invocado, o Tech Lead escreve ADR. Ao terminar, crie marker:
 ```
-touch .claude/.runtime/rafael-done-${CLAUDE_SESSION_ID}
+touch .claude/.runtime/rafael-done-${SESSION_HASH}
 ```
 
 > O hook `require-agent-sequence-before-dev.sh` valida que Sofia, Detetive e Rafael (ou rafael-skipped) rodaram antes de qualquer Edit/Write em código de negócio. Exit 2 se faltar.
@@ -118,7 +125,7 @@ Invoque **sempre, em paralelo**:
 ```bash
 # Compute o hash do que voce DE FATO auditou (impede 'touch sem auditar'):
 AUDIT_SHA=$(git diff HEAD | shasum -a 256 | awk '{print $1}')
-SESS="${CLAUDE_SESSION_ID}"
+SESS="${SESSION_HASH}"
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 # Se aprovou (auditor-seguranca):
@@ -156,7 +163,7 @@ Se algum risco crítico aparecer aqui que escapou da Etapa 6, volte pra Dev Sên
 ## Etapa 8 — Limpeza de markers
 
 Após APROVADO por todos e checkpoint salvo:
-- Remova `.claude/.runtime/feature-active-${CLAUDE_SESSION_ID}` (sessão fechada).
+- Remova `.claude/.runtime/feature-active-${SESSION_HASH}` (sessão fechada).
 - Remova `.claude/.runtime/sofia-done-*`, `detetive-done-*`, `rafael-done-*`, `rafael-skipped-*`.
 - Remova `.claude/.runtime/auditor-{seg,qual,prod}-{pass,blocked}-*` (sessão fechada).
 - Remova `.claude/.runtime/checkpoint-done-*`.

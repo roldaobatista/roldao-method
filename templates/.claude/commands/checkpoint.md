@@ -84,8 +84,10 @@ Saída em PT-BR estruturada:
 
 Após salvar o arquivo `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` e tomar decisão (merge / corrigir / escalar), crie o marcador:
 
-```
-mkdir -p .claude/.runtime && touch .claude/.runtime/checkpoint-done-${CLAUDE_SESSION_ID}
+```bash
+SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
+[ -z "$SESSION_HASH" ] && SESSION_HASH=default
+mkdir -p .claude/.runtime && touch .claude/.runtime/checkpoint-done-${SESSION_HASH}
 ```
 
 Esse marcador libera o hook `require-checkpoint-before-merge.sh` a deixar `git commit`/`git merge`/`git push` passarem. Sem ele, qualquer tentativa de fechar o trabalho da feature retorna exit 2.

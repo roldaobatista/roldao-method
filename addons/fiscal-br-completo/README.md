@@ -10,7 +10,7 @@ Sistema fiscal brasileiro é complexo: NF-e, NFC-e, NFS-e municipal, CT-e, MDF-e
 
 - **1 agente:** `nfe-arch` — decide stack fiscal (biblioteca vs SaaS, ambiente, contingência, Reforma).
 - **1 hook:** `require-sefaz-env` — barra emissão se `SEFAZ_AMBIENTE` não está em env (FISCAL-003).
-- **2 skills:** `emitir-nfe-55` (template + checklist), `validar-cnpj-alfanumerico` (algoritmo módulo 11 com letras pós-jul/2026).
+- **2 skills:** `emitir-nfe-55` (template + checklist), `migrar-cnpj-alfanumerico` (guia de migração; para validar de fato use a skill core `validar-cpf-cnpj`, que já cobre alfanumérico pós-jul/2026).
 - **3 regras novas:** `NFE-001`, `NFE-002`, `NFE-003`.
 
 ## Quando usar
@@ -25,21 +25,18 @@ Copie `addons/fiscal-br-completo/.claude/` pro `.claude/` do seu projeto. Mescle
 
 ## Regras
 
-### NFE-001 — Validar certificado antes de emitir
-Antes de cada lote de emissão, validar:
-- Certificado não vencido.
-- Certificado bate com CNPJ emissor.
-- Senha não em texto puro no código (FISCAL-002 vale junto).
+> Fonte de verdade: `addon.yaml`. Esta seção espelha o manifesto.
 
-### NFE-002 — Persistir XML autorizado por hash
-XML autorizado pela SEFAZ tem hash SHA-256 calculado e persistido junto. Auditoria de integridade detecta alteração.
+### NFE-001 — Ambiente SEFAZ via variável
+Nunca hardcode produção/homologação. O ambiente (`SEFAZ_AMBIENTE`) vem de env — o hook `require-sefaz-env` barra emissão se não estiver definido. FISCAL-002 (certificado/senha fora do código) vale junto.
 
-### NFE-003 — Calcular tributo paralelo durante Reforma Tributária (2026-2033)
-Durante a transição, NF-e tem ambos:
-- Regime atual: ICMS, PIS, COFINS, ISS conforme operação.
-- Regime novo: CBS + IBS + IS conforme alíquotas vigentes.
+### NFE-002 — Suporte CNPJ alfanumérico (jul/2026)
+Todo input/output de CNPJ aceita 14 caracteres alfanuméricos. Validador atualizado — use a skill core `validar-cpf-cnpj`.
 
-Sistema configura alíquotas por UF e por período.
+### NFE-003 — Contingência SVC obrigatória
+Se a SEFAZ da UF cair, o sistema faz fallback automático para SVC-RS ou SVC-AN, com fila de retransmissão. Sem contingência, emissão para quando a SEFAZ oscila.
+
+> Boas práticas relacionadas (cobertas por IDs FISCAL-*): validar certificado antes do lote, persistir o XML autorizado com hash SHA-256, e cálculo tributário paralelo (ICMS/PIS/COFINS/ISS + CBS/IBS/IS) durante a transição da Reforma 2026-2033.
 
 ## Cenários cobertos
 
@@ -50,7 +47,7 @@ Sistema configura alíquotas por UF e por período.
 - MDF-e (manifesto) consolidando notas.
 - Contingência SVC-AN/SVC-RS/EPEC com fila de retransmissão.
 - CC-e (Carta de Correção Eletrônica) — máx 20 por nota.
-- Cancelamento dentro de 24h (limite legal).
+- Cancelamento dentro de 24h (prazo padrão sem ônus; extemporâneo é possível em várias UFs em prazo maior, com penalidade — verificar legislação da UF).
 - Cálculo paralelo ICMS + CBS + IBS na transição da Reforma.
 - CNPJ alfanumérico aceito a partir de jul/2026.
 

@@ -66,7 +66,7 @@ def valida_cnpj(cnpj: str) -> tuple[bool, str]:
         return False, "os 2 ultimos caracteres do CNPJ devem ser digitos (DV)"
     if not re.fullmatch(r"[0-9A-Z]{12}", base):
         return False, "base do CNPJ aceita apenas 0-9 e A-Z (maiusculas)"
-    if base == base[0] * 12 and dvs == dvs[0] * 2:
+    if base == base[0] * 12:
         return False, "sequencia repetida"
     pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
     pesos2 = [6] + pesos1

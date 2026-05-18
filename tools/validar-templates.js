@@ -164,6 +164,15 @@ console.log(`skills:        ${okCount.skills}`);
 console.log(`spec templates:${okCount.specTemplates}`);
 console.log('');
 
+// Minimos esperados: se um diretorio inteiro sumir, listDir retorna [] e a
+// validacao passaria com zero arquivos. Travar contagem minima evita esse falso-verde.
+const MINIMOS = { agents: 12, commands: 21, hooks: 26, skills: 8, specTemplates: 12 };
+for (const [k, min] of Object.entries(MINIMOS)) {
+  if (okCount[k] < min) {
+    issues.push(`contagem de ${k} abaixo do minimo: ${okCount[k]} < ${min} (diretorio faltando?)`);
+  }
+}
+
 if (issues.length === 0) {
   console.log('OK — todos os templates validados.');
   process.exit(0);

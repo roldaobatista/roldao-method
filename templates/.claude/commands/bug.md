@@ -20,6 +20,17 @@ Invoque `investigador`:
 
 **Não pule. Não substitua.** Se o investigador disser "preciso de mais info", pergunte ao usuário ANTES de propor solução.
 
+**Ao terminar a investigação (MECÂNICO — destrava o hook):** o hook `require-investigador-before-fix.sh` bloqueia todo Edit/Write em código de negócio até existir o marcador `investigator-invoked-${SESSION_HASH}` com o MESMO hash que os hooks usam (CLAUDE_SESSION_ID só com caracteres alfanuméricos). Sem este passo o dev-senior fica travado para sempre. Crie o marcador:
+
+```bash
+SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
+[ -z "$SESSION_HASH" ] && SESSION_HASH=default
+mkdir -p .claude/.runtime
+touch ".claude/.runtime/investigator-invoked-${SESSION_HASH}"
+```
+
+Só crie o marcador DEPOIS que o investigador reportou causa raiz — criar antes é furar a própria REGRA #0.
+
 ## Etapa 2 — Confirmação com usuário (se houver ambiguidade)
 
 Se o investigador apontou ambiguidade na descrição do bug ("X não saiu" pode ser "quero que apareça" OU "tirar essa mensagem chata"):

@@ -18,7 +18,7 @@ Skill para validar chaves Pix e identificadores oficiais do BACEN.
 | CNPJ | 14 caracteres (numerico ou alfanumerico apos jul/2026), dv valido | `12.345.678/0001-90` |
 | Email | RFC 5322 simplificado, lowercase no DICT | `cliente@empresa.com.br` |
 | Telefone | E.164 BR | `+5511987654321` |
-| Aleatoria | UUID v4 (8-4-4-4-12 hex) | `123e4567-e89b-12d3-a456-426614174000` |
+| Aleatoria | UUID v4 (8-4-4-4-12 hex; 3o grupo comeca com 4, 4o com [89ab]) | `123e4567-e89b-42d3-a456-426614174000` |
 
 ## Identificadores oficiais
 
