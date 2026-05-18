@@ -74,6 +74,24 @@ Invoque `revisor`:
 
 Se BLOQUEADO: volta pro dev OU sobe pra `/feature` se descobriu que não era trivial.
 
+## Etapa 5 — Commit rastreável (obrigatório)
+
+Mesmo sendo trivial, **toda mudança precisa de ID rastreável**. Sem isso, daqui 6 meses ninguém sabe por que mexeu naquela linha.
+
+1. Gere um T-NNN novo. Como `/quick-dev` não cria story (US-NNN), use o próximo `T-NNN` global — confira `git log` por `T-\d+` e pegue um inédito.
+2. Se a mudança está ligada a uma story existente (label de tela vinculada a US-005, por exemplo), cite **ambos**: `(US-005 T-042)`.
+3. Faça commit no formato:
+
+```
+fix(escopo): <descricao curta> (T-NNN)
+```
+
+Exemplos:
+- `style(cadastro): label do botão Salvar vira Confirmar (T-042)`
+- `fix(validador): permitir CEP com hífen na entrada (US-005 T-043)`
+
+O hook `commit-message-validator.sh` exige `T-NNN` em commits com prefixo `feat:` ou `fix:` durante `/feature` ativo. `/quick-dev` segue a mesma regra por consistência — sem rastro, mudança vira lixo invisível em 1 mês.
+
 ## Saída final
 
 ```
@@ -84,6 +102,7 @@ Arquivos tocados: <N> (limite: 3)
 Linhas: <N> (limite: 50)
 Revisor: APROVADO
 Hooks: PASSARAM
+Commit: T-NNN <hash curto>
 ```
 
 Ao final, limpe os markers da sessão:

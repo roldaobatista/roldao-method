@@ -1,11 +1,17 @@
-nome: lgpd-compliance
-versao: 0.1.0
-descricao: Compliance LGPD operacional — DPO virtual, RIPD automatizado, canal do titular, plano de incidente 72h
-autor: Roldao
-licenca: MIT
-compativel-com: roldao-method>=0.4.0
+name: lgpd-compliance
+version: 0.1.0
+description: Compliance LGPD operacional — DPO virtual, RIPD automatizado, canal do titular, plano de incidente 72h
+authors:
+  - Roldão Batista
+license: MIT
+status: stable
+revisado-em: 2026-05-18
+
+requires:
+  roldao-method: ">=0.4.0"
+
 provoca:
-  agentes:
+  agents:
     - dpo-virtual
   commands:
     - lgpd-audit
@@ -14,13 +20,21 @@ provoca:
     - gerar-ripd
     - gerar-canal-dpo
     - resposta-titular
-  regras:
-    - LGPD-EXT-001
-    - LGPD-EXT-002
+  templates: []
+
+regras:
+  - id: LGPD-EXT-001
+    titulo: "RIPD obrigatório em alto risco"
+    descricao: "Tratamento de alto risco exige Relatório de Impacto à Proteção de Dados antes de ir pra produção."
+  - id: LGPD-EXT-002
+    titulo: "Canal do titular vivo em &lt;15 dias"
+    descricao: "Solicitação LGPD do titular respondida em até 15 dias (ANPD orientação)."
+
 requisitos:
   - "projeto com tratamento de dado pessoal"
-  - "DPO designado (pessoa fisica ou empresa terceirizada)"
+  - "DPO designado (pessoa física ou empresa terceirizada)"
+
 non-goals:
-  - "substituir consultoria juridica especializada"
+  - "substituir consultoria jurídica especializada"
   - "ser autoridade certificadora ANPD"
-  - "garantir 100% de conformidade — orienta, nao certifica"
+  - "garantir 100% de conformidade — orienta, não certifica"

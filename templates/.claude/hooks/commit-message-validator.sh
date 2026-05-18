@@ -5,6 +5,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 CMD=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -66,8 +69,8 @@ fi
 
 # Regra 4: se ha sessao /feature ou /bug ativa, commit feat/fix/refactor deve citar (US-NNN T-NNN) ou (T-NNN).
 # Resolve gap auditado em 2026-05-18 (auditor 1/10): rastreabilidade T-NNN -> commit so era best practice.
-PROJDIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | perl -pe 'chomp; tr/a-zA-Z0-9//cd;')
+PROJDIR=$(sanitize_projdir) || exit 2
+SESSION_HASH=$(sanitize_session_hash)
 MARK_FEATURE="$PROJDIR/.claude/.runtime/feature-active-${SESSION_HASH}"
 MARK_BUG="$PROJDIR/.claude/.runtime/bug-trigger-${SESSION_HASH}"
 

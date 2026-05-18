@@ -5,7 +5,12 @@
 
 set -u
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
+# context-budget roda em SessionStart, antes do projeto estar plenamente
+# estabelecido. Aceita PWD como fallback (path relativo) mas valida via lib.
+PROJECT_DIR=$(sanitize_projdir "${CLAUDE_PROJECT_DIR:-$PWD}") || exit 0
 
 AGENTS_MD="$PROJECT_DIR/AGENTS.md"
 CLAUDE_MD="$PROJECT_DIR/CLAUDE.md"

@@ -20,6 +20,26 @@
  * Bin tambem disponivel como 'roldao' (alias curto).
  */
 
+// Checa Node 18+ antes de qualquer require — usa fs basico so depois.
+// Mensagem em PT-BR pra usuario nao-tecnico entender o que fazer.
+(function checkNodeVersion() {
+  const required = 18;
+  const current = process.versions && process.versions.node;
+  if (!current) return;
+  const major = parseInt(current.split('.')[0], 10);
+  if (isNaN(major) || major >= required) return;
+  process.stderr.write(
+    '\n[roldao-method] Node ' + required + '+ necessario. Voce esta usando: ' + current + '\n' +
+    '\n' +
+    'Como atualizar:\n' +
+    '  - Windows/macOS: baixe instalador em https://nodejs.org (versao LTS)\n' +
+    '  - Linux: use nvm (https://github.com/nvm-sh/nvm) ou pacote da distro\n' +
+    '\n' +
+    'Depois rode novamente: npx roldao-method install\n\n'
+  );
+  process.exit(1);
+})();
+
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -98,6 +118,32 @@ async function askMenu(question, options) {
   const n = parseInt(a, 10);
   if (n >= 1 && n <= options.length) return options[n - 1];
   return options[0];
+}
+
+// Em Windows, hooks bash/perl so rodam dentro de Git Bash. PowerShell e CMD
+// nao executam .sh — o Claude Code chama os hooks via shell, e sem Git Bash
+// no PATH eles falham silenciosamente (cliente acha que esta protegido, nao
+// esta). Detectar via MSYSTEM (setado pelo Git Bash/MSYS2) e SHELL.
+function isWindowsWithoutBash() {
+  if (process.platform !== 'win32') return false;
+  if (process.env.MSYSTEM) return false;        // Git Bash, MSYS2, Cygwin
+  if ((process.env.SHELL || '').toLowerCase().includes('bash')) return false;
+  return true;
+}
+
+function warnWindowsShell() {
+  if (!isWindowsWithoutBash()) return;
+  console.log('');
+  console.log(`${c.yellow}${c.bold}AVISO — Windows sem Git Bash detectado.${c.reset}`);
+  console.log(`${c.yellow}Os hooks de protecao (21 bloqueadores) ${c.bold}NAO vao rodar${c.reset}${c.yellow} em PowerShell ou CMD.${c.reset}`);
+  console.log('');
+  console.log(`Para ativar a protecao do framework:`);
+  console.log(`  ${c.cyan}1.${c.reset} Instale Git for Windows: ${c.dim}https://git-scm.com/download/win${c.reset}`);
+  console.log(`  ${c.cyan}2.${c.reset} Abra ${c.bold}Git Bash${c.reset} (nao PowerShell, nao CMD)`);
+  console.log(`  ${c.cyan}3.${c.reset} Rode o Claude Code dentro do Git Bash`);
+  console.log('');
+  console.log(`${c.dim}Confira a deteccao com: npx roldao-method doctor${c.reset}`);
+  console.log('');
 }
 
 function detectTools() {
@@ -196,8 +242,16 @@ function copyFile(src, dest, mode) {
   try {
     fs.copyFileSync(dest, bak);
   } catch (e) {
-    detalhes.erros.push(`${rel}: backup falhou (${e.message})`);
-    counters.erros++;
+    // CRITICO: nao sobrescrever sem backup. Se backup falhou (permissao,
+    // disco cheio, NTFS travado), preservar arquivo do usuario. Cliente
+    // pode reaplicar a atualizacao depois de corrigir o ambiente, OU
+    // forcar com --force pra aceitar o risco explicitamente.
+    if (!FORCE) {
+      detalhes.erros.push(`${rel}: backup falhou (${e.message}) — arquivo PRESERVADO. Use --force para sobrescrever mesmo assim.`);
+      counters.erros++;
+      return;
+    }
+    detalhes.erros.push(`${rel}: backup falhou (${e.message}) — sobrescrito com --force`);
   }
   fs.copyFileSync(src, dest);
   counters.atualizados++;
@@ -285,25 +339,45 @@ function listAddonsAvailable() {
     .readdirSync(ADDONS_DIR)
     .filter((f) => {
       const p = path.join(ADDONS_DIR, f);
-      return fs.statSync(p).isDirectory() && fs.existsSync(path.join(p, 'addon.yaml'));
+      if (!fs.statSync(p).isDirectory()) return false;
+      return fs.existsSync(path.join(p, 'addon.yaml'));
     });
 }
 
+// Le o primeiro agent listado em provoca: do addon.yaml — usamos como marker
+// pra detectar instalacao sem precisar de lista hardcoded no CLI.
+function addonMarker(addonName) {
+  const yamlPath = path.join(ADDONS_DIR, addonName, 'addon.yaml');
+  if (!fs.existsSync(yamlPath)) return null;
+  const text = fs.readFileSync(yamlPath, 'utf8');
+  // procura bloco "provoca:" seguido de "agents:" com primeiro item "- nome"
+  const m = text.match(/^provoca:\s*$[\s\S]*?^\s*agents:\s*$\s*-\s*([\w-]+)/m);
+  return m ? `.claude/agents/${m[1]}.md` : null;
+}
+
 function listAddonsInstalled() {
-  // Heuristica: addons instalam agente/hook/skill em .claude/ — detecta pelo agent nomeado do addon
   const installed = [];
-  const known = {
-    'electron-br': '.claude/agents/electron-arch.md',
-    'fiscal-br-completo': '.claude/agents/nfe-arch.md',
-    'lgpd-compliance': '.claude/agents/dpo-virtual.md',
-    'fintech-br': '.claude/agents/pix-arch.md',
-    'esocial-completo': '.claude/agents/esocial-arch.md',
-    'varejo-pdv-br': '.claude/agents/pdv-arch.md',
-  };
-  for (const [name, marker] of Object.entries(known)) {
-    if (fs.existsSync(path.join(CWD, marker))) installed.push(name);
+  for (const name of listAddonsAvailable()) {
+    const marker = addonMarker(name);
+    if (marker && fs.existsSync(path.join(CWD, marker))) installed.push(name);
   }
   return installed;
+}
+
+// Carrega perfis de instalacao do arquivo data-driven addons/profiles.json.
+// Fallback minimo se arquivo nao existir (defensivo, nao deveria acontecer).
+function loadProfiles() {
+  const profilesFile = path.join(ADDONS_DIR, 'profiles.json');
+  if (!fs.existsSync(profilesFile)) {
+    return [{ label: 'Genérico (sem addon)', addons: [] }];
+  }
+  try {
+    const data = JSON.parse(fs.readFileSync(profilesFile, 'utf8'));
+    if (!Array.isArray(data.perfis)) return [{ label: 'Genérico (sem addon)', addons: [] }];
+    return data.perfis;
+  } catch {
+    return [{ label: 'Genérico (sem addon)', addons: [] }];
+  }
 }
 
 async function install() {
@@ -331,23 +405,14 @@ async function install() {
     process.exit(1);
   }
 
-  // Wizard interativo (apenas se TTY + sem --yes/--force)
-  let perfil = 'default';
+  // Wizard interativo (apenas se TTY + sem --yes/--force).
+  // Perfis vem de addons/profiles.json — data-driven, sem hardcode no CLI.
   let addonsEscolhidos = [];
   if (!YES && !FORCE && process.stdin.isTTY) {
-    perfil = await askMenu(
-      'Qual o perfil do projeto?',
-      ['Generico (sem addon)', 'Electron (desktop offline)', 'Fiscal/NF-e', 'Fintech/Pix', 'LGPD-strict', 'eSocial/folha', 'Varejo/PDV', 'Customizar (escolho depois)']
-    );
-    const map = {
-      'Electron (desktop offline)': ['electron-br'],
-      'Fiscal/NF-e': ['fiscal-br-completo'],
-      'Fintech/Pix': ['fintech-br'],
-      'LGPD-strict': ['lgpd-compliance'],
-      'eSocial/folha': ['esocial-completo'],
-      'Varejo/PDV': ['varejo-pdv-br', 'fiscal-br-completo'],
-    };
-    addonsEscolhidos = map[perfil] || [];
+    const perfis = loadProfiles();
+    const escolhido = await askMenu('Qual o perfil do projeto?', perfis.map((p) => p.label));
+    const matched = perfis.find((p) => p.label === escolhido);
+    addonsEscolhidos = matched ? matched.addons : [];
 
     const a = await ask(`${c.bold}Confirmar instalacao em ${CWD}?${c.reset} [s/N] `);
     if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
@@ -367,6 +432,7 @@ async function install() {
 
   if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
   ok('instalacao concluida.');
+  warnWindowsShell();
   console.log('');
   console.log(`${c.bold}Proximos passos:${c.reset}`);
   console.log(`  ${c.cyan}1.${c.reset} ler ${c.bold}AGENTS.md${c.reset} — seu documento-contrato`);
@@ -536,6 +602,11 @@ function doctor() {
   // Check bash + perl no Windows
   if (process.platform === 'win32') {
     const { execSync } = require('child_process');
+    if (isWindowsWithoutBash()) {
+      console.log(`  ${c.yellow}AVISO${c.reset} parece que este terminal nao e Git Bash (MSYSTEM/SHELL nao detectado).`);
+      console.log(`         Em PowerShell/CMD, hooks .sh ${c.bold}nao executam${c.reset} — abra Git Bash antes.`);
+      faltando++;
+    }
     try {
       execSync('bash --version', { stdio: 'pipe' });
       console.log(`  ${c.green}OK   ${c.reset} bash disponivel (Git Bash)`);

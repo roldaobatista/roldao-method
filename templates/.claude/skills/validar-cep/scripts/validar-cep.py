@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Valida CEP brasileiro (formato + consulta opcional ao ViaCEP)."""
 
 import json
 import re
 import sys
 import urllib.request
+
+# Forca UTF-8 no I/O para evitar corrupcao de acentos em Windows (cp1252).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 def _digitos(s: str) -> str:
@@ -14,9 +20,9 @@ def _digitos(s: str) -> str:
 def valida_formato(cep: str) -> tuple[bool, str]:
     d = _digitos(cep)
     if len(d) != 8:
-        return False, f"CEP deve ter 8 digitos, recebido {len(d)}"
+        return False, f"CEP deve ter 8 dígitos, recebido {len(d)}"
     if d == d[0] * 8:
-        return False, "sequencia repetida"
+        return False, "sequência repetida"
     return True, d
 
 
@@ -26,7 +32,7 @@ def consulta_viacep(cep_digits: str, timeout: float = 5.0) -> tuple[bool, dict |
         with urllib.request.urlopen(url, timeout=timeout) as r:
             data = json.loads(r.read().decode("utf-8"))
         if data.get("erro"):
-            return False, "CEP nao encontrado no ViaCEP"
+            return False, "CEP não encontrado no ViaCEP"
         return True, data
     except Exception as e:
         return False, f"falha de rede: {e}"

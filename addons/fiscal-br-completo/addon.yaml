@@ -1,27 +1,43 @@
-nome: fiscal-br-completo
-versao: 0.1.0
-descricao: Emissao e gestao fiscal BR completa — NF-e (55), NFC-e (65), NFS-e municipal, CT-e, MDF-e, com Reforma Tributaria 2026-2033
-autor: Roldao
-licenca: MIT
-compativel-com: roldao-method>=0.4.0
+name: fiscal-br-completo
+version: 0.1.0
+description: Emissão e gestão fiscal BR completa — NF-e (55), NFC-e (65), NFS-e municipal, CT-e, MDF-e, com Reforma Tributária 2026-2033
+authors:
+  - Roldão Batista
+license: MIT
+status: stable
+revisado-em: 2026-05-18
+
+requires:
+  roldao-method: ">=0.4.0"
+
 provoca:
-  agentes:
+  agents:
     - nfe-arch
   commands: []
   hooks:
     - require-sefaz-env
   skills:
     - emitir-nfe-55
-    - validar-cnpj-alfanumerico
-  regras:
-    - NFE-001
-    - NFE-002
-    - NFE-003
+    - migrar-cnpj-alfanumerico
+  templates: []
+
+regras:
+  - id: NFE-001
+    titulo: "Ambiente SEFAZ via variável"
+    descricao: "Nunca hardcode produção/homologação. Vem de env."
+  - id: NFE-002
+    titulo: "Suporte CNPJ alfanumérico jul/2026"
+    descricao: "Todo input/output CNPJ aceita 14 alfanuméricos. Validador atualizado."
+  - id: NFE-003
+    titulo: "Contingência SVC obrigatória"
+    descricao: "Se SEFAZ da UF cair, fallback para SVC-RS ou SVC-AN."
+
 requisitos:
   - "backend com runtime que assina XML (Node/Python/Go/.NET)"
-  - "certificado digital A1 ou A3 disponivel"
+  - "certificado digital A1 ou A3 disponível"
   - "credenciais SEFAZ obtidas (cadastro do contribuinte)"
+
 non-goals:
-  - "emissao de Conhecimento de Embarque (BL) ou docs aduaneiros"
-  - "calculo de IRPF/IRPJ (use ferramenta contabil)"
-  - "homologacao automatica em SEFAZ (precisa intervencao humana)"
+  - "emissão de Conhecimento de Embarque (BL) ou docs aduaneiros"
+  - "cálculo de IRPF/IRPJ (use ferramenta contábil)"
+  - "homologação automática em SEFAZ (precisa intervenção humana)"

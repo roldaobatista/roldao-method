@@ -1,9 +1,11 @@
 ---
-name: validar-cnpj-alfanumerico
-description: Valida CNPJ alfanumerico (vigor jul/2026) — algoritmo modulo 11 com mapeamento de letras pra valores numericos. Use ao salvar, indexar ou consultar CNPJ em sistema BR pos-2026.
+name: migrar-cnpj-alfanumerico
+description: GUIA de migração para CNPJ alfanumérico (vigor jul/2026) — checklist de banco, regex, máscaras, exemplos em TS e Python. Para VALIDAR de fato, use a skill core `validar-cpf-cnpj` (que já cobre alfanumérico).
 ---
 
-# validar-cnpj-alfanumerico
+# migrar-cnpj-alfanumerico
+
+> **Para apenas validar um CNPJ alfanumérico**, use a skill core `validar-cpf-cnpj` — ela já cobre o caso. Este guia é para **planejar a migração** do seu sistema antes de jul/2026 (schema do banco, regex, máscaras de input, integrações).
 
 A partir de **julho/2026**, novos CNPJs podem ter letras nos 12 primeiros caracteres (A-Z, exceto I e O pra evitar confusão visual). Os 2 últimos dígitos (DV) permanecem **numéricos**.
 

@@ -10,6 +10,17 @@ Você vai conduzir a implementação de uma funcionalidade nova. **Não pule eta
 
 Use `$ARGUMENTS` como `US-NNN` (preferido) ou descrição inicial da feature pedida.
 
+## REGRA #0 — antes de invocar Sofia, decida o caminho
+
+Antes da Etapa 0, faça uma pergunta sozinho (não pro usuário):
+
+> **A feature MUDA comportamento existente do produto?** (Ex: muda como o PDF sai, muda cálculo de imposto, altera fluxo de cadastro já em uso.)
+
+- **Sim** → trate como bug + feature: invoque o **Detetive 🔬 (investigador) PRIMEIRO** para ler o estado real (banco, log, payload) antes de Sofia entrar. Use a Etapa 2 antes da Etapa 1. Razão: mexer em comportamento sem entender por que está como está reproduz o erro clássico da REGRA #0 — trocar o sintoma sem ver a causa.
+- **Não** → feature é greenfield (campo novo, tela nova, regra que ainda não existe). Siga a ordem padrão Sofia → Detetive → Rafael.
+
+Esse desvio é codificado em `templates/CLAUDE.md` REGRA #0 e `regra-zero-reminder.sh`. Não pergunte ao usuário — você consegue julgar lendo o pedido em 10 segundos. Reporte em 1 frase o caminho escolhido ("vou começar pelo Detetive porque a feature muda o relatório que já existe").
+
 ## Etapa 0 — Gate de readiness (OBRIGATÓRIO, mecânico)
 
 **Esta etapa bloqueia mecanicamente o início da feature** — o hook `require-readiness-before-feature.sh` verifica o estado antes de qualquer Edit/Write em código.
@@ -102,7 +113,22 @@ Invoque **sempre, em paralelo**:
 
 **Não há mais "dispensa de auditores"**. Mesmo mudança cosmética passa pelos 3 — eles são rápidos e a dispensa virou o caminho mais usado, esvaziando o gate.
 
-Se qualquer auditor retornar BLOQUEADO: voltar pra Dev Sênior. Re-rodar Etapa 5 e 6.
+**Para cada auditor, registre o veredito como marker (mecânico):**
+
+```
+# Se aprovou:
+touch .claude/.runtime/auditor-seg-pass-${CLAUDE_SESSION_ID}
+touch .claude/.runtime/auditor-qual-pass-${CLAUDE_SESSION_ID}
+touch .claude/.runtime/auditor-prod-pass-${CLAUDE_SESSION_ID}
+
+# Se BLOQUEOU (apontou ressalva bloqueante):
+touch .claude/.runtime/auditor-seg-blocked-${CLAUDE_SESSION_ID}
+# (idem qual / prod)
+```
+
+Se qualquer auditor retornar BLOQUEADO: voltar pra Dev Sênior. Re-rodar Etapa 5 e 6. Antes de re-rodar, **remova o marker blocked correspondente**.
+
+> O hook `require-auditors-pass-before-commit.sh` bloqueia `git commit`/`merge`/`push` (em sessão `/feature` ativa) enquanto os 3 markers `auditor-{seg,qual,prod}-pass-*` não existirem. Marker `blocked` também impede.
 
 ## Etapa 7 — Checkpoint (walkthrough antes de mergear)
 
@@ -127,6 +153,8 @@ Se algum risco crítico aparecer aqui que escapou da Etapa 6, volte pra Dev Sên
 Após APROVADO por todos e checkpoint salvo:
 - Remova `.claude/.runtime/feature-active-${CLAUDE_SESSION_ID}` (sessão fechada).
 - Remova `.claude/.runtime/sofia-done-*`, `detetive-done-*`, `rafael-done-*`, `rafael-skipped-*`.
+- Remova `.claude/.runtime/auditor-{seg,qual,prod}-{pass,blocked}-*` (sessão fechada).
+- Remova `.claude/.runtime/checkpoint-done-*`.
 - Mantenha `readiness-passed-*` (válido pra próximas stories do mesmo épico nesta sessão).
 
 ## Saída final

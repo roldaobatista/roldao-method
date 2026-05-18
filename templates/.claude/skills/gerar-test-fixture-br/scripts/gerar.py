@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Gera dados sintéticos brasileiros válidos por algoritmo.
 
 Stdlib pura. Saída no stdout, 1 por linha.
 """
 
 import sys
+
+# Força UTF-8 no I/O para evitar corrupção de acentos em Windows (cp1252).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 # ===== CPF =====
@@ -124,7 +130,17 @@ def main() -> int:
         print(f"tipos: {', '.join(GERADORES.keys())}", file=sys.stderr)
         return 2
     tipo = sys.argv[1]
-    n = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    try:
+        n = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    except ValueError:
+        print(f"erro: n deve ser um inteiro, recebido: {sys.argv[2]!r}", file=sys.stderr)
+        return 2
+    if n <= 0:
+        print(f"erro: n deve ser >= 1, recebido: {n}", file=sys.stderr)
+        return 2
+    if n > 100000:
+        print(f"erro: n muito grande (max 100000), recebido: {n}", file=sys.stderr)
+        return 2
     if tipo not in GERADORES:
         print(f"tipo desconhecido: {tipo}", file=sys.stderr)
         return 2

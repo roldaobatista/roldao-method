@@ -5,6 +5,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -31,7 +34,7 @@ case "$MODULE_DIR" in
     ;;
 esac
 
-PROJDIR="${CLAUDE_PROJECT_DIR:-$PWD}"
+PROJDIR=$(sanitize_projdir) || exit 2
 
 # Procura unit tests no mesmo modulo (extensao .test, .spec OR dentro de __tests__/)
 UNIT_COUNT=0

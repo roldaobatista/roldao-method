@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Valida PIS/PASEP/NIS brasileiro (11 dígitos, módulo 11)."""
 
 import sys
+
+# Força UTF-8 no I/O para evitar corrupção de acentos em Windows (cp1252).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 PESOS = [3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
 

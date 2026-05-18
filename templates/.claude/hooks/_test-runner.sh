@@ -338,6 +338,262 @@ run_case "libera docs sem T-NNN (nao exige)" "commit-message-validator.sh" \
 
 rm -rf /tmp/roldao-test-commit
 
+# ------- require-checkpoint-before-merge --------
+run_case "passa sem feature ativa" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x\""}}' 0
+
+run_case "ignora comando nao-git" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"ls -la"}}' 0
+
+mkdir -p /tmp/roldao-test-chk/.claude/.runtime
+echo "US-001" > /tmp/roldao-test-chk/.claude/.runtime/feature-active-chk1
+
+run_case "bloqueia commit feat sem checkpoint" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: foo (US-001 T-001)\""}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-chk CLAUDE_SESSION_ID=chk1
+
+run_case "libera commit docs (skip)" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"docs: readme\""}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-chk CLAUDE_SESSION_ID=chk1
+
+touch /tmp/roldao-test-chk/.claude/.runtime/checkpoint-done-chk1
+run_case "libera commit apos checkpoint-done" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: foo (US-001 T-001)\""}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-chk CLAUDE_SESSION_ID=chk1
+
+rm -rf /tmp/roldao-test-chk
+
+# ------- require-auditors-pass-before-commit --------
+run_case "passa sem feature ativa" "require-auditors-pass-before-commit.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x\""}}' 0
+
+mkdir -p /tmp/roldao-test-aud/.claude/.runtime
+echo "US-001" > /tmp/roldao-test-aud/.claude/.runtime/feature-active-aud1
+
+run_case "bloqueia commit sem nenhum auditor" "require-auditors-pass-before-commit.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+
+touch /tmp/roldao-test-aud/.claude/.runtime/auditor-seg-pass-aud1
+touch /tmp/roldao-test-aud/.claude/.runtime/auditor-qual-pass-aud1
+run_case "bloqueia commit faltando 1 auditor" "require-auditors-pass-before-commit.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+
+touch /tmp/roldao-test-aud/.claude/.runtime/auditor-prod-pass-aud1
+run_case "libera commit com 3 auditores aprovados" "require-auditors-pass-before-commit.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+
+touch /tmp/roldao-test-aud/.claude/.runtime/auditor-seg-blocked-aud1
+run_case "bloqueia se auditor marcou blocked" "require-auditors-pass-before-commit.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+
+rm -rf /tmp/roldao-test-aud
+
+# ------- validate-story-approvals --------
+run_case "ignora arquivo nao-story" "validate-story-approvals.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"status: entregue"}}' 0
+
+run_case "ignora story status: draft" "validate-story-approvals.sh" \
+  '{"tool_input":{"file_path":"./docs/stories/US-001-foo.md","content":"---\nid: US-001\nstatus: draft\n---"}}' 0
+
+run_case "bloqueia entregue sem aprovacoes" "validate-story-approvals.sh" \
+  '{"tool_input":{"file_path":"./docs/stories/US-001-foo.md","content":"---\nid: US-001\nstatus: entregue\naprovacoes: []\n---"}}' 2
+
+APROV_OK='---\nid: US-001\nstatus: entregue\naprovacoes:\n  - etapa: gerente-produto\n    data: 2026-05-18\n    status: aprovado\n  - etapa: investigador\n    data: 2026-05-18\n    status: aprovado\n  - etapa: tech-lead\n    data: 2026-05-18\n    status: dispensado\n  - etapa: dev-senior\n    data: 2026-05-18\n    status: aprovado\n  - etapa: revisor\n    data: 2026-05-18\n    status: aprovado\n  - etapa: auditor-seguranca\n    data: 2026-05-18\n    status: aprovado\n  - etapa: auditor-qualidade\n    data: 2026-05-18\n    status: aprovado\n  - etapa: auditor-produto\n    data: 2026-05-18\n    status: aprovado\n---'
+run_case "libera entregue com aprovacoes completas" "validate-story-approvals.sh" \
+  "{\"tool_input\":{\"file_path\":\"./docs/stories/US-001-foo.md\",\"content\":\"$APROV_OK\"}}" 0
+
+APROV_BLOCK='---\nid: US-001\nstatus: entregue\naprovacoes:\n  - etapa: gerente-produto\n    data: 2026-05-18\n    status: aprovado\n  - etapa: investigador\n    data: 2026-05-18\n    status: aprovado\n  - etapa: tech-lead\n    data: 2026-05-18\n    status: dispensado\n  - etapa: dev-senior\n    data: 2026-05-18\n    status: aprovado\n  - etapa: revisor\n    data: 2026-05-18\n    status: aprovado\n  - etapa: auditor-seguranca\n    data: 2026-05-18\n    status: bloqueado\n  - etapa: auditor-qualidade\n    data: 2026-05-18\n    status: aprovado\n  - etapa: auditor-produto\n    data: 2026-05-18\n    status: aprovado\n---'
+run_case "bloqueia se aprovacao tem status: bloqueado" "validate-story-approvals.sh" \
+  "{\"tool_input\":{\"file_path\":\"./docs/stories/US-001-foo.md\",\"content\":\"$APROV_BLOCK\"}}" 2
+
+# ------- _lib.sh / sanitizacao de PROJDIR e SESSION_HASH (Sprint 1) --------
+# Cenarios que antes davam bypass silencioso. Esses testes garantem que os
+# hooks rejeitam input malicioso em vez de gerar markers em /etc, /tmp arbitrarios
+# ou aceitar SESSION_ID com so caracteres especiais.
+
+# C5 — PROJDIR com ".." rejeitado (path traversal via PR malicioso)
+mkdir -p /tmp/roldao-test-traversal/.claude/.runtime
+touch /tmp/roldao-test-traversal/.claude/.runtime/feature-active-trv1
+run_case "rejeita PROJDIR com .. (path traversal)" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-traversal/../etc CLAUDE_SESSION_ID=trv1
+
+# Nota: PROJDIR="" (vazio) cai no fallback $PWD por design — comportamento
+# legitimo. O ataque real e via ".." ou path relativo, ja cobertos.
+
+# C5 — PROJDIR nao-absoluto rejeitado
+run_case "rejeita PROJDIR relativo" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
+  CLAUDE_PROJECT_DIR=relative/path CLAUDE_SESSION_ID=rel1
+
+rm -rf /tmp/roldao-test-traversal
+
+# C2 — SESSION_ID com so caracteres especiais nao gera marker generico
+# Antes: hash="" → marker "feature-active-" liberava qualquer um.
+# Agora: hash="default" → marker proprio.
+mkdir -p /tmp/roldao-test-emptyhash/.claude/.runtime
+touch /tmp/roldao-test-emptyhash/.claude/.runtime/feature-active-default
+run_case "SESSION_ID so com hifens cai em hash=default" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-emptyhash CLAUDE_SESSION_ID="-----"
+
+touch /tmp/roldao-test-emptyhash/.claude/.runtime/checkpoint-done-default
+run_case "checkpoint default libera commit" "require-checkpoint-before-merge.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-emptyhash CLAUDE_SESSION_ID="-----"
+
+rm -rf /tmp/roldao-test-emptyhash
+
+# C4 — validate-quick-dev-scope com paths contendo espaco
+mkdir -p "/tmp/roldao-test-qdspace/.claude/.runtime"
+touch "/tmp/roldao-test-qdspace/.claude/.runtime/quick-dev-active-qds1"
+run_case "quick-dev libera 1o arquivo com espaco no path" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"src/path with space/a.js","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+
+run_case "quick-dev libera 2o arquivo com espaco" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"src/path with space/b.js","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+
+run_case "quick-dev libera 3o arquivo com espaco" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"src/path with space/c.js","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+
+run_case "quick-dev bloqueia 4o arquivo com espaco" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"src/path with space/d.js","content":"x"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+
+run_case "quick-dev libera reedicao do 1o arquivo com espaco" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"src/path with space/a.js","content":"x2"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+
+rm -rf /tmp/roldao-test-qdspace
+
+# C1 — validate-story-approvals com multiplos status: bloqueado (contagem multilinha)
+APROV_DOUBLE_BLOCK='---\nid: US-002\nstatus: entregue\naprovacoes:\n  - etapa: gerente-produto\n    data: 2026-05-18\n    status: aprovado\n  - etapa: investigador\n    data: 2026-05-18\n    status: aprovado\n  - etapa: tech-lead\n    data: 2026-05-18\n    status: dispensado\n  - etapa: dev-senior\n    data: 2026-05-18\n    status: aprovado\n  - etapa: revisor\n    data: 2026-05-18\n    status: aprovado\n  - etapa: auditor-seguranca\n    data: 2026-05-18\n    status: reprovado\n  - etapa: auditor-qualidade\n    data: 2026-05-18\n    status: bloqueado\n  - etapa: auditor-produto\n    data: 2026-05-18\n    status: aprovado\n---'
+run_case "bloqueia entregue com 2 aprovacoes reprovadas/bloqueadas" "validate-story-approvals.sh" \
+  "{\"tool_input\":{\"file_path\":\"./docs/stories/US-002-bar.md\",\"content\":\"$APROV_DOUBLE_BLOCK\"}}" 2
+
+# ------- block-confirmation-questions (PostToolUse — sempre exit 0, decide via JSON output) --------
+# Hook bloqueia via JSON {"decision":"block"} no stdout, mas sempre exit 0.
+# Aqui testamos que ele EMITE o JSON quando viola.
+check_stdout() {
+  local desc="$1"
+  local hook="$2"
+  local input="$3"
+  local expect_pattern="$4"  # regex que deve casar no stdout
+  local out
+  out=$(printf '%s' "$input" | bash "$HOOKS_DIR/$hook" 2>/dev/null || true)
+  if printf '%s' "$out" | grep -qE -- "$expect_pattern"; then
+    PASS=$((PASS + 1))
+    RESULTS+=("OK   $hook  →  $desc")
+  else
+    FAIL=$((FAIL + 1))
+    RESULTS+=("FAIL $hook  →  $desc  (esperava match em /$expect_pattern/, output: $out)")
+  fi
+}
+
+run_case "passa com resposta sem pergunta de confirmacao" "block-confirmation-questions.sh" \
+  '{"response":"feito, salvei a correcao no sistema."}' 0
+check_stdout "emite block em 'quer que eu...?'" "block-confirmation-questions.sh" \
+  '{"response":"pronto. quer que eu publique?"}' '"decision":[[:space:]]*"block"'
+check_stdout "emite block em 'posso continuar?'" "block-confirmation-questions.sh" \
+  '{"response":"feito. posso continuar?"}' '"decision":[[:space:]]*"block"'
+run_case "libera quando pergunta envolve npm publish (legit)" "block-confirmation-questions.sh" \
+  '{"response":"quer que eu rode npm publish? Precisa de credenciais."}' 0
+
+# ------- block-jargon-pt-br (PostToolUse — JSON output) --------
+run_case "passa resposta sem jargao" "block-jargon-pt-br.sh" \
+  '{"response":"salvei tudo no sistema, voce ja pode usar."}' 0
+check_stdout "emite block com commit/push sem traducao" "block-jargon-pt-br.sh" \
+  '{"response":"acabei de fazer commit e push das mudancas."}' '"decision":[[:space:]]*"block"'
+
+# ------- block-secrets-in-commit-message --------
+run_case "permite commit message limpa" "block-secrets-in-commit-message.sh" \
+  '{"tool_input":{"command":"git commit -m \"fix: corrige validacao\""}}' 0
+run_case "bloqueia commit message com AWS key" "block-secrets-in-commit-message.sh" \
+  '{"tool_input":{"command":"git commit -m \"chore: rotacao AKIAIOSFODNN7EXAMPLE\""}}' 2
+run_case "bloqueia commit message com sk-ant token" "block-secrets-in-commit-message.sh" \
+  '{"tool_input":{"command":"git commit -m \"fix: tinha sk-ant-api01-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa no log\""}}' 2
+run_case "ignora comando nao-commit" "block-secrets-in-commit-message.sh" \
+  '{"tool_input":{"command":"git status"}}' 0
+
+# ------- no-amend-after-push --------
+run_case "ignora comando que nao e amend" "no-amend-after-push.sh" \
+  '{"tool_input":{"command":"git commit -m fix"}}' 0
+# nao testamos amend real aqui — exige repo com upstream, ficaria flaky em CI
+
+# ------- paths-frontmatter-validator --------
+run_case "ignora arquivo fora de docs/" "paths-frontmatter-validator.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0
+run_case "ignora README.md canonico" "paths-frontmatter-validator.sh" \
+  '{"tool_input":{"file_path":"./docs/README.md","content":"sem frontmatter"}}' 0
+run_case "bloqueia doc sem frontmatter" "paths-frontmatter-validator.sh" \
+  '{"tool_input":{"file_path":"./docs/feature-x.md","content":"# Feature X\nsem frontmatter"}}' 2
+run_case "libera doc com frontmatter completo" "paths-frontmatter-validator.sh" \
+  '{"tool_input":{"file_path":"./docs/feature-x.md","content":"---\nowner: roldao\nrevisado-em: 2026-05-18\nstatus: stable\n---\n# Feature X"}}' 0
+run_case "bloqueia frontmatter sem campo owner" "paths-frontmatter-validator.sh" \
+  '{"tool_input":{"file_path":"./docs/feature-x.md","content":"---\nrevisado-em: 2026-05-18\nstatus: stable\n---\n# X"}}' 2
+
+# ------- require-investigador-before-fix (REGRA #0 — CRITICO) --------
+mkdir -p /tmp/roldao-test-inv/.claude/.runtime
+run_case "passa sem marker de bug" "require-investigador-before-fix.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+run_case "ignora doc mesmo com bug-trigger" "require-investigador-before-fix.sh" \
+  '{"tool_input":{"file_path":"./docs/x.md","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+
+touch /tmp/roldao-test-inv/.claude/.runtime/bug-trigger-inv1
+run_case "bloqueia edit em codigo com bug-trigger sem investigador" "require-investigador-before-fix.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+
+touch /tmp/roldao-test-inv/.claude/.runtime/investigator-invoked-inv1
+run_case "libera apos investigator-invoked marker" "require-investigador-before-fix.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+
+rm -rf /tmp/roldao-test-inv
+
+# ------- validate-test-pyramid --------
+run_case "ignora arquivo nao-E2E" "validate-test-pyramid.sh" \
+  '{"tool_input":{"file_path":"./src/foo.test.ts","content":"x"}}' 0
+
+mkdir -p /tmp/roldao-test-pyr/src/auth
+run_case "bloqueia E2E sem unit tests no modulo" "validate-test-pyramid.sh" \
+  '{"tool_input":{"file_path":"src/auth/login.e2e.ts","content":"x"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-pyr
+
+echo "test" > /tmp/roldao-test-pyr/src/auth/login.test.ts
+run_case "libera E2E com unit tests no modulo" "validate-test-pyramid.sh" \
+  '{"tool_input":{"file_path":"src/auth/login.e2e.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-pyr
+
+rm -rf /tmp/roldao-test-pyr
+
+# ------- regra-zero-reminder (UserPromptSubmit — exit 0 sempre, side-effect via marker) --------
+mkdir -p /tmp/roldao-test-rzr/.claude/.runtime
+run_case "passa em prompt sem gatilho de bug" "regra-zero-reminder.sh" \
+  '{"prompt":"adicionar nova feature de cadastro"}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-rzr CLAUDE_SESSION_ID=rzr1
+run_case "passa (com side-effect) em prompt mencionando bug" "regra-zero-reminder.sh" \
+  '{"prompt":"tem um bug grave no calculo"}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-rzr CLAUDE_SESSION_ID=rzr1
+# verifica side-effect: marker deve existir
+if [ -f /tmp/roldao-test-rzr/.claude/.runtime/bug-trigger-rzr1 ]; then
+  PASS=$((PASS + 1))
+  RESULTS+=("OK   regra-zero-reminder.sh  →  cria marker bug-trigger ao detectar gatilho")
+else
+  FAIL=$((FAIL + 1))
+  RESULTS+=("FAIL regra-zero-reminder.sh  →  nao criou marker bug-trigger esperado")
+fi
+rm -rf /tmp/roldao-test-rzr
+
 # ------- relatório --------
 echo ""
 for r in "${RESULTS[@]}"; do

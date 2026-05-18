@@ -76,6 +76,20 @@ jobs:
           python3 templates/.claude/skills/gerar-test-fixture-br/scripts/gerar.py cnpj 3
           python3 templates/.claude/skills/gerar-test-fixture-br/scripts/gerar.py cep 3
           python3 templates/.claude/skills/gerar-test-fixture-br/scripts/gerar.py telefone 3
+      - name: gerar-test-fixture-br — rejeita N <= 0
+        run: |
+          if python3 templates/.claude/skills/gerar-test-fixture-br/scripts/gerar.py cpf -5 2>/dev/null; then
+            echo "ERRO: gerar.py deveria rejeitar n=-5"
+            exit 1
+          fi
+          if python3 templates/.claude/skills/gerar-test-fixture-br/scripts/gerar.py cpf 0 2>/dev/null; then
+            echo "ERRO: gerar.py deveria rejeitar n=0"
+            exit 1
+          fi
+      - name: skills encoding UTF-8 (Windows-like cp1252)
+        run: |
+          # Forca locale ASCII pra simular Windows sem UTF-8 e ver se acentos sobrevivem.
+          LC_ALL=C python3 templates/.claude/skills/validar-cep/scripts/validar-cep.py "00000-000" | grep -q "sequência" || (echo "FAIL acento perdido em validar-cep"; exit 1)
 
   rodar-evals:
     name: Evals dos agentes

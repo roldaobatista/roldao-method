@@ -5,7 +5,11 @@
 
 set -u
 
-MCP_FILE="${CLAUDE_PROJECT_DIR:-$PWD}/.mcp.json"
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
+PROJDIR=$(sanitize_projdir) || exit 2
+MCP_FILE="$PROJDIR/.mcp.json"
 
 [ -f "$MCP_FILE" ] || exit 0
 

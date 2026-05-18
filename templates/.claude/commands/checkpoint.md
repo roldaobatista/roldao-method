@@ -80,8 +80,19 @@ Saída em PT-BR estruturada:
 - Se **ressalva bloqueante** → reverter pra dev, listar correções.
 - Se **decisão fora do escopo** (ex: aprovação jurídica de LGPD) → escalar ao usuário com pergunta clara.
 
+## Etapa 5 — Marcar checkpoint concluído (mecânico)
+
+Após salvar o arquivo `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` e tomar decisão (merge / corrigir / escalar), crie o marcador:
+
+```
+mkdir -p .claude/.runtime && touch .claude/.runtime/checkpoint-done-${CLAUDE_SESSION_ID}
+```
+
+Esse marcador libera o hook `require-checkpoint-before-merge.sh` a deixar `git commit`/`git merge`/`git push` passarem. Sem ele, qualquer tentativa de fechar o trabalho da feature retorna exit 2.
+
 ## Importante
 
 - **NUNCA aprovar PR com auditor BLOQUEADO** sem autorização explícita do usuário.
 - **Apresentar sumário em PT-BR** — sem stack trace, sem stack de testes inteiro.
 - Salvar como `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md`.
+- **Hook mecânico:** `require-checkpoint-before-merge.sh` bloqueia commit/merge/push em sessão `/feature` ativa enquanto o marker não existir.

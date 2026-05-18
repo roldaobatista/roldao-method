@@ -4,9 +4,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.5.0-blue.svg)](#)
-[![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-16-red.svg)](#)
-[![Testes do framework](https://img.shields.io/badge/test_runner-50%2F50-green.svg)](#)
+[![Versão](https://img.shields.io/badge/versão-0.9.0-blue.svg)](#)
+[![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-21-red.svg)](#)
+[![Testes do framework](https://img.shields.io/badge/test_runner-124%2F124-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
@@ -41,7 +41,7 @@ Em uma linha: **BMAD orienta**, **ROLDAO impede**.
 | | BMAD | ROLDAO |
 |---|---|---|
 | Idioma | Inglês (+CN/VN) | 🇧🇷 PT-BR nativo |
-| Hooks que bloqueiam o erro | 0 | **18 bloqueadores** |
+| Hooks que bloqueiam o erro | 0 | **21 bloqueadores** |
 | Investigação em bug | Opcional | **Obrigatória** (REGRA #0) |
 | Cobertura BR (NF-e, LGPD, Pix, eSocial) | Zero | Total + 6 addons |
 | Auditores especializados | 0 | 3 (segurança, qualidade, produto) |
@@ -161,7 +161,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `regra-zero-reminder` — injeta REGRA #0 quando detecta gatilho de bug
 - `block-jargon-pt-br` — flag de jargão técnico em resposta ao usuário não-programador (PostToolUse, soft warning)
 
-**Test-runner:** `_test-runner.sh` com 50+ casos contra os hooks (manual + CI cross-platform).
+**Test-runner:** `_test-runner.sh` com 124 casos contra os hooks (manual + CI cross-platform).
 
 **Addons trazem +5 hooks:** `block-ipc-without-validation` (electron-br), `validate-webhook-signature`, `require-sefaz-env`, `validate-tef-flow`, `validate-esocial-prazo`.
 
@@ -238,12 +238,12 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 
 ## Diferencial completo vs BMAD-METHOD
 
-| | BMAD-METHOD v6.7 | ROLDAO-METHOD v0.5 |
+| | BMAD-METHOD v6.7 | ROLDAO-METHOD v0.8 |
 |---|---|---|
 | Idioma | Inglês (+CN/VN, sem PT-BR) | 🇧🇷 PT-BR nativo |
 | Mercado-foco | Global/genérico | Brasil (LGPD, fiscal, BR) |
 | Investigação em bug | Opcional | **Obrigatória** (REGRA #0) |
-| Hooks que bloqueiam o erro | 0 | **18 bloqueadores** |
+| Hooks que bloqueiam o erro | 0 | **21 bloqueadores** |
 | Filosofia | Orienta o agente | **Impede o agente de errar** |
 | Auditores dedicados | 0 | 3 (segurança, qualidade, produto) |
 | Agente fiscal BR | Não tem | `fiscal-br` (Dona Marta) |

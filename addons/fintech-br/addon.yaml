@@ -1,11 +1,17 @@
-nome: fintech-br
-versao: 0.1.0
-descricao: Pix completo (chave, BR Code, cobranca, devolucao, Pix Automatico) + Open Finance Brasil + validacoes financeiras BR
-autor: Roldao
-licenca: MIT
-compativel-com: roldao-method>=0.4.0
+name: fintech-br
+version: 0.1.0
+description: Pix completo (chave, BR Code, cobrança, devolução, Pix Automático) + Open Finance Brasil + validações financeiras BR
+authors:
+  - Roldão Batista
+license: MIT
+status: stable
+revisado-em: 2026-05-18
+
+requires:
+  roldao-method: ">=0.4.0"
+
 provoca:
-  agentes:
+  agents:
     - pix-arch
   commands: []
   hooks:
@@ -14,14 +20,24 @@ provoca:
     - gerar-br-code
     - validar-webhook-pix
     - estruturar-open-finance
-  regras:
-    - PIX-001
-    - PIX-002
-    - PIX-003
+  templates: []
+
+regras:
+  - id: PIX-001
+    titulo: "Webhook Pix com HMAC obrigatório"
+    descricao: "Toda notificação do PSP é verificada com HMAC + replay protection antes de processar."
+  - id: PIX-002
+    titulo: "Idempotência em recebimento Pix"
+    descricao: "EndToEndId é chave única — handler trata duplicata sem regravar."
+  - id: PIX-003
+    titulo: "Open Finance via FAPI + mTLS"
+    descricao: "OAuth 2.0 + FAPI + DCR + mTLS. Sem atalho."
+
 requisitos:
-  - "PSP integrado (banco, BaaS, ou direto Bacen com homologacao)"
-  - "ISPB da instituicao conhecido"
+  - "PSP integrado (banco, BaaS, ou direto Bacen com homologação)"
+  - "ISPB da instituição conhecido"
+
 non-goals:
-  - "ser instituicao financeira (PSP)"
+  - "ser instituição financeira (PSP)"
   - "substituir SDK oficial do banco escolhido"
   - "intermediar credenciais Bacen"

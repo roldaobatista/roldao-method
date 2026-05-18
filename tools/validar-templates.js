@@ -122,6 +122,26 @@ try {
   fail(`settings.json invalido: ${e.message}`);
 }
 
+// Addons — schema do addon.yaml
+const ADDONS_DIR = path.join(ROOT, 'addons');
+const ADDON_REQUIRED = ['name', 'version', 'description', 'license', 'status'];
+for (const addon of listDir(ADDONS_DIR)) {
+  const addonYaml = path.join(ADDONS_DIR, addon, 'addon.yaml');
+  if (!fs.existsSync(addonYaml)) continue;
+  const text = fs.readFileSync(addonYaml, 'utf8');
+  // Bloqueia chave legada `provides:` — padrao oficial e `provoca:`
+  if (/^provides:/m.test(text)) {
+    fail(`addon ${addon}: usa 'provides:' (legado). Renomeie para 'provoca:'.`);
+  }
+  if (!/^provoca:/m.test(text)) {
+    fail(`addon ${addon}: faltando bloco 'provoca:' (agents/hooks/skills/commands/templates).`);
+  }
+  for (const field of ADDON_REQUIRED) {
+    const re = new RegExp(`^${field}:\\s*\\S`, 'm');
+    if (!re.test(text)) fail(`addon ${addon}: campo '${field}' ausente ou vazio em addon.yaml`);
+  }
+}
+
 // package.json
 try {
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));

@@ -1,0 +1,13 @@
+{
+  "_doc": "Perfis de instalação — wizard do CLI usa este arquivo. Para adicionar perfil novo, edite aqui (não bin/install.js).",
+  "perfis": [
+    { "label": "Genérico (sem addon)", "addons": [] },
+    { "label": "Electron (desktop offline)", "addons": ["electron-br"] },
+    { "label": "Fiscal/NF-e", "addons": ["fiscal-br-completo"] },
+    { "label": "Fintech/Pix", "addons": ["fintech-br"] },
+    { "label": "LGPD-strict", "addons": ["lgpd-compliance"] },
+    { "label": "eSocial/folha", "addons": ["esocial-completo"] },
+    { "label": "Varejo/PDV", "addons": ["varejo-pdv-br", "fiscal-br-completo"] },
+    { "label": "Customizar (escolho depois)", "addons": [] }
+  ]
+}

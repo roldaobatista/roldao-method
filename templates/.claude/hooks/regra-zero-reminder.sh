@@ -7,6 +7,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 PROMPT=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -24,10 +27,10 @@ TRIGGERS='\b(bug|erro|problema|n[aã]o[[:space:]]+funciona|n[aã]o[[:space:]]+sa
 
 if printf '%s' "$PROMPT" | grep -qiE -- "$TRIGGERS"; then
   # Marcador pra require-investigador-before-fix.sh
-  PROJDIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-  SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | perl -pe 'chomp; tr/a-zA-Z0-9//cd;')
-  mkdir -p "$PROJDIR/.claude/.runtime" 2>/dev/null
-  touch "$PROJDIR/.claude/.runtime/bug-trigger-${SESSION_HASH}" 2>/dev/null
+  PROJDIR=$(sanitize_projdir) || exit 0
+  SESSION_HASH=$(sanitize_session_hash)
+  RUNTIME_DIR=$(safe_runtime_dir "$PROJDIR")
+  touch "$RUNTIME_DIR/bug-trigger-${SESSION_HASH}" 2>/dev/null
 
   cat <<'EOF'
 

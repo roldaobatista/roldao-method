@@ -1,25 +1,41 @@
-nome: electron-br
-versao: 0.1.0
-descricao: Padroes para app Electron BR com SQLite local, IPC seguro e armazenamento offline de dado pessoal (LGPD)
-autor: Roldao
-licenca: MIT
-compativel-com: roldao-method>=0.3.0
+name: electron-br
+version: 0.1.0
+description: Padrões para app Electron BR com SQLite local, IPC seguro e armazenamento offline de dado pessoal (LGPD)
+authors:
+  - Roldão Batista
+license: MIT
+status: stable
+revisado-em: 2026-05-18
+
+requires:
+  roldao-method: ">=0.3.0"
+
 provoca:
-  agentes:
+  agents:
     - electron-arch
   commands: []
   hooks:
     - block-ipc-without-validation
   skills:
     - migration-sqlite-segura
-  regras:
-    - ELECTRON-001
-    - ELECTRON-002
-    - ELECTRON-003
+  templates: []
+
+regras:
+  - id: ELECTRON-001
+    titulo: "contextIsolation + sandbox obrigatórios"
+    descricao: "Sem nodeIntegration no renderer. IPC via contextBridge com whitelist."
+  - id: ELECTRON-002
+    titulo: "Validação de todo input IPC"
+    descricao: "Handler IPC valida tipo, range, sanitização antes de qualquer operação."
+  - id: ELECTRON-003
+    titulo: "Migration SQLite com backup automático"
+    descricao: "Antes de aplicar migration, copia o .db pra .db.bak datado. Rollback testado."
+
 requisitos:
   - "projeto com Electron >= 28"
   - "src/main e src/renderer separados"
+
 non-goals:
-  - "geracao do projeto Electron do zero (use create-electron-app antes)"
+  - "geração do projeto Electron do zero (use create-electron-app antes)"
   - "auto-updater"
   - "code signing (depende de certificado pago)"

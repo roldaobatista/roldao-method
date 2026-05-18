@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Valida CPF e CNPJ (numerico e alfanumerico) com digito verificador.
 
 CNPJ alfanumerico entra em vigor em 2026-07 (IN RFB 2.229/2024).
@@ -12,6 +13,12 @@ algoritmo, ja que o calculo sobre ord(c)-48 retorna o digito original.
 
 import sys
 import re
+
+# Forca UTF-8 no I/O para evitar corrupcao de acentos em Windows (cp1252).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    sys.stdin.reconfigure(encoding="utf-8", errors="replace")
 
 
 def _digitos(s: str) -> str:

@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Valida chaves Pix (CPF, CNPJ, email, telefone E.164, UUID) e identificadores (E2EID, TxId).
 
-v0.5.0: validacao CPF/CNPJ embutida (sem sys.path frágil). Skill é standalone.
+v0.5.0: validação CPF/CNPJ embutida (sem sys.path frágil). Skill é standalone.
 """
 
 import re
 import sys
+
+# Força UTF-8 no I/O para evitar corrupção de acentos em Windows (cp1252).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 def _digitos(s: str) -> str:

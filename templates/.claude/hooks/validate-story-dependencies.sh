@@ -12,6 +12,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -32,8 +35,8 @@ case "$FILE_PATH" in
   *) exit 0 ;;
 esac
 
-PROJDIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | perl -pe 'chomp; tr/a-zA-Z0-9//cd;')
+PROJDIR=$(sanitize_projdir) || exit 2
+SESSION_HASH=$(sanitize_session_hash)
 MARK_FEATURE="$PROJDIR/.claude/.runtime/feature-active-${SESSION_HASH}"
 MARK_DEPS_OK="$PROJDIR/.claude/.runtime/deps-checked-${SESSION_HASH}"
 

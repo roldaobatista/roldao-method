@@ -1,5 +1,5 @@
 ---
-description: ROLDAO-METHOD — framework PT-BR com 18 hooks bloqueadores, REGRA #0, 12 agentes, cobertura BR.
+description: ROLDAO-METHOD — framework PT-BR com 21 hooks bloqueadores, REGRA #0, 12 agentes, cobertura BR.
 globs: ["**/*"]
 alwaysApply: true
 ---

@@ -76,7 +76,7 @@ Operações irreversíveis exigem confirmação. Hook `block-destructive.sh` blo
 ├── settings.json          ← permissões + hooks (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
 ├── agents/                ← 12 especialistas (com nome + ícone)
-├── hooks/                 ← 18 bloqueadores + 5 auxiliares + 1 test-runner = 24 (+5 em addons)
+├── hooks/                 ← 21 bloqueadores + 5 auxiliares + 1 test-runner = 27 (+5 em addons)
 ├── output-styles/         ← pt-br-conciso.md
 ├── commands/              ← 19 slash commands (workflows)
 ├── skills/                ← 8 skills BR no core (criar quando padrão repetir 3x)

@@ -9,6 +9,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -30,8 +33,8 @@ case "$FILE_PATH" in
 esac
 
 # Marcadores no diretorio do projeto (Claude define CLAUDE_PROJECT_DIR)
-PROJDIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | perl -pe 'chomp; tr/a-zA-Z0-9//cd;')
+PROJDIR=$(sanitize_projdir) || exit 2
+SESSION_HASH=$(sanitize_session_hash)
 MARK_BUG="$PROJDIR/.claude/.runtime/bug-trigger-${SESSION_HASH}"
 MARK_INV="$PROJDIR/.claude/.runtime/investigator-invoked-${SESSION_HASH}"
 

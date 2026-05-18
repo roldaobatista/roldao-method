@@ -9,6 +9,13 @@ tamanho: P    # P | M | G
 owner: _(preencher)_
 revisado-em: AAAA-MM-DD
 depende-de: []    # lista de US-NNN que precisam vir antes
+aprovacoes: []   # audit trail persistente — preenchido pelo /feature, validado por validate-story-approvals.sh ANTES de status: entregue
+# Formato de cada item de aprovacoes:
+#   - etapa: gerente-produto        # ou: investigador | tech-lead | dev-senior | revisor | auditor-seguranca | auditor-qualidade | auditor-produto
+#     agente: Sofia                  # nome humano do agente
+#     data: AAAA-MM-DD
+#     status: aprovado               # aprovado | dispensado | reprovado | bloqueado
+#     notas: "AC testaveis, non-goals OK"
 ---
 
 # US-NNN — _(título curto, máximo 60 caracteres)_
