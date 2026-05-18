@@ -57,31 +57,9 @@ function lintScenario(s) {
   return issues;
 }
 
-function applyValidation(rule, response) {
-  // Suporta: "inclui X", "não inclui X", "mínimo N palavras", "máximo N palavras", "frontmatter: K: V"
-  if (/^não inclui\s+["']?([^"']+)["']?/i.test(rule)) {
-    const term = rule.match(/^não inclui\s+["']?([^"']+)["']?/i)[1].trim();
-    return !new RegExp(term, 'i').test(response);
-  }
-  if (/^inclui\s+["']?([^"']+)["']?/i.test(rule)) {
-    const term = rule.match(/^inclui\s+["']?([^"']+)["']?/i)[1].trim();
-    return new RegExp(term, 'i').test(response);
-  }
-  if (/^mínimo\s+(\d+)\s+palavras?/i.test(rule)) {
-    const n = parseInt(rule.match(/(\d+)/)[1], 10);
-    return response.trim().split(/\s+/).length >= n;
-  }
-  if (/^máximo\s+(\d+)\s+palavras?/i.test(rule)) {
-    const n = parseInt(rule.match(/(\d+)/)[1], 10);
-    return response.trim().split(/\s+/).length <= n;
-  }
-  // Default: tenta como regex em modo permissivo
-  try {
-    return new RegExp(rule, 'i').test(response);
-  } catch {
-    return false;
-  }
-}
+// applyValidation removida em v1.0.0 (auditoria round 5): era stub
+// chamada apenas em codigo comentado. Quando modo live for implementado,
+// restaurar de evals/ inicial ou git log antes de 2026-05-18.
 
 async function main() {
   const evals = listEvals().filter((e) => !wantAgent || e.agent === wantAgent);

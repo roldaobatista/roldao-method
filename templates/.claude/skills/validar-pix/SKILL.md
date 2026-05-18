@@ -20,7 +20,7 @@ Skill para validar chaves Pix e identificadores oficiais do BACEN.
 ## Identificadores oficiais
 
 - **EndToEndId** (E2EID): 32 caracteres, formato `E + ISPB(8) + AAAAMMDDHHmm(12) + serial(11)`. Imutavel. Idempotencia obrigatoria (PIX-001).
-- **TxId**: 1 a 35 caracteres alfanumericos (`[a-zA-Z0-9]{1,35}`). Gerado pelo recebedor. Unico por cobranca.
+- **TxId**: 26 a 35 caracteres alfanumericos (`[a-zA-Z0-9]{26,35}`) para cobrancas `cob`/`cobv` (Manual de Padroes Pix, secao TxId). Para Pix manual avulso, 1 a 35 e tolerado. Gerado pelo recebedor. Unico por cobranca.
 - **ISPB**: 8 digitos (cadastrado no BACEN).
 
 ## Como invocar
@@ -30,6 +30,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/validar-pix.py <chave>
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar-pix.py --e2eid E12345678202607011234ABC12345678
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar-pix.py --txid abc123XYZ
 ```
+> **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
+
 
 Retorna exit 0 + `OK <tipo>` se valido, exit 1 + `INVALIDO <motivo>` se nao.
 

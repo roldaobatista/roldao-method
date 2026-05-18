@@ -101,7 +101,10 @@ interface BRCodeInput {
 }
 
 export function gerarBRCode(input: BRCodeInput): string {
-  const ascii = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // Escape unicode explicito U+0300-U+036F evita quebra em conversao de encoding
+  // (cp1252, copy-paste, JSON transport). Caracteres combinantes literais
+  // podem sumir e a string sai com acento, que SEFAZ/PSP rejeita.
+  const ascii = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const merchantAccount = [
     tlv('00', 'BR.GOV.BCB.PIX'),

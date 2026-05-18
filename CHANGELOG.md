@@ -2,6 +2,55 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.10.0] — 2026-05-18
+
+**Auditoria 10-agentes round 5** — varredura cruzada com 10 focos distintos (segurança de hooks, qualidade JS, cobertura de testes, DX, consistência de docs, cross-platform, performance, corretude regulatória BR, paridade multi-IDE, posicionamento de produto). Fechou **10 P0 críticos + 8 P1**. Testes: 124→132 OK.
+
+### Corrigido — adapters multi-IDE (paths inertes)
+
+- **`.clinerules` na raiz** (antes em `templates/.cline/.clinerules`). Cline lê arquivo na raiz do workspace ou em `.clinerules/`; subpasta `.cline/` era ignorada — promessa "Cline suportado" não cumprida.
+- **`.aider.conf.yml` na raiz** (antes em `templates/.aider/`). Aider procura em home/git-root/cwd, não em subpasta. Arquivo presente mas nunca lido.
+- **`.roorules` na raiz** (antes `templates/.roo/system-prompt.md` sem slug de modo). Roo Code carrega `.roorules` em todos os modos; `system-prompt.md` sem `<modeSlug>` era ignorado.
+- **Pastas inertes `templates/.cline/`, `.aider/`, `.roo/` removidas.**
+
+### Corrigido — instalador (poluição de adapters não-relacionados)
+
+- **`detectTools()` agora controla quais adapters são copiados.** Antes, `walkAndCopy(templates/)` copiava cegamente os 7 IDEs em todo projeto — quem instalava em projeto Cursor puro recebia `.claude/`, `.aider.conf.yml`, `.clinerules`, `.roorules`, `.continue/` etc. poluindo o repo. Agora: padrão instala só Claude Code; IDEs detectadas no `CWD` adicionam seus adapters automaticamente; `--all-adapters` força tudo; `--adapters=cursor,windsurf` escolhe lista explícita.
+- **`update()` respeita a mesma lógica.** Não ressuscita pasta de IDE removida pelo usuário.
+- **Aviso explícito de paridade reduzida.** Quando instala adapter não-Claude, log explica que hooks/skills/slash não rodam — disciplina vem por prompt.
+
+### Corrigido — corretude técnica e regulatória
+
+- **LGPD: base legal de execução de contrato é Art. 7 V** (não Art. 7 II como estava em `checklist-lgpd/SKILL.md`). Art. 7 II é cumprimento de obrigação legal/regulatória. Cliente que seguia a skill citaria inciso errado em política de privacidade, ADR e RIPD.
+- **NF-e: assinatura XMLDSig agora documenta RSA-SHA-256** (MOC 7.00+, NT 2023.001). Era ensinada como RSA-SHA-1, que falha em OpenSSL 3.x sem `legacy` provider.
+- **BR Code: regex com escape unicode explícito** (`[̀-ͯ]` em vez de chars combinantes literais). Conversão de encoding (cp1252, JSON transport) podia apagar os chars combinantes, fazendo BR Code sair com acento — PSP/SEFAZ rejeita.
+- **Pix TxId: mínimo 26 chars em `cob`/`cobv`** (Manual Pix Bacen). Era documentado como `[a-zA-Z0-9]{1,35}` — TxId de 1-25 chars falha no PSP.
+
+### Corrigido — cross-platform e isolamento de testes
+
+- **`_test-runner.sh` usa `mktemp -d`** em vez de `/tmp/roldao-test-*` hardcoded. Antes, rodadas paralelas (CI matrix) colidiam, sujeira persistia entre execuções abortadas, e o teste de path traversal passava por acidente no Windows Git Bash. Cleanup automático via `trap`.
+- **`sed -i` substituído por `perl -i -pe`** em `_test-runner.sh:257`. `sed -i` sem extensão é GNU-only — macOS BSD exige `sed -i ''`. Suite ficava vermelha em mac.
+- **`.gitattributes` cobre `*.py`, `*.pl`, `*.js`** com `text eol=lf`. Scripts Python com shebang quebravam quando o git aplicava CRLF.
+
+### Corrigido — hardening de hooks
+
+- **`block-jargon-pt-br.sh` e `block-confirmation-questions.sh` geram JSON via `perl encode_json`** (antes via heredoc cru com interpolação de `${VIOLATIONS[@]}`). Resposta do agente com `"` ou newline quebrava o JSON, Claude Code descartava o bloqueio, e o hook virava no-op.
+- **`no-amend-after-push.sh` agora sourceia `_lib.sh`** e faz `cd "$PROJDIR"` antes do `git rev-parse`. Quando o cwd era subdir de outro repo, o hook lia repositório errado e dava falso negativo.
+- **`no-amend-after-push.sh` match preciso de `--amend`** via regex `\b--amend\b` (antes glob `*--amend*` casava `--amend-bar`).
+
+### Adicionado
+
+- **8 testes novos no `_test-runner.sh`**: 4 casos de `context-budget` (cobertura zero antes), 2 de `mcp-validator` (incluindo bloqueio com server fora da allowlist — também sem cobertura antes), 2 de `no-amend-after-push` com repo bare local real. Total: **132/132** OK.
+- **`check_stderr_at_least` helper** no test-runner pra validar mensagens humanas em stderr (não só exit code). Antes, hook poderia bloquear sem mensagem e passar no teste.
+- **`install.test.js` cobre `--adapters=cursor,windsurf` e `--all-adapters`** com 12 novos checks (default não instala Cursor/Cline/Aider; flag explícita instala selecionados; sempre inclui Claude).
+- **Notas Windows em 5 skills Python** (`gerar-test-fixture-br`, `validar-cep`, `validar-cpf-cnpj`, `validar-pix`, `validar-pis-pasep`): "Windows: substitua `python3` por `python`". Instalador oficial Python no Windows cria `python.exe`, não `python3`.
+- **Bump pra v0.10.0** — 5ª rodada de auditoria 10-agentes; próxima major é v1.0.0 (estabilidade + comunidade).
+
+### Removido
+
+- **`evals/run.js applyValidation`** — função stub chamada apenas em código comentado. Restaurar do histórico quando modo live for implementado.
+- **Tautologia `process.platform !== undefined`** em `bin/install.js:64`. `process.platform` é sempre definido em qualquer Node; condição era dead code enganoso.
+
 ## [0.9.0] — 2026-05-18
 
 **Auditoria 10-agentes round 4** — varredura total cruzada (arquitetura, hooks, commands, skills, CLI, docs, testes, segurança, DX). Fechou **24 achados** (12 críticos + 12 altos/médios). Foco: blindar bypasses de hook, robustecer cross-platform, padronizar schema, ampliar cobertura de testes para 124 casos.

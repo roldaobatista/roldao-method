@@ -61,7 +61,8 @@ const FORCE = flags.has('--force');
 const DRY_RUN = flags.has('--dry-run');
 const NO_COLOR = flags.has('--no-color') || process.env.NO_COLOR === '1';
 
-const supportsColor = !NO_COLOR && process.stdout.isTTY && process.platform !== undefined;
+// Windows moderno (Terminal/Git Bash/VS Code) suporta ANSI; isTTY ja cobre o caso CMD/PowerShell sem TTY.
+const supportsColor = !NO_COLOR && process.stdout.isTTY;
 const c = {
   reset: supportsColor ? '\x1b[0m' : '',
   bold: supportsColor ? '\x1b[1m' : '',
@@ -153,9 +154,51 @@ function detectTools() {
   if (fs.existsSync(path.join(CWD, '.windsurf'))) tools.push('windsurf');
   if (fs.existsSync(path.join(CWD, '.continue'))) tools.push('continue');
   if (fs.existsSync(path.join(CWD, '.aider.conf.yml'))) tools.push('aider');
-  if (fs.existsSync(path.join(CWD, '.cline'))) tools.push('cline');
-  if (fs.existsSync(path.join(CWD, '.roo'))) tools.push('roo');
+  if (fs.existsSync(path.join(CWD, '.clinerules')) || fs.existsSync(path.join(CWD, '.cline'))) tools.push('cline');
+  if (fs.existsSync(path.join(CWD, '.roorules')) || fs.existsSync(path.join(CWD, '.roo'))) tools.push('roo');
   return tools;
+}
+
+// Mapa de adapter -> entries de templates/ que pertencem a ele.
+// Entries fora deste mapa (AGENTS.md, CLAUDE.md, .specify/, .claude-plugin/, etc)
+// sao "core" e instalam SEMPRE.
+const ADAPTER_ENTRIES = {
+  'claude-code': ['.claude'],
+  cursor: ['.cursor'],
+  windsurf: ['.windsurf'],
+  continue: ['.continue'],
+  aider: ['.aider.conf.yml'],
+  cline: ['.clinerules'],
+  roo: ['.roorules'],
+};
+
+const ALL_ADAPTERS = Object.keys(ADAPTER_ENTRIES);
+
+function entryBelongsToAdapter(entry) {
+  for (const [adapter, entries] of Object.entries(ADAPTER_ENTRIES)) {
+    if (entries.includes(entry)) return adapter;
+  }
+  return null;
+}
+
+// Resolve quais adapters instalar:
+//  - --all-adapters: todos
+//  - --adapters=cursor,windsurf: lista explicita (claude-code sempre incluso)
+//  - detecta IDE no CWD: instala detectadas + claude-code
+//  - nada detectado: so claude-code (padrao)
+function resolveAdapters() {
+  if (rawArgs.some((a) => a === '--all-adapters')) return ALL_ADAPTERS;
+  const explicit = rawArgs.find((a) => a.startsWith('--adapters='));
+  if (explicit) {
+    const list = explicit.slice('--adapters='.length).split(',').map((s) => s.trim()).filter(Boolean);
+    const valid = list.filter((a) => ALL_ADAPTERS.includes(a));
+    if (!valid.includes('claude-code')) valid.unshift('claude-code');
+    return valid;
+  }
+  const detected = detectTools();
+  if (detected.length === 0) return ['claude-code'];
+  if (!detected.includes('claude-code')) detected.unshift('claude-code');
+  return detected;
 }
 
 function isDangerousCwd() {
@@ -393,11 +436,17 @@ async function install() {
   checkUpdate().catch(() => {});
 
   const tools = detectTools();
+  const adapters = resolveAdapters();
   if (tools.length === 0) {
-    log(`${c.yellow}nenhuma IDE/CLI detectada${c.reset} — instalando estrutura padrao (Claude Code).`);
-    log(`${c.dim}suportadas: Claude Code, Cursor, Windsurf, Continue, Aider, Cline, Roo${c.reset}`);
+    log(`${c.yellow}nenhuma IDE/CLI detectada${c.reset} — instalando ${c.bold}Claude Code${c.reset} (padrao).`);
+    log(`${c.dim}para outros adapters use --adapters=cursor,windsurf ou --all-adapters${c.reset}`);
   } else {
     log(`detectado: ${c.green}${tools.join(', ')}${c.reset}`);
+  }
+  log(`adapters a instalar: ${c.cyan}${adapters.join(', ')}${c.reset}`);
+  const nonClaude = adapters.filter((a) => a !== 'claude-code');
+  if (nonClaude.length > 0) {
+    log(`${c.dim}nota: em ${nonClaude.join(', ')}, hooks/skills/slash do Claude Code nao rodam — disciplina vem por prompt.${c.reset}`);
   }
 
   if (!fs.existsSync(TEMPLATES_DIR)) {
@@ -419,6 +468,8 @@ async function install() {
   }
 
   for (const entry of fs.readdirSync(TEMPLATES_DIR)) {
+    const adapter = entryBelongsToAdapter(entry);
+    if (adapter && !adapters.includes(adapter)) continue;
     walkAndCopy(path.join(TEMPLATES_DIR, entry), path.join(CWD, entry), 'install');
   }
 
@@ -452,7 +503,12 @@ async function update() {
     const a = await ask('Update sobrescreve arquivos do framework (preservando AGENTS.md, CLAUDE.md, REGRAS, settings.local.json). Backup em *.bak. Confirmar? [s/N] ');
     if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
   }
+  // Atualiza so adapters detectados no projeto (ou os pedidos via flag).
+  // Evita "ressuscitar" pastas de IDE que o usuario nao usa.
+  const adapters = resolveAdapters();
   for (const entry of fs.readdirSync(TEMPLATES_DIR)) {
+    const adapter = entryBelongsToAdapter(entry);
+    if (adapter && !adapters.includes(adapter)) continue;
     walkAndCopy(path.join(TEMPLATES_DIR, entry), path.join(CWD, entry), 'update');
   }
   resumo();

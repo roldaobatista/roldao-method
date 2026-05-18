@@ -7,6 +7,13 @@
 # Scripts executáveis
 bin/* text eol=lf
 
+# Scripts Python (shebang #!/usr/bin/env python3 quebra com CRLF)
+*.py text eol=lf
+*.pl text eol=lf
+
+# JS do CLI tambem fica em LF pra evitar shebang quebrado
+*.js text eol=lf
+
 # Binários
 *.png binary
 *.jpg binary

@@ -8,33 +8,36 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v0.8.0 (mai/2026)
+## Versão atual: v0.10.0 (mai/2026)
 
-Pacote pós três rodadas de auditoria 10-agentes:
+Pacote pós **cinco** rodadas de auditoria 10-agentes:
 - 12 agentes especialistas (com nome + ícone)
 - 19 workflows (incluindo `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`)
-- 21 hooks bloqueadores + 5 auxiliares + 1 test-runner + 1 _lib.sh = 28 arquivos no core (+5 em addons). Evolução: v0.6 adicionou readiness + dependencies; v0.7 adicionou agent-sequence + quick-dev-scope; v0.8 adicionou checkpoint + auditors + story-approvals + sanitização universal de PROJDIR
-- 8 skills BR no core + 9 nos addons = 17 skills totais
-- 7 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance)
+- 21 hooks bloqueadores + 5 auxiliares + 1 test-runner + 1 `_lib.sh` = **28 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD
+- 8 skills BR no core + 14 nos addons = **22 skills**
+- 8 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance, audit-trail)
 - 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
 - 6 addons (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
-- 11 templates de spec (PRD, story, architecture, brownfield-prd, prd-fiscal, fullstack-architecture, decision-log, prfaq, product-brief, ux-design, headless-schemas)
-- CLI completo: `add`, `list`, update check, wizard, alias `roldao`
-- Adapters reais Cursor/Windsurf/Cline/Roo
+- **12 templates de spec** (PRD, story, architecture, brownfield-prd, prd-fiscal, fullstack-architecture, decision-log, prfaq, product-brief, ux-design, headless-schemas, épico)
+- CLI completo: `add`, `list`, update check, wizard, alias `roldao`, **`--adapters` / `--all-adapters`** (instala seletivo)
+- **Adapters Cline/Aider/Roo** com paths corretos (`.clinerules`, `.aider.conf.yml`, `.roorules` na raiz — antes ficavam em subpastas inertes)
+- **132/132 testes** (8 novos: context-budget, mcp-validator bloqueio, no-amend-after-push real com repo bare)
 - CI matriz Windows/macOS/Linux
 - Governança (SECURITY.md, CONTRIBUTORS.md, `.claude-plugin/plugin.json`)
 - Suite de evals dos 12 agentes
 
-## v0.5.0 — "Marketplace de Addons" ✅ ENTREGUE (mai/2026)
+## Rodadas de auditoria entregues
 
-- [x] `npx roldao-method add <nome>` — instalador de addon.
-- [x] `npx roldao-method list` — lista addons disponíveis (locais + remotos) + IDEs detectadas + versão remota.
-- [x] Atualização via `update` preserva customizações de addons.
-- [x] Convenção formal de addon (schema validado em `tools/validar-templates.js`).
-- [ ] Registry remoto de addons de terceiros (alvo: v0.6.0).
-- [ ] Tutorial "Como criar seu próprio addon em 30 min" (alvo: v0.6.0).
+- **v0.5.0** "Marketplace de Addons" — `add`, `list`, schema, wizard.
+- **v0.6.0** "Gates mecânicos" — readiness, dependências, auditores obrigatórios.
+- **v0.7.0** "Pipeline Sofia/Detetive/Rafael" — agent-sequence, quick-dev-scope, T-NNN no commit.
+- **v0.8.0** "Audit trail" — checkpoint/auditores como exit 2, story-approvals persistente, EP-NNN.md dedicado.
+- **v0.9.0** "Hardening" — sanitização PROJDIR, Node 18 check, Windows shell warning, encoding UTF-8 skills.
+- **v0.10.0** "Adapters multi-IDE reais + correção regulatória" — paths Cline/Aider/Roo, install seletivo, LGPD Art. 7 V, SHA-256 NF-e, TxId Pix.
 
-## v0.6.0 — "Setor saúde + setor público" (alvo: set/2026)
+## Próximas releases
+
+## v0.11.0 — "Setor saúde + setor público" (alvo: set/2026)
 
 - [ ] Addon `telemedicina` — LGPD Art. 11 + CFM + ANS + receita digital + prescrição assinada.
 - [ ] Addon `govtech-br` — APIs do Governo, e-Protocolo, assinatura ICP-Brasil, transparência ativa.
@@ -42,20 +45,19 @@ Pacote pós três rodadas de auditoria 10-agentes:
 - [ ] Skill `consultar-cnpj-receita` — wrapper RFB com cache + LGPD-004.
 - [ ] Skill `validar-receita-medica-digital` — ICP-Brasil + CFM.
 
-## v0.7.0 — "Setores produtivos" (alvo: nov/2026)
+## v0.12.0 — "Setores produtivos" (alvo: nov/2026)
 
 - [ ] Addon `agro-br` — CAR, nota fiscal de produtor, SISBOV, rastreabilidade.
-- [ ] Addon `varejo-br` — PDV, SAT/ECF, NFC-e, controle de estoque.
 - [ ] Addon `logistica-br` — CT-e + MDF-e, RNTRC, rastreamento.
 - [ ] Addon `educacao-br` — ENADE, e-Docente, histórico escolar.
 - [ ] Skill `migration-postgres-segura` — pattern de migration PostgreSQL com lock estudado e backup.
 
-## v0.8.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
+## v0.13.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
 
 - [ ] Pix Automático completo no addon `fintech-br` (recorrência autorizada).
 - [ ] Addon `open-banking-iniciador` — implementação completa de ITP (Iniciadora de Pagamento).
 - [ ] Skill `gerar-relatorio-bacen` — relatórios obrigatórios pra fintechs.
-- [ ] Addon `esocial-completo` — todos os eventos S-1000 a S-3000.
+- [ ] eSocial S-3000 (exclusão) completo.
 
 ## v1.0.0 — "Estabilidade + comunidade" (alvo: abr/2027)
 
@@ -77,8 +79,8 @@ Pré-requisitos para 1.0:
 - [ ] Guia "ROLDAO-METHOD pra times de PME" (versão executiva).
 
 ### Suporte a mais IDEs
-- [ ] Cline (`.cline`).
-- [ ] Roo Code (`.roo`).
+- [x] Cline (`.clinerules` na raiz — v0.10.0).
+- [x] Roo Code (`.roorules` na raiz — v0.10.0).
 - [ ] Gemini CLI.
 - [ ] GitHub Copilot Workspace (quando padrão estabilizar).
 - [ ] Codex CLI.

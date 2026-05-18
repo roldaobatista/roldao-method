@@ -7,6 +7,15 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
+# Hook roda no PWD do harness Claude. Aceita PROJDIR via env (sanitizado) ou
+# cai pra PWD se o usuario invocou direto. Sem isso, em sub-pasta o hook lia
+# repo errado.
+PROJDIR=$(sanitize_projdir "${CLAUDE_PROJECT_DIR:-$PWD}") || exit 0
+cd "$PROJDIR" 2>/dev/null || exit 0
+
 INPUT=$(cat)
 
 CMD=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -15,8 +24,14 @@ CMD=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   print $json->{tool_input}->{command} // "";
 ' 2>/dev/null)
 
+# Casa `--amend` como argumento isolado (regex via grep evita falso-positivo
+# em flags como --amend-bar; case glob anterior era frouxo demais).
 case "$CMD" in
-  *"git commit"*--amend*|*"git commit --amend"*) ;;
+  *"git commit"*)
+    if ! printf '%s' "$CMD" | grep -qE -- '(^|[[:space:]])--amend([[:space:]]|$)'; then
+      exit 0
+    fi
+    ;;
   *) exit 0 ;;
 esac
 

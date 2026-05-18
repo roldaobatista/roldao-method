@@ -22,11 +22,11 @@ Skill operacional pra cumprir LGPD-001 a LGPD-010 antes de codar.
    NAO  -> ir para Art. 7
 
 2. Eu PRECISO desse dado pra cumprir um CONTRATO com o titular?
-   SIM  -> Art. 7, II - execucao de contrato
+   SIM  -> Art. 7, V - execucao de contrato
    NAO  -> ir para 3
 
 3. Existe LEI que me obriga a coletar? (NF-e exige CPF do destinatario)
-   SIM  -> Art. 7, II - cumprimento de obrigacao legal
+   SIM  -> Art. 7, II - cumprimento de obrigacao legal pelo controlador
    NAO  -> ir para 4
 
 4. E pra exercer regularmente direito em processo judicial/administrativo?

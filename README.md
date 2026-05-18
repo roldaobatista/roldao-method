@@ -4,25 +4,23 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.9.0-blue.svg)](#)
+[![Versão](https://img.shields.io/badge/versão-0.10.0-blue.svg)](#)
 [![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-21-red.svg)](#)
-[![Testes do framework](https://img.shields.io/badge/test_runner-124%2F124-green.svg)](#)
+[![Testes do framework](https://img.shields.io/badge/test_runner-132%2F132-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
 
-## 🆕 Novidades na v0.5.0
+## 🆕 Novidades na v0.10.0 (auditoria 10-agentes — round 5)
 
-- **CLI completo**: `add <addon>`, `list`, update check via npm, alias `roldao` curto, wizard interativo de instalação.
-- **5 novos hooks bloqueadores**: jargão técnico, secret em commit message, perguntas de confirmação, fix sem investigação, pirâmide de testes invertida.
-- **2 addons novos**: `esocial-completo` e `varejo-pdv-br`.
-- **2 novas KBs**: brainstorming (15 técnicas BR) e elicitation (10 métodos críticos).
-- **7 novos comandos**: `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`.
-- **12º agente**: `tech-writer` (Camila 📝) cuidando de CHANGELOG/README.
-- **Suite de evals**: testes de qualidade dos 12 agentes rodando em CI.
-- **Adapters de IDE reais**: templates `.cursor/`, `.windsurf/`, `.cline/`, `.roo/` (antes só Claude Code era instalado de fato).
-- **CI cross-platform**: matriz Windows/macOS/Linux validando hooks e instalador.
-- **Governança**: SECURITY.md, CONTRIBUTORS.md, `.claude-plugin/plugin.json` para distribuição nativa Claude Code.
+- **Adapters Cline/Aider/Roo arrumados**: `.clinerules`, `.aider.conf.yml`, `.roorules` agora ficam na **raiz** (antes em subpastas inertes que as ferramentas nunca liam).
+- **Install seletivo**: padrão instala só Claude Code; `--all-adapters` instala todos; `--adapters=cursor,windsurf` escolhe lista. Antes copiava 7 IDEs em todo projeto.
+- **Corretude regulatória**: base legal LGPD (Art. 7 V vs II), assinatura NF-e (RSA-SHA-256 padrão MOC 7.00+), regex BR Code com escape unicode explícito (`̀-ͯ`), Pix TxId mínimo 26 chars em `cob`/`cobv`.
+- **Cross-platform**: `_test-runner.sh` agora usa `mktemp -d` isolado (não polui `/tmp`) e `perl -i -pe` no lugar de `sed -i` (que quebrava em macOS BSD).
+- **+8 testes novos**: `context-budget` (cobertura zero antes), `mcp-validator` com bloqueio real, `no-amend-after-push` com repo bare local. Total: **132/132** OK.
+- **Hardening de hooks**: `block-jargon-pt-br` e `block-confirmation-questions` geram JSON via `encode_json` (heredoc cru quebrava com payload do agente); `no-amend-after-push` agora usa `_lib.sh` (PROJDIR sanitizado) e regex bound `\b--amend\b`.
+- **Skills Python com nota Windows**: 5 SKILL.md adicionam aviso "Windows: substitua `python3` por `python`" (instalador oficial Windows só cria `python.exe`).
+- **`.gitattributes` cobre `*.py`, `*.pl`, `*.js`** com `text eol=lf` (evita shebang quebrado por CRLF).
 
 Detalhes em [CHANGELOG.md](CHANGELOG.md).
 
@@ -51,9 +49,9 @@ Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 - 🇧🇷 **Fala português nativo** — não é tradução
 - 🔍 **Investiga antes de mexer** — REGRA #0 codificada no workflow `/bug`
 - 👥 **12 especialistas virtuais** com papéis claros (analista, PM, UX, tech-lead, investigador, dev, revisor, 3 auditores, fiscal-BR, tech-writer)
-- 🛡️ **16 regras automáticas que bloqueiam** erros antes de acontecer (secrets, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, jargão técnico ao usuário não-programador, secret em mensagem de commit, perguntas de confirmação que travam fluxo, fix sem investigação prévia, pirâmide de testes invertida, +1 fiscal)
-- 📜 **Spec-driven total** — 11 templates (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas) em PT-BR
-- ✅ **7 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance
+- 🛡️ **21 regras automáticas que bloqueiam** erros antes de acontecer (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
+- 📜 **Spec-driven total** — 12 templates (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico) em PT-BR
+- ✅ **8 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance, novos da auditoria
 - 📚 **7 knowledge bases** que os agentes consultam — PT-BR (glossário), fiscal, LGPD, Pix, stack BR, brainstorming, elicitation
 - 🎯 **Cobertura BR real** — 10 IDs LGPD, 7 IDs FISCAL, 5 IDs PIX + 6 addons especializados (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
 
@@ -125,7 +123,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | `/help` | Catálogo dos comandos com códigos curtos |
 | `/shard` | Quebra PRD/ARQ longo em chunks navegáveis com índice |
 
-## 18 hooks bloqueadores + 5 auxiliares + 1 test-runner = 24 hooks core (+5 em addons)
+## 21 hooks bloqueadores + 5 auxiliares + 2 infra (_lib + test-runner) = 28 hooks core (+5 em addons)
 
 **Bloqueadores** (retornam exit 2 ou `decision: block`, barram a ação):
 
@@ -156,11 +154,11 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `regra-zero-reminder` — injeta REGRA #0 quando detecta gatilho de bug
 - `block-jargon-pt-br` — flag de jargão técnico em resposta ao usuário não-programador (PostToolUse, soft warning)
 
-**Test-runner:** `_test-runner.sh` com 124 casos contra os hooks (manual + CI cross-platform).
+**Test-runner:** `_test-runner.sh` com **132 casos** contra os hooks (manual + CI cross-platform).
 
 **Addons trazem +5 hooks:** `block-ipc-without-validation` (electron-br), `validate-webhook-signature`, `require-sefaz-env`, `validate-tef-flow`, `validate-esocial-prazo`.
 
-## 8 skills BR (core) + 9 nos addons = 17 skills
+## 8 skills BR (core) + 14 nos addons = 22 skills
 
 **Core (em `templates/.claude/skills/`):**
 
@@ -242,11 +240,11 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 | Filosofia | **Impede o agente de errar** (exit 2), não só orienta |
 | Auditores dedicados | 3 (segurança, qualidade, produto) |
 | Agente fiscal BR | `fiscal-br` (Dona Marta) — NF-e, eSocial, Reforma Tributária |
-| Skills BR | 8 no core + 9 nos addons = **17 skills** |
+| Skills BR | 8 no core + 14 nos addons = **22 skills** |
 | Técnicas de raciocínio | 15 brainstorming + 10 elicitation adaptadas BR |
-| Checklists auditáveis | 7 (story-DoD, arch-readiness, fiscal, LGPD, PM, release, Pix) |
+| Checklists auditáveis | 8 (story-DoD, arch-readiness, fiscal, LGPD, PM, release, Pix, audit-trail) |
 | Knowledge bases | 7 (PT-BR, fiscal, LGPD, Pix, stack, brainstorm, elicit) |
-| Templates de spec | 11 markdown (PRD, story, arch, brownfield, fiscal, fullstack, decision, PRFAQ, brief, UX, headless) |
+| Templates de spec | 12 markdown (PRD, story, arch, brownfield, fiscal, fullstack, decision, PRFAQ, brief, UX, headless, épico) |
 | Spec-driven | Total (`.specify/`) |
 | Orquestração de skills | `_meta/skills-index.csv` |
 | Evals dos agentes | Sim (`evals/`) em CI |

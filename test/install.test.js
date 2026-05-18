@@ -4,9 +4,9 @@
  * Cria pasta temporaria, roda `install --yes`, verifica que arquivos chegaram,
  * roda `doctor`, depois `uninstall --yes`. Sem dependencia externa.
  *
- * v0.7.0: cobre 18 hooks bloqueadores + 5 auxiliares + test-runner = 24 arquivos no core.
- * (v0.5 tinha 14 bloqueadores; v0.6 adicionou require-readiness-before-feature e validate-story-dependencies;
- *  v0.7 adicionou require-agent-sequence-before-dev e validate-quick-dev-scope — gaps da auditoria 10-agentes round 2)
+ * v0.10.0: cobre 21 hooks bloqueadores + 5 auxiliares + test-runner + _lib = 28 arquivos no core.
+ * Histórico: v0.5 (14 bloq) -> v0.6 (+readiness, +dependencies) -> v0.7 (+agent-sequence, +quick-dev-scope) ->
+ * v0.8 (+checkpoint, +auditors-pass, +story-approvals) -> v0.9 (hardening) -> v0.10 (adapters fix, install seletivo).
  */
 
 const fs = require('fs');
@@ -201,7 +201,56 @@ try {
   check('uninstall executou', false);
 }
 
-// 8) Recusa em diretorio sensivel (root, home, Program Files) — usa --dry-run pra testar lógica sem efeito
+// 8a) Adapter resolution: instala só .claude/ por padrão (sem --all-adapters)
+try {
+  const tmpDefault = fs.mkdtempSync(path.join(os.tmpdir(), 'roldao-adapter-default-'));
+  process.chdir(tmpDefault);
+  execSync(`node "${BIN}" install --yes`, { stdio: 'pipe' });
+  check('default: instala .claude/', fs.existsSync(path.join(tmpDefault, '.claude/settings.json')));
+  check('default: NAO instala .cursor/', !fs.existsSync(path.join(tmpDefault, '.cursor')));
+  check('default: NAO instala .windsurf/', !fs.existsSync(path.join(tmpDefault, '.windsurf')));
+  check('default: NAO instala .clinerules', !fs.existsSync(path.join(tmpDefault, '.clinerules')));
+  check('default: NAO instala .aider.conf.yml', !fs.existsSync(path.join(tmpDefault, '.aider.conf.yml')));
+  process.chdir(TMP);
+  try { fs.rmSync(tmpDefault, { recursive: true, force: true }); } catch {}
+} catch (e) {
+  check('adapter resolution default', false);
+  process.chdir(TMP);
+}
+
+// 8b) --all-adapters instala TODOS
+try {
+  const tmpAll = fs.mkdtempSync(path.join(os.tmpdir(), 'roldao-adapter-all-'));
+  process.chdir(tmpAll);
+  execSync(`node "${BIN}" install --yes --all-adapters`, { stdio: 'pipe' });
+  check('--all-adapters: .clinerules', fs.existsSync(path.join(tmpAll, '.clinerules')));
+  check('--all-adapters: .roorules', fs.existsSync(path.join(tmpAll, '.roorules')));
+  check('--all-adapters: .aider.conf.yml', fs.existsSync(path.join(tmpAll, '.aider.conf.yml')));
+  check('--all-adapters: .cursor/', fs.existsSync(path.join(tmpAll, '.cursor')));
+  process.chdir(TMP);
+  try { fs.rmSync(tmpAll, { recursive: true, force: true }); } catch {}
+} catch (e) {
+  check('--all-adapters', false);
+  process.chdir(TMP);
+}
+
+// 8c) --adapters=cursor,windsurf instala só esses + claude (sempre)
+try {
+  const tmpSel = fs.mkdtempSync(path.join(os.tmpdir(), 'roldao-adapter-sel-'));
+  process.chdir(tmpSel);
+  execSync(`node "${BIN}" install --yes --adapters=cursor,windsurf`, { stdio: 'pipe' });
+  check('--adapters=cursor,windsurf: .cursor/', fs.existsSync(path.join(tmpSel, '.cursor')));
+  check('--adapters=cursor,windsurf: .windsurf/', fs.existsSync(path.join(tmpSel, '.windsurf')));
+  check('--adapters=cursor,windsurf: .claude/ (sempre)', fs.existsSync(path.join(tmpSel, '.claude')));
+  check('--adapters=cursor,windsurf: NAO instala .clinerules', !fs.existsSync(path.join(tmpSel, '.clinerules')));
+  process.chdir(TMP);
+  try { fs.rmSync(tmpSel, { recursive: true, force: true }); } catch {}
+} catch (e) {
+  check('--adapters=cursor,windsurf', false);
+  process.chdir(TMP);
+}
+
+// 9) Recusa em diretorio sensivel (root, home, Program Files) — usa --dry-run pra testar lógica sem efeito
 try {
   const homedir = os.homedir();
   process.chdir(homedir);

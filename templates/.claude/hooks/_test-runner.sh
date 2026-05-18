@@ -10,6 +10,12 @@ PASS=0
 FAIL=0
 RESULTS=()
 
+# Diretorio temporario isolado por execucao (evita colisao entre rodadas
+# paralelas e poluicao de /tmp). Removido automaticamente no exit.
+BASE=$(mktemp -d -t roldao-test-XXXXXX 2>/dev/null || mktemp -d "$BASE/roldao-test-$$.XXXXXX" 2>/dev/null || echo "$BASE/roldao-test-$$")
+mkdir -p "$BASE"
+trap 'rm -rf "$BASE"' EXIT
+
 run_case() {
   local desc="$1"
   local hook="$2"
@@ -210,19 +216,19 @@ run_case "ignora arquivo de teste" "require-readiness-before-feature.sh" \
   '{"tool_input":{"file_path":"./src/foo.test.ts","content":"test()"}}' 0
 
 # Setup pra teste de bloqueio: cria marker feature-active sem readiness-passed
-mkdir -p /tmp/roldao-test-readiness/.claude/.runtime
-echo "US-001" > /tmp/roldao-test-readiness/.claude/.runtime/feature-active-test123
+mkdir -p $BASE/roldao-test-readiness/.claude/.runtime
+echo "US-001" > $BASE/roldao-test-readiness/.claude/.runtime/feature-active-test123
 run_case "bloqueia edit em codigo com feature ativa sem readiness" "require-readiness-before-feature.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-readiness CLAUDE_SESSION_ID=test123
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-readiness CLAUDE_SESSION_ID=test123
 
 # Cria readiness-passed → libera
-touch /tmp/roldao-test-readiness/.claude/.runtime/readiness-passed-test123
+touch $BASE/roldao-test-readiness/.claude/.runtime/readiness-passed-test123
 run_case "libera apos readiness-passed marker" "require-readiness-before-feature.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-readiness CLAUDE_SESSION_ID=test123
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-readiness CLAUDE_SESSION_ID=test123
 
-rm -rf /tmp/roldao-test-readiness
+rm -rf $BASE/roldao-test-readiness
 
 # ------- validate-story-dependencies --------
 run_case "passa sem feature ativa" "validate-story-dependencies.sh" \
@@ -232,16 +238,16 @@ run_case "ignora doc" "validate-story-dependencies.sh" \
   '{"tool_input":{"file_path":"./docs/foo.md","content":"x"}}' 0
 
 # Setup: cria story com depende-de e dependencia entregue
-mkdir -p /tmp/roldao-test-deps/.claude/.runtime
-mkdir -p /tmp/roldao-test-deps/docs/stories
-echo "US-002" > /tmp/roldao-test-deps/.claude/.runtime/feature-active-deps1
-cat > /tmp/roldao-test-deps/docs/stories/US-001-base.md <<EOF
+mkdir -p $BASE/roldao-test-deps/.claude/.runtime
+mkdir -p $BASE/roldao-test-deps/docs/stories
+echo "US-002" > $BASE/roldao-test-deps/.claude/.runtime/feature-active-deps1
+cat > $BASE/roldao-test-deps/docs/stories/US-001-base.md <<EOF
 ---
 id: US-001
 status: entregue
 ---
 EOF
-cat > /tmp/roldao-test-deps/docs/stories/US-002-dep.md <<EOF
+cat > $BASE/roldao-test-deps/docs/stories/US-002-dep.md <<EOF
 ---
 id: US-002
 depende-de: [US-001]
@@ -250,16 +256,17 @@ status: em-andamento
 EOF
 run_case "libera quando dependencia entregue" "validate-story-dependencies.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-deps CLAUDE_SESSION_ID=deps1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-deps CLAUDE_SESSION_ID=deps1
 
 # Mudar dependencia pra draft → bloqueia
-rm -f /tmp/roldao-test-deps/.claude/.runtime/deps-checked-deps1
-sed -i 's/status: entregue/status: draft/' /tmp/roldao-test-deps/docs/stories/US-001-base.md
+rm -f "$BASE/roldao-test-deps/.claude/.runtime/deps-checked-deps1"
+# perl -i e portavel (GNU sed -i sem extensao quebra em macOS/BSD)
+perl -i -pe 's/status: entregue/status: draft/' "$BASE/roldao-test-deps/docs/stories/US-001-base.md"
 run_case "bloqueia quando dependencia nao entregue" "validate-story-dependencies.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-deps CLAUDE_SESSION_ID=deps1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-deps CLAUDE_SESSION_ID=deps1
 
-rm -rf /tmp/roldao-test-deps
+rm -rf $BASE/roldao-test-deps
 
 # ------- require-agent-sequence-before-dev --------
 run_case "passa sem feature ativa" "require-agent-sequence-before-dev.sh" \
@@ -269,74 +276,74 @@ run_case "ignora docs" "require-agent-sequence-before-dev.sh" \
   '{"tool_input":{"file_path":"./docs/foo.md","content":"x"}}' 0
 
 # Setup: cria sessao /feature sem markers de Sofia/Detetive/Rafael
-mkdir -p /tmp/roldao-test-seq/.claude/.runtime
-touch /tmp/roldao-test-seq/.claude/.runtime/feature-active-seq1
+mkdir -p $BASE/roldao-test-seq/.claude/.runtime
+touch $BASE/roldao-test-seq/.claude/.runtime/feature-active-seq1
 run_case "bloqueia sem Sofia/Detetive/Rafael" "require-agent-sequence-before-dev.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-seq CLAUDE_SESSION_ID=seq1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-seq CLAUDE_SESSION_ID=seq1
 
 # Adiciona Sofia + Detetive → ainda falta Rafael
-touch /tmp/roldao-test-seq/.claude/.runtime/sofia-done-seq1
-touch /tmp/roldao-test-seq/.claude/.runtime/detetive-done-seq1
+touch $BASE/roldao-test-seq/.claude/.runtime/sofia-done-seq1
+touch $BASE/roldao-test-seq/.claude/.runtime/detetive-done-seq1
 run_case "bloqueia sem Rafael decidido" "require-agent-sequence-before-dev.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-seq CLAUDE_SESSION_ID=seq1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-seq CLAUDE_SESSION_ID=seq1
 
 # Rafael skipped (feature trivial) → libera
-touch /tmp/roldao-test-seq/.claude/.runtime/rafael-skipped-seq1
+touch $BASE/roldao-test-seq/.claude/.runtime/rafael-skipped-seq1
 run_case "libera com rafael-skipped (trivial)" "require-agent-sequence-before-dev.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-seq CLAUDE_SESSION_ID=seq1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-seq CLAUDE_SESSION_ID=seq1
 
-rm -rf /tmp/roldao-test-seq
+rm -rf $BASE/roldao-test-seq
 
 # ------- validate-quick-dev-scope --------
 run_case "passa sem quick-dev ativo" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0
 
 # Setup: ativa quick-dev e toca 3 arquivos diferentes
-mkdir -p /tmp/roldao-test-qd/.claude/.runtime
-touch /tmp/roldao-test-qd/.claude/.runtime/quick-dev-active-qd1
+mkdir -p $BASE/roldao-test-qd/.claude/.runtime
+touch $BASE/roldao-test-qd/.claude/.runtime/quick-dev-active-qd1
 
 run_case "libera 1o arquivo" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"./src/a.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qd CLAUDE_SESSION_ID=qd1
 
 run_case "libera 2o arquivo" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"./src/b.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qd CLAUDE_SESSION_ID=qd1
 
 run_case "libera 3o arquivo" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"./src/c.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qd CLAUDE_SESSION_ID=qd1
 
 run_case "bloqueia 4o arquivo (estourou limite)" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"./src/d.ts","content":"x"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qd CLAUDE_SESSION_ID=qd1
 
 run_case "libera reedicao de arquivo ja contado" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"./src/a.ts","content":"y"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qd CLAUDE_SESSION_ID=qd1
 
-rm -rf /tmp/roldao-test-qd
+rm -rf $BASE/roldao-test-qd
 
 # ------- commit-message-validator (regra T-NNN com /feature ativo) --------
-mkdir -p /tmp/roldao-test-commit/.claude/.runtime
-touch /tmp/roldao-test-commit/.claude/.runtime/feature-active-cmt1
+mkdir -p $BASE/roldao-test-commit/.claude/.runtime
+touch $BASE/roldao-test-commit/.claude/.runtime/feature-active-cmt1
 
 run_case "bloqueia feat sem T-NNN com /feature ativa" "commit-message-validator.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: adiciona campo cnpj\""}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-commit CLAUDE_SESSION_ID=cmt1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-commit CLAUDE_SESSION_ID=cmt1
 
 run_case "libera feat com (US-NNN T-NNN)" "commit-message-validator.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: cnpj alfanum (US-001 T-001)\""}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-commit CLAUDE_SESSION_ID=cmt1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-commit CLAUDE_SESSION_ID=cmt1
 
 run_case "libera docs sem T-NNN (nao exige)" "commit-message-validator.sh" \
   '{"tool_input":{"command":"git commit -m \"docs: atualiza readme\""}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-commit CLAUDE_SESSION_ID=cmt1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-commit CLAUDE_SESSION_ID=cmt1
 
-rm -rf /tmp/roldao-test-commit
+rm -rf $BASE/roldao-test-commit
 
 # ------- require-checkpoint-before-merge --------
 run_case "passa sem feature ativa" "require-checkpoint-before-merge.sh" \
@@ -345,52 +352,52 @@ run_case "passa sem feature ativa" "require-checkpoint-before-merge.sh" \
 run_case "ignora comando nao-git" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"ls -la"}}' 0
 
-mkdir -p /tmp/roldao-test-chk/.claude/.runtime
-echo "US-001" > /tmp/roldao-test-chk/.claude/.runtime/feature-active-chk1
+mkdir -p $BASE/roldao-test-chk/.claude/.runtime
+echo "US-001" > $BASE/roldao-test-chk/.claude/.runtime/feature-active-chk1
 
 run_case "bloqueia commit feat sem checkpoint" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: foo (US-001 T-001)\""}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-chk CLAUDE_SESSION_ID=chk1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-chk CLAUDE_SESSION_ID=chk1
 
 run_case "libera commit docs (skip)" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"docs: readme\""}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-chk CLAUDE_SESSION_ID=chk1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-chk CLAUDE_SESSION_ID=chk1
 
-touch /tmp/roldao-test-chk/.claude/.runtime/checkpoint-done-chk1
+touch $BASE/roldao-test-chk/.claude/.runtime/checkpoint-done-chk1
 run_case "libera commit apos checkpoint-done" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: foo (US-001 T-001)\""}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-chk CLAUDE_SESSION_ID=chk1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-chk CLAUDE_SESSION_ID=chk1
 
-rm -rf /tmp/roldao-test-chk
+rm -rf $BASE/roldao-test-chk
 
 # ------- require-auditors-pass-before-commit --------
 run_case "passa sem feature ativa" "require-auditors-pass-before-commit.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x\""}}' 0
 
-mkdir -p /tmp/roldao-test-aud/.claude/.runtime
-echo "US-001" > /tmp/roldao-test-aud/.claude/.runtime/feature-active-aud1
+mkdir -p $BASE/roldao-test-aud/.claude/.runtime
+echo "US-001" > $BASE/roldao-test-aud/.claude/.runtime/feature-active-aud1
 
 run_case "bloqueia commit sem nenhum auditor" "require-auditors-pass-before-commit.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-aud CLAUDE_SESSION_ID=aud1
 
-touch /tmp/roldao-test-aud/.claude/.runtime/auditor-seg-pass-aud1
-touch /tmp/roldao-test-aud/.claude/.runtime/auditor-qual-pass-aud1
+touch $BASE/roldao-test-aud/.claude/.runtime/auditor-seg-pass-aud1
+touch $BASE/roldao-test-aud/.claude/.runtime/auditor-qual-pass-aud1
 run_case "bloqueia commit faltando 1 auditor" "require-auditors-pass-before-commit.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-aud CLAUDE_SESSION_ID=aud1
 
-touch /tmp/roldao-test-aud/.claude/.runtime/auditor-prod-pass-aud1
+touch $BASE/roldao-test-aud/.claude/.runtime/auditor-prod-pass-aud1
 run_case "libera commit com 3 auditores aprovados" "require-auditors-pass-before-commit.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-aud CLAUDE_SESSION_ID=aud1
 
-touch /tmp/roldao-test-aud/.claude/.runtime/auditor-seg-blocked-aud1
+touch $BASE/roldao-test-aud/.claude/.runtime/auditor-seg-blocked-aud1
 run_case "bloqueia se auditor marcou blocked" "require-auditors-pass-before-commit.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-aud CLAUDE_SESSION_ID=aud1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-aud CLAUDE_SESSION_ID=aud1
 
-rm -rf /tmp/roldao-test-aud
+rm -rf $BASE/roldao-test-aud
 
 # ------- validate-story-approvals --------
 run_case "ignora arquivo nao-story" "validate-story-approvals.sh" \
@@ -416,11 +423,11 @@ run_case "bloqueia se aprovacao tem status: bloqueado" "validate-story-approvals
 # ou aceitar SESSION_ID com so caracteres especiais.
 
 # C5 — PROJDIR com ".." rejeitado (path traversal via PR malicioso)
-mkdir -p /tmp/roldao-test-traversal/.claude/.runtime
-touch /tmp/roldao-test-traversal/.claude/.runtime/feature-active-trv1
+mkdir -p $BASE/roldao-test-traversal/.claude/.runtime
+touch $BASE/roldao-test-traversal/.claude/.runtime/feature-active-trv1
 run_case "rejeita PROJDIR com .. (path traversal)" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-traversal/../etc CLAUDE_SESSION_ID=trv1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-traversal/../etc CLAUDE_SESSION_ID=trv1
 
 # Nota: PROJDIR="" (vazio) cai no fallback $PWD por design — comportamento
 # legitimo. O ataque real e via ".." ou path relativo, ja cobertos.
@@ -430,48 +437,48 @@ run_case "rejeita PROJDIR relativo" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
   CLAUDE_PROJECT_DIR=relative/path CLAUDE_SESSION_ID=rel1
 
-rm -rf /tmp/roldao-test-traversal
+rm -rf $BASE/roldao-test-traversal
 
 # C2 — SESSION_ID com so caracteres especiais nao gera marker generico
 # Antes: hash="" → marker "feature-active-" liberava qualquer um.
 # Agora: hash="default" → marker proprio.
-mkdir -p /tmp/roldao-test-emptyhash/.claude/.runtime
-touch /tmp/roldao-test-emptyhash/.claude/.runtime/feature-active-default
+mkdir -p $BASE/roldao-test-emptyhash/.claude/.runtime
+touch $BASE/roldao-test-emptyhash/.claude/.runtime/feature-active-default
 run_case "SESSION_ID so com hifens cai em hash=default" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-emptyhash CLAUDE_SESSION_ID="-----"
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-emptyhash CLAUDE_SESSION_ID="-----"
 
-touch /tmp/roldao-test-emptyhash/.claude/.runtime/checkpoint-done-default
+touch $BASE/roldao-test-emptyhash/.claude/.runtime/checkpoint-done-default
 run_case "checkpoint default libera commit" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-emptyhash CLAUDE_SESSION_ID="-----"
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-emptyhash CLAUDE_SESSION_ID="-----"
 
-rm -rf /tmp/roldao-test-emptyhash
+rm -rf $BASE/roldao-test-emptyhash
 
 # C4 — validate-quick-dev-scope com paths contendo espaco
-mkdir -p "/tmp/roldao-test-qdspace/.claude/.runtime"
-touch "/tmp/roldao-test-qdspace/.claude/.runtime/quick-dev-active-qds1"
+mkdir -p "$BASE/roldao-test-qdspace/.claude/.runtime"
+touch "$BASE/roldao-test-qdspace/.claude/.runtime/quick-dev-active-qds1"
 run_case "quick-dev libera 1o arquivo com espaco no path" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"src/path with space/a.js","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
 
 run_case "quick-dev libera 2o arquivo com espaco" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"src/path with space/b.js","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
 
 run_case "quick-dev libera 3o arquivo com espaco" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"src/path with space/c.js","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
 
 run_case "quick-dev bloqueia 4o arquivo com espaco" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"src/path with space/d.js","content":"x"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
 
 run_case "quick-dev libera reedicao do 1o arquivo com espaco" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"src/path with space/a.js","content":"x2"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-qdspace CLAUDE_SESSION_ID=qds1
 
-rm -rf /tmp/roldao-test-qdspace
+rm -rf $BASE/roldao-test-qdspace
 
 # C1 — validate-story-approvals com multiplos status: bloqueado (contagem multilinha)
 APROV_DOUBLE_BLOCK='---\nid: US-002\nstatus: entregue\naprovacoes:\n  - etapa: gerente-produto\n    data: 2026-05-18\n    status: aprovado\n  - etapa: investigador\n    data: 2026-05-18\n    status: aprovado\n  - etapa: tech-lead\n    data: 2026-05-18\n    status: dispensado\n  - etapa: dev-senior\n    data: 2026-05-18\n    status: aprovado\n  - etapa: revisor\n    data: 2026-05-18\n    status: aprovado\n  - etapa: auditor-seguranca\n    data: 2026-05-18\n    status: reprovado\n  - etapa: auditor-qualidade\n    data: 2026-05-18\n    status: bloqueado\n  - etapa: auditor-produto\n    data: 2026-05-18\n    status: aprovado\n---'
@@ -540,59 +547,179 @@ run_case "bloqueia frontmatter sem campo owner" "paths-frontmatter-validator.sh"
   '{"tool_input":{"file_path":"./docs/feature-x.md","content":"---\nrevisado-em: 2026-05-18\nstatus: stable\n---\n# X"}}' 2
 
 # ------- require-investigador-before-fix (REGRA #0 — CRITICO) --------
-mkdir -p /tmp/roldao-test-inv/.claude/.runtime
+mkdir -p $BASE/roldao-test-inv/.claude/.runtime
 run_case "passa sem marker de bug" "require-investigador-before-fix.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-inv CLAUDE_SESSION_ID=inv1
 run_case "ignora doc mesmo com bug-trigger" "require-investigador-before-fix.sh" \
   '{"tool_input":{"file_path":"./docs/x.md","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-inv CLAUDE_SESSION_ID=inv1
 
-touch /tmp/roldao-test-inv/.claude/.runtime/bug-trigger-inv1
+touch $BASE/roldao-test-inv/.claude/.runtime/bug-trigger-inv1
 run_case "bloqueia edit em codigo com bug-trigger sem investigador" "require-investigador-before-fix.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-inv CLAUDE_SESSION_ID=inv1
 
-touch /tmp/roldao-test-inv/.claude/.runtime/investigator-invoked-inv1
+touch $BASE/roldao-test-inv/.claude/.runtime/investigator-invoked-inv1
 run_case "libera apos investigator-invoked marker" "require-investigador-before-fix.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-inv CLAUDE_SESSION_ID=inv1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-inv CLAUDE_SESSION_ID=inv1
 
-rm -rf /tmp/roldao-test-inv
+rm -rf $BASE/roldao-test-inv
 
 # ------- validate-test-pyramid --------
 run_case "ignora arquivo nao-E2E" "validate-test-pyramid.sh" \
   '{"tool_input":{"file_path":"./src/foo.test.ts","content":"x"}}' 0
 
-mkdir -p /tmp/roldao-test-pyr/src/auth
+mkdir -p $BASE/roldao-test-pyr/src/auth
 run_case "bloqueia E2E sem unit tests no modulo" "validate-test-pyramid.sh" \
   '{"tool_input":{"file_path":"src/auth/login.e2e.ts","content":"x"}}' 2 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-pyr
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-pyr
 
-echo "test" > /tmp/roldao-test-pyr/src/auth/login.test.ts
+echo "test" > $BASE/roldao-test-pyr/src/auth/login.test.ts
 run_case "libera E2E com unit tests no modulo" "validate-test-pyramid.sh" \
   '{"tool_input":{"file_path":"src/auth/login.e2e.ts","content":"x"}}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-pyr
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-pyr
 
-rm -rf /tmp/roldao-test-pyr
+rm -rf $BASE/roldao-test-pyr
 
 # ------- regra-zero-reminder (UserPromptSubmit — exit 0 sempre, side-effect via marker) --------
-mkdir -p /tmp/roldao-test-rzr/.claude/.runtime
+mkdir -p $BASE/roldao-test-rzr/.claude/.runtime
 run_case "passa em prompt sem gatilho de bug" "regra-zero-reminder.sh" \
   '{"prompt":"adicionar nova feature de cadastro"}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-rzr CLAUDE_SESSION_ID=rzr1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-rzr CLAUDE_SESSION_ID=rzr1
 run_case "passa (com side-effect) em prompt mencionando bug" "regra-zero-reminder.sh" \
   '{"prompt":"tem um bug grave no calculo"}' 0 \
-  CLAUDE_PROJECT_DIR=/tmp/roldao-test-rzr CLAUDE_SESSION_ID=rzr1
+  CLAUDE_PROJECT_DIR=$BASE/roldao-test-rzr CLAUDE_SESSION_ID=rzr1
 # verifica side-effect: marker deve existir
-if [ -f /tmp/roldao-test-rzr/.claude/.runtime/bug-trigger-rzr1 ]; then
+if [ -f $BASE/roldao-test-rzr/.claude/.runtime/bug-trigger-rzr1 ]; then
   PASS=$((PASS + 1))
   RESULTS+=("OK   regra-zero-reminder.sh  →  cria marker bug-trigger ao detectar gatilho")
 else
   FAIL=$((FAIL + 1))
   RESULTS+=("FAIL regra-zero-reminder.sh  →  nao criou marker bug-trigger esperado")
 fi
-rm -rf /tmp/roldao-test-rzr
+rm -rf $BASE/roldao-test-rzr
+
+# ------- context-budget (SessionStart, warning em stderr — exit 0) --------
+mkdir -p "$BASE/roldao-test-ctx"
+# AGENTS.md dentro do limite — sem warning
+seq 1 50 | sed 's/.*/linha &/' > "$BASE/roldao-test-ctx/AGENTS.md"
+run_case "AGENTS.md dentro do limite, sem warn" "context-budget.sh" \
+  '' 0 CLAUDE_PROJECT_DIR="$BASE/roldao-test-ctx"
+
+# AGENTS.md acima do limite (250 linhas) — warn em stderr, exit 0
+seq 1 250 | sed 's/.*/linha &/' > "$BASE/roldao-test-ctx/AGENTS.md"
+run_case "AGENTS.md acima do limite, warn (exit 0)" "context-budget.sh" \
+  '' 0 CLAUDE_PROJECT_DIR="$BASE/roldao-test-ctx"
+
+check_stderr_at_least() {
+  local desc="$1"
+  local hook="$2"
+  local input="$3"
+  local expect_pattern="$4"
+  shift 4
+  local out
+  if [ "$#" -gt 0 ]; then
+    out=$(env "$@" bash -c 'printf "%s" "$1" | bash "$2" 2>&1 >/dev/null' _ "$input" "$HOOKS_DIR/$hook" || true)
+  else
+    out=$(printf '%s' "$input" | bash "$HOOKS_DIR/$hook" 2>&1 >/dev/null || true)
+  fi
+  if printf '%s' "$out" | grep -qE -- "$expect_pattern"; then
+    PASS=$((PASS + 1))
+    RESULTS+=("OK   $hook  →  $desc")
+  else
+    FAIL=$((FAIL + 1))
+    RESULTS+=("FAIL $hook  →  $desc  (esperava match em /$expect_pattern/, stderr: $out)")
+  fi
+}
+
+check_stderr_at_least "emite warn quando AGENTS.md > limite" "context-budget.sh" \
+  '' 'context-budget.*AGENTS' CLAUDE_PROJECT_DIR="$BASE/roldao-test-ctx"
+
+rm -rf "$BASE/roldao-test-ctx"
+
+# PROJDIR com .. rejeitado (exit 0 silencioso por design — SessionStart nao bloqueia)
+run_case "context-budget rejeita PROJDIR malicioso silenciosamente" "context-budget.sh" \
+  '' 0 CLAUDE_PROJECT_DIR="$BASE/../etc"
+
+# ------- mcp-validator (bloqueio: server fora da allowlist) --------
+mkdir -p "$BASE/roldao-test-mcp-bad"
+cat > "$BASE/roldao-test-mcp-bad/.mcp.json" <<'EOF'
+{
+  "mcpServers": {
+    "evil-server": {
+      "command": "npx",
+      "args": ["-y", "github.com/malicious-org/evil-mcp"]
+    }
+  }
+}
+EOF
+# SessionStart por design nao bloqueia (exit 0), mas DEVE emitir aviso em stderr.
+check_stderr_at_least "alerta server fora da allowlist" "mcp-validator.sh" \
+  '' 'mcp-validator.*fora da allowlist' CLAUDE_PROJECT_DIR="$BASE/roldao-test-mcp-bad"
+
+# Server da allowlist — sem aviso
+mkdir -p "$BASE/roldao-test-mcp-ok"
+cat > "$BASE/roldao-test-mcp-ok/.mcp.json" <<'EOF'
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@github/mcp"]
+    }
+  }
+}
+EOF
+run_case "server da allowlist nao gera aviso" "mcp-validator.sh" \
+  '' 0 CLAUDE_PROJECT_DIR="$BASE/roldao-test-mcp-ok"
+
+rm -rf "$BASE/roldao-test-mcp-bad" "$BASE/roldao-test-mcp-ok"
+
+# ------- no-amend-after-push (bloqueio real com repo bare local) --------
+# Setup: cria repo bare como remote, repo local clonado, commita e pusha.
+# Depois testa que --amend e bloqueado.
+NAR_REMOTE="$BASE/roldao-test-nar-remote.git"
+NAR_LOCAL="$BASE/roldao-test-nar-local"
+git init --bare --initial-branch=main "$NAR_REMOTE" >/dev/null 2>&1
+git -c init.defaultBranch=main init "$NAR_LOCAL" >/dev/null 2>&1
+(
+  cd "$NAR_LOCAL"
+  git -c user.email=t@t -c user.name=t commit --allow-empty -m "init" >/dev/null 2>&1
+  git remote add origin "$NAR_REMOTE" >/dev/null 2>&1
+  git branch -M main >/dev/null 2>&1
+  git push -u origin main >/dev/null 2>&1
+) 2>/dev/null
+
+# Em diretorio com HEAD ja pushado, --amend deve ser bloqueado (exit 2).
+# Hook le `git rev-parse` no PWD, entao precisamos rodar dentro do repo.
+ACTUAL=$(cd "$NAR_LOCAL" && printf '%s' '{"tool_input":{"command":"git commit --amend -m fix"}}' | bash "$HOOKS_DIR/no-amend-after-push.sh" >/dev/null 2>&1; echo $?)
+if [ "$ACTUAL" = "2" ]; then
+  PASS=$((PASS + 1))
+  RESULTS+=("OK   no-amend-after-push.sh  →  bloqueia amend de HEAD pushado")
+else
+  FAIL=$((FAIL + 1))
+  RESULTS+=("FAIL no-amend-after-push.sh  →  bloqueia amend de HEAD pushado (esperado=2, real=$ACTUAL)")
+fi
+
+# Cria novo commit local nao-pushado — pode amendar
+(
+  cd "$NAR_LOCAL"
+  echo "novo" > a.txt
+  git add a.txt
+  git -c user.email=t@t -c user.name=t commit -m "wip" >/dev/null 2>&1
+) 2>/dev/null
+
+ACTUAL=$(cd "$NAR_LOCAL" && printf '%s' '{"tool_input":{"command":"git commit --amend -m fix"}}' | bash "$HOOKS_DIR/no-amend-after-push.sh" >/dev/null 2>&1; echo $?)
+if [ "$ACTUAL" = "0" ]; then
+  PASS=$((PASS + 1))
+  RESULTS+=("OK   no-amend-after-push.sh  →  libera amend de commit local nao-pushado")
+else
+  FAIL=$((FAIL + 1))
+  RESULTS+=("FAIL no-amend-after-push.sh  →  libera amend nao-pushado (esperado=0, real=$ACTUAL)")
+fi
+
+rm -rf "$NAR_REMOTE" "$NAR_LOCAL"
 
 # ------- relatório --------
 echo ""

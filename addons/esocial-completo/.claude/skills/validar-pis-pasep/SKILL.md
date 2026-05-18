@@ -21,6 +21,8 @@ Valida PIS (Programa de Integração Social), PASEP (Programa de Formação do P
 python3 scripts/validar-pis.py "12068306449"
 python3 scripts/validar-pis.py "120.6830.644-9"
 ```
+> **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
+
 
 Output:
 ```

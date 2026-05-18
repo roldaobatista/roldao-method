@@ -64,12 +64,22 @@ for pat in "${PATTERNS[@]}"; do
 done
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
-  cat <<EOF
-{
-  "decision": "block",
-  "reason": "[block-confirmation-questions] resposta contem pergunta de confirmacao que poderia ser executada direto (INV-AGENT-006).\n\nO usuario nao programa. Pergunta como 'quer que eu...?' empurra tarefa de volta. Execute o melhor caminho e reporte depois.\n\nViolacoes:\n$(printf '  - %s\n' "${VIOLATIONS[@]}")\n\nExcecao legitima: operacao destrutiva, gasto financeiro, mudanca publica, credenciais. Se for um desses casos, mencione explicitamente o motivo da confirmacao."
-}
-EOF
+  # Gera JSON via perl encode_json — VIOLATIONS contem texto livre da resposta
+  # do agente, que pode ter aspas/newlines que quebram heredoc cru.
+  VIOLATIONS_STR=$(printf '  - %s\n' "${VIOLATIONS[@]}")
+  REASON_TEXT="[block-confirmation-questions] resposta contem pergunta de confirmacao que poderia ser executada direto (INV-AGENT-006).
+
+O usuario nao programa. Pergunta como 'quer que eu...?' empurra tarefa de volta. Execute o melhor caminho e reporte depois.
+
+Violacoes:
+${VIOLATIONS_STR}
+
+Excecao legitima: operacao destrutiva, gasto financeiro, mudanca publica, credenciais. Se for um desses casos, mencione explicitamente o motivo da confirmacao."
+  printf '%s' "$REASON_TEXT" | perl -MJSON::PP -e '
+    local $/;
+    my $reason = <STDIN>;
+    print encode_json({ decision => "block", reason => $reason });
+  '
   exit 0
 fi
 

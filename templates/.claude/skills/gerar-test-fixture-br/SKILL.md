@@ -30,6 +30,8 @@ python3 scripts/gerar.py nome 2
 python3 scripts/gerar.py razao-social 2
 python3 scripts/gerar.py all 1   # 1 fixture completa: nome, CPF, email, telefone, CEP
 ```
+> **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
+
 
 ## Saída
 

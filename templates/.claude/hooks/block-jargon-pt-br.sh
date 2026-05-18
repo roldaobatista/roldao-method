@@ -77,13 +77,32 @@ for pat in "${JARGON_TERMS[@]}"; do
 done
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
-  # PostToolUse pode bloquear via JSON output:
-  cat <<EOF
-{
-  "decision": "block",
-  "reason": "[block-jargon-pt-br] resposta usa jargao tecnico sem traduzir (INV-AGENT-001).\n\nUsuario nao-programador. Reescrever em PT-BR claro.\n\nViolacoes:\n$(printf '  - %s\n' "${VIOLATIONS[@]}")\n\nTabela de traducao:\n  - commit/push -> 'salvei a correcao no sistema'\n  - CI verde -> 'esta funcionando, validei'\n  - rollback -> 'voltar pra versao anterior'\n  - deploy -> 'subir pro servidor'\n  - refactor -> 'reorganizar (sem mudar o que aparece pro usuario)'\n  - migration -> 'mudanca na estrutura dos dados salvos'\n  - mock/fixture -> 'dados falsos pros testes'\n\nExcecao: se o usuario E programador (declarado em AGENTS.md), peca pra ajustar a regra."
-}
-EOF
+  # PostToolUse bloqueia via JSON {"decision":"block"}. O reason concatena
+  # texto que pode conter aspas/newline (VIOLATIONS vem da resposta do agente),
+  # entao gera o JSON via perl encode_json — heredoc cru quebra com payload sujo.
+  VIOLATIONS_STR=$(printf '  - %s\n' "${VIOLATIONS[@]}")
+  REASON_TEXT="[block-jargon-pt-br] resposta usa jargao tecnico sem traduzir (INV-AGENT-001).
+
+Usuario nao-programador. Reescrever em PT-BR claro.
+
+Violacoes:
+${VIOLATIONS_STR}
+
+Tabela de traducao:
+  - commit/push -> 'salvei a correcao no sistema'
+  - CI verde -> 'esta funcionando, validei'
+  - rollback -> 'voltar pra versao anterior'
+  - deploy -> 'subir pro servidor'
+  - refactor -> 'reorganizar (sem mudar o que aparece pro usuario)'
+  - migration -> 'mudanca na estrutura dos dados salvos'
+  - mock/fixture -> 'dados falsos pros testes'
+
+Excecao: se o usuario E programador (declarado em AGENTS.md), peca pra ajustar a regra."
+  printf '%s' "$REASON_TEXT" | perl -MJSON::PP -e '
+    local $/;
+    my $reason = <STDIN>;
+    print encode_json({ decision => "block", reason => $reason });
+  '
   exit 0
 fi
 

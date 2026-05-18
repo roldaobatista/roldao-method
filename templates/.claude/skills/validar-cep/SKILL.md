@@ -19,6 +19,8 @@ Skill para validar CEP brasileiro.
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar-cep.py 12345-678
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar-cep.py --remoto 01310-100
 ```
+> **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
+
 
 - Sem `--remoto`: valida so formato (offline, gratis, rapido).
 - Com `--remoto`: consulta ViaCEP (requer internet). Usa cota publica — nao chamar em loop.

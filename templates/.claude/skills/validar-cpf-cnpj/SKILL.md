@@ -37,6 +37,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/validar.py "12.345.678/0001-90"      # CNPJ 
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar.py "12.ABC.345/01DE-35"      # CNPJ alfanumerico (2026+)
 echo "111.111.111-11" | python3 ${CLAUDE_SKILL_DIR}/scripts/validar.py -
 ```
+> **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
+
 
 Retorna exit code 0 se valido, 1 se invalido. Imprime `OK <tipo>` ou `INVALIDO <motivo>`.
 

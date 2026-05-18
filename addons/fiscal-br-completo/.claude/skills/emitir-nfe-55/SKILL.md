@@ -37,7 +37,7 @@ Implementação de emissão de NF-e modelo 55 (Nota Fiscal eletrônica — opera
 
 ### XML
 - [ ] Schema XSD vigente baixado (versão do MOC atual — verificar Portal NF-e).
-- [ ] Assinatura XMLDSig com algoritmo `RSA-SHA1` (padrão SEFAZ atual).
+- [ ] Assinatura XMLDSig com algoritmo `RSA-SHA-256` (padrão MOC 7.00+, NT 2023.001). `RSA-SHA-1` ainda aceito por algumas UFs por retrocompatibilidade, mas `OpenSSL 3.x` exige `legacy` provider — preferir SHA-256.
 - [ ] Chave de acesso 44 dígitos gerada corretamente.
 - [ ] Dígito verificador da chave calculado (módulo 11).
 

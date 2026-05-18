@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
-  "version": "0.9.0",
-  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 12 agentes especialistas, 21 hooks bloqueadores (gates mecânicos pra readiness/sequência de agentes/dependências/escopo de quick-dev/REGRA #0/checkpoint/auditores/audit trail), 19 workflows, 8 skills BR no core + 9 nos addons (CPF/CNPJ alfanumérico 2026, Pix, CEP, LGPD, brainstorming, fixtures BR), 7 checklists auditáveis, 7 knowledge bases, 6 addons especializados (electron, fiscal, LGPD, fintech, eSocial, varejo-PDV), spec-driven com templates PT-BR. Adapters reais para Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider.",
+  "version": "0.10.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 12 agentes especialistas, 21 hooks bloqueadores (gates mecânicos pra readiness/sequência de agentes/dependências/escopo de quick-dev/REGRA #0/checkpoint/auditores/audit trail), 19 workflows, 8 skills BR no core + 14 nos addons (CPF/CNPJ alfanumérico 2026, Pix, CEP, LGPD, eSocial, varejo-PDV, brainstorming, fixtures BR), 8 checklists auditáveis, 7 knowledge bases, 6 addons especializados (electron, fiscal, LGPD, fintech, eSocial, varejo-PDV), spec-driven com 12 templates PT-BR. Adapters reais (na raiz do projeto) para Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider — instalação seletiva com --adapters/--all-adapters.",
   "keywords": [
     "ai",
     "claude-code",

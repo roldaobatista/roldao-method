@@ -1,6 +1,6 @@
 # ROLDAO-METHOD no Roo Code
 
-Roo Code adota estas regras como system prompt persistente.
+Roo Code carrega este arquivo (`.roorules`) automaticamente em todos os modos como instruções persistentes.
 
 ## REGRA #0 — Investigar antes de mexer
 
