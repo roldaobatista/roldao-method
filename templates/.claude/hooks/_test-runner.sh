@@ -99,6 +99,49 @@ run_case "block-destructive bloqueia sudo rm -rf" "block-destructive.sh" \
 run_case "secrets bloqueia sk-ant-api03 atual" "secrets-scanner.sh" \
   '{"tool_input":{"file_path":"./x.js","content":"const k = \"sk-ant-api03-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\";"}}' 2
 
+# ------- block-mock-in-integration --------
+run_case "bloqueia vi.mock em integration" "block-mock-in-integration.sh" \
+  '{"tool_input":{"file_path":"./tests/integration/foo.test.js","content":"vi.mock(\"./bar\");"}}' 2
+
+run_case "permite mock em unit test" "block-mock-in-integration.sh" \
+  '{"tool_input":{"file_path":"./tests/unit/foo.test.js","content":"vi.mock(\"./bar\");"}}' 0
+
+run_case "bloqueia jest.mock em e2e" "block-mock-in-integration.sh" \
+  '{"tool_input":{"file_path":"./e2e/checkout.spec.ts","content":"jest.mock(\"./pay\");"}}' 2
+
+run_case "permite com TST-003-exception" "block-mock-in-integration.sh" \
+  '{"tool_input":{"file_path":"./tests/integration/foo.test.js","content":"vi.mock(\"./bar\"); // TST-003-exception: terceiro offline"}}' 0
+
+# ------- block-todo-without-issue --------
+run_case "bloqueia TODO sem ID" "block-todo-without-issue.sh" \
+  '{"tool_input":{"file_path":"./x.js","content":"// TODO: corrigir isso depois"}}' 2
+
+run_case "permite TODO com #123" "block-todo-without-issue.sh" \
+  '{"tool_input":{"file_path":"./x.js","content":"// TODO(#123): corrigir"}}' 0
+
+run_case "permite FIXME com US-007" "block-todo-without-issue.sh" \
+  '{"tool_input":{"file_path":"./x.py","content":"# FIXME(US-007): refactor"}}' 0
+
+run_case "ignora TODO em markdown" "block-todo-without-issue.sh" \
+  '{"tool_input":{"file_path":"./README.md","content":"- [ ] TODO: writing more docs"}}' 0
+
+# ------- commit-message-validator --------
+run_case "permite commit feat curto" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: adiciona validacao CPF\""}}' 0
+
+run_case "bloqueia commit feat+fix misturado" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: nova tela + fix: bug do login\""}}' 2
+
+run_case "bloqueia primeira linha >72" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""}}' 2
+
+run_case "ignora comando sem -m" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git status"}}' 0
+
+# ------- mcp-validator --------
+run_case "session start sem .mcp.json passa" "mcp-validator.sh" \
+  '' 0
+
 # ------- relatório --------
 echo ""
 for r in "${RESULTS[@]}"; do

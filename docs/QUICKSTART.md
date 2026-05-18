@@ -1,3 +1,9 @@
+---
+owner: framework
+revisado-em: 2026-05-18
+status: stable
+---
+
 # Quickstart — ROLDAO-METHOD
 
 5 minutos do zero ao primeiro `/feature`.
@@ -10,16 +16,20 @@ Na raiz do seu projeto:
 npx roldao-method install
 ```
 
-Confirme com `s`. O comando vai copiar:
+Confirme com `s`. O comando copia:
 
-- `AGENTS.md`, `CLAUDE.md`, `REGRAS-INEGOCIAVEIS.md` — documentos-contrato
-- `.specify/memory/constitution.md` — 6 princípios universais
-- `.agent/CURRENT.md` — estado da sessão
-- `.claude/agents/` — 8 especialistas virtuais
-- `.claude/hooks/` — 5 regras automáticas (segurança/qualidade) + 1 runner de testes
-- `.claude/commands/` — 5 workflows (`/inicio`, `/feature`, `/bug`, `/refactor`, `/auditoria`)
-- `.claude/output-styles/pt-br-conciso.md` — estilo de resposta PT-BR
-- `.claude/settings.json` — permissões + hooks registrados
+- `AGENTS.md`, `CLAUDE.md`, `REGRAS-INEGOCIAVEIS.md` — documentos-contrato.
+- `.specify/memory/constitution.md` — 6 princípios universais.
+- `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
+- `.agent/CURRENT.md` — estado da sessão.
+- `.claude/agents/` — 11 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR).
+- `.claude/hooks/` — 7 bloqueadores + 5 auxiliares.
+- `.claude/commands/` — 11 workflows.
+- `.claude/skills/` — 6 skills BR (CPF/CNPJ alfanum, Pix, CEP, LGPD, ADR, traduzir jargão).
+- `.claude/output-styles/pt-br-conciso.md`.
+- `.claude/settings.json` — permissões + hooks.
+
+Em CI use `--yes`. Para atualizar versão: `npx roldao-method update`. Para diagnosticar: `npx roldao-method doctor`.
 
 ## 2. Personalize
 
@@ -31,13 +41,15 @@ Abra `AGENTS.md` e preencha os campos `_(preencher)_`:
 
 Esse arquivo é a **fonte da verdade** que todo agente lê primeiro. Bem preenchido = agente alinhado.
 
+**Já tem projeto rodando?** Pule essa etapa e rode `/brownfield` no Claude Code — o investigador preenche por você.
+
 ## 3. Valide os hooks
 
 ```bash
 bash .claude/hooks/_test-runner.sh
 ```
 
-Deve mostrar `Total: 15  |  OK: 15  |  FAIL: 0`. Se falhar, abra issue.
+Deve mostrar `Total: 35  |  OK: 35  |  FAIL: 0`. Se falhar, abra issue.
 
 ## 4. Ative o estilo PT-BR conciso
 
@@ -57,15 +69,22 @@ Abra o Claude Code na raiz do projeto e digite um dos comandos:
 
 | Comando | Quando |
 |---|---|
-| `/inicio` | Começar um projeto novo |
+| `/inicio` | Começar projeto novo |
+| `/brownfield` | Adotar em projeto que já existe |
+| `/prd <descrição>` | Iniciativa grande (várias semanas) |
+| `/epico <descrição>` | Decompor coisa grande em stories |
+| `/historia <descrição>` | Criar 1 user story em disco |
 | `/feature <descrição>` | Implementar funcionalidade nova |
-| `/bug <descrição>` | Corrigir comportamento errado (investigador obrigatório) |
+| `/bug <descrição>` | Corrigir comportamento (investigador obrigatório) |
 | `/refactor <descrição>` | Reorganizar sem mudar comportamento |
-| `/auditoria <escopo>` | Rodar os 3 auditores (segurança, qualidade, produto) |
+| `/qa <área>` | Gerar/auditar testes |
+| `/auditoria <escopo>` | Rodar os 3 auditores |
+| `/retro <marco>` | Retrospectiva pós-marco |
 
-## 6. Use no ChatGPT / Claude.ai (chat web)
+## 6. Use no Cursor / Windsurf / ChatGPT
 
-Cole o conteúdo de `AGENTS.md` + o agente que você quer usar (`.claude/agents/<nome>.md`) como **system prompt**. Em seguida, descreva sua demanda normalmente.
+- **Cursor / Windsurf:** lê `AGENTS.md` e `CLAUDE.md` automaticamente. Hooks não rodam (limitação do harness).
+- **ChatGPT / Claude.ai web:** cole conteúdo de `AGENTS.md` + agente desejado (`.claude/agents/<nome>.md`) como system prompt.
 
 Exemplo:
 ```
@@ -83,7 +102,8 @@ Reportei um bug: ao salvar pedido com valor zero, o sistema aceita.
 - Leia `REGRAS-INEGOCIAVEIS.md` e ajuste regras específicas do seu projeto.
 - Mantenha `.agent/CURRENT.md` atualizado entre sessões.
 - Quando padrão repetir 3 vezes, considere criar uma skill em `.claude/skills/`.
+- Para casos BR reais (NF-e, Pix, telemedicina, eSocial), ver `docs/CASOS-DE-USO-BR.md`.
 
 ---
 
-**Tem dúvida?** Abra issue em https://github.com/roldaobatista/roldao-method/issues
+**Tem dúvida?** Veja `docs/FAQ.md` e `docs/TROUBLESHOOTING.md`. Ainda não resolveu? Abra issue em https://github.com/roldaobatista/roldao-method/issues.

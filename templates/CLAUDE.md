@@ -75,11 +75,11 @@ Operações irreversíveis exigem confirmação. Hook `block-destructive.sh` blo
 .claude/
 ├── settings.json          ← permissões + hooks (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
-├── agents/                ← 8 especialistas
-├── hooks/                 ← 5 regras automáticas + 1 runner de testes
+├── agents/                ← 11 especialistas
+├── hooks/                 ← 7 bloqueadores + 5 auxiliares
 ├── output-styles/         ← pt-br-conciso.md
-├── commands/              ← slash commands (workflows)
-├── skills/                ← criar quando padrão repetir 3x
+├── commands/              ← 11 slash commands (workflows)
+├── skills/                ← 6 skills BR (criar quando padrão repetir 3x)
 └── rules/                 ← criar com `paths:` frontmatter
 ```
 

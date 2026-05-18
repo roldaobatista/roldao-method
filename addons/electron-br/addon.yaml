@@ -1,0 +1,25 @@
+nome: electron-br
+versao: 0.1.0
+descricao: Padroes para app Electron BR com SQLite local, IPC seguro e armazenamento offline de dado pessoal (LGPD)
+autor: Roldao
+licenca: MIT
+compativel-com: roldao-method>=0.3.0
+provoca:
+  agentes:
+    - electron-arch
+  commands: []
+  hooks:
+    - block-ipc-without-validation
+  skills:
+    - migration-sqlite-segura
+  regras:
+    - ELECTRON-001
+    - ELECTRON-002
+    - ELECTRON-003
+requisitos:
+  - "projeto com Electron >= 28"
+  - "src/main e src/renderer separados"
+non-goals:
+  - "geracao do projeto Electron do zero (use create-electron-app antes)"
+  - "auto-updater"
+  - "code signing (depende de certificado pago)"

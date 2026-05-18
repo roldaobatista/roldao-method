@@ -1,0 +1,58 @@
+name: validar
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validar-templates:
+    name: Validar templates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validar estrutura
+        run: node tools/validar-templates.js
+
+  rodar-hooks:
+    name: Test-runner dos hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rodar test-runner.sh
+        run: bash templates/.claude/hooks/_test-runner.sh
+
+  smoke-install:
+    name: Smoke test do instalador
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Rodar test/install.test.js
+        run: node test/install.test.js
+
+  validar-skills-python:
+    name: Skills BR (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: validar-cpf-cnpj
+        run: |
+          python3 templates/.claude/skills/validar-cpf-cnpj/scripts/validar.py "12345678909"
+          python3 templates/.claude/skills/validar-cpf-cnpj/scripts/validar.py "11222333000181"
+          python3 templates/.claude/skills/validar-cpf-cnpj/scripts/validar.py "12ABC34501DE35"
+      - name: validar-pix
+        run: |
+          python3 templates/.claude/skills/validar-pix/scripts/validar-pix.py "cliente@empresa.com.br"
+          python3 templates/.claude/skills/validar-pix/scripts/validar-pix.py "+5511987654321"
+      - name: validar-cep (formato)
+        run: python3 templates/.claude/skills/validar-cep/scripts/validar-cep.py "01310-100"

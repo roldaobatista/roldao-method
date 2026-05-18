@@ -48,31 +48,43 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 4. Modelo de agentes
 
-**5 especialistas essenciais em `.claude/agents/`:**
+**Essenciais em `.claude/agents/`:**
 
+- `analista` — pesquisa de mercado, brief, PRFAQ, regulamentação BR.
+- `gerente-produto` — PRD, user story, decomposição (4 modos).
+- `ux-designer` — wireframes ASCII, estados, mensagens PT-BR.
+- `tech-lead` — arquitetura, ADR, ARQ, checklist de readiness.
 - `investigador` — lê código/banco/logs ANTES de propor solução. Obrigatório em `/bug`.
-- `gerente-produto` — traduz pedido vago em demanda clara.
-- `tech-lead` — arquitetura, tradeoffs, escolha de stack.
-- `dev-senior` — implementa com simplicidade e foco em testes.
+- `dev-senior` — implementa com TDD onde aplicável.
 - `revisor` — audita o que foi feito antes de subir.
 
-**3 auditores especializados:**
+**Auditores especializados:**
 
 - `auditor-seguranca` — LGPD, secrets, vulnerabilidades, supply chain.
 - `auditor-qualidade` — testes, cobertura, mocks indevidos, anti-padrões.
 - `auditor-produto` — aderência ao que foi pedido, non-goals.
 
+**Especialista BR:**
+
+- `fiscal-br` — NF-e, certificado, eSocial, REINF, SPED, Reforma Tributária 2026-2033.
+
 ---
 
 ## 5. Workflows
 
-| Comando | Quando | Ordem dos agentes |
+| Comando | Quando | Agentes principais |
 |---|---|---|
 | `/inicio` | Projeto novo | gerente-produto → tech-lead → dev-senior |
+| `/brownfield` | Adotar em projeto que já existe | investigador → tech-lead → gerente-produto → auditor-seguranca |
+| `/prd` | Iniciativa grande (várias semanas) | analista → gerente-produto → tech-lead → (ux) → decomposição |
+| `/epico` | Decompor grande em stories | analista → gerente-produto → tech-lead |
+| `/historia` | 1 story em disco | gerente-produto → investigador |
 | `/feature` | Funcionalidade nova | gerente-produto → investigador → tech-lead → dev-senior → revisor → auditores |
 | `/bug` | Corrigir comportamento | **investigador (obrigatório)** → dev-senior → revisor |
 | `/refactor` | Reorganizar código | tech-lead → dev-senior → revisor |
-| `/auditoria` | Passar auditores | auditor-seguranca → auditor-qualidade → auditor-produto |
+| `/qa` | Testes de uma área | investigador → auditor-qualidade → dev-senior → revisor |
+| `/auditoria` | Passar auditores | auditor-seguranca + auditor-qualidade + auditor-produto |
+| `/retro` | Retrospectiva pós-marco | (sem agente específico — 4L) |
 
 ---
 

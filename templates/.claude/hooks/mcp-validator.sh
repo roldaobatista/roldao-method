@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# mcp-validator.sh — valida .mcp.json contra allowlist de fornecedores conhecidos.
+# Hook SessionStart.
+# Reduz risco de MCP malicioso aderir credenciais sem o usuario perceber.
+
+set -u
+
+MCP_FILE="${CLAUDE_PROJECT_DIR:-$PWD}/.mcp.json"
+
+[ -f "$MCP_FILE" ] || exit 0
+
+# Servers MCP de fornecedores conhecidos (allowlist conservadora).
+# Adicionar conforme catalogo oficial evolui.
+ALLOWLIST=(
+  "modelcontextprotocol/"
+  "anthropic-experimental/"
+  "@modelcontextprotocol/"
+  "@anthropic/"
+  "github.com/modelcontextprotocol"
+  "@playwright/"
+  "@vitest/"
+  "anthropic.com"
+  "github.com/anthropics"
+)
+
+# Le servers (com perl, sem dependencia externa de jq).
+SERVERS=$(perl -MJSON::PP -e '
+  local $/;
+  my $f = shift;
+  open(my $fh, "<", $f) or exit 0;
+  my $json = decode_json(<$fh>);
+  close($fh);
+  my $s = $json->{mcpServers} // {};
+  for my $name (keys %$s) {
+    my $cfg = $s->{$name};
+    my $cmd = $cfg->{command} // "";
+    my @args = @{$cfg->{args} // []};
+    print "$name|$cmd|@args\n";
+  }
+' "$MCP_FILE" 2>/dev/null)
+
+[ -z "$SERVERS" ] && exit 0
+
+DESCONHECIDOS=()
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  IFS='|' read -r name cmd args <<< "$line"
+  FULL="$cmd $args"
+  AUTHORIZED=0
+  for allowed in "${ALLOWLIST[@]}"; do
+    case "$FULL" in
+      *"$allowed"*) AUTHORIZED=1; break ;;
+    esac
+  done
+  if [ "$AUTHORIZED" -eq 0 ]; then
+    DESCONHECIDOS+=("$name -> $FULL")
+  fi
+done <<< "$SERVERS"
+
+if [ "${#DESCONHECIDOS[@]}" -gt 0 ]; then
+  cat >&2 <<EOF
+[mcp-validator] AVISO: MCP servers fora da allowlist conhecida.
+
+Servers nao reconhecidos:
+EOF
+  for d in "${DESCONHECIDOS[@]}"; do
+    printf '  - %s\n' "$d" >&2
+  done
+  cat >&2 <<EOF
+
+Risco: MCP de terceiros pode receber prompt completo + chamadas de ferramenta.
+Antes de continuar, confirme:
+  1. Voce confia no autor do MCP?
+  2. O server e oficial / open source verificado?
+  3. As permissoes necessarias estao OK?
+
+Doc: docs/MCP-GUIA-BR.md.
+EOF
+  # AVISO, nao bloqueio (SessionStart nao bloqueia execucao do harness)
+fi
+
+exit 0

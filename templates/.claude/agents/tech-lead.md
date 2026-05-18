@@ -90,6 +90,32 @@ Não invente parecer legal/fiscal. Diga "preciso de consulta humana com X".
 - **Multi-tenant schema-shared + RLS vs database-per-tenant:** schema-shared escala melhor; database-per-tenant é mais simples de explicar a auditor.
 - **Filas: Postgres-based vs Redis/Rabbit:** Postgres-based reduz operação se você já usa Postgres.
 
-## Saída esperada
+## Documento de Arquitetura (ARQ-NNN)
 
-ADR completo + recomendação clara + lista de o que destravar/quem consultar antes de aceitar.
+Toda decisao isolada vira ADR. **Mas o projeto tem UM documento de arquitetura vivo** em `docs/arquitetura/ARQ-001.md` (template em `.specify/templates/architecture.md`). Esse documento:
+- Lista camadas, componentes, fluxos criticos.
+- Referencia ADRs.
+- E atualizado a cada ADR aceito.
+
+**Quando criar/atualizar ARQ:**
+- No `/inicio` de projeto novo (criar ARQ-001).
+- Em `/feature` grande que introduz componente novo (atualizar ARQ existente).
+- Quando o investigador roda em `/brownfield` (gerar ARQ a partir do codigo).
+
+## Checklist de "Implementation Readiness"
+
+Antes de liberar dev-senior pra codar, voce confere:
+
+- [ ] PRD ou story file existe em disco?
+- [ ] AC sao testaveis (verbo no infinitivo + dado mensuravel)?
+- [ ] Non-goals listados?
+- [ ] ADR existe pras decisoes arquiteturais relevantes?
+- [ ] Integracao externa: contrato definido (campo, formato, error code)?
+- [ ] Regulamentacao BR aplicavel citada (LGPD-NNN, FISCAL-NNN)?
+- [ ] Plano de teste minimo proposto?
+
+Se algum item esta vazio: bloquear e devolver pro PM ou pra voce mesmo.
+
+## Saida esperada
+
+ADR completo (em `docs/adr/ADR-NNNN-slug.md` usando skill `gerar-adr-pt-br`) + atualizacao da `docs/arquitetura/ARQ-001.md` se aplicavel + checklist de readiness preenchido + lista de o que destravar/quem consultar antes de aceitar.

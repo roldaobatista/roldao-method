@@ -76,6 +76,46 @@ Acessos a dados pessoais sensíveis (saúde, financeiro) ficam logados. Imutáve
 ### LGPD-005 — Transferência internacional
 Dado pessoal de brasileiro saindo do Brasil exige base legal específica + DPA com fornecedor.
 
+### LGPD-006 — Incidente de segurança = notificar ANPD
+Vazamento ou comprometimento de dado pessoal exige comunicação à ANPD e aos titulares em **prazo razoável** (entendimento atual: até 72h após ciência). Não é "se", é "quando" — o plano de resposta deve existir antes do incidente.
+
+### LGPD-007 — Base legal explícita (Art. 7º / Art. 11)
+Toda coleta de dado pessoal precisa apontar 1 das 10 bases legais do art. 7 (dados gerais) ou art. 11 (sensíveis). Skill `checklist-lgpd` tem árvore de decisão. Citar a base no momento da decisão de produto, não na auditoria.
+
+### LGPD-008 — RIPD para tratamento de alto risco
+Relatório de Impacto à Proteção de Dados é obrigatório para: dado sensível em larga escala, decisão automatizada com efeito jurídico, monitoramento sistemático, transferência internacional. Documentar antes de ligar o tratamento.
+
+### LGPD-009 — DPO + canal do titular
+Encarregado (DPO) nomeado e canal funcional pro titular exercer direitos (acesso, correção, exclusão, portabilidade, revogação). Endereço de e-mail no rodapé do site + SLA de resposta declarado.
+
+### LGPD-010 — Decisão automatizada (Art. 20)
+Sistema que toma decisão automatizada afetando o titular (crédito, contratação, preço dinâmico) precisa: (a) informar o titular, (b) permitir revisão humana sob pedido, (c) explicar critérios. Documentar no ADR da feature.
+
+---
+
+## FISCAL — Regras fiscais e tributárias BR
+
+### FISCAL-001 — NF-e/NFS-e imutável após emissão
+XML emitido e autorizado pela SEFAZ não pode ser alterado. Correção exige Carta de Correção Eletrônica (CC-e, limites de uso) ou cancelamento dentro do prazo legal. Nunca editar o XML armazenado.
+
+### FISCAL-002 — Certificado digital A1/A3 por tenant
+Multi-tenant que emite NF-e armazena 1 certificado por CNPJ emissor, criptografado em repouso. Nunca compartilhar certificado entre clientes. Nunca commitar `.pfx`/`.p12`. Senha em cofre, não em variável de ambiente em texto puro.
+
+### FISCAL-003 — Ambiente de homologação obrigatório
+Toda integração fiscal (NF-e, NFS-e, eSocial, REINF) começa em ambiente de homologação da SEFAZ/RFB. Subir pra produção exige checklist explícito (CNPJ certo, ambiente=1, certificado de produção, série configurada).
+
+### FISCAL-004 — Contingência prevista
+SEFAZ cai. Operação não pode parar. Implementar pelo menos um modo de contingência (EPEC, FS-DA, SVC-AN, SVC-RS conforme UF). Documentar no ADR. Testar trimestralmente.
+
+### FISCAL-005 — CNPJ alfanumérico (vigor jul/2026)
+Toda persistência, validação, regex, índice e integração que toca CNPJ precisa aceitar `[0-9A-Z]{14}` a partir de 2026-07. Skill `validar-cpf-cnpj` já suporta. Auditar coluna do banco (`VARCHAR(14)`, não `BIGINT`).
+
+### FISCAL-006 — Reforma Tributária (LC 214/2025)
+Período de transição 2026-2033 exige cálculo paralelo de ICMS/ISS/PIS/COFINS (regime atual) e CBS/IBS/IS (regime novo). ADR da feature tributária declara qual período cobre. Split payment pode entrar em vigor antes do regime pleno.
+
+### FISCAL-007 — Obrigação acessória mensal
+Cliente PJ tem obrigação acessória mensal (SPED Fiscal, SPED Contribuições, ECF, ECD, eSocial S-1000 a S-3000, REINF). Feature que gera dado fiscal precisa pensar no formato de exportação esperado pelo contador antes de modelar a tabela.
+
 ---
 
 ## INV-AGENT — Regras pra agentes IA

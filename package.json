@@ -1,18 +1,33 @@
 {
   "name": "roldao-method",
-  "version": "0.2.0",
-  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. Especialistas virtuais, regras automáticas e workflows guiados para Claude Code, Cursor e ChatGPT.",
+  "version": "0.3.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 11 agentes especialistas, 7 hooks bloqueadores, 11 workflows, 6 skills BR (CPF/CNPJ alfanumérico 2026, Pix, CEP, LGPD), spec-driven com templates PT-BR. Para Claude Code, Cursor, Windsurf.",
   "keywords": [
     "ai",
     "claude-code",
     "cursor",
+    "windsurf",
     "agile",
     "framework",
     "brazil",
     "portugues",
+    "pt-br",
     "lgpd",
-    "agents"
+    "nfe",
+    "fiscal",
+    "pix",
+    "cnpj-alfanumerico",
+    "reforma-tributaria",
+    "agents",
+    "hooks",
+    "spec-driven"
   ],
+  "scripts": {
+    "validar": "node tools/validar-templates.js",
+    "test:hooks": "bash templates/.claude/hooks/_test-runner.sh",
+    "test:install": "node test/install.test.js",
+    "test": "npm run validar && npm run test:hooks && npm run test:install"
+  },
   "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",
   "author": "Roldão",
@@ -24,9 +39,14 @@
     "templates",
     "addons",
     "docs",
+    "tools",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
+  "bugs": {
+    "url": "https://github.com/roldaobatista/roldao-method/issues"
+  },
   "engines": {
     "node": ">=18"
   },
