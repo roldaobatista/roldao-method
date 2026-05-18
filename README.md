@@ -130,9 +130,9 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | `/help` | Catálogo dos comandos com códigos curtos |
 | `/shard` | Quebra PRD/ARQ longo em chunks navegáveis com índice |
 
-## 16 hooks bloqueadores + 3 auxiliares + 1 test-runner
+## 16 hooks bloqueadores + 5 auxiliares + 1 test-runner = 22 hooks core (+5 em addons)
 
-**Bloqueadores** (retornam exit 2, barram a ação):
+**Bloqueadores** (retornam exit 2 ou `decision: block`, barram a ação):
 
 - `block-destructive` — `rm -rf`, `git push --force`, `DROP TABLE`, `--no-verify`
 - `secrets-scanner` — `.env`, chaves, tokens (AWS, OpenAI, Anthropic, GitHub, Slack)
@@ -146,9 +146,10 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `no-hardcoded-env-urls` — URL SEFAZ/Pix/Stripe/etc. hardcoded em código (SEC-005)
 - `paths-frontmatter-validator` — exige frontmatter em `docs/*.md`
 - `fiscal-br-validator` — ambiente SEFAZ=1, certificado hardcoded, regex CNPJ apenas numérica (FISCAL-001/002/003/005)
-- `block-jargon-pt-br` — jargão técnico ("commit", "branch", "deploy") em resposta ao usuário não-programador (INV-AGENT-001)
-- `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006
+- `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006 (usa `decision: block` JSON)
 - `require-investigador-before-fix` — Edit/Write em código de negócio sem `investigador` ter sido invocado quando bug foi reportado
+- `require-readiness-before-feature` — Edit/Write em código quando `/feature` ativo mas `docs/readiness/EP-NNN-status.md` ≠ `PRONTO` (gate mecânico de planejamento)
+- `validate-story-dependencies` — Edit/Write em código quando US-NNN ativa tem `depende-de:` apontando pra US não-entregue
 - `validate-test-pyramid` — criação de E2E sem unit tests no mesmo módulo
 
 **Auxiliares** (avisam, não bloqueiam):
@@ -156,8 +157,11 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `context-budget` — AGENTS.md > 200 ou CLAUDE.md > 150 linhas
 - `mcp-validator` — MCP server fora da allowlist (top-20 conhecidos)
 - `regra-zero-reminder` — injeta REGRA #0 quando detecta gatilho de bug
+- `block-jargon-pt-br` — flag de jargão técnico em resposta ao usuário não-programador (PostToolUse, soft warning)
 
-**Test-runner:** `_test-runner.sh` com 50 casos contra os hooks (manual + CI cross-platform).
+**Test-runner:** `_test-runner.sh` com 50+ casos contra os hooks (manual + CI cross-platform).
+
+**Addons trazem +5 hooks:** `block-ipc-without-validation` (electron-br), `validate-webhook-signature`, `require-sefaz-env`, `validate-tef-flow`, `validate-esocial-prazo`.
 
 ## 8 skills BR (core) + 9 nos addons = 17 skills
 
@@ -267,6 +271,7 @@ Migração de BMAD: ver [docs/MIGRACAO-BMAD.md](docs/MIGRACAO-BMAD.md). Posicion
 - [Quickstart](docs/QUICKSTART.md) — do zero ao primeiro `/feature` em 5 min
 - [Como funciona](docs/COMO-FUNCIONA.md) — estrutura + fluxo dos comandos
 - [Exemplo de feature completa](docs/EXEMPLO-FEATURE-COMPLETA.md) — transcrição realista
+- [Exemplos materializados](docs/examples/README.md) — story preenchida (US-001) com todos os campos vivos
 - [FAQ](docs/FAQ.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Casos de uso BR](docs/CASOS-DE-USO-BR.md) — NF-e, telemedicina, Pix, eSocial, e-commerce, EAD, Open Finance

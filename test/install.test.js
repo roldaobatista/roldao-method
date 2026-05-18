@@ -4,7 +4,8 @@
  * Cria pasta temporaria, roda `install --yes`, verifica que arquivos chegaram,
  * roda `doctor`, depois `uninstall --yes`. Sem dependencia externa.
  *
- * v0.5.0: cobre todos os 16 hooks bloqueadores + 3 auxiliares + test-runner = 20 arquivos.
+ * v0.6.0: cobre 16 hooks bloqueadores + 5 auxiliares + test-runner = 22 arquivos no core.
+ * (v0.5 tinha 14 bloqueadores; v0.6 adicionou require-readiness-before-feature e validate-story-dependencies)
  */
 
 const fs = require('fs');
@@ -94,9 +95,11 @@ const exigidos = [
   '.claude/hooks/block-secrets-in-commit-message.sh',
   '.claude/hooks/block-confirmation-questions.sh',
   '.claude/hooks/require-investigador-before-fix.sh',
+  '.claude/hooks/require-readiness-before-feature.sh',
+  '.claude/hooks/validate-story-dependencies.sh',
   '.claude/hooks/validate-test-pyramid.sh',
 
-  // 3 auxiliares + test-runner
+  // 5 auxiliares + test-runner
   '.claude/hooks/context-budget.sh',
   '.claude/hooks/mcp-validator.sh',
   '.claude/hooks/regra-zero-reminder.sh',

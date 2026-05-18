@@ -1,37 +1,40 @@
 ---
-description: Gate entre épico e implementação — checa se PRD/ARQ/stories estão prontos pra dev começar sem ambiguidade.
+description: Gate mecânico entre épico e implementação — checa se PRD/ARQ/stories estão prontos e GRAVA arquivo de status que /feature consome.
 argument-hint: "[epico-id]"
 disable-model-invocation: true
 ---
 
 # /readiness — gate antes de partir de épico pra dev
 
-Use depois de `/epico` e antes de `/feature` (primeira story). Garante que o trabalho de descoberta/planejamento está mesmo concluído e que dev não vai parar 10 vezes pra perguntar.
+Use depois de `/epico` e antes de `/feature` (primeira story do épico). **Sem o arquivo de status gerado aqui, `/feature` recusa rodar** — o hook `require-readiness-before-feature.sh` bloqueia.
 
 `$ARGUMENTS` = épico de referência (`EP-NNN`).
 
 ## Etapa 1 — Coletar (investigador)
 
 Invoque `investigador`:
-- Localiza `docs/epics/EP-NNN.md` e stories filhas.
-- Localiza PRD-NNN se referenciado.
-- Localiza ADRs criados pro épico.
+- Localiza `docs/epics/EP-NNN.md` e stories filhas em `docs/stories/US-*.md`.
+- Localiza PRD-NNN se referenciado no frontmatter do épico.
+- Localiza ADRs criados pro épico (`docs/adr/`).
 - Lista artefatos por status.
 
 ## Etapa 2 — Rodar checklists em paralelo
 
-Rode os 3 checklists do `.specify/checklists/`:
+Rode em paralelo os checklists obrigatórios do `.specify/checklists/`:
 
 1. **pm-readiness.md** — PRD pronto? (auditor-produto)
 2. **architecture-readiness.md** — ARQ pronta? ADR escrito pros pontos com tradeoff real? (tech-lead)
 3. **story-dod.md** — cada story tem AC testável, non-goals, estimativa? (gerente-produto)
 
 Adicional se aplicável:
-4. **lgpd-privacy-review.md** se feature toca dado pessoal (dpo-virtual, se addon instalado)
-5. **fiscal-compliance.md** se feature toca NF-e/NFS-e/Reforma (fiscal-br)
-6. **pix-compliance.md** se feature toca Pix (pix-arch, se addon instalado)
 
-## Etapa 3 — Veredito consolidado
+4. **lgpd-privacy-review.md** se feature toca dado pessoal (addon `lgpd-compliance`).
+5. **fiscal-compliance.md** se feature toca NF-e/NFS-e/Reforma (addon `fiscal-br-completo`).
+6. **pix-compliance.md** se feature toca Pix (addon `fintech-br`).
+
+## Etapa 3 — Veredito consolidado (relatório humano)
+
+Salve em `docs/readiness/EP-NNN-relatorio-AAAA-MM-DD.md`:
 
 ```markdown
 # READINESS REPORT — EP-NNN
@@ -51,21 +54,49 @@ Adicional se aplicável:
 | Item | Origem |
 |---|---|
 
-## Veredito
-- [ ] PRONTO PRA DEV — pode rodar `/feature US-NNN`
-- [ ] NÃO PRONTO — resolver bloqueios primeiro
+## Veredito final
+- [ ] PRONTO PRA DEV
+- [ ] NÃO PRONTO
 
 ## Próximo passo
 <ação concreta>
 ```
 
-## Etapa 4 — Decisão
+## Etapa 4 — Gerar arquivo de status mecânico (OBRIGATÓRIO)
 
-- **Tudo verde:** mover primeira story pra "em andamento" e rodar `/feature US-NNN`.
-- **Bloqueio:** voltar pra `/prd` ou `/epico` pra resolver. NÃO começar dev.
-- **Só ressalvas:** seguir, mas registrar em `docs/epics/EP-NNN.md` como `## Débito conhecido`.
+**Sempre** gerar `docs/readiness/EP-NNN-status.md` com este frontmatter — é o que `/feature` lê:
+
+```markdown
+---
+tipo: readiness-status
+epico: EP-NNN
+status: PRONTO    # ou NAO_PRONTO — único campo lido pelo hook
+data: AAAA-MM-DD
+relatorio: docs/readiness/EP-NNN-relatorio-AAAA-MM-DD.md
+checklists-passados: [pm-readiness, architecture-readiness, story-dod]
+ressalvas: []     # lista textual, opcional
+---
+
+# Status de readiness — EP-NNN
+
+Gerado por `/readiness` em AAAA-MM-DD.
+
+Status: PRONTO PRA DEV | NÃO PRONTO
+
+Ver relatório completo em [link].
+```
+
+> **Importante:** se há ALGUM gap bloqueante, `status: NAO_PRONTO`. Não tem meio termo. Ressalvas não-bloqueantes ficam listadas mas não impedem `PRONTO`.
+
+## Etapa 5 — Decisão
+
+- **Tudo verde (`status: PRONTO`):** mover primeira story pra "em andamento" e rodar `/feature US-NNN`. Hook libera.
+- **Bloqueio (`status: NAO_PRONTO`):** voltar pra `/prd` ou `/epico` pra resolver. Hook recusa `/feature` até atualização do status. NÃO começar dev.
+- **Só ressalvas:** seguir como `PRONTO`, mas registrar em `docs/epics/EP-NNN.md` na seção `## Débito conhecido`.
 
 ## Importante
 
 - **Não vale aprovar com "vamos resolver durante dev"** — o ponto do gate é separar planejamento de execução.
+- **O `status:` no frontmatter é o que o hook valida.** Não escreva `status: PRONTO` se há gaps bloqueantes — você está enganando o gate, não passando dele.
 - **REGRA #0 vale aqui também** — se há ambiguidade no estado dos artefatos, ler primeiro (não chutar).
+- Re-rodar `/readiness EP-NNN` quando ressalvas viram bloqueio ou escopo muda — sobrescreve o status anterior.

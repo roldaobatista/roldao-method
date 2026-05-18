@@ -15,10 +15,16 @@ run_case() {
   local hook="$2"
   local input="$3"
   local expected_exit="$4"
+  shift 4
+  # Env vars extras opcionais: KEY=VALUE KEY2=VALUE2
 
   local actual_exit
-  printf '%s' "$input" | bash "$HOOKS_DIR/$hook" >/dev/null 2>&1
-  actual_exit=$?
+  if [ "$#" -gt 0 ]; then
+    actual_exit=$(env "$@" bash -c 'printf "%s" "$1" | bash "$2" >/dev/null 2>&1; echo $?' _ "$input" "$HOOKS_DIR/$hook")
+  else
+    printf '%s' "$input" | bash "$HOOKS_DIR/$hook" >/dev/null 2>&1
+    actual_exit=$?
+  fi
 
   if [ "$actual_exit" -eq "$expected_exit" ]; then
     PASS=$((PASS + 1))
@@ -189,6 +195,71 @@ run_case "bloqueia senha de certificado hardcoded" "fiscal-br-validator.sh" \
 
 run_case "permite com FISCAL-exception" "fiscal-br-validator.sh" \
   '{"tool_input":{"file_path":"./src/nfe.js","content":"const tpAmb = 1; // FISCAL-003-exception: codigo legado"}}' 0
+
+# ------- require-readiness-before-feature --------
+# Sem marker feature-active → sempre passa
+run_case "passa sem feature ativa" "require-readiness-before-feature.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 0
+
+# Arquivo de doc → ignorado
+run_case "ignora markdown" "require-readiness-before-feature.sh" \
+  '{"tool_input":{"file_path":"./docs/foo.md","content":"# nada"}}' 0
+
+# Arquivo de teste → ignorado
+run_case "ignora arquivo de teste" "require-readiness-before-feature.sh" \
+  '{"tool_input":{"file_path":"./src/foo.test.ts","content":"test()"}}' 0
+
+# Setup pra teste de bloqueio: cria marker feature-active sem readiness-passed
+mkdir -p /tmp/roldao-test-readiness/.claude/.runtime
+echo "US-001" > /tmp/roldao-test-readiness/.claude/.runtime/feature-active-test123
+run_case "bloqueia edit em codigo com feature ativa sem readiness" "require-readiness-before-feature.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-readiness CLAUDE_SESSION_ID=test123
+
+# Cria readiness-passed → libera
+touch /tmp/roldao-test-readiness/.claude/.runtime/readiness-passed-test123
+run_case "libera apos readiness-passed marker" "require-readiness-before-feature.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-readiness CLAUDE_SESSION_ID=test123
+
+rm -rf /tmp/roldao-test-readiness
+
+# ------- validate-story-dependencies --------
+run_case "passa sem feature ativa" "validate-story-dependencies.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 0
+
+run_case "ignora doc" "validate-story-dependencies.sh" \
+  '{"tool_input":{"file_path":"./docs/foo.md","content":"x"}}' 0
+
+# Setup: cria story com depende-de e dependencia entregue
+mkdir -p /tmp/roldao-test-deps/.claude/.runtime
+mkdir -p /tmp/roldao-test-deps/docs/stories
+echo "US-002" > /tmp/roldao-test-deps/.claude/.runtime/feature-active-deps1
+cat > /tmp/roldao-test-deps/docs/stories/US-001-base.md <<EOF
+---
+id: US-001
+status: entregue
+---
+EOF
+cat > /tmp/roldao-test-deps/docs/stories/US-002-dep.md <<EOF
+---
+id: US-002
+depende-de: [US-001]
+status: em-andamento
+---
+EOF
+run_case "libera quando dependencia entregue" "validate-story-dependencies.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-deps CLAUDE_SESSION_ID=deps1
+
+# Mudar dependencia pra draft → bloqueia
+rm -f /tmp/roldao-test-deps/.claude/.runtime/deps-checked-deps1
+sed -i 's/status: entregue/status: draft/' /tmp/roldao-test-deps/docs/stories/US-001-base.md
+run_case "bloqueia quando dependencia nao entregue" "validate-story-dependencies.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-deps CLAUDE_SESSION_ID=deps1
+
+rm -rf /tmp/roldao-test-deps
 
 # ------- relatório --------
 echo ""

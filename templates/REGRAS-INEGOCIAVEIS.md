@@ -2,7 +2,7 @@
 
 > Regras com IDs rastreáveis. Cada ID é citável em código, ADR, commit e PR.
 >
-> **Convenção:** `INV-NNN` (invariantes gerais), `SEC-NNN` (segurança), `TST-NNN` (testes), `LGPD-NNN` (proteção de dados BR), `INV-AGENT-NNN` (regras pra agentes IA).
+> **Convenção:** `INV-NNN` (invariantes gerais), `SEC-NNN` (segurança), `TST-NNN` (testes), `LGPD-NNN` (proteção de dados BR), `FISCAL-NNN` (fiscal BR), `PIX-NNN` (Pix/Open Finance — addon `fintech-br` traz hooks/agentes), `INV-AGENT-NNN` (regras pra agentes IA).
 >
 > **Relação com `.specify/memory/constitution.md`:** a constituição é o **manifesto** que explica o "por quê" de cada princípio (em prosa, didático). Este arquivo é a **operacional** com IDs pra usar em commits/PRs/comentários. Citar `INV-001` é melhor do que escrever "respeitar o princípio de que doc é estado compartilhado".
 
@@ -121,6 +121,27 @@ Período de transição 2026-2033 exige cálculo paralelo de ICMS/ISS/PIS/COFINS
 
 ### FISCAL-007 — Obrigação acessória mensal
 Cliente PJ tem obrigação acessória mensal (SPED Fiscal, SPED Contribuições, ECF, ECD, eSocial S-1000 a S-3000, REINF). Feature que gera dado fiscal precisa pensar no formato de exportação esperado pelo contador antes de modelar a tabela.
+
+---
+
+## PIX — Pagamentos Pix e Open Finance Brasil
+
+> **IDs canônicos**, citáveis em qualquer ADR/PR mesmo sem o addon instalado. A implementação operacional (hooks, agentes, skills, fluxos detalhados) vive no addon `fintech-br` — instale com `npx roldao-method add fintech-br` quando o projeto integrar Pix.
+
+### PIX-001 — Idempotência por TxId em criação de cobrança
+TxId determinístico (hash do pedido) + Idempotency-Key + lock distribuído + UNIQUE no banco. Combinar camadas — é a única defesa contra dupla cobrança/devolução. Detalhes operacionais no agente `pix-arch` do addon `fintech-br`.
+
+### PIX-002 — Webhook valida assinatura na primeira linha do handler
+HMAC + IP de origem validados ANTES de qualquer lógica de negócio. Falha → 401 imediato. Hook `validate-webhook-signature.sh` (addon) bloqueia handler que pula validação.
+
+### PIX-003 — EndToEndId persistido em coluna indexada
+Pivô único de conciliação financeira (extrato bancário ↔ pedido). Matching por nome+valor é proibido. Coluna indexada, idealmente UNIQUE.
+
+### PIX-004 — Chave Pix é dado pessoal (LGPD-001 + LGPD-004)
+Logs não podem vazar chave Pix completa em texto puro. Mascarar (`***@***`, `***.***.***-99`). Acesso a chaves logado e auditado.
+
+### PIX-005 — URL do PSP/Bacen via env (SEC-005)
+`BACEN_BASE_URL`, `PSP_BASE_URL` vêm de variável de ambiente — sandbox ↔ produção sem deploy. Hardcoded chamando produção em teste é incidente. Hook `no-hardcoded-env-urls.sh` bloqueia.
 
 ---
 

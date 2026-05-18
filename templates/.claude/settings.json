@@ -152,6 +152,16 @@
           },
           {
             "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-readiness-before-feature.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-dependencies.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-test-pyramid.sh\"",
             "timeout": 10
           }
