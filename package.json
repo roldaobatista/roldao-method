@@ -1,0 +1,37 @@
+{
+  "name": "roldao-method",
+  "version": "0.1.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. Especialistas virtuais, regras automáticas e workflows guiados para Claude Code, Cursor e ChatGPT.",
+  "keywords": [
+    "ai",
+    "claude-code",
+    "cursor",
+    "agile",
+    "framework",
+    "brazil",
+    "portugues",
+    "lgpd",
+    "agents"
+  ],
+  "homepage": "https://github.com/roldao/roldao-method",
+  "license": "MIT",
+  "author": "Roldão",
+  "bin": {
+    "roldao-method": "./bin/install.js"
+  },
+  "files": [
+    "bin",
+    "templates",
+    "addons",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/roldao/roldao-method.git"
+  }
+}

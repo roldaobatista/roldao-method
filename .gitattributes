@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Hooks bash precisam de LF pra rodar no Git Bash
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Scripts executáveis
+bin/* text eol=lf
+
+# Binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
