@@ -6,7 +6,10 @@
  *   install      copia templates pro projeto (preserva arquivos do usuario)
  *   update       sobrescreve arquivos do framework, preserva customizacoes
  *   add <addon>  instala addon especifico (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
+ *   remove <add> remove um addon especifico (preserva o framework core)
+ *   search [t]   lista addons disponiveis (filtra por termo opcional)
  *   list         lista IDEs detectadas, addons disponiveis, versao remota
+ *   tasks-to-issues  exporta tasks T-NNN de docs/stories/ pra GitHub Issues (idempotente)
  *   doctor       diagnostica instalacao
  *   uninstall    remove arquivos do framework, preserva customizacoes
  *   help/version
@@ -156,6 +159,8 @@ function detectTools() {
   if (fs.existsSync(path.join(CWD, '.aider.conf.yml'))) tools.push('aider');
   if (fs.existsSync(path.join(CWD, '.clinerules')) || fs.existsSync(path.join(CWD, '.cline'))) tools.push('cline');
   if (fs.existsSync(path.join(CWD, '.roorules')) || fs.existsSync(path.join(CWD, '.roo'))) tools.push('roo');
+  if (fs.existsSync(path.join(CWD, 'GEMINI.md')) || fs.existsSync(path.join(CWD, '.gemini'))) tools.push('gemini-cli');
+  if (fs.existsSync(path.join(CWD, '.codex'))) tools.push('codex-cli');
   return tools;
 }
 
@@ -170,6 +175,8 @@ const ADAPTER_ENTRIES = {
   aider: ['.aider.conf.yml'],
   cline: ['.clinerules'],
   roo: ['.roorules'],
+  'gemini-cli': ['GEMINI.md'],
+  'codex-cli': ['.codex'],
 };
 
 const ALL_ADAPTERS = Object.keys(ADAPTER_ENTRIES);
@@ -232,6 +239,9 @@ function fileHash(file) {
 
 function isUserOwned(relPath) {
   const norm = relPath.split(path.sep).join('/');
+  // Tudo sob .specify/overrides/ e customizacao do projeto: NUNCA sobrescrever
+  // no update. Permite ajustar template/regra sem fork do framework.
+  if (norm === '.specify/overrides' || norm.startsWith('.specify/overrides/')) return true;
   return USER_OWNED.has(norm);
 }
 
@@ -537,7 +547,7 @@ async function install() {
   console.log(`  ${c.cyan}1.${c.reset} ler ${c.bold}AGENTS.md${c.reset} — seu documento-contrato`);
   console.log(`  ${c.cyan}2.${c.reset} ajustar ${c.bold}REGRAS-INEGOCIAVEIS.md${c.reset} ao seu projeto`);
   console.log(`  ${c.cyan}3.${c.reset} ativar estilo PT-BR: ${c.dim}/output-style no Claude Code -> pt-br-conciso${c.reset}`);
-  console.log(`  ${c.cyan}4.${c.reset} listar comandos: ${c.green}/help${c.reset} (catalogo dos 19 workflows)`);
+  console.log(`  ${c.cyan}4.${c.reset} listar comandos: ${c.green}/help${c.reset} (catalogo dos 21 workflows)`);
   console.log(`  ${c.cyan}5.${c.reset} adicionar addon: ${c.cyan}npx roldao-method add <addon>${c.reset}`);
   console.log('');
   console.log(`${c.dim}docs: https://github.com/roldaobatista/roldao-method${c.reset}`);
@@ -616,6 +626,170 @@ async function installAddon(name, skipConfirm = false, throwOnError = false) {
   return true;
 }
 
+// Enumera os arquivos que um addon instala dentro de .claude/ (paths
+// relativos ao CWD). Usado pra remocao cirurgica sem tocar no core.
+function addonClaudeFiles(name) {
+  const addonClaudeDir = path.join(ADDONS_DIR, name, '.claude');
+  const out = [];
+  if (!fs.existsSync(addonClaudeDir)) return out;
+  (function walk(dir) {
+    for (const e of fs.readdirSync(dir)) {
+      const full = path.join(dir, e);
+      const st = fs.lstatSync(full);
+      if (st.isDirectory()) walk(full);
+      else if (st.isFile()) out.push(path.join('.claude', path.relative(addonClaudeDir, full)));
+    }
+  })(addonClaudeDir);
+  return out;
+}
+
+function addonDescription(name) {
+  try {
+    const yml = fs.readFileSync(path.join(ADDONS_DIR, name, 'addon.yaml'), 'utf8');
+    const m = yml.match(/description:\s*(.+)/);
+    return m ? m[1].trim() : '';
+  } catch { return ''; }
+}
+
+// remove <addon> — tira do projeto so os arquivos que ESTE addon trouxe,
+// preservando o framework core e os demais addons. Operacao destrutiva
+// localizada: pede confirmacao (salvo --yes/--force).
+async function removeAddon(name) {
+  if (isDangerousCwd()) {
+    err(`recusando: pasta sensivel ${CWD}`);
+    process.exit(2);
+  }
+  const available = listAddonsAvailable();
+  if (!available.includes(name)) {
+    err(`addon desconhecido: ${name}`);
+    log(`disponiveis: ${available.join(', ')}`);
+    process.exit(1);
+  }
+  if (!listAddonsInstalled().includes(name)) {
+    warn(`addon ${name} nao parece instalado neste projeto — nada a remover.`);
+    return;
+  }
+  const claudeFiles = addonClaudeFiles(name);
+  const addonProjDir = path.join(CWD, 'addons', name);
+  console.log(`${c.bold}Vai remover do projeto:${c.reset}`);
+  claudeFiles.forEach((f) => console.log(`  - ${f}`));
+  if (fs.existsSync(addonProjDir)) console.log(`  - addons/${name}/ ${c.dim}(README, addon.yaml, templates do addon)${c.reset}`);
+
+  if (!YES && !FORCE && !DRY_RUN) {
+    const a = await ask(`Confirmar remocao do addon ${c.bold}${name}${c.reset}? O framework core fica intacto. [s/N] `);
+    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+  }
+
+  let removed = 0;
+  for (const rel of claudeFiles) {
+    const full = path.join(CWD, rel);
+    if (!fs.existsSync(full)) continue;
+    if (DRY_RUN) { console.log(`  REMOVERIA ${rel}`); continue; }
+    try { fs.rmSync(full, { force: true }); removed++; console.log(`  removido: ${rel}`); }
+    catch (e) { console.log(`  ${c.red}ERRO${c.reset} ${rel}: ${e.message}`); }
+  }
+  if (fs.existsSync(addonProjDir)) {
+    if (DRY_RUN) console.log(`  REMOVERIA addons/${name}/`);
+    else {
+      try { fs.rmSync(addonProjDir, { recursive: true, force: true }); removed++; console.log(`  removido: addons/${name}/`); }
+      catch (e) { console.log(`  ${c.red}ERRO${c.reset} addons/${name}: ${e.message}`); }
+    }
+  }
+  if (DRY_RUN) { log(`${c.yellow}dry-run: nada removido.${c.reset}`); return; }
+  ok(`addon ${name} removido (${removed} caminho(s)). Core e demais addons preservados.`);
+}
+
+// search [termo] — lista addons disponiveis com descricao, marcando os
+// instalados. Sem termo = catalogo completo.
+function searchCommand(term) {
+  banner();
+  const available = listAddonsAvailable();
+  const installed = listAddonsInstalled();
+  const q = (term || '').toLowerCase();
+  const rows = [];
+  for (const addon of available) {
+    const desc = addonDescription(addon);
+    if (q && !`${addon} ${desc}`.toLowerCase().includes(q)) continue;
+    rows.push({ addon, desc, inst: installed.includes(addon) });
+  }
+  if (rows.length === 0) {
+    log(q ? `nenhum addon casa com "${term}".` : 'nenhum addon disponivel.');
+    return;
+  }
+  console.log(`${c.bold}Addons${q ? ` ${c.dim}(filtro: "${term}")${c.reset}${c.bold}` : ''}:${c.reset}`);
+  for (const r of rows) {
+    const flag = r.inst ? `${c.green}[instalado]${c.reset}` : `${c.dim}[disponivel]${c.reset}`;
+    console.log(`  ${flag} ${c.cyan}${r.addon}${c.reset} ${c.dim}${r.desc.substring(0, 90)}${c.reset}`);
+  }
+  console.log('');
+  console.log(`${c.dim}instalar:${c.reset} ${c.cyan}npx roldao-method add <addon>${c.reset}    ${c.dim}remover:${c.reset} ${c.cyan}npx roldao-method remove <addon>${c.reset}`);
+}
+
+// tasks-to-issues — varre docs/stories/*.md por linhas com T-NNN e cria
+// uma GitHub Issue por task ainda nao exportada. Idempotente: o mapa
+// T-NNN->numero fica em .specify/.tasks-to-issues.json.
+async function tasksToIssues() {
+  const { execFileSync } = require('child_process');
+  try {
+    execFileSync('gh', ['--version'], { stdio: 'pipe' });
+  } catch {
+    err('GitHub CLI (gh) nao encontrado. Instale em https://cli.github.com e rode `gh auth login`.');
+    process.exit(1);
+  }
+  const storiesDir = path.join(CWD, 'docs', 'stories');
+  if (!fs.existsSync(storiesDir)) {
+    err('pasta docs/stories/ nao encontrada — nenhuma task pra exportar.');
+    process.exit(1);
+  }
+  const mapFile = path.join(CWD, '.specify', '.tasks-to-issues.json');
+  let map = {};
+  try { if (fs.existsSync(mapFile)) map = JSON.parse(fs.readFileSync(mapFile, 'utf8')); } catch {}
+
+  const seen = new Set();
+  const tasks = [];
+  for (const f of fs.readdirSync(storiesDir).sort()) {
+    if (!f.endsWith('.md')) continue;
+    const lines = fs.readFileSync(path.join(storiesDir, f), 'utf8').split(/\r?\n/);
+    for (const line of lines) {
+      const m = line.match(/\bT-(\d{3,})\b/);
+      if (!m) continue;
+      const id = `T-${m[1]}`;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const title = line.replace(/^[\s\-*>]+/, '').replace(/^\[[ xX]\]\s*/, '').trim();
+      tasks.push({ id, title: title || id, story: f });
+    }
+  }
+  const pending = tasks.filter((t) => !map[t.id]);
+  if (pending.length === 0) {
+    log(`nenhuma task nova. ${Object.keys(map).length} ja exportada(s), ${tasks.length} no projeto.`);
+    return;
+  }
+  log(`${pending.length} task(s) sem issue (de ${tasks.length} no projeto):`);
+  pending.forEach((t) => console.log(`  ${c.cyan}${t.id}${c.reset} ${t.title} ${c.dim}(${t.story})${c.reset}`));
+  if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma issue criada.${c.reset}`); return; }
+  if (!YES && !FORCE) {
+    const a = await ask(`Criar ${pending.length} issue(s) no GitHub deste repositorio? [s/N] `);
+    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+  }
+  let created = 0;
+  for (const t of pending) {
+    const body = `Task ${t.id} — origem: docs/stories/${t.story}\n\nExportada por \`roldao-method tasks-to-issues\` (rastreabilidade US→AC→T-NNN→issue).`;
+    try {
+      const out = execFileSync('gh', ['issue', 'create', '--title', `${t.id}: ${t.title}`, '--body', body], { cwd: CWD, stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
+      const num = (out.match(/\/issues\/(\d+)/) || [])[1] || out;
+      map[t.id] = num;
+      created++;
+      console.log(`  ${c.green}✓${c.reset} ${t.id} → issue ${num}`);
+    } catch (e) {
+      err(`falhou criar issue de ${t.id}: ${((e.stderr || e.message || '') + '').trim()}`);
+    }
+  }
+  fs.mkdirSync(path.dirname(mapFile), { recursive: true });
+  fs.writeFileSync(mapFile, JSON.stringify(map, null, 2) + '\n');
+  ok(`${created} issue(s) criada(s). Mapa em .specify/.tasks-to-issues.json (rode de novo = so o que falta).`);
+}
+
 async function listCommand() {
   banner();
   const tools = detectTools();
@@ -658,9 +832,11 @@ async function listCommand() {
   }
   console.log('');
   console.log(`${c.bold}Comandos uteis:${c.reset}`);
-  console.log(`  ${c.cyan}npx roldao-method add <addon>${c.reset}    instalar addon`);
-  console.log(`  ${c.cyan}npx roldao-method update${c.reset}         atualizar framework`);
-  console.log(`  ${c.cyan}npx roldao-method doctor${c.reset}         diagnosticar instalacao`);
+  console.log(`  ${c.cyan}npx roldao-method add <addon>${c.reset}     instalar addon`);
+  console.log(`  ${c.cyan}npx roldao-method remove <addon>${c.reset}  remover addon (core preservado)`);
+  console.log(`  ${c.cyan}npx roldao-method search [termo]${c.reset}  buscar addons disponiveis`);
+  console.log(`  ${c.cyan}npx roldao-method update${c.reset}          atualizar framework`);
+  console.log(`  ${c.cyan}npx roldao-method doctor${c.reset}          diagnosticar instalacao`);
   console.log('');
 }
 
@@ -689,6 +865,8 @@ function doctor() {
     { path: '.claude/commands/quick-dev.md', exigido: false, label: 'v0.4+' },
     { path: '.claude/commands/help.md', exigido: false, label: 'v0.5+' },
     { path: '.claude/commands/sprint.md', exigido: false, label: 'v0.5+' },
+    { path: '.claude/commands/clarificar.md', exigido: false, label: 'v0.13+' },
+    { path: '.claude/commands/consistencia.md', exigido: false, label: 'v0.13+' },
     { path: '.claude/skills/validar-cpf-cnpj/SKILL.md', exigido: true },
     { path: '.claude/skills/brainstormar-ideia/SKILL.md', exigido: false, label: 'v0.5+' },
     { path: '.claude/skills/gerar-test-fixture-br/SKILL.md', exigido: false, label: 'v0.5+' },
@@ -791,6 +969,9 @@ function help() {
   ${c.cyan}npx roldao-method install${c.reset}        [--yes] [--force] [--dry-run]   instala no projeto atual
   ${c.cyan}npx roldao-method update${c.reset}         [--yes] [--force] [--dry-run]   atualiza arquivos do framework
   ${c.cyan}npx roldao-method add <addon>${c.reset}    [--yes]                          instala addon especifico
+  ${c.cyan}npx roldao-method remove <addon>${c.reset} [--yes] [--dry-run]              remove um addon (core preservado)
+  ${c.cyan}npx roldao-method search [termo]${c.reset}                                   lista/filtra addons disponiveis
+  ${c.cyan}npx roldao-method tasks-to-issues${c.reset} [--yes] [--dry-run]              exporta T-NNN de docs/stories/ pra GitHub Issues
   ${c.cyan}npx roldao-method list${c.reset}                                             lista IDEs + addons + versao remota
   ${c.cyan}npx roldao-method doctor${c.reset}                                            diagnostica instalacao
   ${c.cyan}npx roldao-method uninstall${c.reset}      [--yes] [--dry-run]              remove o framework
@@ -813,7 +994,7 @@ ${c.bold}Addons disponiveis:${c.reset}
   ${c.cyan}esocial-completo${c.reset}       Eventos S-1000 a S-3000, CIPA, NRs, prazo legal
   ${c.cyan}varejo-pdv-br${c.reset}          SAT-CF-e, NFC-e, TEF, balanca/impressora
 
-${c.bold}IDEs suportadas:${c.reset} Claude Code, Cursor, Windsurf, Continue, Aider, Cline, Roo
+${c.bold}IDEs suportadas:${c.reset} Claude Code, Cursor, Windsurf, Continue, Aider, Cline, Roo, Gemini CLI, Codex CLI
 
 ${c.bold}Requisito Windows:${c.reset} Git for Windows (Git Bash) — hooks usam bash + perl.
 
@@ -834,6 +1015,12 @@ function version() {
       if (!subArg) { err('uso: add <nome-do-addon>'); help(); process.exit(1); }
       await installAddon(subArg);
       break;
+    case 'remove': case 'rm':
+      if (!subArg) { err('uso: remove <nome-do-addon>'); help(); process.exit(1); }
+      await removeAddon(subArg);
+      break;
+    case 'search': case 'find': searchCommand(subArg); break;
+    case 'tasks-to-issues': case 'tasks2issues': await tasksToIssues(); break;
     case 'list': await listCommand(); break;
     case 'doctor': doctor(); break;
     case 'uninstall': await uninstall(); break;

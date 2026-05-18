@@ -107,7 +107,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | **Fiscal BR** (Dona Marta 🧾) | NF-e, certificado, eSocial, Reforma Tributária, CNPJ alfanum. | sonnet |
 | **Tech Writer** (Camila 📝) | CHANGELOG, README, docs de release | haiku |
 
-## 19 workflows (slash commands)
+## 21 workflows (slash commands)
 
 | Comando | Quando |
 |---|---|
@@ -116,12 +116,14 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | `/prd` | Iniciativa grande (vários meses) |
 | `/epico` | Decompor coisa grande em várias histórias |
 | `/historia` | 1 funcionalidade — gera `US-NNN` em disco |
+| `/clarificar` | Tira ambiguidade de uma ideia/story antes de codar |
 | `/feature` | Implementar funcionalidade nova |
 | `/quick-dev` | Atalho pra mudanças triviais (≤ 3 arquivos, ≤ 50 linhas) |
 | `/bug` | Corrigir comportamento (investigador obrigatório) |
 | `/refactor` | Reorganizar sem mudar comportamento |
 | `/qa` | Gerar/auditar testes de uma área |
 | `/auditoria` | Passar pelos 3 auditores |
+| `/consistencia` | Cross-check PRD↔ARQ↔stories↔tasks↔código (acha órfãos) |
 | `/retro` | Retrospectiva pós-marco |
 | `/replanejar` | Mudança de escopo no meio do épico (correct-course) |
 | `/sprint` | Plano sequencial das próximas N stories com dependências |

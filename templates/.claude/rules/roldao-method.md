@@ -68,6 +68,8 @@ Documento gera código, não o contrário:
 - ADR em `docs/decisions/ADR-NNN-*.md`
 - Frontmatter obrigatório (`owner`, `revisado-em`, `status`).
 
+**Precedência de template/checklist/KB (override sem fork):** ao usar um molde, verifique `.specify/overrides/<area>/<nome>.md` **primeiro**; só use `.specify/<area>/<nome>.md` se não houver override. `.specify/overrides/` é do projeto — `update` nunca toca. Override adapta artefato ao domínio; **não** burla `REGRAS-INEGOCIAVEIS.md` (hook não lê override).
+
 ## Pipeline mental por feature
 
 1. **Sofia** (`gerente-produto`) — US clara? AC testável?

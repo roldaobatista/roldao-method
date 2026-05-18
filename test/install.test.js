@@ -59,7 +59,7 @@ const exigidos = [
   '.claude/agents/fiscal-br.md',
   '.claude/agents/tech-writer.md',
 
-  // 19 comandos
+  // 21 comandos
   '.claude/commands/inicio.md',
   '.claude/commands/brownfield.md',
   '.claude/commands/prd.md',
@@ -79,6 +79,8 @@ const exigidos = [
   '.claude/commands/readiness.md',
   '.claude/commands/help.md',
   '.claude/commands/shard.md',
+  '.claude/commands/clarificar.md',
+  '.claude/commands/consistencia.md',
 
   // 18 hooks bloqueadores
   '.claude/hooks/anti-mascaramento.sh',
@@ -171,6 +173,20 @@ try {
   check('reinstall idempotente', false);
 }
 
+// 4b) Override do projeto sobrevive ao update
+try {
+  const ovDir = path.join(TMP, '.specify/overrides/templates');
+  fs.mkdirSync(ovDir, { recursive: true });
+  const ovFile = path.join(ovDir, 'prd.md');
+  const marker = 'CAMPO CUSTOMIZADO DO PROJETO — nao remover';
+  fs.writeFileSync(ovFile, `# PRD override\n\n${marker}\n`);
+  execSync(`node "${BIN}" update --yes`, { stdio: 'pipe' });
+  check('override sobrevive ao update', fs.existsSync(ovFile) && fs.readFileSync(ovFile, 'utf8').includes(marker));
+  check('update NAO cria .bak no override', !fs.existsSync(ovFile + '.bak'));
+} catch (e) {
+  check('override preservado no update', false);
+}
+
 // 5) List
 try {
   const out = execSync(`node "${BIN}" list`, { stdio: 'pipe' }).toString();
@@ -187,6 +203,46 @@ try {
   check('add electron-br copiou hook', fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.sh')));
 } catch (e) {
   check('add electron-br executou', false);
+}
+
+// 6b) search lista addons (sem termo) e filtra por termo
+try {
+  const sAll = execSync(`node "${BIN}" search --no-color`, { stdio: 'pipe' }).toString();
+  check('search lista electron-br', /electron-br/.test(sAll));
+  check('search marca instalado', /\[instalado\][^\n]*electron-br/.test(sAll));
+  const sFilter = execSync(`node "${BIN}" search fiscal --no-color`, { stdio: 'pipe' }).toString();
+  check('search fiscal filtra fiscal-br-completo', /fiscal-br-completo/.test(sFilter));
+  check('search fiscal NAO lista lgpd-compliance', !/lgpd-compliance/.test(sFilter));
+} catch (e) {
+  check('search executou', false);
+}
+
+// 6c) remove tira só o addon, preserva o core
+try {
+  execSync(`node "${BIN}" remove electron-br --yes`, { stdio: 'pipe' });
+  check('remove tirou agente do addon', !fs.existsSync(path.join(TMP, '.claude/agents/electron-arch.md')));
+  check('remove tirou hook do addon', !fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.sh')));
+  check('remove preservou core (dev-senior)', fs.existsSync(path.join(TMP, '.claude/agents/dev-senior.md')));
+  check('remove preservou core (block-destructive)', fs.existsSync(path.join(TMP, '.claude/hooks/block-destructive.sh')));
+} catch (e) {
+  check('remove executou', false);
+}
+
+// 6d) remove de addon desconhecido falha com mensagem
+try {
+  execSync(`node "${BIN}" remove inexistente-xyz --yes`, { stdio: 'pipe' });
+  check('remove addon inexistente deveria falhar', false);
+} catch (e) {
+  check('remove addon inexistente falha (esperado)', true);
+}
+
+// 6e) tasks-to-issues sem docs/stories (ou sem gh) falha de forma controlada
+try {
+  execSync(`node "${BIN}" tasks-to-issues --yes --dry-run`, { stdio: 'pipe' });
+  check('tasks-to-issues sem stories deveria falhar', false);
+} catch (e) {
+  const out = ((e.stdout || '') + (e.stderr || '')).toString();
+  check('tasks-to-issues falha com mensagem clara', /docs\/stories|GitHub CLI \(gh\)/.test(out));
 }
 
 // 7) Uninstall
@@ -211,6 +267,8 @@ try {
   check('default: NAO instala .windsurf/', !fs.existsSync(path.join(tmpDefault, '.windsurf')));
   check('default: NAO instala .clinerules', !fs.existsSync(path.join(tmpDefault, '.clinerules')));
   check('default: NAO instala .aider.conf.yml', !fs.existsSync(path.join(tmpDefault, '.aider.conf.yml')));
+  check('default: NAO instala GEMINI.md', !fs.existsSync(path.join(tmpDefault, 'GEMINI.md')));
+  check('default: NAO instala .codex/', !fs.existsSync(path.join(tmpDefault, '.codex')));
   process.chdir(TMP);
   try { fs.rmSync(tmpDefault, { recursive: true, force: true }); } catch {}
 } catch (e) {
@@ -227,6 +285,8 @@ try {
   check('--all-adapters: .roorules', fs.existsSync(path.join(tmpAll, '.roorules')));
   check('--all-adapters: .aider.conf.yml', fs.existsSync(path.join(tmpAll, '.aider.conf.yml')));
   check('--all-adapters: .cursor/', fs.existsSync(path.join(tmpAll, '.cursor')));
+  check('--all-adapters: GEMINI.md', fs.existsSync(path.join(tmpAll, 'GEMINI.md')));
+  check('--all-adapters: .codex/instructions.md', fs.existsSync(path.join(tmpAll, '.codex/instructions.md')));
   process.chdir(TMP);
   try { fs.rmSync(tmpAll, { recursive: true, force: true }); } catch {}
 } catch (e) {
@@ -247,6 +307,22 @@ try {
   try { fs.rmSync(tmpSel, { recursive: true, force: true }); } catch {}
 } catch (e) {
   check('--adapters=cursor,windsurf', false);
+  process.chdir(TMP);
+}
+
+// 8d) --adapters=gemini-cli,codex-cli instala só esses + claude (sempre)
+try {
+  const tmpGC = fs.mkdtempSync(path.join(os.tmpdir(), 'roldao-adapter-gc-'));
+  process.chdir(tmpGC);
+  execSync(`node "${BIN}" install --yes --adapters=gemini-cli,codex-cli`, { stdio: 'pipe' });
+  check('--adapters=gemini-cli: GEMINI.md', fs.existsSync(path.join(tmpGC, 'GEMINI.md')));
+  check('--adapters=codex-cli: .codex/instructions.md', fs.existsSync(path.join(tmpGC, '.codex/instructions.md')));
+  check('--adapters=gemini-cli,codex-cli: .claude/ (sempre)', fs.existsSync(path.join(tmpGC, '.claude')));
+  check('--adapters=gemini-cli,codex-cli: NAO instala .cursor/', !fs.existsSync(path.join(tmpGC, '.cursor')));
+  process.chdir(TMP);
+  try { fs.rmSync(tmpGC, { recursive: true, force: true }); } catch {}
+} catch (e) {
+  check('--adapters=gemini-cli,codex-cli', false);
   process.chdir(TMP);
 }
 

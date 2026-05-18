@@ -17,6 +17,16 @@ Moldes prontos pra **spec-driven development** (INV-002).
 
 ADR continua em `.claude/skills/gerar-adr-pt-br/templates/adr.md`.
 
+## Override por projeto (sem fork)
+
+Precisa de um template diferente do oficial pro **seu** projeto (campo extra no PRD, seção própria na story)? **Não edite os arquivos desta pasta** — `update` sobrescreve. Coloque sua versão em:
+
+```
+.specify/overrides/templates/<nome>.md     ← ex.: .specify/overrides/templates/prd.md
+```
+
+**Regra de precedência (aplicada por agentes e comandos):** ao buscar um template, sempre olhe `.specify/overrides/templates/<nome>.md` **primeiro**; só caia em `.specify/templates/<nome>.md` se não houver override. Tudo sob `.specify/overrides/` é tratado como do projeto e **nunca** é tocado por `install`/`update`. Veja `.specify/overrides/README.md`.
+
 ## Convenção de IDs
 
 | Prefixo | Significado |

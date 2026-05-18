@@ -20,7 +20,7 @@ seu-projeto/
 │   ├── settings.local.json        <- pessoal (não versionar)
 │   ├── agents/                    <- 12 especialistas
 │   ├── hooks/                     <- 22 bloqueadores + 4 auxiliares + 2 utilitários
-│   ├── commands/                  <- 19 workflows
+│   ├── commands/                  <- 21 workflows
 │   ├── skills/                    <- 8 skills BR core (+14 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)

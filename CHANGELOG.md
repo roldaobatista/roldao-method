@@ -2,6 +2,29 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.13.0] — 2026-05-18
+
+**Fechamento de paridade SDD (issues #1–#4 + itens 7 e 10 da auditoria comparativa).** Fecha gaps táticos sem mexer na identidade — hooks bloqueadores e cobertura BR continuam o diferencial. Não altera comportamento de hook nenhum; 147/147 mantidos.
+
+### Adicionado
+
+- **Comando `/consistencia`** (issue #1) — cross-check PRD↔ARQ↔stories↔tasks↔código. Investigador levanta a cadeia de rastreabilidade; 3 auditores em paralelo caçam órfãos (story sem PRD, task sem AC, regra regulatória citada na spec mas ausente no código). Bloqueia veredito CONSISTENTE com inconsistência 🔴 aberta.
+- **Comando `/clarificar`** (issue #2) — questionamento estruturado ANTES de codar. `gerente-produto` escolhe métodos da KB `kb-elicitation-pt-br.md`, pergunta ao usuário com `AskUserQuestion` (opções concretas), consolida spec com AC testáveis + non-goals. Distinto da REGRA #0 (aquele investiga bug; este afina o que vai ser construído). Total: **21 workflows**.
+- **CLI `roldao remove <addon>`** (issue #3) — remoção cirúrgica de um addon, preservando framework core e demais addons. Operação destrutiva localizada: confirma (salvo `--yes`/`--force`), suporta `--dry-run`. Alias `rm`.
+- **CLI `roldao search [termo]`** (issue #3) — lista/filtra addons disponíveis com descrição, marca instalados. Alias `find`.
+- **CLI `roldao tasks-to-issues`** (issue #4) — varre `docs/stories/*.md` por `T-NNN` e cria uma GitHub Issue por task ainda não exportada. Idempotente (mapa em `.specify/.tasks-to-issues.json`); exige `gh` autenticado; `--dry-run` e confirmação antes de criar.
+- **Overrides por projeto sem fork** (item 4) — `.specify/overrides/<area>/<nome>.md` vence o `.specify/<area>/<nome>.md` oficial e **nunca** é tocado por `install`/`update` (mesma proteção do `AGENTS.md`). `README` próprio + regra de precedência no contrato central. Não permite burlar `REGRAS-INEGOCIAVEIS.md` (hook não lê override).
+- **Adapter Gemini CLI** (item 7) — `GEMINI.md` na raiz (convenção oficial de contexto persistente do Gemini CLI).
+- **Adapter Codex CLI** (item 7) — `.codex/instructions.md` + `AGENTS.md` (lido nativamente pelo Codex). **9 IDEs suportadas**.
+- **Mapa princípio → ID → hook na constituição** (item 10) — tabela indexável ligando os 6 princípios do manifesto aos IDs citáveis de `REGRAS-INEGOCIAVEIS.md` e ao hook que barra cada um. Antes a relação era só prosa.
+- **+13 cenários de teste** em `test/install.test.js` (remove cirúrgico, search com filtro, tasks-to-issues falha controlada, override sobrevive ao update, adapters Gemini/Codex em `--all-adapters` e `--adapters=`).
+
+### Mudado
+
+- **`detectTools()` / `ADAPTER_ENTRIES`** reconhecem `gemini-cli` (`GEMINI.md`/`.gemini`) e `codex-cli` (`.codex`). `help`, `list` e docstring da CLI atualizados com os novos comandos.
+- **`isUserOwned()`** trata todo path sob `.specify/overrides/` como customização do projeto.
+- Contagens de workflows sincronizadas (19 → **21**) em README, CONTRIBUTORS, QUICKSTART, COMO-FUNCIONA, CLAUDE.md, plugin.json, package.json; `plugin.json` versão `0.7.0` → `0.13.0` (estava defasado).
+
 ## [0.12.0] — 2026-05-18
 
 **Ondas 3+4+5+6 do round 6 (sem viés).** Fecha P1 restantes + maioria dos P2. v0.11.0 atacou só os P0 + Onda 1/2. Esta release encerra os 86 achados originais (não há "round 7 pendente" — material exaurido).

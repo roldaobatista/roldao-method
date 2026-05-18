@@ -79,11 +79,13 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/prd` | Iniciativa grande (várias semanas) | analista → gerente-produto → tech-lead → (ux) → decomposição |
 | `/epico` | Decompor grande em stories | analista → gerente-produto → tech-lead |
 | `/historia` | 1 story em disco | gerente-produto → investigador |
+| `/clarificar` | Ideia/story vaga antes de codar | gerente-produto (+ usuário via perguntas) |
 | `/feature` | Funcionalidade nova | gerente-produto → investigador → tech-lead → dev-senior → revisor → auditores |
 | `/bug` | Corrigir comportamento | **investigador (obrigatório)** → dev-senior → revisor |
 | `/refactor` | Reorganizar código | tech-lead → dev-senior → revisor |
 | `/qa` | Testes de uma área | investigador → auditor-qualidade → dev-senior → revisor |
 | `/auditoria` | Passar auditores | auditor-seguranca + auditor-qualidade + auditor-produto |
+| `/consistencia` | Cross-check doc↔código | investigador → 3 auditores (em paralelo) |
 | `/retro` | Retrospectiva pós-marco | (sem agente específico — 4L) |
 
 ---

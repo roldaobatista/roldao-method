@@ -8,20 +8,21 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v0.10.0 (mai/2026)
+## Versão atual: v0.13.0 (mai/2026)
 
 Pacote pós **cinco** rodadas de auditoria 10-agentes:
 - 12 agentes especialistas (com nome + ícone)
-- 19 workflows (incluindo `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`)
+- 21 workflows (incluindo `/clarificar`, `/consistencia`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`)
 - 21 hooks bloqueadores + 5 auxiliares + 1 test-runner + 1 `_lib.sh` = **28 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD
 - 8 skills BR no core + 14 nos addons = **22 skills**
 - 8 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance, audit-trail)
 - 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
 - 6 addons (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
 - **12 templates de spec** (PRD, story, architecture, brownfield-prd, prd-fiscal, fullstack-architecture, decision-log, prfaq, product-brief, ux-design, headless-schemas, épico)
-- CLI completo: `add`, `list`, update check, wizard, alias `roldao`, **`--adapters` / `--all-adapters`** (instala seletivo)
+- CLI completo: `add`, `remove`, `search`, `list`, `tasks-to-issues`, update check, wizard, alias `roldao`, **`--adapters` / `--all-adapters`** (instala seletivo)
+- Overrides por projeto sem fork (`.specify/overrides/`) + adapters Gemini CLI/Codex CLI = **9 IDEs**
 - **Adapters Cline/Aider/Roo** com paths corretos (`.clinerules`, `.aider.conf.yml`, `.roorules` na raiz — antes ficavam em subpastas inertes)
-- **132/132 testes** (8 novos: context-budget, mcp-validator bloqueio, no-amend-after-push real com repo bare)
+- **147/147 testes** (hooks) + suíte de install ampliada (paridade SDD, overrides, adapters Gemini/Codex)
 - CI matriz Windows/macOS/Linux
 - Governança (SECURITY.md, CONTRIBUTORS.md, `.claude-plugin/plugin.json`)
 - Suite de evals dos 12 agentes
@@ -34,6 +35,9 @@ Pacote pós **cinco** rodadas de auditoria 10-agentes:
 - **v0.8.0** "Audit trail" — checkpoint/auditores como exit 2, story-approvals persistente, EP-NNN.md dedicado.
 - **v0.9.0** "Hardening" — sanitização PROJDIR, Node 18 check, Windows shell warning, encoding UTF-8 skills.
 - **v0.10.0** "Adapters multi-IDE reais + correção regulatória" — paths Cline/Aider/Roo, install seletivo, LGPD Art. 7 V, SHA-256 NF-e, TxId Pix.
+- **v0.11.0** "Auditoria round 6 sem viés (P0)" — P0 + ondas 1/2 fechados, 132/132.
+- **v0.12.0** "Round 6 ondas 3–6" — P1/P2 fechados, checklist audit-trail, 147/147.
+- **v0.13.0** "Paridade SDD" — `/consistencia`, `/clarificar`, `remove`/`search`/`tasks-to-issues`, overrides sem fork, adapters Gemini/Codex CLI, constituição indexável. 147/147.
 
 ## Próximas releases
 
@@ -81,9 +85,9 @@ Pré-requisitos para 1.0:
 ### Suporte a mais IDEs
 - [x] Cline (`.clinerules` na raiz — v0.10.0).
 - [x] Roo Code (`.roorules` na raiz — v0.10.0).
-- [ ] Gemini CLI.
+- [x] Gemini CLI (`GEMINI.md` na raiz — v0.13.0).
+- [x] Codex CLI (`.codex/instructions.md` + `AGENTS.md` nativo — v0.13.0).
 - [ ] GitHub Copilot Workspace (quando padrão estabilizar).
-- [ ] Codex CLI.
 
 ### Ferramentas
 - [ ] `npx roldao-method doctor --fix` — corrige problemas detectados automaticamente.
