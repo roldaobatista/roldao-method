@@ -10,7 +10,12 @@ INPUT=$(cat)
 RESP=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   local $/;
   my $json = decode_json(<STDIN>);
-  my $r = $json->{response} // $json->{tool_response} // $json->{message} // "";
+  my $r = $json->{response} // $json->{message} // "";
+  if (!$r && ref($json->{tool_response}) eq "HASH") {
+    $r = $json->{tool_response}->{content} // $json->{tool_response}->{text} // "";
+  } elsif (!$r && ref($json->{tool_response}) eq "") {
+    $r = $json->{tool_response} // "";
+  }
   print ref($r) ? "" : $r;
 ' 2>/dev/null)
 

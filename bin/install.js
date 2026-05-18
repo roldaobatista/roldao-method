@@ -459,7 +459,9 @@ async function install() {
   log(`instalando ROLDAO-METHOD em: ${c.bold}${CWD}${c.reset}`);
   if (isDangerousCwd()) {
     err(`recusa: diretorio atual (${CWD}) parece sensivel (raiz, home, system).`);
-    err('rode dentro de uma pasta de projeto.');
+    err('"pasta de projeto" = um diretorio com seu codigo dentro (ex: ~/projetos/meu-app),');
+    err('NAO sua home (~), nao a raiz do disco (/), nao /tmp.');
+    err('Crie ou entre na pasta do projeto primeiro: cd ~/projetos/meu-app && npx roldao-method install');
     process.exit(2);
   }
 
@@ -483,6 +485,10 @@ async function install() {
 
   if (!fs.existsSync(TEMPLATES_DIR)) {
     err(`pasta de templates nao encontrada: ${TEMPLATES_DIR}`);
+    err('Isso indica instalacao corrompida do pacote npm. Para reinstalar:');
+    err('  npm cache clean --force');
+    err('  npx roldao-method@latest install');
+    err('Se o erro persistir, abra issue em https://github.com/roldaobatista/roldao-method/issues');
     process.exit(1);
   }
 

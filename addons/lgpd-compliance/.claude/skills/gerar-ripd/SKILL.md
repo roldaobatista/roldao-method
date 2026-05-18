@@ -1,6 +1,9 @@
 ---
 name: gerar-ripd
 description: Gera Relatorio de Impacto a Protecao de Dados (RIPD) — Art. 38 LGPD. Use quando tratamento e de alto risco (dado sensivel em escala, decisao automatizada, monitoramento sistematico, crianca/adolescente). Saida em markdown versionavel.
+owner: lgpd-compliance
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # gerar-ripd

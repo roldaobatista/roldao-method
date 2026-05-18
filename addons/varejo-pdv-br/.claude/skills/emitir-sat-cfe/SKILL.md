@@ -1,6 +1,9 @@
 ---
 name: emitir-sat-cfe
 description: Guia de implementação para emissão de SAT-CF-e modelo 59 (exclusivo SP). Use ao implementar PDV no estado de São Paulo OU ao auditar emissão SAT existente.
+owner: varejo-pdv-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # emitir-sat-cfe

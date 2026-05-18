@@ -1,6 +1,9 @@
 ---
 name: checklist-lgpd
 description: Aplica checklist LGPD a uma feature ou fluxo de tratamento de dados pessoais. Pergunta dirigida + arvore de decisao de base legal (Art. 7 / Art. 11). Use antes de implementar coleta/armazenamento/compartilhamento de dado pessoal.
+owner: framework
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # checklist-lgpd

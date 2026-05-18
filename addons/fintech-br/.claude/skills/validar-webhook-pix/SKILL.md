@@ -1,6 +1,9 @@
 ---
 name: validar-webhook-pix
 description: Implementa handler de webhook Pix com HMAC, idempotencia e tratamento de status. Use ao receber notificacao do PSP (banco, BaaS) sobre Pix recebido, devolucao ou MED.
+owner: fintech-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # validar-webhook-pix

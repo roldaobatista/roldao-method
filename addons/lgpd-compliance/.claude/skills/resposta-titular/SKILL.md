@@ -1,6 +1,9 @@
 ---
 name: resposta-titular
 description: Gera resposta padronizada a direito exercido por titular LGPD (Art. 18) — acesso, exclusao, portabilidade, revisao. Use ao processar pedido recebido pelo canal do DPO.
+owner: lgpd-compliance
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # resposta-titular

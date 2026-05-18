@@ -1,6 +1,9 @@
 ---
 name: gerar-adr-pt-br
 description: Cria um Architecture Decision Record (ADR) em português brasileiro seguindo o template do ROLDAO-METHOD. Use sempre que tomar decisão arquitetural não-trivial (escolha de stack, biblioteca, integração com sistema externo, padrão arquitetural).
+owner: framework
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # gerar-adr-pt-br

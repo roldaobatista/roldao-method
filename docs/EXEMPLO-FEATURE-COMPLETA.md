@@ -15,7 +15,7 @@ Você é Roldão, dono de uma SaaS contábil em PT-BR. Cliente reclama: "Não co
 ## Comando
 
 ```
-/feature aceitar CNPJ alfanumerico no cadastro de cliente PJ
+/feature aceitar CNPJ alfanumérico no cadastro de cliente PJ
 ```
 
 ## Etapa 1 — Gerente de Produto

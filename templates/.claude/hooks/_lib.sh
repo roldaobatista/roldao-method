@@ -76,3 +76,28 @@ safe_runtime_dir() {
   mkdir -p "$dir" 2>/dev/null
   printf '%s' "$dir"
 }
+
+# ---------------------------------------------------------------------------
+# safe_tmpfile — cria arquivo temporario com fallback seguro por usuario.
+# Em /tmp world-writable (Linux multi-user), atacante local pode pre-criar
+# /tmp/hook.<PID> como symlink — sobrescrita do hook ataca arquivo do usuario.
+# Esta funcao isola o fallback em $TMPDIR/roldao-<UID>/, mode 700.
+#
+# Uso:
+#   TMPF=$(safe_tmpfile "prefix") || exit 2
+#   trap 'rm -f "$TMPF"' EXIT
+# ---------------------------------------------------------------------------
+safe_tmpfile() {
+  local prefix="${1:-hook}"
+  local tmpf
+  tmpf=$(mktemp 2>/dev/null) && { printf '%s' "$tmpf"; return 0; }
+  # Fallback isolado por UID — evita colisao em multi-user.
+  local uid
+  uid=$(id -u 2>/dev/null || echo 0)
+  local safe_dir="${TMPDIR:-/tmp}/roldao-${uid}"
+  mkdir -p "$safe_dir" 2>/dev/null || return 2
+  chmod 700 "$safe_dir" 2>/dev/null || true
+  tmpf="$safe_dir/${prefix}.$$"
+  : > "$tmpf" || return 2
+  printf '%s' "$tmpf"
+}

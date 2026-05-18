@@ -14,7 +14,7 @@ Use depois de `/epico` quando precisar sequenciar a execução das próximas N s
 
 Invoque `investigador`:
 - Lê `docs/stories/` e identifica quais stories existem, status (pending / em-andamento / concluida).
-- Lê `docs/epics/EP-NNN.md` referenciado.
+- Lê `docs/epicos/EP-NNN.md` referenciado.
 - Lê commits recentes que tocam stories desse épico.
 
 Invoque `gerente-produto`:

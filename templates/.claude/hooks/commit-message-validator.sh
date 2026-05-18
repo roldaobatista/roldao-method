@@ -62,8 +62,20 @@ if [ "$NUM_PREFIXES" -gt 1 ]; then
   VIOLATIONS+=("commit mistura prefixos: $PREFIXES — separe em commits atomicos (INV-AGENT-005)")
 fi
 
-# Regra 3: alerta se nao tem prefixo conhecido (so warning, nao bloqueia)
-if [ "$NUM_PREFIXES" -eq 0 ]; then
+# Regra 3a: detecta tipo INVENTADO (palavra:_ na primeira posicao que nao bate
+# com a lista canonica). Ex.: "improvement:", "wip:", "stuff:".
+TIPO_DECLARADO=$(printf '%s' "$PRIMEIRA_LINHA" | perl -ne 'print $1 if /^([a-zA-Z]+)(?:\([^)]*\))?\s*:/' | tr '[:upper:]' '[:lower:]')
+if [ -n "$TIPO_DECLARADO" ]; then
+  case "$TIPO_DECLARADO" in
+    feat|fix|refactor|chore|docs|test|perf|build|ci|revert|style) ;;
+    *)
+      VIOLATIONS+=("tipo '$TIPO_DECLARADO:' nao e Conventional Commit — use feat/fix/refactor/chore/docs/test/perf/build/ci/revert/style")
+      ;;
+  esac
+fi
+
+# Regra 3b: alerta se nao tem prefixo conhecido (so warning, nao bloqueia)
+if [ "$NUM_PREFIXES" -eq 0 ] && [ -z "$TIPO_DECLARADO" ]; then
   printf '[commit-message-validator] AVISO: sem prefixo (feat/fix/refactor/chore/docs/test): %s\n' "$PRIMEIRA_LINHA" >&2
 fi
 

@@ -1,6 +1,9 @@
 ---
 name: emitir-evento-esocial
 description: Guia de implementação para emissão de evento eSocial — escolha do schema, prazo legal, fila + retentativa, validação local antes do envio, retificação via S-3000. Use ao implementar integração eSocial pela primeira vez OU ao auditar integração existente.
+owner: esocial-completo
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # emitir-evento-esocial

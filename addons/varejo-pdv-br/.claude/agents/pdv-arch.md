@@ -32,6 +32,9 @@ skills:
   - emitir-sat-cfe
   - emitir-nfce
   - integrar-balanca-impressora
+owner: varejo-pdv-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # Arquiteto PDV — Marcos 🛒

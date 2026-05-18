@@ -47,6 +47,8 @@ PATTERNS=(
   '--no-verify'
   '--skip-tests'
   '--ignore-errors'
+  '--silent'
+  '--quiet'
   'pytest\.skip'
 )
 

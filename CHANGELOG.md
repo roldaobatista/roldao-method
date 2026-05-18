@@ -2,6 +2,57 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.12.0] — 2026-05-18
+
+**Ondas 3+4+5+6 do round 6 (sem viés).** Fecha P1 restantes + maioria dos P2. v0.11.0 atacou só os P0 + Onda 1/2. Esta release encerra os 86 achados originais (não há "round 7 pendente" — material exaurido).
+
+### Adicionado
+
+- **Checklist `audit-trail.md`** em `templates/.specify/checklists/`. Total: **8 checklists auditáveis** (era 7 — descompasso conhecido com README/ROADMAP fechado).
+- **`_lib.sh::safe_tmpfile()`** — função centralizada pra criar arquivos temporários com fallback isolado por UID em `$TMPDIR/roldao-<uid>/` (mode 700). Defesa contra symlink race em `/tmp` world-writable (Linux multi-user).
+- **+15 cenários de teste** no `_test-runner.sh` (132 → **147 OK**). Coberturas que estavam zeradas:
+  - `anti-mascaramento`: `|| true`, `eslint-disable-next-line`, `--silent` em CI, `expect(true).toBe(true)`.
+  - `secrets-scanner`: GitHub PAT (`ghp_`), Stripe live key (`sk_live_`), JWT.
+  - `block-jargon-pt-br`: alerta em `tool_response.content` (antes silencioso).
+  - `block-confirmation-questions`: "voce prefere A ou B" (era zero).
+  - `commit-message-validator`: tipo Conventional Commit inventado (`improvement:`).
+  - `_lib.sh`: `sanitize_projdir` aceita absoluto, bloqueia `..`; `sanitize_session_hash` sanitiza caracteres.
+
+### Corrigido
+
+- **`anti-mascaramento` reconhece `--silent`/`--quiet`** em comandos de CI (gap real coberto pelo novo teste).
+- **`secrets-scanner` detecta GitHub PAT, Stripe live key, JWT** (regex novas).
+- **`block-jargon-pt-br` e `block-confirmation-questions` agora leem `tool_response.content`** (antes só `response` — campo errado pra hooks PostToolUse de fato; alertas estavam silenciados).
+- **`commit-message-validator` rejeita tipo inventado** (`improvement:`, `wip:`, etc.) — antes só avisava em warning sem bloquear.
+- **`validate-test-pyramid` path traversal travado** — `FILE_PATH` (input JSON do agente) agora rejeita `..` e exige caminho dentro de `PROJDIR` antes de chamar `find`.
+- **`validate-quick-dev-scope` bloqueia palavra-gatilho fiscal/LGPD/Pix/eSocial** — domínios sensíveis nunca são triviais, mesmo com ≤3 arquivos.
+- **Paths inconsistentes `docs/epics/` → `docs/epicos/`** em `readiness.md` e `sprint.md` (PT-BR padronizado).
+
+### Mudado
+
+- **`investigador` agora grava JSON estruturado** em `.claude/.runtime/investigation-US-NNN.json` com schema definido (`reportado`, `estado_real`, `fonte`, `causa_raiz`, `arquivo_correcao`, `linha_aproximada`, `nao_fazer[]`). Dev-senior consome via campo, não via texto livre. Revisor compara `arquivo_correcao` com diff real.
+- **`tech-writer` tem template fixo por modo** (CHG, REL, MSG, ANN, RDM) — saída homogênea. Antes cada execução virava surpresa.
+- **`/prd` salva caminho do brief** em `.claude/.runtime/last-research-path`. PM lê esse arquivo em vez de caçar o slug — fix do handoff perdido em sessões longas.
+- **`gerente-produto`: model `haiku` → `sonnet`.** PRD escrito por haiku perdia raciocínio multi-passo. Story simples ainda funciona bem em haiku, mas como o agente decide modo no início, melhor manter sonnet pra todos os modos.
+- **`auditor-produto`: model `haiku` → `sonnet`.** Veredito bloqueante de release não pode ficar no menor modelo (risco de falso negativo em UX/coerência).
+- **`fiscal-br-completo` description honesta** — antes prometia "NFC-e/NFS-e/CT-e/MDF-e/Reforma" mas só entrega NF-e 55 + CNPJ alfanumérico (NFC-e fica no `varejo-pdv-br`). Description ajustado pra refletir a realidade.
+- **`esocial-completo` declara layout `S-1.3`** (Portaria Conjunta RFB/MTE 71/2024) explicitamente no manifesto. Antes não havia rastreabilidade da versão suportada.
+- **Mensagens de erro de `bin/install.js` mais acionáveis** — `isDangerousCwd` explica o que é "pasta de projeto"; templates ausentes orientam `npm cache clean --force`.
+
+### Frontmatter completo (auditor 9/10)
+
+29 arquivos `.md` ganharam `owner`/`revisado-em`/`status`:
+- 8 SKILL.md core (`templates/.claude/skills/*/SKILL.md`).
+- 6 agentes em addons.
+- 14 SKILL.md em addons.
+- 1 command em `lgpd-compliance/.claude/commands/lgpd-audit.md`.
+
+### Métricas
+
+- 22 bloqueadores + 4 auxiliares + 2 utilitários = **28 hooks core** (+5 em addons).
+- 12 agentes · 19 commands · 8 + 14 = **22 skills** · 6 addons · **8 checklists**.
+- Test runner: **147/147 OK** (era 132 — +15 cenários novos cobrindo gaps reais).
+
 ## [0.11.0] — 2026-05-18
 
 **Auditoria 10-agentes round 6** — varredura sem viés (relatórios e memórias dos rounds anteriores deletados antes da execução pra evitar enviesamento dos auditores). 10 agentes paralelos, escopos independentes: segurança de hooks, qualidade JS, testes, DX, consistência de docs, cross-platform, regulatório BR, agentes/workflows, addons, empacotamento. **86 achados (13 P0 + 38 P1 + 35 P2)**. Onda 1 e 2 aplicadas: P0 + maioria dos P1 fechados. Testes: 132/132 OK.

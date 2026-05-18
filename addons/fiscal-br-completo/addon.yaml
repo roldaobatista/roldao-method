@@ -1,6 +1,6 @@
 name: fiscal-br-completo
 version: 0.1.0
-description: Emissão e gestão fiscal BR completa — NF-e (55), NFC-e (65), NFS-e municipal, CT-e, MDF-e, com Reforma Tributária 2026-2033
+description: Base fiscal BR — NF-e modelo 55 com assinatura digital, CNPJ alfanumérico (jul/2026) e contingência SEFAZ. NFC-e fica no addon `varejo-pdv-br`. CT-e/MDF-e/NFS-e: roadmap futuro.
 authors:
   - Roldão Batista
 license: MIT

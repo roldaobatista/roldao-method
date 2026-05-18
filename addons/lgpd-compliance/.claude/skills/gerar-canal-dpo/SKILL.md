@@ -1,6 +1,9 @@
 ---
 name: gerar-canal-dpo
 description: Gera template completo do canal de DPO — pagina publica, email funcional, fluxo de atendimento, SLA 15 dias. Use ao implementar o canal pela primeira vez ou ao revisar canal existente.
+owner: lgpd-compliance
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # gerar-canal-dpo

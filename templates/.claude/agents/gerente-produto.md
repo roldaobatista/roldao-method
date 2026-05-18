@@ -2,7 +2,7 @@
 name: gerente-produto
 description: Traduz pedido do cliente em PRD/user story claros e priorizados. Use quando a demanda virou projeto formal, quando precisa decompor epico em stories filhas, ou quando precisa criar/refinar uma story isolada. Tem 3 modos operacionais (PRD, story, decomposicao). Brief exploratorio inicial fica com o agente `analista` (modo 1).
 tools: Read, Glob, Grep, Write
-model: haiku
+model: sonnet
 color: purple
 identity:
   nome: Sofia

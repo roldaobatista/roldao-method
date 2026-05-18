@@ -1,6 +1,9 @@
 ---
 name: migration-sqlite-segura
 description: Pattern de migracao SQLite com backup automatico antes de aplicar. Use em app Electron com banco local persistente. ELECTRON-003.
+owner: electron-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # migration-sqlite-segura

@@ -4,23 +4,31 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.11.0-blue.svg)](#)
+[![Versão](https://img.shields.io/badge/versão-0.12.0-blue.svg)](#)
 [![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-22-red.svg)](#)
-[![Testes do framework](https://img.shields.io/badge/test_runner-132%2F132-green.svg)](#)
+[![Testes do framework](https://img.shields.io/badge/test_runner-147%2F147-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
 
-## 🆕 Novidades na v0.11.0 (auditoria 10-agentes — round 6, sem viés)
+## 🆕 Novidades na v0.12.0 (auditoria 10-agentes — round 6 completo)
 
-- **Round 6 sem viés**: relatórios e memórias dos rounds anteriores deletados antes da execução pra evitar viés nos auditores. 86 achados (13 P0 + 38 P1 + 35 P2).
-- **Bugs reais fechados**: regex `addonMarker` em `bin/install.js` (`list` mostrava todo addon como ausente); `installAddon` parando wizard em loop; `_test-runner.sh` mktemp fallback quebrando com `set -u`.
-- **Auditores agora gravam hash do diff** — marker `pass` virou JSON com `audit_sha`. Se o código mudou depois da aprovação, hook bloqueia (`STALE`). Fecha o vetor "agente da `touch` sem auditar".
-- **Papéis limpos**: `revisor` olha só o diff; `auditor-produto` faz AC; `auditor-qualidade` faz cobertura agregada; `auditor-seguranca` faz arquitetura. Sem sobreposição.
-- **LGPD `15 dias corridos`** (era "úteis" — erro recorrente de consultoria). Árvore Art. 7 da skill `checklist-lgpd` agora cobre todos os 10 incisos.
-- **`fintech-br`**: renomeação `PIX-001..003` → `PIX-EXT-001..004` (colidia com `PIX-001..005` do core, semântica diferente).
-- **`fiscal-br-completo`**: pasta da skill renomeada pra bater com `addon.yaml` e frontmatter — antes Claude carregava com identidade errada.
-- **CI matrix Python em Windows/macOS/Linux**, sanity `node --check` em todos os `.js`, tags git pra v0.4/v0.5/v0.6 criadas.
+Round 6 sem viés (rounds anteriores deletados antes da execução). **86 achados** identificados. **v0.11.0** fechou Onda 1+2 (P0). **v0.12.0** fecha Onda 3+4+5+6 — P1 + maioria dos P2.
+
+- **+15 testes novos** (132 → 147). Coberturas que estavam zeradas: anti-mascaramento `|| true`/`--silent`/`expect(true).toBe(true)`, secrets-scanner `ghp_`/`sk_live_`/JWT, jargão em `tool_response.content`, "voce prefere A ou B", commit `improvement:` (tipo inventado), `_lib.sh` `sanitize_projdir` e `sanitize_session_hash` unit-tested.
+- **Hooks ampliados**: `anti-mascaramento` + `--silent`/`--quiet`; `secrets-scanner` + GitHub PAT/Stripe/JWT; `block-jargon-pt-br` e `block-confirmation-questions` agora leem `tool_response.content` (antes só `response`); `commit-message-validator` rejeita tipo Conventional Commit inventado.
+- **Investigador grava JSON estruturado** em `.claude/.runtime/investigation-US-NNN.json` — dev-senior consome via schema, não mais texto livre.
+- **Tech-writer com template fixo por modo** (CHG/REL/MSG/ANN/RDM) — sem mais saída heterogênea.
+- **`/prd`** salva caminho do brief em `.claude/.runtime/last-research-path` pro PM consumir explicitamente.
+- **`validate-quick-dev-scope`** bloqueia quando toca arquivo com palavra-gatilho fiscal/LGPD/Pix/eSocial — dominios sensíveis NUNCA são triviais.
+- **Models corrigidos**: `gerente-produto` e `auditor-produto` haiku → sonnet (PRD/AC exigem raciocínio multi-passo).
+- **Checklist `audit-trail.md` criado** — agora são 8 checklists auditáveis (estava em 7).
+- **Frontmatter completo em 29 arquivos** (8 SKILL.md core + 21 em addons) com `owner`/`revisado-em`/`status`.
+- **Path traversal travado** em `validate-test-pyramid` (FILE_PATH não-sanitizado virava `find` em paths externos).
+- **`_lib.sh::safe_tmpfile`** centraliza criação segura de tmp (defesa contra symlink-race em /tmp world-writable).
+- **Paths inconsistentes** `docs/epics/` → `docs/epicos/` (PT-BR padronizado).
+- **eSocial declara layout S-1.3** explicitamente no manifesto (Portaria Conjunta RFB/MTE 71/2024).
+- **Mensagens de erro mais acionáveis** em `bin/install.js` (`isDangerousCwd`, templates ausentes, npm cache clean orientado).
 
 Detalhes em [CHANGELOG.md](CHANGELOG.md).
 
@@ -51,7 +59,7 @@ Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 - 👥 **12 especialistas virtuais** com papéis claros (analista, PM, UX, tech-lead, investigador, dev, revisor, 3 auditores, fiscal-BR, tech-writer)
 - 🛡️ **21 regras automáticas que bloqueiam** erros antes de acontecer (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
 - 📜 **Spec-driven total** — 12 templates (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico) em PT-BR
-- ✅ **8 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance, novos da auditoria
+- ✅ **8 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance, audit-trail
 - 📚 **7 knowledge bases** que os agentes consultam — PT-BR (glossário), fiscal, LGPD, Pix, stack BR, brainstorming, elicitation
 - 🎯 **Cobertura BR real** — 10 IDs LGPD, 7 IDs FISCAL, 5 IDs PIX + 6 addons especializados (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
 

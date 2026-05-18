@@ -64,7 +64,34 @@ Mudar template, UI, validação, mensagem ou cálculo sem antes confirmar o que 
 
 ## Saída esperada
 
-Ao final da investigação, retornar ao usuário:
+Investigador entrega **2 artefatos**: (1) JSON estruturado em `.claude/.runtime/` consumível por `dev-senior` e `revisor`, (2) reporte em PT-BR claro ao usuário.
+
+### 1. JSON estruturado (obrigatório)
+
+Salvar em `.claude/.runtime/investigation-${US_ID}.json`:
+
+```json
+{
+  "us_id": "US-NNN",
+  "reportado": "<descrição literal do usuário>",
+  "estado_real": "<o que está salvo/observado AGORA>",
+  "fonte": "<banco|log|payload|console|config — onde leu>",
+  "esperado": "<o que deveria estar lá>",
+  "causa_raiz": "<onde, especificamente, o problema acontece>",
+  "arquivo_correcao": "<caminho/relativo/ao/projeto.ts>",
+  "linha_aproximada": 123,
+  "nao_fazer": [
+    "mudar template/CSS pra mascarar",
+    "ignorar a flag em vez de gravar certa",
+    "<outras 'soluções' que tratam sintoma>"
+  ],
+  "investigado_em": "AAAA-MM-DDThh:mm:ssZ"
+}
+```
+
+Dev-senior lê esse JSON antes de implementar. Revisor compara `arquivo_correcao` com o diff real.
+
+### 2. Reporte ao usuário (PT-BR claro)
 
 ```
 INVESTIGAÇÃO

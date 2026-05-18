@@ -4,6 +4,9 @@ description: Especialista em arquitetura Pix e Open Finance Brasil. Use ao decid
 tools: Read, Glob, Grep, Write
 model: sonnet
 color: cyan
+owner: fintech-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # pix-arch

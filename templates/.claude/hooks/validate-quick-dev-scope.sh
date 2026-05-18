@@ -39,6 +39,27 @@ case "$FILE_PATH" in
   *) exit 0 ;;
 esac
 
+# Palavras-gatilho de dominio sensivel — /quick-dev nunca cobre isso, mesmo
+# que sejam <=3 arquivos. Audita o NOME do arquivo (path) + a presenca dessas
+# palavras no conteudo (Content), se disponivel. Bloqueio imediato com sugestao.
+PATH_SENSITIVE=$(printf '%s' "$FILE_PATH" | grep -iE '(\b|/)(fiscal|nfe|nfce|sat|esocial|reinf|sped|pix|lgpd|dpo|ripd|imposto|tributo|cpf|cnpj|certificado|sefaz)([\b/_.-]|$)' || true)
+if [ -n "$PATH_SENSITIVE" ]; then
+  cat >&2 <<EOF
+[validate-quick-dev-scope] BLOQUEADO: /quick-dev tocando arquivo de dominio
+sensivel (fiscal/LGPD/Pix/eSocial). Esses dominios NUNCA sao triviais —
+calculo errado vira multa, vazamento de CPF vira incidente ANPD.
+
+Arquivo: $FILE_PATH
+
+Suba para /feature mesmo que pareca pequeno:
+  1. Encerre /quick-dev: rm "\$CLAUDE_PROJECT_DIR/.claude/.runtime/quick-dev-active-*"
+  2. Rode: /feature <descricao>
+
+Aplica: validate-quick-dev-scope (palavra-gatilho), INV-AGENT-005.
+EOF
+  exit 2
+fi
+
 RUNTIME_DIR=$(safe_runtime_dir "$PROJDIR")
 FILES_LOG="$RUNTIME_DIR/quick-dev-files-${SESSION_HASH}"
 

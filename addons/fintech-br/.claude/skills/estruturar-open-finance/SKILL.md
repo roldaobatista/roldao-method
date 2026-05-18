@@ -1,6 +1,9 @@
 ---
 name: estruturar-open-finance
 description: Guia de implementacao Open Finance Brasil — OAuth 2.0 + FAPI + mTLS + DCR. Use ao integrar com Open Finance pela primeira vez (Fase 2 dados, Fase 3 iniciacao de pagamento).
+owner: fintech-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # estruturar-open-finance

@@ -31,6 +31,9 @@ menu:
 skills:
   - emitir-evento-esocial
   - validar-pis-pasep
+owner: esocial-completo
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # Arquiteto eSocial — Eduardo 📋

@@ -78,6 +78,9 @@ CONTENT_PATTERNS=(
   'github_pat_[A-Za-z0-9_]{82}'                   # GitHub PAT fine-grained
   'xox[baprs]-[A-Za-z0-9-]{10,}'                  # Slack
   'AIza[0-9A-Za-z_-]{35}'                         # Google API
+  'sk_live_[0-9a-zA-Z]{16,}'                      # Stripe live key
+  'rk_live_[0-9a-zA-Z]{16,}'                      # Stripe restricted live key
+  'eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}'  # JWT (header.payload.sig)
 )
 
 for pat in "${CONTENT_PATTERNS[@]}"; do

@@ -4,6 +4,9 @@ description: Atua como Encarregado de Dados (DPO) virtual. Use ao analisar featu
 tools: Read, Glob, Grep, Write
 model: sonnet
 color: purple
+owner: lgpd-compliance
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # dpo-virtual

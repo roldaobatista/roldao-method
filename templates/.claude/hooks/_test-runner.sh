@@ -726,6 +726,99 @@ fi
 
 rm -rf "$NAR_REMOTE" "$NAR_LOCAL"
 
+# ------- anti-mascaramento (cobertura ampliada round 6) --------
+run_case "bloqueia || true em sh" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./x.sh","content":"rm -rf bla || true"}}' 2
+
+run_case "bloqueia eslint-disable-next-line" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./x.js","content":"// eslint-disable-next-line\nconst x = any;"}}' 2
+
+run_case "bloqueia npm test --silent" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./ci.sh","content":"npm test --silent"}}' 2
+
+run_case "bloqueia expect(true).toBe(true)" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./x.test.js","content":"expect(true).toBe(true);"}}' 2
+
+# ------- secrets-scanner (cobertura ampliada round 6) --------
+run_case "bloqueia GitHub PAT (ghp_)" "secrets-scanner.sh" \
+  '{"tool_input":{"file_path":"./x.js","content":"const t = \"ghp_abc1234567890ABCDEFGHIJKLMNOPqrstuvwx\";"}}' 2
+
+run_case "bloqueia Stripe live key (sk_live_)" "secrets-scanner.sh" \
+  '{"tool_input":{"file_path":"./x.js","content":"const k = \"sk_live_abc1234567890ABCDEFGHIJ\";"}}' 2
+
+# ------- block-jargon-pt-br (cobertura ampliada round 6) --------
+JARGON_OUT_1=$(printf '{"tool_input":{"prompt":""},"tool_response":{"content":"vou fazer rollback do deploy"}}' | bash "$HOOKS_DIR/block-jargon-pt-br.sh" 2>&1)
+if echo "$JARGON_OUT_1" | grep -q "jargao\|rollback"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   block-jargon-pt-br.sh  →  alerta jargao em resposta")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL block-jargon-pt-br.sh  →  NAO alertou jargao em resposta")
+fi
+
+JARGON_OUT_2=$(printf '{"tool_input":{"prompt":""},"tool_response":{"content":"tudo verde, validei"}}' | bash "$HOOKS_DIR/block-jargon-pt-br.sh" 2>&1)
+if [ -z "$JARGON_OUT_2" ] || ! echo "$JARGON_OUT_2" | grep -q "jargao"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   block-jargon-pt-br.sh  →  silencioso em texto sem jargao")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL block-jargon-pt-br.sh  →  falso positivo")
+fi
+
+# ------- block-confirmation-questions (cobertura ampliada round 6) --------
+CONF_OUT_1=$(printf '{"tool_input":{"prompt":""},"tool_response":{"content":"voce prefere A ou B?"}}' | bash "$HOOKS_DIR/block-confirmation-questions.sh" 2>&1)
+if echo "$CONF_OUT_1" | grep -qi "confirm\|prefer\|INV-AGENT-006"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   block-confirmation-questions.sh  →  alerta 'voce prefere'")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL block-confirmation-questions.sh  →  NAO alertou 'voce prefere'")
+fi
+
+CONF_OUT_2=$(printf '{"tool_input":{"prompt":""},"tool_response":{"content":"fiz X e Y. estou seguindo pro proximo passo."}}' | bash "$HOOKS_DIR/block-confirmation-questions.sh" 2>&1)
+if [ -z "$CONF_OUT_2" ] || ! echo "$CONF_OUT_2" | grep -qi "INV-AGENT-006"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   block-confirmation-questions.sh  →  silencioso em reporte de acao")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL block-confirmation-questions.sh  →  falso positivo em reporte")
+fi
+
+# ------- commit-message-validator (cobertura ampliada round 6) --------
+run_case "bloqueia tipo inventado (improvement:)" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"improvement: melhora X\""}}' 2
+
+run_case "permite refactor:" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"refactor: extrai funcao\""}}' 0
+
+# ------- _lib.sh — sanitize_projdir / sanitize_session_hash --------
+# Cria stub que testa as funcoes isoladamente
+LIB_T="$BASE/lib-test-projdir"
+mkdir -p "$LIB_T"
+
+# Teste 1: sanitize_projdir aceita path absoluto valido
+SP_OUT=$(
+  cd "$LIB_T" && \
+  CLAUDE_PROJECT_DIR="$LIB_T" bash -c '. "$1/_lib.sh"; sanitize_projdir' _ "$HOOKS_DIR"
+)
+if [ "$SP_OUT" = "$LIB_T" ]; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   _lib.sh  →  sanitize_projdir aceita path valido")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL _lib.sh  →  sanitize_projdir aceita path valido (out='$SP_OUT' esperado='$LIB_T')")
+fi
+
+# Teste 2: sanitize_projdir bloqueia path com '..' (traversal)
+SP_BAD=$(
+  CLAUDE_PROJECT_DIR="$LIB_T/../../../etc" bash -c '. "$1/_lib.sh"; sanitize_projdir' _ "$HOOKS_DIR" 2>/dev/null
+  echo "exit=$?"
+)
+if echo "$SP_BAD" | grep -q "exit=2\|exit=1"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   _lib.sh  →  sanitize_projdir bloqueia ..")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL _lib.sh  →  sanitize_projdir bloqueia ..  (saida=$SP_BAD)")
+fi
+
+# Teste 3: sanitize_session_hash retorna alfanumerico ou hash fixo
+SS_OUT=$(
+  CLAUDE_SESSION_ID="abc/../def" bash -c '. "$1/_lib.sh"; sanitize_session_hash' _ "$HOOKS_DIR"
+)
+case "$SS_OUT" in
+  *..*|*/*) FAIL=$((FAIL + 1)); RESULTS+=("FAIL _lib.sh  →  sanitize_session_hash vazou caractere especial (out='$SS_OUT')") ;;
+  *) PASS=$((PASS + 1)); RESULTS+=("OK   _lib.sh  →  sanitize_session_hash sanitiza caracteres") ;;
+esac
+
 # ------- relatório --------
 echo ""
 for r in "${RESULTS[@]}"; do

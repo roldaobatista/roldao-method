@@ -1,6 +1,8 @@
 name: esocial-completo
 version: 1.0.0
-description: Addon ROLDAO-METHOD para eSocial — eventos S-1000 a S-3000, CIPA, NRs, prazos legais, retificação.
+description: Addon ROLDAO-METHOD para eSocial — eventos S-1000 a S-3000, CIPA, NRs, prazos legais, retificação. Layout S-1.3 (Portaria Conjunta RFB/MTE 71/2024).
+layout-esocial: "S-1.3"
+layout-esocial-fonte: "Portaria Conjunta RFB/MTE 71/2024"
 authors:
   - Roldão Batista
 license: MIT

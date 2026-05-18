@@ -1,6 +1,9 @@
 ---
 name: emitir-nfe-55
 description: Guia de implementacao para emissao de NF-e modelo 55 (B2B) com checklist FISCAL-001 a FISCAL-007. Use quando o projeto for emitir NF-e pela primeira vez ou ao auditar emissao existente.
+owner: fiscal-br-completo
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # emitir-nfe-55

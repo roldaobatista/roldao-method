@@ -4,6 +4,9 @@ description: Especialista em arquitetura fiscal BR — NF-e, NFC-e, NFS-e, CT-e,
 tools: Read, Glob, Grep, Write
 model: sonnet
 color: yellow
+owner: fiscal-br-completo
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # nfe-arch

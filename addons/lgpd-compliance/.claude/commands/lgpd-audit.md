@@ -2,6 +2,9 @@
 description: Roda auditoria LGPD ampla na codebase — mapeia dado pessoal, base legal, trilha, exclusão, terceiros. Gera relatório com gaps priorizados.
 argument-hint: "[escopo-opcional]"
 disable-model-invocation: true
+owner: lgpd-compliance
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # /lgpd-audit — auditoria LGPD da codebase

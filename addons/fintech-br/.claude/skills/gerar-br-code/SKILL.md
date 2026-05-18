@@ -1,6 +1,9 @@
 ---
 name: gerar-br-code
 description: Gera BR Code (QR Code Pix) padrao EMV conforme manual Bacen — estatico ou dinamico. Use ao implementar geracao de QR Code Pix no checkout, cobranca ou impressao.
+owner: fintech-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # gerar-br-code

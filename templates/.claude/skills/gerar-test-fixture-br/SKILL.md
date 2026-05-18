@@ -1,6 +1,9 @@
 ---
 name: gerar-test-fixture-br
 description: Gera CPFs, CNPJs (numéricos e alfanuméricos pós-jul/2026), CEPs e telefones E.164 brasileiros VÁLIDOS por algoritmo para usar em fixtures, seeds e testes. Use quando precisar de dado sintético realista pra mock — evita o erro comum de colar "111.111.111-11" que falha em qualquer validador.
+owner: framework
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # gerar-test-fixture-br

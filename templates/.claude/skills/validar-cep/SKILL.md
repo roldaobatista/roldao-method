@@ -1,6 +1,9 @@
 ---
 name: validar-cep
 description: Valida CEP brasileiro (formato + consulta opcional ao ViaCEP) e normaliza para 8 digitos. Use ao receber CEP de formulario, importacao ou integracao.
+owner: framework
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # validar-cep

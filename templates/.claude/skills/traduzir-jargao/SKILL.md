@@ -1,6 +1,9 @@
 ---
 name: traduzir-jargao
 description: Revisa um texto (markdown, comentário, mensagem de commit, doc) e traduz jargão técnico para linguagem acessível ao usuário não-programador. Use antes de mostrar qualquer texto técnico ao cliente/dono de produto que não programa.
+owner: framework
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # traduzir-jargao

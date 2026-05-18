@@ -1,6 +1,9 @@
 ---
 name: brainstormar-ideia
 description: Oferece menu de 15 técnicas de brainstorming adaptadas ao contexto brasileiro (Seis Chapéus, SCAMPER, 5 Porquês, Pre-mortem, Crazy 8s, Inversão, First Principles, Yes-And, Worst Possible Idea, Reverse Brainstorming, Brainwriting, Mind Map, Six Universal Questions, Random Stimulation, Round Robin). Use sempre que o usuário precisar expandir/refinar ideia e não souber qual técnica aplicar. Skill orquestra escolha + execução guiada.
+owner: framework
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # brainstormar-ideia

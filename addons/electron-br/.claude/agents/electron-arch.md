@@ -4,6 +4,9 @@ description: Especialista em arquitetura Electron. Use ao decidir contextIsolati
 tools: Read, Glob, Grep, Write
 model: sonnet
 color: blue
+owner: electron-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # electron-arch

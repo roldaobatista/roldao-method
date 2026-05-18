@@ -1,6 +1,9 @@
 ---
 name: integrar-balanca-impressora
 description: Guia de integração com balança eletrônica (Toledo, Filizola, Urano) e impressora não-fiscal ESC/POS (Bematech, Daruma, Epson, Elgin). Cobre RS-232, USB, Ethernet, protocolos legados.
+owner: varejo-pdv-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # integrar-balanca-impressora

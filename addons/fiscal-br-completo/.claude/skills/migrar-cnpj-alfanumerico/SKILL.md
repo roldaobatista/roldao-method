@@ -1,6 +1,9 @@
 ---
 name: migrar-cnpj-alfanumerico
 description: GUIA de migração para CNPJ alfanumérico (vigor jul/2026) — checklist de banco, regex, máscaras, exemplos em TS e Python. Para VALIDAR de fato, use a skill core `validar-cpf-cnpj` (que já cobre alfanumérico).
+owner: fiscal-br-completo
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # migrar-cnpj-alfanumerico

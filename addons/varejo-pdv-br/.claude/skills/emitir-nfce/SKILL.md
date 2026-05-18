@@ -1,6 +1,9 @@
 ---
 name: emitir-nfce
 description: Guia de implementação para emissão de NFC-e modelo 65 (Nota Fiscal de Consumidor Eletrônica) — varejo em todas as UF EXCETO SP (que usa SAT) e CE (que usa MFE). Inclui integração com BR Code Pix.
+owner: varejo-pdv-br
+revisado-em: 2026-05-18
+status: stable
 ---
 
 # emitir-nfce
