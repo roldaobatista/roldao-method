@@ -104,4 +104,4 @@ Em código (comentário, só quando justificável): `// TST-001 — não usar sk
 
 ---
 
-_Framework: [ROLDAO-METHOD](https://github.com/roldao/roldao-method)._
+_Framework: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

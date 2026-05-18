@@ -41,24 +41,62 @@ function detectTool() {
 }
 
 function copyRecursive(src, dest) {
-  const stat = fs.statSync(src);
+  const resolvedCwd = path.resolve(CWD);
+  const resolvedDest = path.resolve(dest);
+  if (!resolvedDest.startsWith(resolvedCwd + path.sep) && resolvedDest !== resolvedCwd) {
+    err(`destino fora do diretório alvo, abortando: ${dest}`);
+    process.exit(2);
+  }
+
+  const stat = fs.lstatSync(src);
+
+  if (stat.isSymbolicLink()) {
+    warn(`pulando symlink (segurança): ${path.relative(FRAMEWORK_ROOT, src)}`);
+    return;
+  }
+
   if (stat.isDirectory()) {
     if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
     for (const entry of fs.readdirSync(src)) {
       copyRecursive(path.join(src, entry), path.join(dest, entry));
     }
-  } else {
+  } else if (stat.isFile()) {
     if (fs.existsSync(dest)) {
       warn(`pulando (já existe): ${path.relative(CWD, dest)}`);
       return;
     }
-    fs.copyFileSync(src, dest);
+    fs.copyFileSync(src, dest, fs.constants.COPYFILE_EXCL);
     log(`criado: ${path.relative(CWD, dest)}`);
+  } else {
+    warn(`pulando tipo não suportado: ${path.relative(FRAMEWORK_ROOT, src)}`);
   }
+}
+
+function isDangerousCwd() {
+  const resolved = path.resolve(CWD);
+  const home = require('os').homedir();
+  const blocked = [
+    home,
+    path.parse(resolved).root,
+    'C:\\Windows',
+    'C:\\Program Files',
+    'C:\\Program Files (x86)',
+    '/etc',
+    '/usr',
+    '/bin',
+    '/var',
+  ].map((p) => path.resolve(p));
+  return blocked.includes(resolved);
 }
 
 async function install() {
   log(`instalando ROLDAO-METHOD em: ${CWD}`);
+
+  if (isDangerousCwd()) {
+    err(`recusa: diretório atual (${CWD}) parece sensível (raiz, home, system).`);
+    err('rode dentro de uma pasta de projeto.');
+    process.exit(2);
+  }
 
   const detected = detectTool();
   if (detected === 'claude-code') {
@@ -90,9 +128,10 @@ async function install() {
   log('próximos passos:');
   log('  1. ler AGENTS.md — esse é seu documento-contrato');
   log('  2. ajustar REGRAS-INEGOCIAVEIS.md ao seu projeto');
-  log('  3. usar /inicio, /feature, /bug, /refactor ou /auditoria no Claude Code');
+  log('  3. ativar o estilo PT-BR conciso: rode /output-style no Claude Code e escolha pt-br-conciso');
+  log('  4. usar /inicio, /feature, /bug, /refactor ou /auditoria no Claude Code');
   log('');
-  log('docs: https://github.com/roldao/roldao-method');
+  log('docs: https://github.com/roldaobatista/roldao-method');
 }
 
 function help() {
@@ -104,7 +143,7 @@ Uso:
   npx roldao-method help         Mostra esta ajuda
   npx roldao-method version      Mostra versão
 
-Docs: https://github.com/roldao/roldao-method
+Docs: https://github.com/roldaobatista/roldao-method
 `);
 }
 

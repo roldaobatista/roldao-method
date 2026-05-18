@@ -17,7 +17,7 @@ run_case() {
   local expected_exit="$4"
 
   local actual_exit
-  echo "$input" | bash "$HOOKS_DIR/$hook" >/dev/null 2>&1
+  printf '%s' "$input" | bash "$HOOKS_DIR/$hook" >/dev/null 2>&1
   actual_exit=$?
 
   if [ "$actual_exit" -eq "$expected_exit" ]; then
@@ -76,6 +76,28 @@ run_case "bloqueia .skip(" "anti-mascaramento.sh" \
 
 run_case "permite código normal" "anti-mascaramento.sh" \
   '{"tool_input":{"file_path":"./x.js","content":"const x = 1;"}}' 0
+
+# ------- robustez: input vazio / malformado --------
+run_case "input vazio não trava" "anti-mascaramento.sh" \
+  '' 0
+
+run_case "input vazio não trava" "secrets-scanner.sh" \
+  '' 0
+
+run_case "input vazio não trava" "block-destructive.sh" \
+  '' 0
+
+run_case "JSON sem tool_input" "anti-mascaramento.sh" \
+  '{}' 0
+
+run_case "anti-mascaramento permite TST-001-exception" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./x.ts","content":"// @ts-ignore TST-001-exception: libpdf API legacy"}}' 0
+
+run_case "block-destructive bloqueia sudo rm -rf" "block-destructive.sh" \
+  '{"tool_input":{"command":"sudo rm -rf /"}}' 2
+
+run_case "secrets bloqueia sk-ant-api03 atual" "secrets-scanner.sh" \
+  '{"tool_input":{"file_path":"./x.js","content":"const k = \"sk-ant-api03-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\";"}}' 2
 
 # ------- relatório --------
 echo ""

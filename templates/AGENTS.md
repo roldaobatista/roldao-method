@@ -130,4 +130,4 @@ _(manter atualizado — lista enxuta do que falta pra próximo marco)_
 
 ---
 
-_Este arquivo segue o framework [ROLDAO-METHOD](https://github.com/roldao/roldao-method)._
+_Este arquivo segue o framework [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

@@ -74,4 +74,4 @@ Ver `.claude/hooks/` pra hooks ativos neste projeto.
 
 ---
 
-_Framework: [ROLDAO-METHOD](https://github.com/roldao/roldao-method). Inspirado em Spec Kit._
+_Framework: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method). Inspirado em Spec Kit._

@@ -47,7 +47,7 @@
       "Write(./secrets/**)"
     ]
   },
-  "enableAllProjectMcpServers": true,
+  "enableAllProjectMcpServers": false,
   "hooks": {
     "SessionStart": [
       {

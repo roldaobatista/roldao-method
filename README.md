@@ -20,7 +20,7 @@ E pior: a maioria dessas ferramentas pula direto pra escrever código. **Sem inv
 - 🇧🇷 **Fala português nativo** — não é tradução
 - 🔍 **Investiga antes de mexer** — REGRA #0 codificada nos workflows
 - 👥 **8 especialistas virtuais** com papéis claros (PM, Tech Lead, Dev, Revisor, 3 Auditores)
-- 🛡️ **6 regras automáticas** que bloqueiam erros antes de acontecer (secrets, comandos destrutivos, mascaramento)
+- 🛡️ **5 regras automáticas** que bloqueiam erros antes de acontecer (secrets, comandos destrutivos, mascaramento) + 1 runner de testes pros próprios hooks
 - 📜 **Spec-driven** — primeiro a especificação, depois o código
 - 🎯 **Foco no mercado BR** — LGPD, NF-e, Pix, fiscal, padrões brasileiros
 
@@ -57,14 +57,14 @@ Detecta automaticamente sua ferramenta (Claude Code, Cursor) e instala os arquiv
 
 ## Regras automáticas (hooks)
 
-Bloqueiam erro antes de acontecer:
+5 hooks bloqueadores + 1 runner de testes:
 
 - `block-destructive` — barra `rm -rf`, `git push --force`, `drop table`
 - `secrets-scanner` — bloqueia escrita de `.env`, chaves, credenciais
 - `anti-mascaramento` — barra `--no-verify`, `@ts-ignore`, `assertTrue(true)` (mascarar bug)
 - `context-budget` — avisa quando contexto está ficando longo
 - `paths-frontmatter-validator` — garante metadado em docs
-- `_test-runner` — roda testes dos próprios hooks
+- `_test-runner` — runner de testes pros próprios hooks (não bloqueia nada)
 
 ## Diferencial vs BMAD-METHOD
 

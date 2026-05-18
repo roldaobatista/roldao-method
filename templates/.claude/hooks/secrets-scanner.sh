@@ -7,29 +7,21 @@ set -u
 
 INPUT=$(cat)
 
-read -r FILE_PATH CONTENT << 'EOF_PARSE'
-$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
+TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/secrets-scan.$$"
+trap 'rm -f "$TMPF"' EXIT
+
+FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   local $/;
   my $json = decode_json(<STDIN>);
-  my $path = $json->{tool_input}->{file_path} // "";
-  my $content = $json->{tool_input}->{content} // $json->{tool_input}->{new_string} // "";
-  $content =~ s/\n/\\n/g;
-  print "$path\t$content";
+  print $json->{tool_input}->{file_path} // "";
 ' 2>/dev/null)
-EOF_PARSE
 
-PARSED=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
+printf '%s' "$INPUT" | perl -MJSON::PP -e '
   local $/;
   my $json = decode_json(<STDIN>);
-  my $path = $json->{tool_input}->{file_path} // "";
   my $content = $json->{tool_input}->{content} // $json->{tool_input}->{new_string} // "";
-  $content =~ s/\r//g;
-  $content =~ s/\n/\\n/g;
-  print "$path\n$content";
-' 2>/dev/null)
-
-FILE_PATH=$(echo "$PARSED" | head -n1)
-CONTENT=$(echo "$PARSED" | tail -n+2)
+  print $content;
+' > "$TMPF" 2>/dev/null
 
 if [ -z "$FILE_PATH" ]; then
   exit 0
@@ -37,9 +29,9 @@ fi
 
 # Permitir arquivos de exemplo/template explícitos
 ALLOWED_SUFFIXES='\.(example|sample|template|tpl|dist)$'
+SKIP_PATH_CHECK=""
 
-if echo "$FILE_PATH" | grep -qE "$ALLOWED_SUFFIXES"; then
-  # Pula validação de caminho sensível (mas mantém scan de conteúdo abaixo)
+if printf '%s\n' "$FILE_PATH" | grep -qE -- "$ALLOWED_SUFFIXES"; then
   SKIP_PATH_CHECK=1
 fi
 
@@ -57,9 +49,9 @@ BLOCKED_PATHS=(
   '\.pfx$'
 )
 
-if [ -z "${SKIP_PATH_CHECK:-}" ]; then
+if [ -z "$SKIP_PATH_CHECK" ]; then
   for pat in "${BLOCKED_PATHS[@]}"; do
-    if echo "$FILE_PATH" | grep -qE -- "$pat"; then
+    if printf '%s\n' "$FILE_PATH" | grep -qE -- "$pat"; then
       cat >&2 <<EOF
 [secrets-scanner] BLOQUEADO: tentativa de escrever arquivo sensível.
 
@@ -81,7 +73,7 @@ CONTENT_PATTERNS=(
   '-----BEGIN[[:space:]]+[A-Z]+[[:space:]]+(PRIVATE[[:space:]]+)?KEY-----'
   '-----BEGIN[[:space:]]+PRIVATE[[:space:]]+KEY-----'
   'sk-[A-Za-z0-9]{32,}'                           # OpenAI-style
-  'sk-ant-[A-Za-z0-9-]{32,}'                      # Anthropic
+  'sk-ant-(api[0-9]{2}-)?[A-Za-z0-9_-]{32,}'      # Anthropic (cobre sk-ant-api03-...)
   'ghp_[A-Za-z0-9]{36}'                           # GitHub PAT
   'github_pat_[A-Za-z0-9_]{82}'                   # GitHub PAT fine-grained
   'xox[baprs]-[A-Za-z0-9-]{10,}'                  # Slack
@@ -89,7 +81,7 @@ CONTENT_PATTERNS=(
 )
 
 for pat in "${CONTENT_PATTERNS[@]}"; do
-  if echo "$CONTENT" | grep -qE -- "$pat"; then
+  if grep -qE -- "$pat" "$TMPF"; then
     cat >&2 <<EOF
 [secrets-scanner] BLOQUEADO: conteúdo contém possível segredo.
 

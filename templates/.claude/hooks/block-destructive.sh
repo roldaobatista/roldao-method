@@ -44,7 +44,7 @@ PATTERNS=(
 )
 
 for pat in "${PATTERNS[@]}"; do
-  if echo "$CMD" | grep -qiE -- "$pat"; then
+  if printf '%s\n' "$CMD" | grep -qiE -- "$pat"; then
     cat >&2 <<EOF
 [block-destructive] BLOQUEADO: comando contém padrão destrutivo.
 

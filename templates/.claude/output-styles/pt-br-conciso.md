@@ -1,6 +1,7 @@
 ---
 name: pt-br-conciso
 description: Respostas em português brasileiro, concisas, sem jargão técnico desnecessário, com foco em verificação antes de afirmação.
+keep-coding-instructions: true
 ---
 
 # Estilo de saída — PT-BR conciso

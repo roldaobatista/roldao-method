@@ -7,18 +7,21 @@ set -u
 
 INPUT=$(cat)
 
-PARSED=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
+TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/frontmatter.$$"
+trap 'rm -f "$TMPF"' EXIT
+
+FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   local $/;
   my $json = decode_json(<STDIN>);
-  my $path = $json->{tool_input}->{file_path} // "";
-  my $content = $json->{tool_input}->{content} // $json->{tool_input}->{new_string} // "";
-  $content =~ s/\r//g;
-  $content =~ s/\n/\\n/g;
-  print "$path\n$content";
+  print $json->{tool_input}->{file_path} // "";
 ' 2>/dev/null)
 
-FILE_PATH=$(echo "$PARSED" | head -n1)
-CONTENT=$(echo "$PARSED" | tail -n+2)
+printf '%s' "$INPUT" | perl -MJSON::PP -e '
+  local $/;
+  my $json = decode_json(<STDIN>);
+  my $content = $json->{tool_input}->{content} // $json->{tool_input}->{new_string} // "";
+  print $content;
+' > "$TMPF" 2>/dev/null
 
 if [ -z "$FILE_PATH" ]; then
   exit 0
@@ -35,20 +38,13 @@ esac
 
 # Pular arquivos canônicos
 case "$(basename "$FILE_PATH")" in
-  README.md|INDICE.md|CONVENCOES-DOC.md)
+  README.md|INDICE.md|CONVENCOES-DOC.md|QUICKSTART.md|PUBLICAR.md)
     exit 0
     ;;
 esac
 
-# Se já existe (Edit), checar se já tem frontmatter no arquivo atual.
-if [ -f "$FILE_PATH" ]; then
-  if head -n 1 "$FILE_PATH" | grep -qE '^---'; then
-    exit 0
-  fi
-fi
-
-# Para Write/Edit, validar que o novo conteúdo começa com frontmatter.
-FIRST_LINE=$(echo -e "$CONTENT" | head -n1)
+# Validar SEMPRE o conteúdo novo (não confiar no arquivo no disco)
+FIRST_LINE=$(head -n1 "$TMPF")
 
 if [ "$FIRST_LINE" != "---" ]; then
   cat >&2 <<EOF
@@ -70,7 +66,7 @@ fi
 
 # Validar campos mínimos
 for field in owner revisado-em status; do
-  if ! echo -e "$CONTENT" | head -n 15 | grep -qE "^${field}:"; then
+  if ! head -n 15 "$TMPF" | grep -qE "^${field}:"; then
     echo "[paths-frontmatter-validator] AVISO: frontmatter sem campo obrigatório '$field' em $FILE_PATH" >&2
     exit 2
   fi

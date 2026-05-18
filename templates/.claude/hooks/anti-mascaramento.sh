@@ -7,25 +7,28 @@ set -u
 
 INPUT=$(cat)
 
-PARSED=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
+TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/anti-mask.$$"
+trap 'rm -f "$TMPF"' EXIT
+
+FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   local $/;
   my $json = decode_json(<STDIN>);
-  my $path = $json->{tool_input}->{file_path} // "";
-  my $content = $json->{tool_input}->{content} // $json->{tool_input}->{new_string} // "";
-  $content =~ s/\r//g;
-  $content =~ s/\n/\\n/g;
-  print "$path\n$content";
+  print $json->{tool_input}->{file_path} // "";
 ' 2>/dev/null)
 
-FILE_PATH=$(echo "$PARSED" | head -n1)
-CONTENT=$(echo "$PARSED" | tail -n+2)
+printf '%s' "$INPUT" | perl -MJSON::PP -e '
+  local $/;
+  my $json = decode_json(<STDIN>);
+  my $content = $json->{tool_input}->{content} // $json->{tool_input}->{new_string} // "";
+  print $content;
+' > "$TMPF" 2>/dev/null
 
-if [ -z "$CONTENT" ]; then
+if [ ! -s "$TMPF" ]; then
   exit 0
 fi
 
 # Padrões de mascaramento que requerem justificativa visível na MESMA linha
-# (comentário "// TST-001-exception: <razão>" libera).
+# (comentário "TST-001-exception: <razão>" libera).
 PATTERNS=(
   '@ts-ignore'
   '@ts-nocheck'
@@ -48,17 +51,17 @@ PATTERNS=(
 )
 
 VIOLATIONS=()
-while IFS= read -r line; do
+while IFS= read -r line || [ -n "$line" ]; do
   for pat in "${PATTERNS[@]}"; do
-    if echo "$line" | grep -qE -- "$pat"; then
+    if printf '%s\n' "$line" | grep -qE -- "$pat"; then
       # Permitir se mesma linha tem justificativa explícita
-      if echo "$line" | grep -qE 'TST-001-exception|justificativa-mascaramento'; then
+      if printf '%s\n' "$line" | grep -qE 'TST-001-exception|justificativa-mascaramento'; then
         continue
       fi
       VIOLATIONS+=("$pat  →  $line")
     fi
   done
-done < <(echo -e "$CONTENT")
+done < "$TMPF"
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
   cat >&2 <<EOF

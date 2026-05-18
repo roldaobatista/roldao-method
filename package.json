@@ -13,7 +13,7 @@
     "lgpd",
     "agents"
   ],
-  "homepage": "https://github.com/roldao/roldao-method",
+  "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",
   "author": "Roldão",
   "bin": {
@@ -32,6 +32,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/roldao/roldao-method.git"
+    "url": "https://github.com/roldaobatista/roldao-method.git"
   }
 }

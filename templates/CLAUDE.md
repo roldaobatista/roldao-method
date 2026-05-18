@@ -73,7 +73,7 @@ Operações irreversíveis exigem confirmação. Hook `block-destructive.sh` blo
 ├── settings.json          ← permissões + hooks (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
 ├── agents/                ← 8 especialistas
-├── hooks/                 ← 6 regras automáticas
+├── hooks/                 ← 5 regras automáticas + 1 runner de testes
 ├── output-styles/         ← pt-br-conciso.md
 ├── commands/              ← slash commands (workflows)
 ├── skills/                ← criar quando padrão repetir 3x
@@ -82,4 +82,4 @@ Operações irreversíveis exigem confirmação. Hook `block-destructive.sh` blo
 
 ---
 
-_Framework: [ROLDAO-METHOD](https://github.com/roldao/roldao-method)._
+_Framework: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

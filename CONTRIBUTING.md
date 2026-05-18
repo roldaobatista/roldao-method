@@ -13,7 +13,7 @@ Obrigado por considerar contribuir!
 
 ### Bug ou ideia
 
-Abra issue em https://github.com/roldao/roldao-method/issues descrevendo:
+Abra issue em https://github.com/roldaobatista/roldao-method/issues descrevendo:
 - O que você esperava.
 - O que aconteceu.
 - Como reproduzir.
