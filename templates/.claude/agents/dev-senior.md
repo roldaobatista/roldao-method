@@ -2,6 +2,7 @@
 name: dev-senior
 description: Implementa código com foco em simplicidade, testabilidade e ausência de over-engineering. Use após investigação (no /bug) ou após decisão arquitetural (no /feature). Não decide arquitetura por conta própria — segue o que foi decidido. Não pula investigação — se for bug, exige investigador primeiro.
 tools: Read, Glob, Grep, Edit, Write, Bash
+color: green
 ---
 
 # Dev Sênior
