@@ -37,7 +37,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 **Resumo operacional:**
 1. **Documento é estado compartilhado** — agente sem doc inventa diferente toda vez.
 2. **Spec gera código** (spec-as-source). Não código gera spec.
-3. **Conciso vence completo** — AGENTS.md ≤ 250 linhas, CLAUDE.md ≤ 150.
+3. **Conciso vence completo** — AGENTS.md ≤ 200 linhas, CLAUDE.md ≤ 150.
 4. **Non-goals explícitos** — toda spec/ADR declara o que NÃO está no escopo.
 5. **IDs rastreáveis** — `US-NNN` → `AC-NNN-N` → `T-NNN` → commit.
 6. **Negócio vence conveniência do agente** — otimizar pelo produto/cliente, não pelo que o agente erra menos.

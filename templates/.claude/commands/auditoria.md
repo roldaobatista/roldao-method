@@ -1,5 +1,6 @@
 ---
 description: Roda os 3 auditores especializados (segurança, qualidade, produto) no código atual. Use antes de release/marco ou periodicamente.
+argument-hint: "[escopo: \"modulo X\" | \"tudo desde release Y\" | vazio = tudo]"
 ---
 
 # /auditoria — 3 auditores em paralelo

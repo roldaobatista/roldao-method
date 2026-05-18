@@ -1,6 +1,8 @@
 # Constituição — princípios não-negociáveis
 
 > 6 princípios universais que todo agente (humano ou IA) deve respeitar neste projeto.
+>
+> **Relação com `REGRAS-INEGOCIAVEIS.md`:** este arquivo é o **manifesto** (didático, explica o "por quê"). O `REGRAS-INEGOCIAVEIS.md` é a versão **operacional** com IDs citáveis (`INV-001`, `SEC-001`, etc.) pra usar em código, ADR, commit. Os dois são complementares, não redundantes.
 
 ---
 
@@ -26,8 +28,8 @@ A especificação é a verdade. Código é derivado. Quando código e spec disco
 
 Doc longo ninguém lê. Doc curto e citável funciona.
 
-**Limites:**
-- AGENTS.md ≤ 250 linhas
+**Limites (alinhados com recomendação oficial Anthropic):**
+- AGENTS.md ≤ 200 linhas
 - CLAUDE.md ≤ 150 linhas
 - ADR ≤ 1 página por seção
 - REGRA: 1 ID = 1-3 frases

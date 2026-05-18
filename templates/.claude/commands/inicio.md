@@ -1,5 +1,7 @@
 ---
 description: Inicia um projeto novo do zero — gerente-produto define escopo, tech-lead decide stack, dev-senior monta esqueleto.
+argument-hint: "[nome-projeto opcional]"
+disable-model-invocation: true
 ---
 
 # /inicio — projeto novo

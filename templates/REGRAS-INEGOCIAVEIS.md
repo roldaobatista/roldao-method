@@ -3,6 +3,8 @@
 > Regras com IDs rastreáveis. Cada ID é citável em código, ADR, commit e PR.
 >
 > **Convenção:** `INV-NNN` (invariantes gerais), `SEC-NNN` (segurança), `TST-NNN` (testes), `LGPD-NNN` (proteção de dados BR), `INV-AGENT-NNN` (regras pra agentes IA).
+>
+> **Relação com `.specify/memory/constitution.md`:** a constituição é o **manifesto** que explica o "por quê" de cada princípio (em prosa, didático). Este arquivo é a **operacional** com IDs pra usar em commits/PRs/comentários. Citar `INV-001` é melhor do que escrever "respeitar o princípio de que doc é estado compartilhado".
 
 ---
 
@@ -21,7 +23,7 @@ Toda spec/ADR declara o que NÃO está no escopo. Sem isso, o agente expande ind
 `US-NNN` (user story) → `AC-NNN-N` (acceptance criteria) → `T-NNN` (task) → commit. Hook `paths-frontmatter-validator` verifica.
 
 ### INV-005 — Conciso vence completo
-AGENTS.md ≤ 250 linhas. CLAUDE.md ≤ 150 linhas. Hook `context-budget` avisa.
+AGENTS.md ≤ 200 linhas. CLAUDE.md ≤ 150 linhas. Hook `context-budget` avisa.
 
 ### INV-006 — Causa raiz, nunca sintoma
 Bug em comportamento de produto = primeiro investigar dados reais (banco, log, payload). Mudar template/UI sem investigar é proibido. Workflow `/bug` codifica isso.

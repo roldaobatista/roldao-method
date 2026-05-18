@@ -1,5 +1,7 @@
 ---
 description: Implementa uma funcionalidade nova — passa por gerente-produto, investigador, tech-lead, dev-senior, revisor e auditores.
+argument-hint: "[descricao-da-feature]"
+disable-model-invocation: true
 ---
 
 # /feature — funcionalidade nova

@@ -66,6 +66,18 @@ Detecta automaticamente sua ferramenta (Claude Code, Cursor) e instala os arquiv
 - `paths-frontmatter-validator` — garante metadado em docs
 - `_test-runner` — runner de testes pros próprios hooks (não bloqueia nada)
 
+## O que o ROLDAO-METHOD NÃO faz (non-goals)
+
+Pra evitar expectativas erradas:
+
+- ❌ **Não é runtime de IA.** Depende de Claude Code, Cursor ou ChatGPT — não substitui essas ferramentas.
+- ❌ **Não gera código sozinho.** Estrutura o trabalho do agente; quem escreve é o Claude/Cursor.
+- ❌ **Não é IDE / editor.** Funciona dentro das IDEs/CLIs existentes.
+- ❌ **Não substitui CI/CD.** Hooks rodam localmente no agente, não no servidor de build.
+- ❌ **Não é certificação legal/fiscal.** Sugere boas práticas BR, mas conformidade real exige consultoria humana.
+- ❌ **Não trava idiomas além de PT-BR.** Foco é mercado BR; outros idiomas estão fora do escopo desta v1.
+- ❌ **Não é template de projeto.** Não cria estrutura de código Django/React/etc. — só camada de processo com IA.
+
 ## Diferencial vs BMAD-METHOD
 
 | | BMAD-METHOD | ROLDAO-METHOD |

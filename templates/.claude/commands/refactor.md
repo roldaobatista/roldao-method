@@ -1,5 +1,7 @@
 ---
 description: Reorganiza código sem mudar comportamento. Tech-lead avalia, dev-senior executa, revisor verifica.
+argument-hint: "[area-ou-arquivo-a-refatorar]"
+disable-model-invocation: true
 ---
 
 # /refactor — reorganizar sem mudar comportamento

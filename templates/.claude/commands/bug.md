@@ -1,5 +1,7 @@
 ---
 description: Corrige bug em comportamento existente. Investigador OBRIGATÓRIO antes de qualquer mudança de código. Codifica a REGRA #0 do ROLDAO-METHOD.
+argument-hint: "[descricao-do-bug]"
+disable-model-invocation: true
 ---
 
 # /bug — corrigir bug
