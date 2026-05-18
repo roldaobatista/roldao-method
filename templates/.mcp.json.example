@@ -1,0 +1,20 @@
+{
+  "_comentario": "Renomeie para .mcp.json para ativar. Use variaveis de ambiente para tokens. Veja docs/MCP-GUIA-BR.md.",
+  "mcpServers": {
+    "_github_descomente_para_usar": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "_playwright_descomente_para_usar": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"]
+    },
+    "_context7_descomente_para_usar": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
