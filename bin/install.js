@@ -30,6 +30,21 @@ const flags = new Set(rawArgs.filter((a) => a.startsWith('-')));
 const YES = flags.has('--yes') || flags.has('-y');
 const FORCE = flags.has('--force');
 const DRY_RUN = flags.has('--dry-run');
+const NO_COLOR = flags.has('--no-color') || process.env.NO_COLOR === '1';
+
+// Cores ANSI puras (sem dependencia). Suporta NO_COLOR e terminal sem TTY.
+const supportsColor = !NO_COLOR && process.stdout.isTTY && process.platform !== undefined;
+const c = {
+  reset: supportsColor ? '\x1b[0m' : '',
+  bold: supportsColor ? '\x1b[1m' : '',
+  dim: supportsColor ? '\x1b[2m' : '',
+  green: supportsColor ? '\x1b[32m' : '',
+  yellow: supportsColor ? '\x1b[33m' : '',
+  red: supportsColor ? '\x1b[31m' : '',
+  blue: supportsColor ? '\x1b[34m' : '',
+  cyan: supportsColor ? '\x1b[36m' : '',
+  magenta: supportsColor ? '\x1b[35m' : '',
+};
 
 // Arquivos que NUNCA devem ser sobrescritos no update (sao customizacao do usuario)
 const USER_OWNED = new Set([
@@ -44,9 +59,17 @@ const USER_OWNED = new Set([
 const counters = { criados: 0, pulados: 0, atualizados: 0, preservados: 0, erros: 0 };
 const detalhes = { criados: [], pulados: [], atualizados: [], preservados: [], erros: [] };
 
-function log(msg) { console.log(`[roldao-method] ${msg}`); }
-function warn(msg) { console.warn(`[roldao-method] AVISO: ${msg}`); }
-function err(msg) { console.error(`[roldao-method] ERRO: ${msg}`); }
+function log(msg) { console.log(`${c.cyan}[roldao-method]${c.reset} ${msg}`); }
+function ok(msg) { console.log(`${c.green}✓${c.reset} ${msg}`); }
+function warn(msg) { console.warn(`${c.yellow}[roldao-method]${c.reset} ${c.yellow}AVISO:${c.reset} ${msg}`); }
+function err(msg) { console.error(`${c.red}[roldao-method]${c.reset} ${c.red}ERRO:${c.reset} ${msg}`); }
+function banner() {
+  if (YES) return;
+  console.log('');
+  console.log(`${c.cyan}${c.bold}  ROLDAO-METHOD${c.reset} ${c.dim}— framework de desenvolvimento agil com IA em PT-BR${c.reset}`);
+  console.log(`${c.dim}  https://github.com/roldaobatista/roldao-method${c.reset}`);
+  console.log('');
+}
 
 function ask(question) {
   if (YES) return Promise.resolve('s');
@@ -66,6 +89,8 @@ function detectTools() {
   if (fs.existsSync(path.join(CWD, '.windsurf'))) tools.push('windsurf');
   if (fs.existsSync(path.join(CWD, '.continue'))) tools.push('continue');
   if (fs.existsSync(path.join(CWD, '.aider.conf.yml'))) tools.push('aider');
+  if (fs.existsSync(path.join(CWD, '.cline'))) tools.push('cline');
+  if (fs.existsSync(path.join(CWD, '.roo'))) tools.push('roo');
   return tools;
 }
 
@@ -188,25 +213,30 @@ function walkAndCopy(src, dest, mode) {
 
 function resumo() {
   console.log('');
-  console.log('--- resumo ---');
-  console.log(`  criados:      ${counters.criados}`);
-  console.log(`  atualizados:  ${counters.atualizados}`);
-  console.log(`  preservados:  ${counters.preservados} (customizacao do usuario)`);
-  console.log(`  pulados:      ${counters.pulados}`);
-  if (counters.erros > 0) console.log(`  erros:        ${counters.erros}`);
+  console.log(`${c.bold}--- resumo ---${c.reset}`);
+  console.log(`  ${c.green}criados:${c.reset}      ${counters.criados}`);
+  console.log(`  ${c.cyan}atualizados:${c.reset}  ${counters.atualizados}`);
+  console.log(`  ${c.magenta}preservados:${c.reset}  ${counters.preservados} ${c.dim}(customizacao do usuario)${c.reset}`);
+  console.log(`  ${c.dim}pulados:${c.reset}      ${counters.pulados}`);
+  if (counters.erros > 0) console.log(`  ${c.red}erros:${c.reset}        ${counters.erros}`);
   console.log('');
 }
 
 async function install() {
-  log(`instalando ROLDAO-METHOD em: ${CWD}`);
+  banner();
+  log(`instalando ROLDAO-METHOD em: ${c.bold}${CWD}${c.reset}`);
   if (isDangerousCwd()) {
     err(`recusa: diretorio atual (${CWD}) parece sensivel (raiz, home, system).`);
     err('rode dentro de uma pasta de projeto.');
     process.exit(2);
   }
   const tools = detectTools();
-  if (tools.length === 0) log('nenhuma IDE/CLI detectada — instalando estrutura padrao (Claude Code).');
-  else log(`detectado: ${tools.join(', ')}`);
+  if (tools.length === 0) {
+    log(`${c.yellow}nenhuma IDE/CLI detectada${c.reset} — instalando estrutura padrao (Claude Code).`);
+    log(`${c.dim}suportadas: Claude Code, Cursor, Windsurf, Continue, Aider, Cline, Roo${c.reset}`);
+  } else {
+    log(`detectado: ${c.green}${tools.join(', ')}${c.reset}`);
+  }
 
   if (!fs.existsSync(TEMPLATES_DIR)) {
     err(`pasta de templates nao encontrada: ${TEMPLATES_DIR}`);
@@ -214,7 +244,7 @@ async function install() {
   }
 
   if (!YES && !FORCE) {
-    const a = await ask(`Confirmar instalacao em ${CWD}? [s/N] `);
+    const a = await ask(`${c.bold}Confirmar instalacao em ${CWD}?${c.reset} [s/N] `);
     if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
   }
 
@@ -224,16 +254,17 @@ async function install() {
 
   resumo();
 
-  if (DRY_RUN) { log('dry-run: nenhuma mudanca aplicada.'); return; }
-  log('instalacao concluida.');
-  log('');
-  log('proximos passos:');
-  log('  1. ler AGENTS.md — seu documento-contrato');
-  log('  2. ajustar REGRAS-INEGOCIAVEIS.md ao seu projeto');
-  log('  3. ativar estilo PT-BR: /output-style no Claude Code -> pt-br-conciso');
-  log('  4. usar /inicio /feature /bug /refactor /auditoria /historia /brownfield /qa /retro /prd /epico');
-  log('');
-  log('docs: https://github.com/roldaobatista/roldao-method');
+  if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
+  ok('instalacao concluida.');
+  console.log('');
+  console.log(`${c.bold}Proximos passos:${c.reset}`);
+  console.log(`  ${c.cyan}1.${c.reset} ler ${c.bold}AGENTS.md${c.reset} — seu documento-contrato`);
+  console.log(`  ${c.cyan}2.${c.reset} ajustar ${c.bold}REGRAS-INEGOCIAVEIS.md${c.reset} ao seu projeto`);
+  console.log(`  ${c.cyan}3.${c.reset} ativar estilo PT-BR: ${c.dim}/output-style no Claude Code -> pt-br-conciso${c.reset}`);
+  console.log(`  ${c.cyan}4.${c.reset} usar ${c.green}/inicio /feature /bug /refactor /auditoria /historia /brownfield /qa /retro /prd /epico /quick-dev${c.reset}`);
+  console.log('');
+  console.log(`${c.dim}docs: https://github.com/roldaobatista/roldao-method${c.reset}`);
+  console.log('');
 }
 
 async function update() {
@@ -253,7 +284,8 @@ async function update() {
 }
 
 function doctor() {
-  log(`diagnostico em: ${CWD}`);
+  banner();
+  log(`diagnostico em: ${c.bold}${CWD}${c.reset}`);
   const checks = [
     { path: '.claude/settings.json', exigido: true },
     { path: '.claude/agents/dev-senior.md', exigido: true },
@@ -262,29 +294,40 @@ function doctor() {
     { path: '.claude/hooks/block-destructive.sh', exigido: true },
     { path: '.claude/hooks/secrets-scanner.sh', exigido: true },
     { path: '.claude/hooks/_test-runner.sh', exigido: true },
+    { path: '.claude/hooks/no-test-data-in-fixtures.sh', exigido: false },
+    { path: '.claude/hooks/no-hardcoded-env-urls.sh', exigido: false },
+    { path: '.claude/hooks/fiscal-br-validator.sh', exigido: false },
     { path: '.claude/commands/feature.md', exigido: true },
     { path: '.claude/commands/bug.md', exigido: true },
+    { path: '.claude/commands/quick-dev.md', exigido: false },
     { path: '.claude/skills/validar-cpf-cnpj/SKILL.md', exigido: true },
     { path: '.specify/memory/constitution.md', exigido: true },
+    { path: '.specify/checklists/story-dod.md', exigido: false },
+    { path: '.specify/data/kb-pt-br.md', exigido: false },
     { path: 'AGENTS.md', exigido: true },
     { path: 'CLAUDE.md', exigido: true },
     { path: 'REGRAS-INEGOCIAVEIS.md', exigido: true },
   ];
-  let ok = 0; let faltando = 0;
-  for (const c of checks) {
-    const full = path.join(CWD, c.path);
+  let okCount = 0; let faltando = 0; let opcionalFaltando = 0;
+  for (const ck of checks) {
+    const full = path.join(CWD, ck.path);
     const e = fs.existsSync(full);
-    if (e) { ok++; console.log(`  OK   ${c.path}`); }
-    else { faltando++; console.log(`  FALTA ${c.path}`); }
+    if (e) { okCount++; console.log(`  ${c.green}OK   ${c.reset} ${ck.path}`); }
+    else if (ck.exigido) { faltando++; console.log(`  ${c.red}FALTA${c.reset} ${ck.path}`); }
+    else { opcionalFaltando++; console.log(`  ${c.yellow}NOVO ${c.reset} ${ck.path} ${c.dim}(opcional — v0.4.0+)${c.reset}`); }
   }
   console.log('');
-  console.log(`Total: ${checks.length}  |  OK: ${ok}  |  FALTA: ${faltando}`);
+  console.log(`${c.bold}Total:${c.reset} ${checks.length}  |  ${c.green}OK:${c.reset} ${okCount}  |  ${c.red}FALTA:${c.reset} ${faltando}  |  ${c.yellow}NOVO:${c.reset} ${opcionalFaltando}`);
   if (faltando > 0) {
     console.log('');
-    log('execute: npx roldao-method install (ou update)');
+    log(`execute: ${c.cyan}npx roldao-method install${c.reset} (ou ${c.cyan}update${c.reset})`);
     process.exit(1);
   }
-  log('instalacao OK.');
+  if (opcionalFaltando > 0) {
+    console.log('');
+    log(`para incluir os arquivos novos: ${c.cyan}npx roldao-method update${c.reset}`);
+  }
+  ok('instalacao OK.');
 }
 
 async function uninstall() {
@@ -320,23 +363,24 @@ async function uninstall() {
 }
 
 function help() {
-  console.log(`
-ROLDAO-METHOD — framework de desenvolvimento agil com IA em PT-BR
+  banner();
+  console.log(`${c.bold}Uso:${c.reset}
+  ${c.cyan}npx roldao-method install${c.reset}   [--yes] [--force] [--dry-run]   instala no projeto atual
+  ${c.cyan}npx roldao-method update${c.reset}    [--yes] [--force] [--dry-run]   atualiza arquivos do framework
+  ${c.cyan}npx roldao-method doctor${c.reset}                                    diagnostica instalacao
+  ${c.cyan}npx roldao-method uninstall${c.reset} [--yes] [--dry-run]             remove o framework
+  ${c.cyan}npx roldao-method help${c.reset}                                      ajuda
+  ${c.cyan}npx roldao-method version${c.reset}                                   versao
 
-Uso:
-  npx roldao-method install [--yes] [--force] [--dry-run]   instala no projeto atual
-  npx roldao-method update  [--yes] [--force] [--dry-run]   atualiza arquivos do framework
-  npx roldao-method doctor                                   diagnostica instalacao
-  npx roldao-method uninstall [--yes] [--dry-run]            remove o framework
-  npx roldao-method help                                     ajuda
-  npx roldao-method version                                  versao
+${c.bold}Flags:${c.reset}
+  ${c.yellow}--yes / -y${c.reset}    pula confirmacao (uso em CI)
+  ${c.yellow}--force${c.reset}       sobrescreve sem perguntar
+  ${c.yellow}--dry-run${c.reset}     so mostra o que faria
+  ${c.yellow}--no-color${c.reset}    desativa cores ANSI (ou NO_COLOR=1)
 
-Flags:
-  --yes / -y    pula confirmacao (uso em CI)
-  --force       sobrescreve sem perguntar
-  --dry-run     so mostra o que faria
+${c.bold}IDEs suportadas:${c.reset} Claude Code, Cursor, Windsurf, Continue, Aider, Cline, Roo
 
-Docs: https://github.com/roldaobatista/roldao-method
+${c.dim}Docs: https://github.com/roldaobatista/roldao-method${c.reset}
 `);
 }
 
