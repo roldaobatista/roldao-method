@@ -132,6 +132,8 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 
 ## 22 hooks bloqueadores + 4 auxiliares + 2 infra (_lib + test-runner) = 28 hooks core (+5 em addons)
 
+> **Escopo honesto:** os hooks são guarda-corpos para um agente **cooperativo e desatento** (o caso comum — o agente que "pula etapa porque é simples"). Eles barram o erro óbvio na hora. **Não são um sandbox contra um agente deliberadamente malicioso**: quem tem `Write` no projeto pode reescrever `settings.json`. Em Windows sem Git Bash os hooks não rodam (ver Requisitos). Defesa em profundidade, não garantia criptográfica.
+
 **Bloqueadores** (retornam exit 2 ou `decision: block`, barram a ação):
 
 - `block-destructive` — `rm -rf`, `git push --force`, `DROP TABLE`, `--no-verify`

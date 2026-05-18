@@ -54,6 +54,8 @@ _(Razão social, CNPJ, endereço da matriz, canal DPO/encarregado, email funcion
 
 ## 5. Quanto tempo guardamos
 
+> ⚠️ **Modelo — ajuste por finalidade.** Estes prazos são exemplo. Reter dado pessoal sem base legal/finalidade específica viola o princípio da necessidade (LGPD Art. 6º III e Art. 15/16). Não copie cego: cada prazo precisa de justificativa (obrigação legal, prazo prescricional aplicável, etc.) e validação jurídica do projeto.
+
 - Dados de conta: enquanto conta ativa + 5 anos após encerramento (CDC Art. 27).
 - Dados fiscais: 5 anos (Receita Federal).
 - Logs de segurança: 6 meses.

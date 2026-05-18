@@ -221,7 +221,7 @@ run_case "ignora arquivo de teste" "require-readiness-before-feature.sh" \
   '{"tool_input":{"file_path":"./src/foo.test.ts","content":"test()"}}' 0
 
 # Setup pra teste de bloqueio: cria marker feature-active sem readiness-passed
-mkdir -p $BASE/roldao-test-readiness/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-readiness/.claude/.runtime
 echo "US-001" > $BASE/roldao-test-readiness/.claude/.runtime/feature-active-test123
 run_case "bloqueia edit em codigo com feature ativa sem readiness" "require-readiness-before-feature.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 2 \
@@ -243,8 +243,8 @@ run_case "ignora doc" "validate-story-dependencies.sh" \
   '{"tool_input":{"file_path":"./docs/foo.md","content":"x"}}' 0
 
 # Setup: cria story com depende-de e dependencia entregue
-mkdir -p $BASE/roldao-test-deps/.claude/.runtime
-mkdir -p $BASE/roldao-test-deps/docs/stories
+mkdir -p "$BASE"/roldao-test-deps/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-deps/docs/stories
 echo "US-002" > $BASE/roldao-test-deps/.claude/.runtime/feature-active-deps1
 cat > $BASE/roldao-test-deps/docs/stories/US-001-base.md <<EOF
 ---
@@ -281,7 +281,7 @@ run_case "ignora docs" "require-agent-sequence-before-dev.sh" \
   '{"tool_input":{"file_path":"./docs/foo.md","content":"x"}}' 0
 
 # Setup: cria sessao /feature sem markers de Sofia/Detetive/Rafael
-mkdir -p $BASE/roldao-test-seq/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-seq/.claude/.runtime
 touch $BASE/roldao-test-seq/.claude/.runtime/feature-active-seq1
 run_case "bloqueia sem Sofia/Detetive/Rafael" "require-agent-sequence-before-dev.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
@@ -307,7 +307,7 @@ run_case "passa sem quick-dev ativo" "validate-quick-dev-scope.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0
 
 # Setup: ativa quick-dev e toca 3 arquivos diferentes
-mkdir -p $BASE/roldao-test-qd/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-qd/.claude/.runtime
 touch $BASE/roldao-test-qd/.claude/.runtime/quick-dev-active-qd1
 
 run_case "libera 1o arquivo" "validate-quick-dev-scope.sh" \
@@ -333,7 +333,7 @@ run_case "libera reedicao de arquivo ja contado" "validate-quick-dev-scope.sh" \
 rm -rf $BASE/roldao-test-qd
 
 # ------- commit-message-validator (regra T-NNN com /feature ativo) --------
-mkdir -p $BASE/roldao-test-commit/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-commit/.claude/.runtime
 touch $BASE/roldao-test-commit/.claude/.runtime/feature-active-cmt1
 
 run_case "bloqueia feat sem T-NNN com /feature ativa" "commit-message-validator.sh" \
@@ -357,7 +357,7 @@ run_case "passa sem feature ativa" "require-checkpoint-before-merge.sh" \
 run_case "ignora comando nao-git" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"ls -la"}}' 0
 
-mkdir -p $BASE/roldao-test-chk/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-chk/.claude/.runtime
 echo "US-001" > $BASE/roldao-test-chk/.claude/.runtime/feature-active-chk1
 
 run_case "bloqueia commit feat sem checkpoint" "require-checkpoint-before-merge.sh" \
@@ -379,7 +379,7 @@ rm -rf $BASE/roldao-test-chk
 run_case "passa sem feature ativa" "require-auditors-pass-before-commit.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x\""}}' 0
 
-mkdir -p $BASE/roldao-test-aud/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-aud/.claude/.runtime
 echo "US-001" > $BASE/roldao-test-aud/.claude/.runtime/feature-active-aud1
 
 run_case "bloqueia commit sem nenhum auditor" "require-auditors-pass-before-commit.sh" \
@@ -428,7 +428,7 @@ run_case "bloqueia se aprovacao tem status: bloqueado" "validate-story-approvals
 # ou aceitar SESSION_ID com so caracteres especiais.
 
 # C5 — PROJDIR com ".." rejeitado (path traversal via PR malicioso)
-mkdir -p $BASE/roldao-test-traversal/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-traversal/.claude/.runtime
 touch $BASE/roldao-test-traversal/.claude/.runtime/feature-active-trv1
 run_case "rejeita PROJDIR com .. (path traversal)" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
@@ -447,7 +447,7 @@ rm -rf $BASE/roldao-test-traversal
 # C2 — SESSION_ID com so caracteres especiais nao gera marker generico
 # Antes: hash="" → marker "feature-active-" liberava qualquer um.
 # Agora: hash="default" → marker proprio.
-mkdir -p $BASE/roldao-test-emptyhash/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-emptyhash/.claude/.runtime
 touch $BASE/roldao-test-emptyhash/.claude/.runtime/feature-active-default
 run_case "SESSION_ID so com hifens cai em hash=default" "require-checkpoint-before-merge.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: x (US-001 T-001)\""}}' 2 \
@@ -552,7 +552,7 @@ run_case "bloqueia frontmatter sem campo owner" "paths-frontmatter-validator.sh"
   '{"tool_input":{"file_path":"./docs/feature-x.md","content":"---\nrevisado-em: 2026-05-18\nstatus: stable\n---\n# X"}}' 2
 
 # ------- require-investigador-before-fix (REGRA #0 — CRITICO) --------
-mkdir -p $BASE/roldao-test-inv/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-inv/.claude/.runtime
 run_case "passa sem marker de bug" "require-investigador-before-fix.sh" \
   '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
   CLAUDE_PROJECT_DIR=$BASE/roldao-test-inv CLAUDE_SESSION_ID=inv1
@@ -576,7 +576,7 @@ rm -rf $BASE/roldao-test-inv
 run_case "ignora arquivo nao-E2E" "validate-test-pyramid.sh" \
   '{"tool_input":{"file_path":"./src/foo.test.ts","content":"x"}}' 0
 
-mkdir -p $BASE/roldao-test-pyr/src/auth
+mkdir -p "$BASE"/roldao-test-pyr/src/auth
 run_case "bloqueia E2E sem unit tests no modulo" "validate-test-pyramid.sh" \
   '{"tool_input":{"file_path":"src/auth/login.e2e.ts","content":"x"}}' 2 \
   CLAUDE_PROJECT_DIR=$BASE/roldao-test-pyr
@@ -589,7 +589,7 @@ run_case "libera E2E com unit tests no modulo" "validate-test-pyramid.sh" \
 rm -rf $BASE/roldao-test-pyr
 
 # ------- regra-zero-reminder (UserPromptSubmit — exit 0 sempre, side-effect via marker) --------
-mkdir -p $BASE/roldao-test-rzr/.claude/.runtime
+mkdir -p "$BASE"/roldao-test-rzr/.claude/.runtime
 run_case "passa em prompt sem gatilho de bug" "regra-zero-reminder.sh" \
   '{"prompt":"adicionar nova feature de cadastro"}' 0 \
   CLAUDE_PROJECT_DIR=$BASE/roldao-test-rzr CLAUDE_SESSION_ID=rzr1

@@ -90,9 +90,14 @@ while IFS= read -r line; do
   FULL="$cmd $args"
   AUTHORIZED=0
   for allowed in "${ALLOWLIST[@]}"; do
-    case "$FULL" in
-      *"$allowed"*) AUTHORIZED=1; break ;;
-    esac
+    # Ancora no limite do nome de pacote — substring solta deixava
+    # "@modelcontextprotocol/server-evil" casar "modelcontextprotocol/".
+    # O token permitido tem que estar delimitado por inicio/espaco/@ e
+    # terminar em fim/espaco/@versao (nao pode ter sufixo de nome).
+    esc=$(printf '%s' "$allowed" | sed 's/[.[\*^$/]/\\&/g')
+    if printf '%s' "$FULL" | grep -qE "(^|[[:space:]]|@)${esc}([[:space:]]|@|\$)"; then
+      AUTHORIZED=1; break
+    fi
   done
   if [ "$AUTHORIZED" -eq 0 ]; then
     DESCONHECIDOS+=("$name -> $FULL")
