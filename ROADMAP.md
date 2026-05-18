@@ -98,7 +98,7 @@ Pré-requisitos para 1.0:
 ## Princípios do roadmap
 
 1. **PT-BR e BR-first sempre.** Tradução para inglês quando houver tração internacional, nunca antes.
-2. **Não competir com BMAD em escala.** Competir em especialização, qualidade e cobertura regulatória.
+2. **Especialização vence escala.** Foco em qualidade vertical e cobertura regulatória BR, não em paridade horizontal global.
 3. **Hooks bloqueadores são identidade.** Nenhum hook crítico vira opcional.
 4. **Addons antes de tudo no core.** Antes de adicionar agente/skill no framework, perguntar: "Isso é addon?".
 5. **Quality gates antes de quantidade.** Melhor ter 10 skills sólidas que 50 medíocres.

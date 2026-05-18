@@ -116,7 +116,7 @@ fix: corrige base legal em cadastro (LGPD-007)
 
 ## O que NÃO aceito
 
-- Tradução literal de BMAD/outros frameworks gringos.
+- Tradução literal de frameworks gringos sem adaptação à realidade BR.
 - Hooks que mascaram erro (anti-padrão TST-001).
 - Conteúdo em inglês como principal (inglês só em metadados npm).
 - Features sem caso de uso claro.

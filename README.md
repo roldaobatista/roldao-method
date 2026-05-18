@@ -30,24 +30,19 @@ Detalhes em [CHANGELOG.md](CHANGELOG.md).
 
 ## O problema
 
-Ferramentas de IA pra desenvolvimento (BMAD, Cursor rules, agentes Claude Code) são **todas em inglês**. Devs brasileiros perdem nuance e ainda têm que adaptar exemplos gringos pra realidade BR (LGPD, NF-e, Pix, Receita Federal).
+Ferramentas de IA pra desenvolvimento (Cursor rules, agentes Claude Code, frameworks de prompt) são **todas em inglês**. Devs brasileiros perdem nuance e ainda têm que adaptar exemplos gringos pra realidade BR (LGPD, NF-e, Pix, Receita Federal).
 
 E pior: a maioria pula direto pra escrever código. **Sem investigar.** Sem ler o estado real do banco, dos logs, do payload. Resultado: bugs mascarados, retrabalho, e o usuário não-técnico achando que o agente "não entende o produto dele".
 
-## Por que ROLDAO em vez de BMAD-METHOD?
+## Por que ROLDAO?
 
-Em uma linha: **BMAD orienta**, **ROLDAO impede**.
+Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 
-| | BMAD | ROLDAO |
-|---|---|---|
-| Idioma | Inglês (+CN/VN) | 🇧🇷 PT-BR nativo |
-| Hooks que bloqueiam o erro | 0 | **21 bloqueadores** |
-| Investigação em bug | Opcional | **Obrigatória** (REGRA #0) |
-| Cobertura BR (NF-e, LGPD, Pix, eSocial) | Zero | Total + 6 addons |
-| Auditores especializados | 0 | 3 (segurança, qualidade, produto) |
-| Estágio | 47k stars, maduro | Novo, focado, vertical |
-
-→ Migração detalhada em [docs/MIGRACAO-BMAD.md](docs/MIGRACAO-BMAD.md). Tabela completa de 20 dimensões no fim deste README.
+- 🇧🇷 **PT-BR nativo** — não é tradução. Tabela de jargão integrada pra usuário não-programador.
+- 🛡️ **21 hooks bloqueadores** — retornam exit 2 e barram a ação na hora (secret, destrutivo, mascaramento, mock indevido, jargão técnico, fix sem investigação, escopo estourado, commit sem rastreio).
+- 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada no workflow `/bug` e em hook mecânico (`require-investigador-before-fix`).
+- 🧾 **Cobertura BR real** — LGPD, NF-e, NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
+- 🧪 **3 auditores especializados** — segurança, qualidade, produto rodando em paralelo no fim de cada feature, bloqueando commit se reprovado.
 
 ## A solução
 
@@ -236,37 +231,34 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 - ❌ Não trava idiomas além de PT-BR.
 - ❌ Não é template de projeto (Django/React/etc).
 
-## Diferencial completo vs BMAD-METHOD
+## Capacidades em uma tabela
 
-| | BMAD-METHOD v6.7 | ROLDAO-METHOD v0.8 |
-|---|---|---|
-| Idioma | Inglês (+CN/VN, sem PT-BR) | 🇧🇷 PT-BR nativo |
-| Mercado-foco | Global/genérico | Brasil (LGPD, fiscal, BR) |
-| Investigação em bug | Opcional | **Obrigatória** (REGRA #0) |
-| Hooks que bloqueiam o erro | 0 | **21 bloqueadores** |
-| Filosofia | Orienta o agente | **Impede o agente de errar** |
-| Auditores dedicados | 0 | 3 (segurança, qualidade, produto) |
-| Agente fiscal BR | Não tem | `fiscal-br` (Dona Marta) |
-| Skills BR | 0 | 8 no core + 9 nos addons = 17 |
-| Skills genéricas (brainstorming, elicit.) | 60+ | 15 técnicas adaptadas BR |
-| Checklists auditáveis | 0 | 7 (story, arch, fiscal, LGPD, PM, release, Pix) |
-| Knowledge bases | 0 | 7 (PT-BR, fiscal, LGPD, Pix, stack, brainstorm, elicit) |
-| Templates spec | 13 YAML | 11 markdown (PRD/story/arch/brownfield/fiscal/fullstack/decision/prfaq/brief/ux/headless) |
-| Spec-driven | Parcial | Total (`.specify/`) |
-| Orquestração de skills (CSV) | sim | sim (`_meta/skills-index.csv`) |
-| Evals dos agentes | sim | sim (`evals/`) |
-| CNPJ alfanumérico 2026 | Não cobre | Suportado desde v0.3 |
-| Reforma Tributária 2026 | Não cobre | `FISCAL-006` + agente fiscal + KB |
-| Pix completo | Não cobre | Addon `fintech-br` (5 chaves, BR Code, Open Finance) |
-| LGPD operacional | Não cobre | Addon `lgpd-compliance` (DPO, RIPD, 72h) |
-| eSocial | Não cobre | Addon `esocial-completo` |
-| Varejo/PDV BR | Não cobre | Addon `varejo-pdv-br` (SAT-CF-e, NFC-e, TEF) |
-| Expansion packs verticais | **Aboliu na v6** | 6 addons BR (e crescendo) |
-| Stars (mai/2026) | 47.5k | novo |
-| IDEs suportadas | 42+ | 7+ (Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider) |
-| Quando usar | Time global, projeto genérico | Time BR, projeto regulado |
-
-Migração de BMAD: ver [docs/MIGRACAO-BMAD.md](docs/MIGRACAO-BMAD.md). Posicionamento: **complementar**, não competidor — ROLDAO domina o que BMAD aboliu (verticais de domínio + bloqueio mecânico).
+| Categoria | ROLDAO-METHOD v0.9 |
+|---|---|
+| Idioma | 🇧🇷 PT-BR nativo |
+| Mercado-foco | Brasil (LGPD, fiscal, Pix, eSocial, BR) |
+| Investigação em bug | **Obrigatória** (REGRA #0, hook mecânico) |
+| Hooks que bloqueiam o erro | **21 bloqueadores** + 5 auxiliares + test-runner |
+| Filosofia | **Impede o agente de errar** (exit 2), não só orienta |
+| Auditores dedicados | 3 (segurança, qualidade, produto) |
+| Agente fiscal BR | `fiscal-br` (Dona Marta) — NF-e, eSocial, Reforma Tributária |
+| Skills BR | 8 no core + 9 nos addons = **17 skills** |
+| Técnicas de raciocínio | 15 brainstorming + 10 elicitation adaptadas BR |
+| Checklists auditáveis | 7 (story-DoD, arch-readiness, fiscal, LGPD, PM, release, Pix) |
+| Knowledge bases | 7 (PT-BR, fiscal, LGPD, Pix, stack, brainstorm, elicit) |
+| Templates de spec | 11 markdown (PRD, story, arch, brownfield, fiscal, fullstack, decision, PRFAQ, brief, UX, headless) |
+| Spec-driven | Total (`.specify/`) |
+| Orquestração de skills | `_meta/skills-index.csv` |
+| Evals dos agentes | Sim (`evals/`) em CI |
+| CNPJ alfanumérico jul/2026 | Suportado desde v0.3 |
+| Reforma Tributária 2026-2033 | `FISCAL-006` + agente fiscal + KB |
+| Pix completo | Addon `fintech-br` (5 chaves, BR Code, Open Finance) |
+| LGPD operacional | Addon `lgpd-compliance` (DPO, RIPD, plano 72h) |
+| eSocial | Addon `esocial-completo` |
+| Varejo/PDV BR | Addon `varejo-pdv-br` (SAT-CF-e, NFC-e, TEF) |
+| Addons verticais BR | 6 (e crescendo) |
+| IDEs suportadas | 7+ (Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider) |
+| Quando usar | Time BR, projeto regulado, dono de produto não-programador |
 
 ## Documentação
 
@@ -277,13 +269,10 @@ Migração de BMAD: ver [docs/MIGRACAO-BMAD.md](docs/MIGRACAO-BMAD.md). Posicion
 - [FAQ](docs/FAQ.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Casos de uso BR](docs/CASOS-DE-USO-BR.md) — NF-e, telemedicina, Pix, eSocial, e-commerce, EAD, Open Finance
-- [Migração de BMAD](docs/MIGRACAO-BMAD.md)
 - [Guia MCP](docs/MCP-GUIA-BR.md)
 - [Arquitetura do framework](docs/ARQUITETURA.md)
 - [Roadmap público](ROADMAP.md) — o que vem por aí
-- [Auditoria 10 agentes vs BMAD](docs/AUDITORIA-10-AGENTES-2026-05-18.md) — segunda rodada, 25 ações priorizadas
-- [Auditoria comparativa com BMAD](docs/AUDITORIA-BMAD-2026-05-18.md) — primeira rodada, 10 dimensões
-- [Addons](addons/README.md) — 4 addons disponíveis + como criar
+- [Addons](addons/README.md) — 6 addons disponíveis + como criar
 
 ## Licença
 

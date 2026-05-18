@@ -42,7 +42,6 @@ roldao-method/                        <- raiz do framework
 │   ├── TROUBLESHOOTING.md
 │   ├── COMO-FUNCIONA.md
 │   ├── EXEMPLO-FEATURE-COMPLETA.md
-│   ├── MIGRACAO-BMAD.md
 │   ├── CASOS-DE-USO-BR.md
 │   └── ARQUITETURA.md                <- este arquivo
 ├── addons/                           <- expansion packs (em construcao)

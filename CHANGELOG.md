@@ -4,7 +4,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [0.9.0] — 2026-05-18
 
-**Auditoria 10-agentes round 4** — varredura total cruzada (arquitetura, hooks, commands, skills, CLI, docs, testes, segurança, comparativo BMAD, DX). Fechou **24 achados** (12 críticos + 12 altos/médios). Foco: blindar bypasses de hook, robustecer cross-platform, padronizar schema, ampliar cobertura de testes para 124 casos.
+**Auditoria 10-agentes round 4** — varredura total cruzada (arquitetura, hooks, commands, skills, CLI, docs, testes, segurança, DX). Fechou **24 achados** (12 críticos + 12 altos/médios). Foco: blindar bypasses de hook, robustecer cross-platform, padronizar schema, ampliar cobertura de testes para 124 casos.
 
 ### Corrigido — bugs de proteção (bypass silencioso)
 
@@ -48,7 +48,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 ### Atualizado
 
 - README badges (versão 0.5.0→0.8.0→0.9.0, 16/18→21 bloqueadores, 50/50→98→124 testes).
-- README tabelas comparativas com BMAD (linhas 41-48 e 241-252).
+- README tabela "Capacidades" com contagens atualizadas.
 - `docs/QUICKSTART.md` esperando `Total: 124` no test-runner.
 - ROADMAP linha 16 com contagem correta de hooks v0.9.
 
@@ -241,7 +241,7 @@ Entrega completa das 25 ações priorizadas da auditoria 10-agentes (segunda rod
 - CI obrigatório.
 
 **Orquestração:**
-- `_meta/skills-index.csv` — `skill,phase,preceded-by,followed-by,required,outputs` (modelo BMAD `bmad-help.csv`).
+- `_meta/skills-index.csv` — `skill,phase,preceded-by,followed-by,required,outputs` para orquestração explícita das skills por fase.
 
 **Skills — correção:**
 - `validar-pix/scripts/validar-pix.py` — path hardcoded substituído por embedding da lógica de CPF/CNPJ (sem `sys.path` frágil).
@@ -253,7 +253,7 @@ Entrega completa das 25 ações priorizadas da auditoria 10-agentes (segunda rod
 
 ### Mudado
 
-- README reescrito: hero com "Por que ROLDAO vs BMAD" no topo, bloco "Novidades v0.5.0", contagens corrigidas, nomes+ícones dos agentes, tabela vs BMAD expandida com 24 dimensões.
+- README reescrito: hero com "Por que ROLDAO?" no topo, bloco "Novidades v0.5.0", contagens corrigidas, nomes+ícones dos agentes, tabela "Capacidades" com 24 dimensões.
 - Badge "Hooks: 50/50" renomeado pra "test_runner: 50/50" + badge novo "hooks_bloqueadores: 16".
 - ROADMAP marcado como v0.5.0 entregue; metas v0.6+ ajustadas.
 - `package.json`: bin alias `roldao`, description atualizada, `files` inclui evals/SECURITY/CONTRIBUTORS.
@@ -264,7 +264,7 @@ Zero breaking change. Toda funcionalidade da v0.4.0 mantida. Customizações do 
 
 ## [0.4.0] — 2026-05-18
 
-Expansão pós-auditoria comparativa profunda com BMAD-METHOD (10 agentes em paralelo, segunda rodada). Foco em fechar gaps de qualidade auditável, knowledge base estruturada, addons especializados BR, e melhorias de DX no CLI. Sem breaking changes.
+Expansão pós-auditoria interna profunda (10 agentes em paralelo, segunda rodada). Foco em fechar gaps de qualidade auditável, knowledge base estruturada, addons especializados BR, e melhorias de DX no CLI. Sem breaking changes.
 
 ### Adicionado
 
@@ -313,8 +313,7 @@ Expansão pós-auditoria comparativa profunda com BMAD-METHOD (10 agentes em par
 
 **Documentação:**
 - `ROADMAP.md` — roadmap público até v1.0.0 (abr/2027).
-- `docs/AUDITORIA-BMAD-2026-05-18.md` — auditoria comparativa de 10 dimensões.
-- README atualizado: tabela vs BMAD expandida (20 dimensões), diagrama ASCII do fluxo `/feature`, lista de 4 addons.
+- README atualizado: tabela "Capacidades" expandida (20 dimensões), diagrama ASCII do fluxo `/feature`, lista de 4 addons.
 
 **Tests:**
 - `_test-runner.sh` agora tem 50 casos (era 35) — cobertura dos 3 hooks novos.
@@ -331,7 +330,7 @@ Zero breaking change. Toda funcionalidade da v0.3.0 mantida intacta. Customizaç
 
 ## [0.3.0] — 2026-05-18
 
-Major expansão do framework após auditoria comparativa com BMAD-METHOD (10 agentes em paralelo).
+Major expansão do framework após auditoria interna (10 agentes em paralelo).
 
 ### Adicionado
 
@@ -389,7 +388,6 @@ Major expansão do framework após auditoria comparativa com BMAD-METHOD (10 age
 - `TROUBLESHOOTING.md` — erros e soluções.
 - `EXEMPLO-FEATURE-COMPLETA.md` — transcrição realista de `/feature`.
 - `COMO-FUNCIONA.md` — estrutura + fluxo dos comandos.
-- `MIGRACAO-BMAD.md` — guia pra migrar do BMAD-METHOD.
 - `CASOS-DE-USO-BR.md` — NF-e, telemedicina, Pix, eSocial, e-commerce, EAD, Open Finance.
 - `ARQUITETURA.md` — como o framework está organizado.
 
@@ -408,7 +406,7 @@ Major expansão do framework após auditoria comparativa com BMAD-METHOD (10 age
 ### Mudado
 - Hook `_test-runner.sh` agora cobre 35 casos (era 22) incluindo os 5 hooks novos.
 - Hooks `_test-runner.sh` mantém ordem retrocompatível mas adiciona seção dos novos no final.
-- README reescrito com tabela de hooks/agents/skills + diferencial vs BMAD detalhado.
+- README reescrito com tabela de hooks/agents/skills + diferencial detalhado.
 
 ### Não mudado (compatibilidade)
 - `AGENTS.md`, `CLAUDE.md`, `REGRAS-INEGOCIAVEIS.md` na raiz do projeto do usuário continuam preservados em `update` e `uninstall`.
