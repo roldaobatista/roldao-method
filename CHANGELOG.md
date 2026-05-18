@@ -2,6 +2,73 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.4.0] — 2026-05-18
+
+Expansão pós-auditoria comparativa profunda com BMAD-METHOD (10 agentes em paralelo, segunda rodada). Foco em fechar gaps de qualidade auditável, knowledge base estruturada, addons especializados BR, e melhorias de DX no CLI. Sem breaking changes.
+
+### Adicionado
+
+**Comandos (1 novo, total 12):**
+- `/quick-dev` — atalho explícito para mudanças triviais (≤ 3 arquivos, ≤ 50 linhas). Pula investigador + auditores. Mantém disciplina sem erosão silenciosa do `/feature`.
+
+**Hooks bloqueadores (3 novos, total 10 bloqueadores + 5 auxiliares):**
+- `no-test-data-in-fixtures.sh` — bloqueia CPF/email/telefone de provedor real em fixture/seed/test (TST-004).
+- `no-hardcoded-env-urls.sh` — bloqueia URL de SEFAZ, Pix Bacen, gateways pagos, OpenAI/Anthropic hardcoded em código (SEC-005).
+- `fiscal-br-validator.sh` — bloqueia ambiente SEFAZ=1 hardcoded, senha de certificado em texto puro, regex CNPJ apenas numérica (FISCAL-001/002/003/005).
+
+**Regras inegociáveis novas:**
+- `SEC-005` — URLs/hosts de serviço externo via variável de ambiente, nunca hardcoded.
+- `TST-004` — Dados de teste sempre sintéticos (sem CPF/email/telefone real em fixture).
+
+**Checklists auditáveis (5 novos em `templates/.specify/checklists/`):**
+- `story-dod.md` — Definition of Done de user story.
+- `architecture-readiness.md` — quality gate de ADR / iniciativa grande.
+- `fiscal-compliance.md` — compliance NF-e/NFS-e + Reforma Tributária.
+- `lgpd-privacy-review.md` — review LGPD de feature com dado pessoal.
+- `pm-readiness.md` — PRD pronto pra dev.
+
+**Knowledge bases (5 novos em `templates/.specify/data/`):**
+- `kb-pt-br.md` — glossário PT-BR + tabela de tradução de jargão.
+- `kb-fiscal.md` — NF-e/NFS-e/NFC-e/CT-e, ambientes SEFAZ, Reforma Tributária 2026-2033, CNPJ alfanumérico.
+- `kb-lgpd.md` — bases legais Art. 7/11, direitos do titular, RIPD, incidente 72h, sanções, anti-padrões.
+- `kb-pix.md` — 5 tipos de chave, EndToEndId, TxId, BR Code EMV, Open Finance, DICT.
+- `kb-stack-br.md` — stack recomendada BR, anti-padrões de locale/fuso/moeda.
+
+**Templates de spec (3 novos em `templates/.specify/templates/`):**
+- `fullstack-architecture.md` — arquitetura completa frontend + backend + banco + integrações.
+- `brownfield-prd.md` — PRD para projeto legado (com seções de débito técnico, breaking changes, migração).
+- `prd-fiscal.md` — PRD para iniciativa fiscal com compliance NF-e + Reforma.
+
+**Addons BR (3 novos, total 4):**
+- `fiscal-br-completo` — agente `nfe-arch`, hook `require-sefaz-env`, skills `emitir-nfe-55` + `validar-cnpj-alfanumerico`, regras NFE-001/002/003.
+- `lgpd-compliance` — agente `dpo-virtual`, command `/lgpd-audit`, skills `gerar-ripd` + `gerar-canal-dpo` + `resposta-titular`, regras LGPD-EXT-001/002.
+- `fintech-br` — agente `pix-arch`, hook `validate-webhook-signature`, skills `gerar-br-code` + `validar-webhook-pix` + `estruturar-open-finance`, regras PIX-001/002/003.
+
+**CLI (`bin/install.js`):**
+- Cores ANSI puras (sem nova dependência — `--no-color` ou `NO_COLOR=1` desativa).
+- Banner do framework em comandos interativos.
+- Suporte a `.cline` (Cline) e `.roo` (Roo) na detecção de IDE.
+- Mensagens com hierarquia visual (✓ verde para sucesso, ⚠ amarelo para opcional, ✗ vermelho para erro).
+- `doctor` checa arquivos opcionais novos (v0.4.0+) sem falhar a verificação.
+
+**Documentação:**
+- `ROADMAP.md` — roadmap público até v1.0.0 (abr/2027).
+- `docs/AUDITORIA-BMAD-2026-05-18.md` — auditoria comparativa de 10 dimensões.
+- README atualizado: tabela vs BMAD expandida (20 dimensões), diagrama ASCII do fluxo `/feature`, lista de 4 addons.
+
+**Tests:**
+- `_test-runner.sh` agora tem 50 casos (era 35) — cobertura dos 3 hooks novos.
+
+### Mudado
+
+- `_test-runner` agora tem 50 casos (era 35). Todos passando.
+- README: badge de versão atualizado, badge de hooks atualizado (35→50), badge novo de addons (4).
+- `REGRAS-INEGOCIAVEIS.md` documenta SEC-005 e TST-004.
+
+### Preservado
+
+Zero breaking change. Toda funcionalidade da v0.3.0 mantida intacta. Customizações do usuário (`AGENTS.md`, `CLAUDE.md`, `REGRAS-INEGOCIAVEIS.md`, `.claude/settings.local.json`, `.mcp.json`) continuam protegidas no `update`.
+
 ## [0.3.0] — 2026-05-18
 
 Major expansão do framework após auditoria comparativa com BMAD-METHOD (10 agentes em paralelo).
