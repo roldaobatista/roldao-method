@@ -23,10 +23,9 @@ def _cpf_dv(parcial: str) -> str:
 
 
 def gerar_cpf(seq: int) -> str:
+    # Bases sequenciais a partir de 012345678 — obviamente sintéticas, nunca
+    # colidem com o CPF público 123.456.789-09 nos intervalos de seq usados.
     base = f"{12345678 + seq:09d}"[-9:]
-    # Evita CPFs públicos famosos
-    if base == "123456789":
-        base = f"{12345678 + seq + 100:09d}"[-9:]
     dv1 = _cpf_dv(base)
     dv2 = _cpf_dv(base + dv1)
     full = base + dv1 + dv2

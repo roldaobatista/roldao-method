@@ -71,6 +71,36 @@ while IFS= read -r line || [ -n "$line" ]; do
   done <<< "$CPFS"
 done < "$TMPF"
 
+# CPF NÃO formatado: 11 dígitos seguidos que passam no dígito verificador real.
+# Só flag se for CPF algoritmicamente válido (evita falso positivo em ID aleatório).
+cpf_dv_ok() {
+  printf '%s' "$1" | perl -e '
+    local $/; my $c = <STDIN>; chomp $c;
+    exit 1 unless $c =~ /^\d{11}$/;
+    my @d = split //, $c;
+    exit 1 if (join("",@d) =~ /^(\d)\1{10}$/);
+    for my $t (9,10) {
+      my $s = 0; $s += $d[$_] * (($t+1)-$_) for (0..$t-1);
+      my $r = ($s * 10) % 11; $r = 0 if $r == 10;
+      exit 1 if $r != $d[$t];
+    }
+    exit 0;
+  '
+}
+while IFS= read -r line || [ -n "$line" ]; do
+  for cand in $(printf '%s\n' "$line" | grep -oE '[0-9]{11}' || true); do
+    [ -z "$cand" ] && continue
+    all_same_digits "$cand" && continue
+    [ "$cand" = "12345678909" ] && continue
+    [ "$cand" = "12345678900" ] && continue
+    cpf_dv_ok "$cand" || continue
+    if printf '%s\n' "$line" | grep -qE 'TST-004-exception|sintetico|synthetic|fake-data'; then
+      continue
+    fi
+    VIOLATIONS+=("CPF nao-formatado aparente em fixture: $cand  ->  $line")
+  done
+done < "$TMPF"
+
 # Emails com domínio real de provedor pessoal
 while IFS= read -r line || [ -n "$line" ]; do
   EMAILS=$(printf '%s\n' "$line" | grep -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' || true)

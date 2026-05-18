@@ -36,10 +36,15 @@ case "$CMD" in
     ;;
 esac
 
-# Extrai mensagem entre aspas (simples ou duplas) ou heredoc
-MSG=$(printf '%s\n' "$CMD" | perl -ne '
-  if (/-m\s+(["\x27])(.*?)\1/s) { print $2; exit }
-  if (/<<\s*\x27?(\w+)\x27?\s*\n(.*?)\n\1/s) { print $2; exit }
+# Extrai TODAS as mensagens (-m, --message, --message=) + heredoc, na ordem
+# (git concatena: 1o = assunto, demais = paragrafos do corpo).
+MSG=$(printf '%s' "$CMD" | perl -e '
+  local $/; my $c = <STDIN>;
+  my @parts;
+  while ($c =~ /-m\s+(["\x27])(.*?)\1/sg)           { push @parts, $2 }
+  while ($c =~ /--message[=\s]+(["\x27])(.*?)\1/sg) { push @parts, $2 }
+  if ($c =~ /<<\s*\x27?(\w+)\x27?\s*\n(.*?)\n\1/s)  { push @parts, $2 }
+  print join("\n", @parts);
 ')
 
 # Se nao achou, deixa passar (git pode ter forma exotica)

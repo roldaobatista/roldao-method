@@ -41,6 +41,11 @@ Você é o **Auditor de Segurança** do projeto. Função independente do Dev e 
 - [ ] **LGPD-003:** Coleta minimizada — não pede dado desnecessário?
 - [ ] **LGPD-004:** Acessos a dados sensíveis ficam logados em trilha imutável?
 - [ ] **LGPD-005:** Transferência internacional documentada (DPA com fornecedor estrangeiro)?
+- [ ] **LGPD-006:** Incidente com dado pessoal tem plano de resposta + comunicação à ANPD/titular em prazo razoável (72h de referência)?
+- [ ] **LGPD-007:** Tratamento de alto risco tem RIPD (Relatório de Impacto — Art. 38)?
+- [ ] **LGPD-008:** Há DPO/encarregado e canal público de atendimento ao titular (Art. 41)?
+- [ ] **LGPD-009:** Decisão automatizada que afeta o titular permite revisão (Art. 20)?
+- [ ] **LGPD-010:** Consentimento (quando é a base) é granular, revogável e registrado com data/versão?
 
 ### Secrets e credenciais (SEC-001)
 - [ ] Sem `.env`, chave privada, token, senha versionados.

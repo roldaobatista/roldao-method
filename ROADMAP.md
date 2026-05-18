@@ -8,12 +8,12 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v0.13.0 (mai/2026)
+## Versão atual: v0.13.1 (mai/2026)
 
-Pacote pós **cinco** rodadas de auditoria 10-agentes:
+Pacote pós **sucessivas** rodadas de auditoria 10-agentes (round 7 — v0.13.1 — fechou os P0/P1 estruturais):
 - 12 agentes especialistas (com nome + ícone)
 - 21 workflows (incluindo `/clarificar`, `/consistencia`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`)
-- 21 hooks bloqueadores + 5 auxiliares + 1 test-runner + 1 `_lib.sh` = **28 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD
+- 22 hooks bloqueadores + 4 auxiliares + 2 infra (`_lib.sh`, `_test-runner.sh`) = **28 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD
 - 8 skills BR no core + 14 nos addons = **22 skills**
 - 8 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance, audit-trail)
 - 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
@@ -25,7 +25,7 @@ Pacote pós **cinco** rodadas de auditoria 10-agentes:
 - **147/147 testes** (hooks) + suíte de install ampliada (paridade SDD, overrides, adapters Gemini/Codex)
 - CI matriz Windows/macOS/Linux
 - Governança (SECURITY.md, CONTRIBUTORS.md, `.claude-plugin/plugin.json`)
-- Suite de evals dos 12 agentes
+- Suite de evals (lint estrutural) dos agentes — cobertura parcial, ver `evals/README.md`
 
 ## Rodadas de auditoria entregues
 
@@ -38,10 +38,11 @@ Pacote pós **cinco** rodadas de auditoria 10-agentes:
 - **v0.11.0** "Auditoria round 6 sem viés (P0)" — P0 + ondas 1/2 fechados, 132/132.
 - **v0.12.0** "Round 6 ondas 3–6" — P1/P2 fechados, checklist audit-trail, 147/147.
 - **v0.13.0** "Paridade SDD" — `/consistencia`, `/clarificar`, `remove`/`search`/`tasks-to-issues`, overrides sem fork, adapters Gemini/Codex CLI, constituição indexável. 147/147.
+- **v0.13.1** "Auditoria round 7" — REGRA #0 destravada no `/bug`, hash de sessão consistente, CNPJ base repetida, hooks de segurança endurecidos, imprecisões legais eSocial/LGPD, `test/` no pacote, deriva de versão sincronizada. 147/147.
 
 ## Próximas releases
 
-## v0.11.0 — "Setor saúde + setor público" (alvo: set/2026)
+## v0.14.0 — "Setor saúde + setor público" (alvo: set/2026)
 
 - [ ] Addon `telemedicina` — LGPD Art. 11 + CFM + ANS + receita digital + prescrição assinada.
 - [ ] Addon `govtech-br` — APIs do Governo, e-Protocolo, assinatura ICP-Brasil, transparência ativa.
@@ -49,14 +50,14 @@ Pacote pós **cinco** rodadas de auditoria 10-agentes:
 - [ ] Skill `consultar-cnpj-receita` — wrapper RFB com cache + LGPD-004.
 - [ ] Skill `validar-receita-medica-digital` — ICP-Brasil + CFM.
 
-## v0.12.0 — "Setores produtivos" (alvo: nov/2026)
+## v0.15.0 — "Setores produtivos" (alvo: nov/2026)
 
 - [ ] Addon `agro-br` — CAR, nota fiscal de produtor, SISBOV, rastreabilidade.
 - [ ] Addon `logistica-br` — CT-e + MDF-e, RNTRC, rastreamento.
 - [ ] Addon `educacao-br` — ENADE, e-Docente, histórico escolar.
 - [ ] Skill `migration-postgres-segura` — pattern de migration PostgreSQL com lock estudado e backup.
 
-## v0.13.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
+## v0.16.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
 
 - [ ] Pix Automático completo no addon `fintech-br` (recorrência autorizada).
 - [ ] Addon `open-banking-iniciador` — implementação completa de ITP (Iniciadora de Pagamento).

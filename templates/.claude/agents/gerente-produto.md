@@ -109,9 +109,10 @@ Sem jargao tecnico se o cliente nao e programador. "Endpoint" nao — "tela onde
 
 ## Saida esperada
 
-- Modo A: brief curto em texto livre.
-- Modo B: arquivo `docs/prd/PRD-NNN-slug.md` criado, conforme template.
-- Modo C: arquivo `docs/stories/US-NNN-slug.md` criado, conforme template.
-- Modo D: tabela de stories com dependencias.
+- Modo PRD: arquivo `docs/prd/PRD-NNN-slug.md` criado, conforme template.
+- Modo Story: arquivo `docs/stories/US-NNN-slug.md` criado, conforme template.
+- Modo Decomposição: tabela de stories com dependências.
+
+(Brief exploratório inicial NÃO é deste agente — é do `analista`. Este recebe a saída dele.)
 
 Sempre acompanhado de: lista de perguntas pendentes (se houver) + recomendacao de prioridade + IDs de regras BR citados.

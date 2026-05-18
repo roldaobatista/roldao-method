@@ -59,7 +59,7 @@ Cada PSP (Provedor de Serviço de Pagamento) tem ISPB único de 8 dígitos no Ba
 | **Pix Comum** | Pagamento avulso, sem cobrança formal. |
 | **Pix Cobrança imediata** (cobv) | QR Code dinâmico com vencimento curto. |
 | **Pix Cobrança com vencimento** (cobv) | Boleto-like, com vencimento, juros, multa, desconto. |
-| **Pix Saque** | Saque em estabelecimentos comerciais (até R$ 500 dia/R$ 1.000 noite). |
+| **Pix Saque** | Saque em estabelecimentos comerciais (limite padrão R$ 500 dia / R$ 100 noite — ver seção de limites). |
 | **Pix Troco** | Compra com troco em dinheiro. |
 | **Pix Devolução** | Estorno até 90 dias após o original. |
 | **Pix Agendado** (v6+) | Agendamento até 12 meses no futuro. |

@@ -66,14 +66,14 @@ O Operador implementa:
 ## 9. Direitos dos titulares
 
 O Operador assiste o Controlador no atendimento aos direitos do Art. 18 LGPD:
-- Acesso, correção, portabilidade, eliminação: fornecer ferramenta/API ou atender em até **10 dias úteis** após pedido formal.
-- SLA total do Controlador é 15 dias; Operador entrega em 10.
+- Acesso, correção, portabilidade, eliminação: fornecer ferramenta/API ou atender em até **7 dias corridos** após pedido formal.
+- O prazo legal de 15 dias **corridos** do Controlador (acesso, Art. 19 II) precisa de margem para revisão e resposta ao titular. Por isso o Operador responde em dias corridos (não úteis): 7 corridos deixa ~8 para o Controlador. Nunca use "dias úteis" aqui — 10 dias úteis ≈ 14 corridos e estoura o prazo do Controlador.
 
 ## 10. Incidente de segurança
 
 - **Notificação ao Controlador:** **imediata** (máx **24 horas**) após ciência do incidente.
 - **Conteúdo da notificação:** natureza, dados afetados, titulares afetados, ações tomadas, contato técnico.
-- **Apoio à comunicação ANPD:** Operador fornece todas as informações necessárias para o Controlador cumprir o prazo de **72 horas** (Resolução ANPD 15/2024).
+- **Apoio à comunicação ANPD:** Operador fornece todas as informações necessárias para o Controlador comunicar o incidente em **prazo razoável** (referência de mercado: 72 horas; confirmar a numeração vigente da Resolução ANPD sobre comunicação de incidente antes de citar em contrato).
 
 ## 11. Auditoria
 
@@ -115,5 +115,5 @@ Operador responde por danos causados por descumprimento deste DPA conforme LGPD 
 
 _Referências:_
 - LGPD Art. 39-45 (operador).
-- ANPD Resolução 15/2024 (incidente).
-- Modelo de Cláusulas Padrão Contratuais ANPD (Resolução 19/2024).
+- Resolução ANPD sobre comunicação de incidente (confirmar número/ano vigente).
+- Modelo de Cláusulas Padrão Contratuais ANPD (confirmar número/ano vigente).

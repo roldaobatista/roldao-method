@@ -3,12 +3,14 @@
  * tools/validar-templates.js
  * Auditoria interna do framework antes de publicar:
  * - todo agente tem frontmatter completo (name, description, model OR tools)
- * - todo command tem frontmatter (description, disable-model-invocation)
- * - todo hook .sh tem shebang bash + permissao executavel
- * - todo skill tem SKILL.md valido
- * - todo template .specify tem frontmatter (tipo, status, owner, revisado-em)
+ * - todo command tem frontmatter (description)
+ * - todo hook .sh tem shebang bash
+ * - todo skill tem SKILL.md valido + arquivos referenciados existem
+ * - todo template .specify tem frontmatter (tipo)
  * - settings.json e JSON valido + referencia hooks que existem
  * - package.json e consistente
+ * - versao bate entre package.json, README (badge) e topo do CHANGELOG
+ * - contagem minima por diretorio (anti falso-verde)
  *
  * Exit 0 = tudo OK; exit 1 = falhas; exit 2 = erro fatal de execucao.
  */
@@ -25,7 +27,9 @@ const okCount = { agents: 0, commands: 0, hooks: 0, skills: 0, specTemplates: 0 
 function fail(msg) { issues.push(msg); }
 
 function readFrontmatter(file) {
-  const text = fs.readFileSync(file, 'utf8');
+  // Normaliza CRLF (checkout Windows) e BOM antes de casar o frontmatter,
+  // senao o regex `^---\n` falha e da falso "sem frontmatter".
+  const text = fs.readFileSync(file, 'utf8').replace(/^﻿/, '').replace(/\r\n/g, '\n');
   const m = text.match(/^---\n([\s\S]*?)\n---/);
   if (!m) return null;
   const obj = {};
@@ -151,6 +155,20 @@ try {
   if (pkg.bin && pkg.bin['roldao-method']) {
     const binFile = path.join(ROOT, pkg.bin['roldao-method']);
     if (!fs.existsSync(binFile)) fail(`bin nao encontrado: ${binFile}`);
+  }
+  // Consistencia de versao: package.json x README badge x topo do CHANGELOG.
+  // Foi exatamente o gap que deixou o README congelado em 0.12.0 ir pra producao.
+  const ver = pkg.version;
+  const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+  const badge = readme.match(/badge\/vers%C3%A3o-([0-9]+\.[0-9]+\.[0-9]+)|badge\/versão-([0-9]+\.[0-9]+\.[0-9]+)/);
+  const badgeVer = badge ? (badge[1] || badge[2]) : null;
+  if (badgeVer && badgeVer !== ver) {
+    fail(`versao dessincronizada: package.json=${ver} mas badge do README=${badgeVer}`);
+  }
+  const changelog = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
+  const clTop = changelog.match(/##\s*\[([0-9]+\.[0-9]+\.[0-9]+)\]/);
+  if (clTop && clTop[1] !== ver) {
+    fail(`versao dessincronizada: package.json=${ver} mas topo do CHANGELOG=${clTop[1]}`);
   }
 } catch (e) {
   fail(`package.json invalido: ${e.message}`);

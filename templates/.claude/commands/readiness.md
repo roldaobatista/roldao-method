@@ -13,9 +13,9 @@ Use depois de `/epico` e antes de `/feature` (primeira story do épico). **Sem o
 ## Etapa 1 — Coletar (investigador)
 
 Invoque `investigador`:
-- Localiza `docs/epicos/EP-NNN.md` e stories filhas em `docs/stories/US-*.md`.
+- Localiza `docs/epicos/EP-NNN-*.md` (glob — o arquivo tem slug) e stories filhas em `docs/stories/US-*.md`.
 - Localiza PRD-NNN se referenciado no frontmatter do épico.
-- Localiza ADRs criados pro épico (`docs/adr/`).
+- Localiza ADRs criados pro épico (`docs/decisions/`).
 - Lista artefatos por status.
 
 ## Etapa 2 — Rodar checklists em paralelo
@@ -92,7 +92,7 @@ Ver relatório completo em [link].
 
 - **Tudo verde (`status: PRONTO`):** mover primeira story pra "em andamento" e rodar `/feature US-NNN`. Hook libera.
 - **Bloqueio (`status: NAO_PRONTO`):** voltar pra `/prd` ou `/epico` pra resolver. Hook recusa `/feature` até atualização do status. NÃO começar dev.
-- **Só ressalvas:** seguir como `PRONTO`, mas registrar em `docs/epicos/EP-NNN.md` na seção `## Débito conhecido`.
+- **Só ressalvas:** seguir como `PRONTO`, mas registrar em `docs/epicos/EP-NNN-*.md` na seção `## Débito conhecido`.
 
 ## Importante
 

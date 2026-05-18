@@ -1,5 +1,15 @@
 ## ROLDAO-METHOD configuração para Aider
 ## https://aider.chat
+##
+## RESUMO INLINE (o Aider não tem hooks bloqueadores — disciplina por prompt):
+## - REGRA #0: bug = investigar o estado real (banco/log/payload) ANTES de mexer
+##   no código; corrigir a causa raiz, nunca o sintoma. Confirmar se houver ambiguidade.
+## - Usuário pode não programar: PT-BR sem jargão; executar, não perguntar "quer que eu...?".
+## - NUNCA: rm -rf, git push --force, git reset --hard, --no-verify; secret em código/commit;
+##   @ts-ignore/.skip()/assertTrue(true)/eslint-disable/"|| true" (mascaramento);
+##   mock em integration/e2e; TODO sem ID; dado pessoal real em fixture; URL/ambiente fiscal hardcoded.
+## - Spec gera código. Override do projeto em .specify/overrides/ vence o core (não burla REGRAS-INEGOCIAVEIS.md).
+## O contrato completo está nos arquivos lidos abaixo — leia-os de fato.
 
 # Carrega o contrato canônico do projeto
 read:

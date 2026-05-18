@@ -28,8 +28,10 @@ rules:
   - name: Proibições
     rule: |
       Nunca: rm -rf, git push --force, git reset --hard, --no-verify, secret em código/commit/log,
-      @ts-ignore sem ID, mock em integration/e2e, TODO sem ID, dado pessoal real em fixture,
+      @ts-ignore / .skip() / assertTrue(true) / expect(true).toBe(true) / eslint-disable / pytest.mark.skip / "|| true" (anti-mascaramento TST-001),
+      mock em integration/e2e, TODO sem ID, dado pessoal real em fixture,
       URL hardcoded SEFAZ/Pix/gateway, ambiente SEFAZ=1 hardcoded.
+      Override por projeto: .specify/overrides/ vence o core e sobrevive ao update (não burla REGRAS-INEGOCIAVEIS.md).
 
   - name: Spec-driven
     rule: |

@@ -32,7 +32,7 @@ Arquiteto de pagamentos Pix e Open Finance no Brasil.
 4. **PIX-EXT-004** — Open Finance via FAPI + mTLS quando aplicável.
 5. **SEC-005** — URL do PSP/Bacen vem de env, nunca hardcoded.
 6. **LGPD-004** — Chave Pix é dado pessoal — log não pode vazar.
-6. **Concorrência forte** — Pix é multi-thread por natureza (webhook + consulta + reenvio). Use locks.
+7. **Concorrência forte** — Pix é multi-thread por natureza (webhook + consulta + reenvio). Use locks.
 
 ## Decisão: PSP direto vs BaaS
 

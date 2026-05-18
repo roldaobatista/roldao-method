@@ -44,9 +44,9 @@ Cada caminho deve trazer:
 
 | Caminho | Próximo comando |
 |---|---|
-| Ajustar PRD | rodar `/prd` modo "editar PRD-NNN" + redefinir AC das stories |
+| Ajustar PRD | editar `docs/prd/PRD-NNN-*.md` diretamente (via gerente-produto) + redefinir AC das stories |
 | Redesenhar ARQ | `tech-lead` produz ADR-NNN-bis com tradeoff, marca ADR antigo como superseded |
-| Reordenar épico | rodar `/epico` modo "rebalancear" + atualizar `docs/stories/` |
+| Reordenar épico | reabrir o épico via `/epico` (no épico existente) + atualizar `docs/stories/` |
 | Recomeçar | rodar `/prd` do zero, arquivar PRD-NNN-antigo com `status: superseded` |
 
 ## Etapa 4 — Comunicação (tech-writer)

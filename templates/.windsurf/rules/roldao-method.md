@@ -23,8 +23,9 @@ Faça o melhor caminho. Reporte depois. Confirme só pra: destrutivo, gasto, mud
 
 - `rm -rf`, `git push --force`, `git reset --hard`, `--no-verify` → não.
 - Secret em código/commit → não.
-- `@ts-ignore`, `.skip()`, `||true` sem ID → não.
+- `@ts-ignore`, `.skip()`, `assertTrue(true)`, `expect(true).toBe(true)`, `eslint-disable`, `pytest.mark.skip`, `|| true` → não (anti-mascaramento, TST-001).
 - Mock em `integration/` ou `e2e/` → não.
+- Override por projeto: `.specify/overrides/<area>/<nome>` vence o core e nunca é sobrescrito por `update` (mas não burla `REGRAS-INEGOCIAVEIS.md`).
 - TODO sem ID → não.
 - Dado pessoal real em fixture → não.
 - URL hardcoded de SEFAZ/Pix/gateway → não.

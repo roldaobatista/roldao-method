@@ -39,7 +39,7 @@ Após confirmação, invoque `dev-senior` pra montar:
 Preencher os campos `_(preencher)_` em:
 - `AGENTS.md` — identidade, stack, comandos.
 - `REGRAS-INEGOCIAVEIS.md` — adicionar regras específicas do projeto se houver.
-- `.agent/CURRENT.md` — registrar onde paramos.
+- `AGENTS.md` seção 10 ("O que está pendente") — registrar onde paramos (mesmo lugar que o `/retro` atualiza).
 
 ## Saída final
 

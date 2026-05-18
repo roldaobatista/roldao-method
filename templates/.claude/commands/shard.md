@@ -75,7 +75,7 @@ DOCUMENTO FATIADO
 
 Original: docs/prd/PRD-007.md (2.143 linhas)
 Fatias criadas: 11
-Maior fatia: 05-frs.md (450 linhas)
+Maior fatia: 04-frs.md (450 linhas)
 Referências atualizadas: 15
 Original marcado como: superseded -> docs/prd/PRD-007/index.md
 ```

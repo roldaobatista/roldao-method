@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Menor privilégio: o workflow só lê o repo (não publica, não comenta).
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -121,13 +125,13 @@ jobs:
           # Forca locale ASCII pra simular Windows sem UTF-8 e ver se acentos sobrevivem.
           LC_ALL=C $PY templates/.claude/skills/validar-cep/scripts/validar-cep.py "00000-000" | grep -q "sequência" || (echo "FAIL acento perdido em validar-cep"; exit 1)
 
-  rodar-evals:
-    name: Evals dos agentes
+  lint-evals:
+    name: Lint estrutural dos evals (cobertura 12/12)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Rodar evals
+      - name: Lint estrutural dos evals (não é eval de comportamento)
         run: node evals/run.js

@@ -40,3 +40,8 @@ aplica-quando:
   - "Sistema envia eventos pra eSocial (qualquer porte de empresa)"
   - "Sistema integra com folha de pagamento"
   - "Sistema gerencia obrigações trabalhistas (CIPA, NRs, ASO)"
+
+non-goals:
+  - "cálculo de folha de pagamento (o addon orquestra envio/prazo, não calcula verbas)"
+  - "geração de guias (DARF/DAE) — fora do escopo eSocial"
+  - "certificação/homologação legal — orienta, não certifica"

@@ -12,7 +12,7 @@ Você está sendo chamado pra gerar um ADR (Architecture Decision Record) novo.
 
 ## Passo a passo
 
-1. **Identifique o próximo número de ADR.** Liste `docs/adr/` ou `docs/arquitetura/adr/` e use `N+1` do maior número existente. Se for o primeiro, use `0001`.
+1. **Identifique o próximo número de ADR.** Liste `docs/decisions/` e use `N+1` do maior número existente. Se for o primeiro, use `001`.
 
 2. **Pergunte ao usuário** (se ainda não foi fornecido):
    - Título curto da decisão (ex: "Adotar PostgreSQL como banco principal").
@@ -21,7 +21,7 @@ Você está sendo chamado pra gerar um ADR (Architecture Decision Record) novo.
 
 3. **Use o template em `${CLAUDE_SKILL_DIR}/templates/adr.md`** e preencha os campos.
 
-4. **Salve em** `docs/adr/<NNNN>-<slug-do-titulo>.md` (slug em kebab-case, minúsculo, sem acento).
+4. **Salve em** `docs/decisions/ADR-<NNN>-<slug-do-titulo>.md` (slug em kebab-case, minúsculo, sem acento).
 
 5. **Aplique frontmatter obrigatório** (INV-004): `owner`, `revisado-em` (data de hoje), `status: proposta`.
 

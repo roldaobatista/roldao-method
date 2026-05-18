@@ -38,7 +38,8 @@
     "validar": "node tools/validar-templates.js",
     "test:hooks": "bash templates/.claude/hooks/_test-runner.sh",
     "test:install": "node test/install.test.js",
-    "test": "npm run validar && npm run test:hooks && npm run test:install"
+    "test:skills": "node test/skills.test.js",
+    "test": "npm run validar && npm run test:hooks && npm run test:install && npm run test:skills"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",

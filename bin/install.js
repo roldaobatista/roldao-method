@@ -139,7 +139,7 @@ function warnWindowsShell() {
   if (!isWindowsWithoutBash()) return;
   console.log('');
   console.log(`${c.yellow}${c.bold}AVISO — Windows sem Git Bash detectado.${c.reset}`);
-  console.log(`${c.yellow}Os hooks de protecao (21 bloqueadores) ${c.bold}NAO vao rodar${c.reset}${c.yellow} em PowerShell ou CMD.${c.reset}`);
+  console.log(`${c.yellow}Os hooks de protecao (22 bloqueadores) ${c.bold}NAO vao rodar${c.reset}${c.yellow} em PowerShell ou CMD.${c.reset}`);
   console.log('');
   console.log(`Para ativar a protecao do framework:`);
   console.log(`  ${c.cyan}1.${c.reset} Instale Git for Windows: ${c.dim}https://git-scm.com/download/win${c.reset}`);
@@ -756,7 +756,8 @@ async function tasksToIssues() {
       const id = `T-${m[1]}`;
       if (seen.has(id)) continue;
       seen.add(id);
-      const title = line.replace(/^[\s\-*>]+/, '').replace(/^\[[ xX]\]\s*/, '').trim();
+      const title = line.replace(/^[\s\-*>]+/, '').replace(/^\[[ xX]\]\s*/, '')
+        .replace(/[\r\n\t]+/g, ' ').trim().slice(0, 200);
       tasks.push({ id, title: title || id, story: f });
     }
   }
@@ -946,20 +947,27 @@ async function uninstall() {
     '.claude/_meta',
     '.specify/templates',
   ];
+  // Não apaga direto: MOVE pra um backup datado. O usuário pode ter criado
+  // agente/skill/command próprio dentro dessas pastas — rmSync cego perderia
+  // sem volta. Backup preserva e ainda "desinstala" (some do .claude ativo).
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupRoot = path.join(CWD, `.roldao-method.uninstalled-${ts}`);
   let removidos = 0;
   for (const p of candidatos) {
     const full = path.join(CWD, p);
     if (!fs.existsSync(full)) continue;
-    if (DRY_RUN) { console.log(`  REMOVERIA ${p}`); continue; }
+    if (DRY_RUN) { console.log(`  MOVERIA ${p} -> ${path.basename(backupRoot)}/${p}`); continue; }
     try {
-      fs.rmSync(full, { recursive: true, force: true });
+      const dest = path.join(backupRoot, p);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.renameSync(full, dest);
       removidos++;
-      console.log(`  removido: ${p}`);
+      console.log(`  movido p/ backup: ${p}`);
     } catch (e) {
       console.log(`  ERRO ${p}: ${e.message}`);
     }
   }
-  log(`${removidos} caminho(s) removido(s).`);
+  log(`${removidos} caminho(s) movido(s) para ${path.basename(backupRoot)}/ (não apagados — customizações suas preservadas; apague a pasta manualmente se quiser).`);
   log('arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS, .mcp.json, settings.local.json).');
 }
 

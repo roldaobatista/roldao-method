@@ -52,7 +52,7 @@ Onde:
 - `versao`: 2 (versão atual)
 - `tpAmb`: 1=prod, 2=homolog
 - `idCSC`: ID do CSC cadastrado no portal SEFAZ
-- `csc-hash`: SHA-1 da concatenação chave+CSC
+- `csc-hash`: SHA-1 da concatenação dos parâmetros + CSC (a ordem exata da concatenação e a versão do QR variam por UF e versão do MOC NFC-e — **verificar o manual da SEFAZ da UF** antes de implementar)
 
 ## BR Code Pix integrado
 

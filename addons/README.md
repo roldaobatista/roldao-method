@@ -25,26 +25,36 @@ addons/<nome-do-addon>/
 
 ## Manifesto `addon.yaml`
 
-Schema mínimo:
+Schema real (idêntico nos 6 addons — chaves de estrutura em inglês, conteúdo em PT-BR):
 
 ```yaml
-nome: <kebab-case>
-versao: 0.1.0
-descricao: <1 linha em PT-BR>
-autor: <nome>
-licenca: MIT
-compativel-com: roldao-method>=0.3.0
+name: <kebab-case>
+version: 0.1.0
+description: <1 linha em PT-BR>
+authors:
+  - <nome>
+license: MIT
+status: stable | beta
+revisado-em: AAAA-MM-DD
+requires:
+  roldao-method: ">=0.3.0"
 provoca:
-  agentes: [lista-de-agentes-criados]
-  commands: [lista-de-commands-criados]
-  hooks: [lista-de-hooks-criados]
-  skills: [lista-de-skills-criados]
-  regras: [lista-de-IDs-novos]  # ex: [ELECTRON-001, ELECTRON-002]
-requisitos:
-  - <pre-requisito 1>  # ex: "projeto Electron com src/main"
+  agents:    [lista-de-agentes-criados]
+  commands:  [lista-de-commands-criados]
+  hooks:     [lista-de-hooks-criados]
+  skills:    [lista-de-skills-criados]
+  templates: [lista-de-templates-criados]
+regras:
+  - id: <PREFIXO-001>          # ex: ELECTRON-001
+    titulo: <título curto>
+    descricao: <regra em 1 linha>
+requisitos:                    # OU aplica-quando: (quando o gatilho é situacional)
+  - <pré-requisito>            # ex: "projeto Electron com src/main"
 non-goals:
-  - <o que o addon NÃO faz>
+  - <o que o addon NÃO faz>    # obrigatório nos 6 addons
 ```
+
+`esocial-completo` e `varejo-pdv-br` ainda incluem `homepage:` e `layout-esocial:` quando aplicável.
 
 ## Como instalar um addon
 

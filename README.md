@@ -84,7 +84,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 ### Requisitos
 
 - **Node.js 18+** (em CI: 20+).
-- **Windows:** hooks usam `bash` + `perl`, então rode o Claude Code a partir do **Git Bash** (vem com Git for Windows). PowerShell puro **não roda os hooks** — eles ficam silenciosos. Ver [docs/TROUBLESHOOTING.md#windows](docs/TROUBLESHOOTING.md#hooks).
+- **Windows:** hooks usam `bash` + `perl`, então rode o Claude Code a partir do **Git Bash** (vem com Git for Windows). PowerShell puro **não roda os hooks** — eles ficam silenciosos. Ver [docs/TROUBLESHOOTING.md (seção Hooks)](docs/TROUBLESHOOTING.md#hooks).
 - **macOS/Linux:** funciona em bash 3.2+ (compatibilidade testada em CI matriz).
 
 ## 12 especialistas virtuais
@@ -257,7 +257,7 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 | Templates de spec | 12 markdown (PRD, story, arch, brownfield, fiscal, fullstack, decision, PRFAQ, brief, UX, headless, épico) |
 | Spec-driven | Total (`.specify/`) |
 | Orquestração de skills | `_meta/skills-index.csv` |
-| Evals dos agentes | Sim (`evals/`) em CI |
+| Evals dos agentes | Lint estrutural em CI (12/12 cobertos; modo live é roadmap) |
 | CNPJ alfanumérico jul/2026 | Suportado desde v0.3 |
 | Reforma Tributária 2026-2033 | `FISCAL-006` + agente fiscal + KB |
 | Pix completo | Addon `fintech-br` (5 chaves, BR Code, Open Finance) |

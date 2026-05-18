@@ -80,6 +80,10 @@ Saída em PT-BR estruturada:
 - Se **ressalva bloqueante** → reverter pra dev, listar correções.
 - Se **decisão fora do escopo** (ex: aprovação jurídica de LGPD) → escalar ao usuário com pergunta clara.
 
+## Etapa 4.5 — Checklist de release (obrigatório antes de fechar)
+
+Antes de marcar como pronto pra mergear, rode `.specify/checklists/release-readiness.md` (ou o override do projeto). Qualquer item essencial reprovado → volta pra Dev Sênior, não fecha o checkpoint.
+
 ## Etapa 5 — Marcar checkpoint concluído (mecânico)
 
 Após salvar o arquivo `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` e tomar decisão (merge / corrigir / escalar), crie o marcador:

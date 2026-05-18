@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 /**
- * evals/run.js — executor de evals dos 12 agentes.
+ * evals/run.js — verificador estrutural dos evals dos agentes.
  *
- * Modo "lint-only" (sem ANTHROPIC_API_KEY): valida estrutura dos .eval.md
- *   (cada agente tem ≥ 3 cenários, cada cenário com Input + Validações).
+ * IMPORTANTE: por padrão (sem ANTHROPIC_API_KEY) isto é um LINT ESTRUTURAL,
+ * não um eval de comportamento. Valida que cada .eval.md tem ≥ 3 cenários
+ * bem formados (Input + ≥ 2 validações). NÃO executa modelo nenhum.
  *
- * Modo "live" (com ANTHROPIC_API_KEY): roda prompt contra modelo e valida resposta.
+ * Modo "live" (com ANTHROPIC_API_KEY): placeholder — ainda não roda modelo.
+ *
+ * Cruza com templates/.claude/agents/: todo agente DEVE ter .eval.md
+ * (a ausência falha — antes era silenciosa).
  *
  * Sem dependência externa.
  */
@@ -14,6 +18,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, 'agents');
+const AGENTS_DIR = path.resolve(__dirname, '..', 'templates', '.claude', 'agents');
 const args = process.argv.slice(2);
 // Aceita "--agent X" e "--agent=X" (formato comum em CI).
 const wantAgent = (() => {
@@ -71,6 +76,20 @@ async function main() {
   if (evals.length === 0) {
     console.error('Nenhum eval encontrado.');
     process.exit(2);
+  }
+
+  // Cross-check: todo agente em templates/.claude/agents precisa de eval.
+  // Antes a ausência era silenciosa ("Todos OK" enganoso com 5/12 cobertos).
+  if (!wantAgent && fs.existsSync(AGENTS_DIR)) {
+    const agentNames = fs.readdirSync(AGENTS_DIR)
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => f.replace('.md', ''));
+    const evalNames = new Set(listEvals().map((e) => e.agent));
+    const semEval = agentNames.filter((a) => !evalNames.has(a));
+    if (semEval.length > 0) {
+      console.error(`FAIL: agentes sem .eval.md: ${semEval.join(', ')}`);
+      process.exit(1);
+    }
   }
 
   const results = [];

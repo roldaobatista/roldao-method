@@ -43,12 +43,10 @@ esac
 
 PROJDIR=$(sanitize_projdir) || exit 2
 
-# Normaliza e exige que esteja dentro de PROJDIR
-ABS_MODULE=$(cd "$PROJDIR" 2>/dev/null && cd "$MODULE_DIR" 2>/dev/null && pwd) || ABS_MODULE=""
-case "$ABS_MODULE" in
-  "$PROJDIR"|"$PROJDIR"/*) ;;
-  *) exit 0 ;;
-esac
+# NÃO depender de o diretório já existir: ao criar o PRIMEIRO E2E o módulo
+# ainda não existe — `cd` falharia e o hook nunca bloquearia (era o bug).
+# Segurança já garantida acima (sem '..', sem path absoluto), então o destino
+# é, por construção, $PROJDIR/$MODULE_DIR dentro do projeto.
 
 # Procura unit tests no mesmo modulo (extensao .test, .spec OR dentro de __tests__/)
 UNIT_COUNT=0

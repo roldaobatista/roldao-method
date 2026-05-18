@@ -81,7 +81,7 @@ Antes de criar as stories filhas, criar o arquivo do **proprio epico**:
 
 ## Etapa 6 — Criar arquivos das stories
 
-Para cada US listada na tabela, criar arquivo `docs/stories/US-NNN-slug.md` via `/historia` (skeleton minimo, status `draft`). O frontmatter de cada US deve apontar `epico: EP-NNN` corretamente para que o hook `require-readiness-before-feature.sh` consiga rastrear de volta.
+Para cada US listada na tabela, criar arquivo `docs/stories/US-NNN-slug.md` seguindo o template `.specify/templates/story.md` (skeleton mínimo, status `draft`) — mesma lógica do `/historia`, mas inline (o `/historia` tem `disable-model-invocation`, não dá pra auto-invocar daqui). O frontmatter de cada US deve apontar `epico: EP-NNN` corretamente para que o hook `require-readiness-before-feature.sh` consiga rastrear de volta.
 
 ## Saida final
 

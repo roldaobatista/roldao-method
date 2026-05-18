@@ -40,8 +40,8 @@ Esse desvio é codificado em `templates/CLAUDE.md` REGRA #0 e `regra-zero-remind
    - Diga ao usuário: "O épico EP-NNN não passou no /readiness ainda. Rode `/readiness EP-NNN` antes."
    - Não escreva código. Não invoque dev-senior.
 5. Se readiness está `PRONTO`:
-   - Crie marcador: `mkdir -p .claude/.runtime && touch .claude/.runtime/readiness-passed-${SESSION_HASH}` (com hash igual ao usado pelos outros hooks).
-   - Crie marcador: `touch .claude/.runtime/feature-active-${SESSION_HASH}` com o conteúdo `US-NNN`.
+   - Crie marcador: `mkdir -p .claude/.runtime && touch .claude/.runtime/feature-active-${SESSION_HASH}` com o conteúdo `US-NNN`.
+   - **Não** crie `readiness-passed-*` manualmente — o próprio hook `require-readiness-before-feature.sh` cria esse marcador ao validar o frontmatter `status: PRONTO`. Criar à mão fura o gate (o hook sai cedo se o marcador já existe, sem checar o status real).
    - Prossiga para Etapa 1.
 
 > O hook `require-readiness-before-feature.sh` valida que `feature-active-*` E `readiness-passed-*` existem antes de permitir Edit/Write em código de negócio. Tentar pular essa etapa resulta em exit 2.
@@ -124,7 +124,7 @@ Invoque **sempre, em paralelo**:
 
 ```bash
 # Compute o hash do que voce DE FATO auditou (impede 'touch sem auditar'):
-AUDIT_SHA=$(git diff HEAD | shasum -a 256 | awk '{print $1}')
+AUDIT_SHA=$(git diff HEAD | { shasum -a 256 2>/dev/null || sha256sum; } | awk '{print $1}')
 SESS="${SESSION_HASH}"
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 

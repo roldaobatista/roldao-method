@@ -43,8 +43,14 @@ case "$(basename "$FILE_PATH")" in
     ;;
 esac
 
-# Validar SEMPRE o conteúdo novo (não confiar no arquivo no disco)
-FIRST_LINE=$(head -n1 "$TMPF")
+# Validar SEMPRE o conteúdo novo (não confiar no arquivo no disco).
+# Ignora BOM UTF-8 e linhas em branco iniciais antes de exigir o "---"
+# (editor que insere newline/BOM no topo não deve gerar falso positivo).
+FIRST_LINE=$(perl -e '
+  local $/; my $c = <STDIN>;
+  $c =~ s/^\x{EF}\x{BB}\x{BF}//;   # BOM
+  for my $l (split /\n/, $c) { next if $l =~ /^\s*$/; print $l; last }
+' < "$TMPF")
 
 if [ "$FIRST_LINE" != "---" ]; then
   cat >&2 <<EOF

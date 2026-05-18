@@ -51,7 +51,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 **Essenciais em `.claude/agents/`:**
 
 - `analista` — pesquisa de mercado, brief, PRFAQ, regulamentação BR.
-- `gerente-produto` — PRD, user story, decomposição (4 modos).
+- `gerente-produto` — PRD, user story, decomposição (3 modos: PRD/story/decomp; brief é do `analista`).
 - `ux-designer` — wireframes ASCII, estados, mensagens PT-BR.
 - `tech-lead` — arquitetura, ADR, ARQ, checklist de readiness.
 - `investigador` — lê código/banco/logs ANTES de propor solução. Obrigatório em `/bug`.
@@ -67,6 +67,10 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 **Especialista BR:**
 
 - `fiscal-br` — NF-e, certificado, eSocial, REINF, SPED, Reforma Tributária 2026-2033.
+
+**Documentação:**
+
+- `tech-writer` — CHANGELOG, README, release notes, tradução de mensagem técnica pra PT-BR claro. Usado por `/status`, `/replanejar`, releases.
 
 ---
 
@@ -86,6 +90,13 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/qa` | Testes de uma área | investigador → auditor-qualidade → dev-senior → revisor |
 | `/auditoria` | Passar auditores | auditor-seguranca + auditor-qualidade + auditor-produto |
 | `/consistencia` | Cross-check doc↔código | investigador → 3 auditores (em paralelo) |
+| `/quick-dev` | Mudança trivial (≤3 arquivos) | dev-senior → revisor |
+| `/readiness` | Gate `/epico` → `/feature` | investigador → tech-lead |
+| `/shard` | Quebrar PRD/ARQ longo em chunks | (sem agente — fatiamento) |
+| `/sprint` | Plano sequencial das próximas stories | gerente-produto |
+| `/replanejar` | Mudança de escopo no épico | gerente-produto → tech-writer |
+| `/status` | Reportar progresso PT-BR | tech-writer |
+| `/checkpoint` | Walkthrough antes do merge | (sem agente — walkthrough) |
 | `/retro` | Retrospectiva pós-marco | (sem agente específico — 4L) |
 
 ---

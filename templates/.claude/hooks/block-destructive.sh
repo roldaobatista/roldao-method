@@ -15,8 +15,14 @@ CMD=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   print $json->{tool_input}->{command} // "";
 ' 2>/dev/null)
 
+# Fail-closed: se o parser falhou (JSON invalido/encoding) mas ha input, NAO
+# libera silenciosamente — escaneia o INPUT cru. So sai 0 se realmente vazio.
 if [ -z "$CMD" ]; then
-  exit 0
+  if [ -n "$INPUT" ]; then
+    CMD="$INPUT"
+  else
+    exit 0
+  fi
 fi
 
 # Padrões destrutivos
@@ -25,10 +31,18 @@ PATTERNS=(
   'rm[[:space:]]+-fr[[:space:]]'
   'rm[[:space:]]+-r[[:space:]]+/'
   'rm[[:space:]]+-f[[:space:]]+/'
+  'rm[[:space:]]+.*--recursive'
+  'rm[[:space:]]+.*--force'
+  'find[[:space:]]+.*-delete'
+  'find[[:space:]]+.*-exec[[:space:]]+rm'
+  '[[:space:]]shred[[:space:]]'
+  ':\(\)[[:space:]]*\{[[:space:]]*:[[:space:]]*\|[[:space:]]*:'
   'git[[:space:]]+push.*--force'
   'git[[:space:]]+push.*-f[[:space:]]'
   'git[[:space:]]+push.*[[:space:]]-f$'
   'git[[:space:]]+push.*--force-with-lease'
+  'git[[:space:]]+push.*--delete'
+  'git[[:space:]]+push[[:space:]]+[^|]*[[:space:]]:[A-Za-z]'
   'git[[:space:]]+reset[[:space:]]+--hard'
   'git[[:space:]]+clean[[:space:]]+-fd'
   'git[[:space:]]+branch[[:space:]]+-D'

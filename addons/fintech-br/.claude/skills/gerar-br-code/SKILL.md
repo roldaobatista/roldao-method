@@ -102,6 +102,7 @@ interface BRCodeInput {
   cidade: string;          // max 15
   valor?: number;          // BRL, ex 10.50
   txId?: string;           // 1..25 (Pix avulso) ou 26..35 (cob e cobv — exige tamanho mínimo 26)
+  mcc?: string;            // Merchant Category Code (4 dígitos ISO 18245); PF sem categoria: '0000'
   descricao?: string;
   dinamico?: boolean;
 }

@@ -4,9 +4,9 @@ revisado-em: 2026-05-18
 status: stable
 ---
 
-# Evals — qualidade dos 12 agentes
+# Evals — verificação estrutural dos 12 agentes
 
-> Testes de qualidade do output esperado de cada agente. Cada eval define um input (prompt + contexto) e validações (regex, presença de campo, ausência de jargão, etc) sobre a resposta.
+> **Estado atual:** por padrão isto é **lint estrutural**, não eval de comportamento. Cada `.eval.md` define input + validações esperadas, e o `run.js` (sem `ANTHROPIC_API_KEY`) verifica apenas que os cenários estão bem formados (≥3 cenários, Input + ≥2 validações) e que **todo agente tem eval** (cross-check com `templates/.claude/agents/`). O modo "live" (rodar contra o modelo e validar a resposta de fato) ainda é placeholder. Não confundir lint verde com qualidade de comportamento garantida.
 
 ## Como rodar
 
@@ -43,18 +43,16 @@ Cada `.eval.md` tem 3-5 cenários, cada cenário com:
 
 ## Como o run.js funciona
 
-`run.js` lê cada `.eval.md`, extrai cenários, e roda contra um modelo configurado (Claude via API ou stub local pra CI rápido). Valida output com:
-- regex match
-- presença de campo (frontmatter, seção, etc)
-- ausência de jargão (lista em `kb-pt-br.md`)
-- limite de palavras
-- presença de IDs específicos (LGPD-NNN, FISCAL-NNN, etc)
+`run.js`:
+1. Cruza `templates/.claude/agents/*.md` com `evals/agents/*.eval.md` — **falha** se algum agente não tiver eval (cobertura 12/12 obrigatória).
+2. Para cada `.eval.md`: exige ≥3 cenários, cada um com Input (≥10 chars) e ≥2 validações.
+3. Modo live (`ANTHROPIC_API_KEY` setado): placeholder — ainda **não** roda o modelo nem aplica as validações de output. Quando implementado, validará regex/presença de campo/ausência de jargão/limite de palavras/IDs.
 
-Se não tem `ANTHROPIC_API_KEY`, roda em modo "lint-only" — só valida estrutura dos `.eval.md`.
+Sem `ANTHROPIC_API_KEY` (default e CI): modo **lint estrutural**, descrito acima.
 
 ## CI
 
-Workflow `.github/workflows/validar.yml` job `rodar-evals` chama `node evals/run.js`. Falha CI se algum eval falhar.
+Workflow `.github/workflows/validar.yml` job `rodar-evals` chama `node evals/run.js` — **lint estrutural**, não eval de comportamento. Falha CI se algum agente ficar sem eval ou se algum `.eval.md` estiver malformado.
 
 ## Adicionar novo cenário
 

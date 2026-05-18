@@ -26,7 +26,7 @@ Confirme só: destrutivo, gasto, mudança pública, credenciais.
 |---|---|
 | `rm -rf`, `git push --force` | irreversível sem autorização |
 | Secret em código/commit | SEC-001 |
-| `@ts-ignore` sem ID | TST-001 |
+| `@ts-ignore`, `.skip()`, `assertTrue(true)`, `expect(true).toBe(true)`, `eslint-disable`, `pytest.mark.skip`, `\|\| true` | TST-001 |
 | Mock em `integration/` ou `e2e/` | TST-003 |
 | TODO sem ID | INV-005 |
 | Dado real em fixture | TST-004 |

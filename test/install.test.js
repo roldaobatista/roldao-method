@@ -327,19 +327,26 @@ try {
 }
 
 // 9) Recusa em diretorio sensivel (root, home, Program Files) — usa --dry-run pra testar lógica sem efeito
-try {
+{
   const homedir = os.homedir();
-  process.chdir(homedir);
-  let blocked = false;
+  let canTest = true;
   try {
-    execSync(`node "${BIN}" install --yes --dry-run`, { stdio: 'pipe' });
+    process.chdir(homedir);
   } catch (e) {
-    blocked = true;
+    // Só ISTO é "não consegui montar o cenário" — não falha o teste.
+    canTest = false;
+    console.log(`  SKIP install recusa rodar em $HOME (não foi possível chdir pra ${homedir}: ${e.message})`);
   }
-  check('install recusa rodar em $HOME', blocked);
-  process.chdir(TMP);
-} catch (e) {
-  // se nao conseguiu testar, nao falha
+  if (canTest) {
+    let blocked = false;
+    try {
+      execSync(`node "${BIN}" install --yes --dry-run`, { stdio: 'pipe' });
+    } catch (e) {
+      blocked = true;
+    }
+    // Se chegou aqui e NÃO bloqueou, a proteção falhou — FAIL incondicional.
+    check('install recusa rodar em $HOME', blocked);
+  }
   process.chdir(TMP);
 }
 

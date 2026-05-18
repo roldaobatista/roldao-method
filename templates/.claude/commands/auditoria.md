@@ -13,8 +13,8 @@ Use `$ARGUMENTS` como escopo da auditoria (ex: "Wave A completa", "módulo finan
 
 Em UMA ÚNICA MENSAGEM, invoque os 3:
 
-1. `auditor-seguranca` — LGPD, secrets, OWASP, supply chain.
-2. `auditor-qualidade` — testes, cobertura, anti-padrões, débito.
+1. `auditor-seguranca` — LGPD, secrets, OWASP, supply chain. Roda `.specify/checklists/lgpd-privacy-review.md` (+ `pix-compliance.md` se houver Pix).
+2. `auditor-qualidade` — testes, cobertura, anti-padrões, débito. Roda `.specify/checklists/audit-trail.md` (trilha US→AC→T→commit completa antes de "entregue").
 3. `auditor-produto` — aderência a user stories, UX, BR.
 
 Cada auditor reporta independentemente.
@@ -81,6 +81,6 @@ Recomendado fazer também (não bloqueante):
 
 ## Importante
 
-- **3 auditores são INDEPENDENTES.** Não combine os relatórios — eles veem perspectivas diferentes.
+- **3 auditores são INDEPENDENTES.** Ao consolidar, não dilua nem misture os vereditos individuais — cada um vê uma perspectiva diferente e o relatório final preserva os três separadamente.
 - Se 1 dos 3 disser BLOQUEADO/NÃO ENTREGAR, **o consolidado também bloqueia**, mesmo que os outros 2 aprovem.
 - Apresentar consolidado ao usuário em **PT-BR sem jargão**.

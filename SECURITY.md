@@ -12,7 +12,7 @@ Como reportar vulnerabilidades, prazos esperados, escopo coberto.
 
 Encontrou uma vulnerabilidade no ROLDAO-METHOD? **Não abra issue pública.**
 
-Envie email para **security@roldao-method.dev** (ou via [security advisory privado do GitHub](https://github.com/roldaobatista/roldao-method/security/advisories/new)).
+Use o canal primário: [Security Advisory privado do GitHub](https://github.com/roldaobatista/roldao-method/security/advisories/new) (relato confidencial, rastreável, sem depender de e-mail).
 
 Inclua:
 - Versão afetada (`npx roldao-method version`)

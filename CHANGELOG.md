@@ -4,9 +4,19 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 ## [0.13.1] — 2026-05-18
 
-**Auditoria 10-agentes round 7 (sem viés).** 10 auditores independentes, escopos isolados. Correção dos P0 e P1 que comprometiam o diferencial central. 147/147 mantidos.
+**Auditoria 10-agentes round 7 (sem viés).** 10 auditores independentes, escopos isolados. **Backlog completo fechado** — P0, P1, P2 e P3. 147/147 hooks + 11/11 skills Python + 12/12 evals (lint) + install OK.
 
-### Corrigido
+### Backlog P2/P3 fechado (2ª onda)
+
+- **Hooks endurecidos a fundo:** `block-destructive` (long options `--recursive/--force`, `find -delete`, `shred`, fork-bomb, `git push --delete`, fail-closed em JSON quebrado), `secrets-scanner` (`.example` pula só path não conteúdo, connection-string com senha, service-account GCP, senha inline, fail-closed), `no-test-data-in-fixtures` (CPF real **não-formatado** via dígito verificador), `paths-frontmatter-validator` (BOM/linha em branco inicial não dá mais falso positivo), `validate-test-pyramid` (primeiro E2E em módulo novo agora bloqueia — antes `cd` falhava e liberava), `commit-message-validator` (todos os `-m`/`--message=`), `anti-mascaramento` (passada única O(arquivo) — 200KB ia a ~10s).
+- **Skills Python:** `--txid-cob` (cobrança exige 26-35), E2EID valida plausibilidade da data, mensagem de UUID errado diz a versão recebida, código morto removido em `gerar.py`.
+- **Agentes:** `dev-senior` consome o JSON do investigador como contrato (não sugestão); `revisor` confronta `arquivo_correcao` com o diff; schema do investigador aceita `BUG-<slug>` sem story; `tech-writer` sem skill de ADR (era do tech-lead); auditor-seguranca com checklist LGPD-006..010; ADR padronizado em `docs/decisions/`.
+- **Workflows:** `readiness`/`sprint` localizam épico por glob `EP-NNN-*`; `readiness` ADR em `docs/decisions/`; `feature` não cria `readiness-passed` à mão (furava o gate) + fallback `sha256sum`; `replanejar`/`epico` sem modos inventados; `inicio` sem `.agent/CURRENT.md` órfão; checklists órfãos (`release-readiness`, `audit-trail`, `pix-compliance`) agora referenciados por `/checkpoint` e `/auditoria`.
+- **Contratos/docs:** AGENTS.md com `tech-writer` e tabela de workflows completa (3 modos do PM); `addons/README` reflete o schema real dos manifestos; `esocial` ganha S-2190/S-2231 na tabela; DPA com prazo em dias corridos; ROADMAP sem colisão de versões entregue×futura; SECURITY.md com canal verificável; READMEs de checklists/KBs completos (8/7).
+- **Adapters:** lista de mascaramento e nota de override em paridade (Windsurf/Cline/Continue); `.aider.conf.yml` com resumo inline (era 100% dependente de `read:`).
+- **Tooling/testes:** `validar-templates` checa consistência de versão (package↔README↔CHANGELOG) e normaliza CRLF; `_test-runner` exige total 147 (anti falso-verde); `evals/run.js` falha se algum agente não tem eval + **7 evals criados** (5/12 → 12/12); `npm test` agora roda as skills Python; teste `$HOME` não se auto-anula; `uninstall` move pra backup datado (não apaga customização); CI com `permissions: contents: read`; título de issue truncado.
+
+### Corrigido (P0/P1 — 1ª onda)
 
 - **REGRA #0 destravada de fato (P0).** O workflow `/bug` nunca criava o marcador `investigator-invoked-${SESSION_HASH}` que o hook `require-investigador-before-fix.sh` exige — o dev-senior ficava bloqueado para sempre numa investigação real. `/bug` agora cria o marcador (com o mesmo hash sanitizado dos hooks) ao final da investigação.
 - **Hash de sessão consistente (P0).** `feature.md`, `quick-dev.md`, `checkpoint.md` usavam `${CLAUDE_SESSION_ID}` cru nos `touch`, mas os hooks procuram o ID reduzido a alfanumérico — UUIDs com hífen nunca casavam, travando os gates. Comandos agora derivam `SESSION_HASH` igual ao `_lib.sh`.

@@ -23,15 +23,24 @@ printf '%s' "$INPUT" | perl -MJSON::PP -e '
   print $content;
 ' > "$TMPF" 2>/dev/null
 
-if [ -z "$FILE_PATH" ]; then
-  exit 0
+# Fail-closed parcial: se o parser falhou mas ha input, ainda escaneia o
+# conteudo cru (um segredo num Write com JSON quebrado nao pode passar).
+if [ ! -s "$TMPF" ] && [ -n "$INPUT" ]; then
+  printf '%s' "$INPUT" > "$TMPF"
 fi
 
-# Permitir arquivos de exemplo/template explícitos
+# Permitir arquivos de exemplo/template explícitos (pula SO a checagem de path,
+# nunca a de conteudo — segredo real em .env.example continua bloqueado).
 ALLOWED_SUFFIXES='\.(example|sample|template|tpl|dist)$'
 SKIP_PATH_CHECK=""
 
-if printf '%s\n' "$FILE_PATH" | grep -qE -- "$ALLOWED_SUFFIXES"; then
+if [ -z "$FILE_PATH" ]; then
+  # Sem path: nao da pra checar caminho proibido, mas conteudo ainda e escaneado.
+  if [ ! -s "$TMPF" ]; then
+    exit 0
+  fi
+  SKIP_PATH_CHECK=1
+elif printf '%s\n' "$FILE_PATH" | grep -qE -- "$ALLOWED_SUFFIXES"; then
   SKIP_PATH_CHECK=1
 fi
 
@@ -81,6 +90,9 @@ CONTENT_PATTERNS=(
   'sk_live_[0-9a-zA-Z]{16,}'                      # Stripe live key
   'rk_live_[0-9a-zA-Z]{16,}'                      # Stripe restricted live key
   'eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}'  # JWT (header.payload.sig)
+  '(postgres|postgresql|mysql|mongodb(\+srv)?|redis|amqps?)://[^:@/[:space:]]+:[^@/[:space:]]+@'  # connection string com senha
+  '"private_key"[[:space:]]*:[[:space:]]*"-----BEGIN'              # GCP service-account JSON
+  '(password|passwd|senha)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"' ]{6,}'  # senha inline literal
 )
 
 for pat in "${CONTENT_PATTERNS[@]}"; do

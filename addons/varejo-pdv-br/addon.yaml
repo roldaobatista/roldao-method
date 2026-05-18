@@ -39,3 +39,8 @@ aplica-quando:
   - "Emissão de SAT-CF-e (SP) ou NFC-e (demais UF) ou MFE-CE (CE)"
   - "Integração com TEF (Stone, Cielo, Rede, GetNet, SafraPay)"
   - "Integração com balança de açougue/padaria, impressora não-fiscal de cupom"
+
+non-goals:
+  - "homologação de equipamento SAT/MFE junto à SEFAZ (responsabilidade do fabricante)"
+  - "gateway de pagamento próprio — integra com TEF existente, não substitui"
+  - "retaguarda/ERP de estoque — foco é o ponto de venda fiscal"

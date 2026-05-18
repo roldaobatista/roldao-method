@@ -68,11 +68,13 @@ Investigador entrega **2 artefatos**: (1) JSON estruturado em `.claude/.runtime/
 
 ### 1. JSON estruturado (obrigatório)
 
-Salvar em `.claude/.runtime/investigation-${US_ID}.json`:
+Salvar em `.claude/.runtime/investigation-<ref>.json`, onde `<ref>` é `US-NNN`
+quando há story, ou `BUG-<slug-curto>` quando o `/bug` não tem story associada
+(ex.: `investigation-BUG-pdf-flag-zero.json`). Use o mesmo `<ref>` no campo `ref_id`.
 
 ```json
 {
-  "us_id": "US-NNN",
+  "ref_id": "US-NNN | BUG-<slug>",
   "reportado": "<descrição literal do usuário>",
   "estado_real": "<o que está salvo/observado AGORA>",
   "fonte": "<banco|log|payload|console|config — onde leu>",

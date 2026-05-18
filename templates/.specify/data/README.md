@@ -15,6 +15,10 @@ Memórias externas que os agentes consultam. Cada KB é estável (muda raramente
 | [kb-lgpd.md](kb-lgpd.md) | `auditor-seguranca`, `checklist-lgpd` | Bases legais Art. 7/11, direitos, RIPD, incidente 72h, transferência internacional |
 | [kb-pix.md](kb-pix.md) | `validar-pix` | Chaves, EndToEndId, TxId, BR Code, Open Finance, DICT |
 | [kb-stack-br.md](kb-stack-br.md) | `tech-lead` | Stack recomendada BR, anti-padrões de locale/fuso/moeda |
+| [kb-brainstorming-pt-br.md](kb-brainstorming-pt-br.md) | `brainstormar-ideia` | 15 técnicas de brainstorming adaptadas ao contexto BR |
+| [kb-elicitation-pt-br.md](kb-elicitation-pt-br.md) | `gerente-produto`, `/clarificar` | Métodos de elicitação/questionamento estruturado antes de codar |
+
+São **7 knowledge bases** no total.
 
 ## Como usar
 

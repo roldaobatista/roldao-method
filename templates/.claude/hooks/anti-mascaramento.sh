@@ -56,19 +56,19 @@ PATTERNS=(
   'pytest\.skip'
 )
 
+# Varredura em passada única (O(arquivo), não O(linhas×padrões)): junta todos
+# os padrões num só regex e roda um grep sobre o arquivo inteiro. Antes era
+# 1 subprocesso de grep por linha por padrão — 200KB numa linha levava ~10s.
+COMBINED=$(IFS='|'; printf '%s' "${PATTERNS[*]}")
+
 VIOLATIONS=()
 while IFS= read -r line || [ -n "$line" ]; do
-  for pat in "${PATTERNS[@]}"; do
-    if printf '%s\n' "$line" | grep -qiE -- "$pat"; then
-      # Permitir SOMENTE se mesma linha tem justificativa explícita COM razão
-      # (TST-001-exception: <texto>). Palavra-mágica sem razão não libera.
-      if printf '%s\n' "$line" | grep -qiE 'TST-001-exception:[[:space:]]*[^[:space:]]+'; then
-        continue
-      fi
-      VIOLATIONS+=("$pat  →  $line")
-    fi
-  done
-done < "$TMPF"
+  # Linha tem justificativa explícita COM razão? (palavra-mágica sem razão não libera)
+  if printf '%s\n' "$line" | grep -qiE 'TST-001-exception:[[:space:]]*[^[:space:]]+'; then
+    continue
+  fi
+  VIOLATIONS+=("$line")
+done < <(grep -niE -- "$COMBINED" "$TMPF" || true)
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
   cat >&2 <<EOF

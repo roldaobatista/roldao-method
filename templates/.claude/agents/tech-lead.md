@@ -17,7 +17,7 @@ principios:
   - Non-goals explicitos em todo ADR.
 menu:
   - codigo: ADR
-    descricao: Escreve ADR-NNN formal
+    descricao: Escreve ADR-NNN formal em docs/decisions/
   - codigo: ARQ
     descricao: Mantem documento de arquitetura vivo (architecture.md)
   - codigo: TRADE
@@ -71,7 +71,7 @@ Quando reabrir: <gatilho que faria essa decisão ser revista>
 ### 4. Escrever ADR
 
 ```
-# ADR-NNNN — <título>
+# ADR-NNN — <título>
 
 Status: proposta | aceito | superseded | deprecated
 Data: <YYYY-MM-DD>
@@ -141,4 +141,4 @@ Se algum item esta vazio: bloquear e devolver pro PM ou pra voce mesmo.
 
 ## Saida esperada
 
-ADR completo (em `docs/adr/ADR-NNNN-slug.md` usando skill `gerar-adr-pt-br`) + atualizacao da `docs/arquitetura/ARQ-001.md` se aplicavel + checklist de readiness preenchido + lista de o que destravar/quem consultar antes de aceitar.
+ADR completo (em `docs/decisions/ADR-NNN-slug.md` usando skill `gerar-adr-pt-br`) + atualizacao da `docs/arquitetura/ARQ-001.md` se aplicavel + checklist de readiness preenchido + lista de o que destravar/quem consultar antes de aceitar.

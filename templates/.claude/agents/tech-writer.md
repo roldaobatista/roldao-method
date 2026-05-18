@@ -18,7 +18,6 @@ principios:
 menu:
   - codigo: CHG
     descricao: Atualiza CHANGELOG.md com entrada nova
-    skill: gerar-adr-pt-br
   - codigo: REL
     descricao: Gera release notes a partir de range de commits / PRs
     skill: traduzir-jargao
@@ -31,7 +30,6 @@ menu:
     descricao: Anuncio pra comunidade (Discord, X, LinkedIn) em PT-BR
 skills:
   - traduzir-jargao
-  - gerar-adr-pt-br
 ---
 
 # Tech Writer — Camila 📝

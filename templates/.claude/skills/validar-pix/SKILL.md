@@ -32,6 +32,7 @@ Skill para validar chaves Pix e identificadores oficiais do BACEN.
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar-pix.py <chave>
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar-pix.py --e2eid E12345678202607011234ABC12345678
 python3 ${CLAUDE_SKILL_DIR}/scripts/validar-pix.py --txid abc123XYZ
+python3 ${CLAUDE_SKILL_DIR}/scripts/validar-pix.py --txid-cob ABCDEFGHIJKLMNOPQRSTUVWXYZ1234   # cobrança cob/cobv: exige 26-35
 ```
 > **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
 
