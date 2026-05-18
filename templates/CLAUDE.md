@@ -28,6 +28,9 @@ _(Se o usuário deste projeto não é programador, ajustar a tabela abaixo com t
 - Reportar no formato: "fiz X, resolvi Y, já comecei Z".
 - **Confirmar antes APENAS para:** deletar dados de produção, drop table, rotação de credenciais, mudanças legais públicas, push --force, reset --hard, rm -rf, migration destrutiva.
 
+### Executar, não passar pro usuário (INV-AGENT-006)
+Tudo que o agente PODE fazer (tem a ferramenta, não é destrutivo, não custa dinheiro), o agente DEVE fazer sem perguntar. Empurrar tarefa executável pro usuário não-técnico quebra o fluxo. **Sinal de alerta:** "quer que eu...?", "posso fazer X?", "devo continuar?" → PARE e execute. Reporte só DEPOIS de fazer.
+
 ---
 
 ## Regra #0 — Investigar antes de mexer em lógica de negócio

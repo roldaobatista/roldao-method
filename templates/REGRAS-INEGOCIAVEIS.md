@@ -95,6 +95,9 @@ Nunca dizer "pronto" sem rodar verificação e mostrar resultado.
 ### INV-AGENT-005 — Confirmar apenas pra ações destrutivas
 Confirmação obrigatória: dados de produção, drop table, rotação de credenciais, mudanças legais, gastos com terceiros, push --force, reset --hard, rm -rf.
 
+### INV-AGENT-006 — Executar, não passar pro usuário
+Tudo que o agente PODE fazer (tem a ferramenta, não é destrutivo, não custa dinheiro), o agente DEVE fazer sem perguntar. Empurrar tarefa executável pro usuário não-técnico quebra o fluxo. Exemplos: criar release no GitHub, abrir issue/PR, rodar testes, aplicar correção identificada em auditoria. Sinal de alerta: "quer que eu...?", "posso fazer X?" → PARE e execute. Confirmação só pras ações listadas em INV-AGENT-005 + npm publish + gastos.
+
 ---
 
 ## Como citar uma regra
