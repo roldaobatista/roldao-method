@@ -1,0 +1,26 @@
+nome: lgpd-compliance
+versao: 0.1.0
+descricao: Compliance LGPD operacional — DPO virtual, RIPD automatizado, canal do titular, plano de incidente 72h
+autor: Roldao
+licenca: MIT
+compativel-com: roldao-method>=0.4.0
+provoca:
+  agentes:
+    - dpo-virtual
+  commands:
+    - lgpd-audit
+  hooks: []
+  skills:
+    - gerar-ripd
+    - gerar-canal-dpo
+    - resposta-titular
+  regras:
+    - LGPD-EXT-001
+    - LGPD-EXT-002
+requisitos:
+  - "projeto com tratamento de dado pessoal"
+  - "DPO designado (pessoa fisica ou empresa terceirizada)"
+non-goals:
+  - "substituir consultoria juridica especializada"
+  - "ser autoridade certificadora ANPD"
+  - "garantir 100% de conformidade — orienta, nao certifica"

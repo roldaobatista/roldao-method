@@ -1,0 +1,27 @@
+nome: fintech-br
+versao: 0.1.0
+descricao: Pix completo (chave, BR Code, cobranca, devolucao, Pix Automatico) + Open Finance Brasil + validacoes financeiras BR
+autor: Roldao
+licenca: MIT
+compativel-com: roldao-method>=0.4.0
+provoca:
+  agentes:
+    - pix-arch
+  commands: []
+  hooks:
+    - validate-webhook-signature
+  skills:
+    - gerar-br-code
+    - validar-webhook-pix
+    - estruturar-open-finance
+  regras:
+    - PIX-001
+    - PIX-002
+    - PIX-003
+requisitos:
+  - "PSP integrado (banco, BaaS, ou direto Bacen com homologacao)"
+  - "ISPB da instituicao conhecido"
+non-goals:
+  - "ser instituicao financeira (PSP)"
+  - "substituir SDK oficial do banco escolhido"
+  - "intermediar credenciais Bacen"

@@ -1,0 +1,27 @@
+nome: fiscal-br-completo
+versao: 0.1.0
+descricao: Emissao e gestao fiscal BR completa — NF-e (55), NFC-e (65), NFS-e municipal, CT-e, MDF-e, com Reforma Tributaria 2026-2033
+autor: Roldao
+licenca: MIT
+compativel-com: roldao-method>=0.4.0
+provoca:
+  agentes:
+    - nfe-arch
+  commands: []
+  hooks:
+    - require-sefaz-env
+  skills:
+    - emitir-nfe-55
+    - validar-cnpj-alfanumerico
+  regras:
+    - NFE-001
+    - NFE-002
+    - NFE-003
+requisitos:
+  - "backend com runtime que assina XML (Node/Python/Go/.NET)"
+  - "certificado digital A1 ou A3 disponivel"
+  - "credenciais SEFAZ obtidas (cadastro do contribuinte)"
+non-goals:
+  - "emissao de Conhecimento de Embarque (BL) ou docs aduaneiros"
+  - "calculo de IRPF/IRPJ (use ferramenta contabil)"
+  - "homologacao automatica em SEFAZ (precisa intervencao humana)"

@@ -71,14 +71,19 @@ npx roldao-method addon uninstall electron-br
 | Addon | Estado | Foco |
 |---|---|---|
 | `electron-br` | exemplo de referência | App Electron com IPC + migrações SQLite + LGPD local |
+| `fiscal-br-completo` | piloto v0.1 | NF-e mod 55, NFC-e, NFS-e, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033, contingência SEFAZ |
+| `lgpd-compliance` | piloto v0.1 | DPO virtual, RIPD (Art. 38), canal do titular, plano de incidente 72h, respostas padronizadas a direitos (Art. 18) |
+| `fintech-br` | piloto v0.1 | Pix completo (5 tipos de chave, BR Code, webhook HMAC, devolução, MED, Pix Automático), Open Finance Brasil (FAPI + mTLS) |
 
 ## Roadmap de addons (sugestões)
 
-- **`nf-e-emit`** — emissão de NF-e modelo 55 com assinatura ICP-Brasil e contingência SVC-AN.
-- **`nfs-e-multimuni`** — adapters ABRASF / Tinus / Ginfes / proprietários.
-- **`esocial`** — eventos S-1000 a S-3000.
-- **`open-finance-fase2`** — adapter de extrato bancário.
-- **`telemedicina`** — LGPD art. 11 + ANS + CFM.
-- **`pix-recorrente`** — Pix Automático 2025/2026.
+- **`telemedicina`** — LGPD art. 11 + ANS + CFM + receita digital.
+- **`saude-br-completo`** — TISS/EDI, CFM, ANS, dado sensível em escala.
+- **`govtech-br`** — APIs do Governo (CPF, CNPJ, CNJ), e-Protocolo, assinatura ICP-Brasil.
+- **`agro-br`** — CAR (Cadastro Ambiental Rural), nota fiscal de produtor, SISBOV.
+- **`varejo-br`** — PDV com cupom fiscal, SAT/ECF, NFC-e.
+- **`logistica-br`** — RNTRC, rastreamento de carga, CT-e + MDF-e.
+- **`educacao-br`** — Portarias CNE, ENADE, e-Docente, histórico escolar seguro.
+- **`esocial-completo`** — eventos S-1000 a S-3000, REINF, DCTFWeb consolidado.
 
 Quer contribuir? Abra issue em https://github.com/roldaobatista/roldao-method/issues.
