@@ -1,42 +1,93 @@
 #!/usr/bin/env python3
-"""Valida chaves Pix (CPF, CNPJ, email, telefone E.164, UUID) e identificadores (E2EID, TxId)."""
+"""Valida chaves Pix (CPF, CNPJ, email, telefone E.164, UUID) e identificadores (E2EID, TxId).
+
+v0.5.0: validacao CPF/CNPJ embutida (sem sys.path frágil). Skill é standalone.
+"""
 
 import re
 import sys
-import os
-
-SKILL_DIR = os.path.dirname(os.path.abspath(__file__))
-CPF_SCRIPT = os.path.normpath(os.path.join(SKILL_DIR, "..", "..", "validar-cpf-cnpj", "scripts", "validar.py"))
 
 
 def _digitos(s: str) -> str:
     return "".join(c for c in s if c.isdigit())
 
 
-def _validar_cpf_ou_cnpj(valor: str) -> tuple[bool, str]:
-    sys.path.insert(0, os.path.dirname(CPF_SCRIPT))
-    try:
-        import validar as v
-    except ImportError:
-        return False, "modulo validar.py nao encontrado"
-    finally:
-        sys.path.pop(0)
-    tipo = v._detectar(valor)
-    if tipo == "cpf":
-        return v.valida_cpf(valor)
-    if tipo == "cnpj":
-        return v.valida_cnpj(valor)
-    return False, "nao parece CPF nem CNPJ"
+# ===== CPF =====
 
+def _cpf_dv(parcial: str) -> str:
+    pesos = list(range(len(parcial) + 1, 1, -1))
+    soma = sum(int(d) * p for d, p in zip(parcial, pesos))
+    resto = soma % 11
+    return "0" if resto < 2 else str(11 - resto)
+
+
+def valida_cpf(s: str) -> tuple[bool, str]:
+    d = _digitos(s)
+    if len(d) != 11:
+        return False, "CPF precisa ter 11 dígitos"
+    if d == d[0] * 11:
+        return False, "CPF inválido (todos dígitos iguais)"
+    if _cpf_dv(d[:9]) != d[9] or _cpf_dv(d[:10]) != d[10]:
+        return False, "DV de CPF inválido"
+    return True, "CPF válido"
+
+
+# ===== CNPJ (numérico + alfanumérico jul/2026) =====
+
+_PESOS_CNPJ_1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+_PESOS_CNPJ_2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+
+
+def _cnpj_char_valor(c: str) -> int:
+    """Valor numérico do char no CNPJ alfanumérico (IN RFB 2.229/2024):
+    dígitos 0-9 valem 0-9, letras A-Z valem 17-42 (ord(c) - 48)."""
+    return ord(c.upper()) - 48
+
+
+def _cnpj_dv(parcial: str, pesos: list) -> str:
+    soma = sum(_cnpj_char_valor(c) * p for c, p in zip(parcial, pesos))
+    resto = soma % 11
+    return "0" if resto < 2 else str(11 - resto)
+
+
+def valida_cnpj(s: str) -> tuple[bool, str]:
+    """Aceita CNPJ numérico (14 dígitos) ou alfanumérico (12 alfanum + 2 dígitos DV).
+    Letras válidas: A-Z (não diferencia case). Símbolos . / - são removidos."""
+    raw = re.sub(r"[./\-\s]", "", s).upper()
+    if len(raw) != 14:
+        return False, "CNPJ precisa ter 14 caracteres"
+    if not re.fullmatch(r"[A-Z0-9]{12}\d{2}", raw):
+        return False, "CNPJ alfanumérico: 12 alfanum + 2 dígitos DV"
+    if raw == raw[0] * 14:
+        return False, "CNPJ inválido (todos caracteres iguais)"
+    if _cnpj_dv(raw[:12], _PESOS_CNPJ_1) != raw[12]:
+        return False, "primeiro DV de CNPJ inválido"
+    if _cnpj_dv(raw[:13], _PESOS_CNPJ_2) != raw[13]:
+        return False, "segundo DV de CNPJ inválido"
+    return True, "CNPJ válido"
+
+
+def _validar_cpf_ou_cnpj(valor: str) -> tuple[bool, str]:
+    raw = re.sub(r"[./\-\s]", "", valor).upper()
+    if len(raw) == 11 and raw.isdigit():
+        return valida_cpf(raw)
+    if len(raw) == 14:
+        return valida_cnpj(raw)
+    return False, "não parece CPF nem CNPJ"
+
+
+# ===== Email =====
 
 def valida_email(s: str) -> tuple[bool, str]:
     s = s.strip().lower()
     if len(s) > 254:
         return False, "email muito longo"
     if not re.fullmatch(r"[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}", s):
-        return False, "formato de email invalido"
+        return False, "formato de email inválido"
     return True, "chave email"
 
+
+# ===== Telefone E.164 =====
 
 def valida_telefone_e164(s: str) -> tuple[bool, str]:
     s = s.strip()
@@ -45,13 +96,17 @@ def valida_telefone_e164(s: str) -> tuple[bool, str]:
     return True, "chave telefone"
 
 
+# ===== UUID v4 =====
+
 def valida_uuid_v4(s: str) -> tuple[bool, str]:
     s = s.strip().lower()
     pat = r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
     if not re.fullmatch(pat, s):
-        return False, "UUID v4 invalido"
-    return True, "chave aleatoria"
+        return False, "UUID v4 inválido"
+    return True, "chave aleatória"
 
+
+# ===== EndToEndId =====
 
 def valida_e2eid(s: str) -> tuple[bool, str]:
     s = s.strip()
@@ -60,12 +115,17 @@ def valida_e2eid(s: str) -> tuple[bool, str]:
     return True, "EndToEndId"
 
 
+# ===== TxId (Manual Pix Bacen) =====
+
 def valida_txid(s: str) -> tuple[bool, str]:
+    """TxId conforme Manual Pix Bacen: 1-35 caracteres alfanuméricos (sem símbolos)."""
     s = s.strip()
-    if not re.fullmatch(r"[a-zA-Z0-9]{1,35}", s):
-        return False, "TxId deve ser alfanumerico 1-35 caracteres"
+    if not re.fullmatch(r"[A-Za-z0-9]{1,35}", s):
+        return False, "TxId deve ser alfanumérico 1-35 caracteres (sem símbolos — Manual Pix Bacen)"
     return True, "TxId"
 
+
+# ===== Roteador =====
 
 def detectar_e_validar(raw: str) -> tuple[bool, str]:
     s = raw.strip()
@@ -78,7 +138,7 @@ def detectar_e_validar(raw: str) -> tuple[bool, str]:
     d = _digitos(s)
     if any(c.isalpha() for c in s) or len(d) in (11, 14):
         return _validar_cpf_ou_cnpj(s)
-    return False, "nao foi possivel detectar tipo de chave Pix"
+    return False, "não foi possível detectar tipo de chave Pix"
 
 
 def main() -> int:
@@ -95,7 +155,7 @@ def main() -> int:
     if ok:
         print(f"OK {msg}")
         return 0
-    print(f"INVALIDO {msg}")
+    print(f"INVÁLIDO {msg}")
     return 1
 
 

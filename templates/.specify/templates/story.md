@@ -4,8 +4,11 @@ id: US-NNN
 versao: 1
 status: draft
 prd: PRD-NNN
+epico: EP-NNN
+tamanho: P    # P | M | G
 owner: _(preencher)_
 revisado-em: AAAA-MM-DD
+depende-de: []    # lista de US-NNN que precisam vir antes
 ---
 
 # US-NNN — _(título curto, máximo 60 caracteres)_
@@ -91,3 +94,32 @@ _(IDs do REGRAS-INEGOCIAVEIS.md tocados nesta story)_
 | Data | Quem | Mudança |
 |---|---|---|
 | AAAA-MM-DD | _(quem)_ | criação |
+
+---
+
+## Dev Agent Record (preencher ao implementar)
+
+> Rastreabilidade da execução IA. Preenche o agente que rodou `/feature` ou `/quick-dev`.
+
+- **Agente principal:** _(ex: dev-senior — Bruno)_
+- **Modelo usado:** _(claude-sonnet-4-6 / claude-haiku-4-5)_
+- **Custo aproximado:** _(tokens / USD se mensurável)_
+- **Tempo total:** _(em min)_
+- **Arquivos tocados:** _(lista, gerada pelo `git diff --stat`)_
+- **Tasks concluídas:** _(T-001 ✓, T-002 ✓, T-003 ✗ — pendente)_
+- **Hooks que bloquearam:** _(quais hooks dispararam e como foram resolvidos)_
+- **Decisões fora do PRD:** _(se houve, justificar — vira ADR posterior)_
+- **Skills invocadas:** _(brainstormar-ideia, validar-cpf-cnpj, gerar-test-fixture-br, etc)_
+- **Subagentes invocados:** _(investigador, tech-lead, revisor, auditores)_
+- **Bloqueios encontrados:** _(lista — vira input pra `/retro`)_
+
+### Debug log (opcional)
+
+_(Espaço pro agente registrar trilha de decisões — útil pra retro e pra reproduzir o caso depois.)_
+
+```
+AAAA-MM-DD HH:MM — investigador identificou que campo X é nulo em 12% dos registros
+AAAA-MM-DD HH:MM — tech-lead decidiu adicionar validação no boundary, ADR-021 escrito
+AAAA-MM-DD HH:MM — dev-senior implementou em src/auth/validate.ts, 3 testes novos
+AAAA-MM-DD HH:MM — revisor aprovou; auditor-seguranca apontou ressalva LGPD-004 (resolvida)
+```

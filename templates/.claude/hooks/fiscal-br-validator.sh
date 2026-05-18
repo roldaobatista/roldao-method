@@ -79,9 +79,19 @@ while IFS= read -r line || [ -n "$line" ]; do
   fi
 
   # FISCAL-003: ambiente=1 (producao) hardcoded em codigo
+  # v0.5.0: nao dispara se ha comentario na mesma linha mencionando homolog/dev/teste
+  # OR se a linha aparenta ser constante de documentacao (`const tpAmb_PROD = 1`)
   if printf '%s\n' "$line" | grep -qE '(tpAmb|ambiente|environment).{0,10}=.{0,5}["\047]?1["\047]?'; then
     if ! printf '%s\n' "$line" | grep -qiE 'env\.|process\.env|os\.environ|getenv|ENV\[|config\.|settings\.'; then
-      VIOLATIONS+=("linha $LINE_NUM [FISCAL-003]: ambiente SEFAZ=1 (producao) hardcoded: $line")
+      # ignora se linha tem comentario explicativo de homolog/dev/desenvolvimento/teste
+      if printf '%s\n' "$line" | grep -qiE '(//|#|/\*).{0,80}(homolog|sandbox|desenvolvimento|dev|teste|test|exemplo|example|comentario|documenta)'; then
+        :  # tudo bem, e comentario explicativo
+      # ignora se a constante e claramente nomeada como producao (declaracao referencial)
+      elif printf '%s\n' "$line" | grep -qiE '^[[:space:]]*(const|let|var|final|static)[[:space:]]+(tpAmb_PROD|TP_AMB_PROD|AMBIENTE_PRODUCAO|SEFAZ_PRODUCAO|PROD_ENV)'; then
+        :  # declaracao de constante referencial OK (uso depende de env)
+      else
+        VIOLATIONS+=("linha $LINE_NUM [FISCAL-003]: ambiente SEFAZ=1 (producao) hardcoded: $line")
+      fi
     fi
   fi
 

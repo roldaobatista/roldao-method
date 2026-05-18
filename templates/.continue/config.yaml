@@ -1,0 +1,46 @@
+# ROLDAO-METHOD configuração para Continue
+# https://docs.continue.dev
+
+name: roldao-method
+version: "0.5.0"
+schema: v1
+
+rules:
+  - name: REGRA #0 - Investigar antes de mexer
+    rule: |
+      Quando o usuário reportar bug/comportamento errado:
+      1. NÃO mexer no código antes de entender a causa.
+      2. Ler estado real (banco, log, payload, config).
+      3. Rastrear fluxo (origem → leitura).
+      4. Confirmar entendimento se houver ambiguidade.
+      5. Implementar no ponto raiz.
+
+  - name: PT-BR sem jargão
+    rule: |
+      Tabela: commit→"salvei", deploy→"subi pro servidor", rollback→"voltei versão anterior",
+      refactor→"reorganizei sem mudar o que aparece", mock/fixture→"dados falsos pros testes".
+
+  - name: Executar não perguntar
+    rule: |
+      Faça o melhor caminho e reporte depois. Não pergunte "quer que eu...?" pra coisa que pode fazer direto.
+      Confirme só pra: destrutivo, gasto financeiro, mudança pública, credenciais.
+
+  - name: Proibições
+    rule: |
+      Nunca: rm -rf, git push --force, git reset --hard, --no-verify, secret em código/commit/log,
+      @ts-ignore sem ID, mock em integration/e2e, TODO sem ID, dado pessoal real em fixture,
+      URL hardcoded SEFAZ/Pix/gateway, ambiente SEFAZ=1 hardcoded.
+
+  - name: Spec-driven
+    rule: |
+      PRD em docs/prd/, Story em docs/stories/, ADR em docs/decisions/.
+      Frontmatter obrigatório: owner, revisado-em, status.
+
+context:
+  - provider: file
+    params:
+      include:
+        - "AGENTS.md"
+        - "CLAUDE.md"
+        - "REGRAS-INEGOCIAVEIS.md"
+        - ".specify/memory/constitution.md"

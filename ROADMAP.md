@@ -8,27 +8,31 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v0.4.0 (mai/2026)
+## Versão atual: v0.5.0 (mai/2026)
 
-Pacote sólido pós-auditoria comparativa com BMAD-METHOD:
-- 11 agentes especialistas
-- 11 workflows (+ `/quick-dev` para mudanças triviais)
-- 10 hooks bloqueadores + 5 auxiliares
-- 6 skills BR no core + skills adicionais via addons
-- 5 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness)
-- 5 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br)
-- 4 addons (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br)
-- 7 templates de spec (incluindo fullstack-architecture, brownfield-prd, prd-fiscal)
+Pacote pós-auditoria 10-agentes (segunda rodada), entregando as 25 ações priorizadas:
+- 12 agentes especialistas (com nome + ícone)
+- 19 workflows (incluindo `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`)
+- 16 hooks bloqueadores + 3 auxiliares + 1 test-runner (50 casos)
+- 8 skills BR no core + 9 nos addons = 17 skills totais
+- 7 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance)
+- 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
+- 6 addons (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
+- 11 templates de spec (PRD, story, architecture, brownfield-prd, prd-fiscal, fullstack-architecture, decision-log, prfaq, product-brief, ux-design, headless-schemas)
+- CLI completo: `add`, `list`, update check, wizard, alias `roldao`
+- Adapters reais Cursor/Windsurf/Cline/Roo
+- CI matriz Windows/macOS/Linux
+- Governança (SECURITY.md, CONTRIBUTORS.md, `.claude-plugin/plugin.json`)
+- Suite de evals dos 12 agentes
 
-## v0.5.0 — "Marketplace de Addons" (alvo: jul/2026)
+## v0.5.0 — "Marketplace de Addons" ✅ ENTREGUE (mai/2026)
 
-- [ ] `npx roldao-method addon install <nome>` — instalador interativo de addon.
-- [ ] `npx roldao-method addon list` — lista addons disponíveis (locais + remotos).
-- [ ] `npx roldao-method addon update <nome>` — atualiza addon.
-- [ ] `npx roldao-method addon uninstall <nome>` — remove preservando customizações.
-- [ ] Registry público de addons (manifesto em git público).
-- [ ] Convenção formal de addon (schema validado em CI).
-- [ ] Tutorial "Como criar seu próprio addon em 30 min".
+- [x] `npx roldao-method add <nome>` — instalador de addon.
+- [x] `npx roldao-method list` — lista addons disponíveis (locais + remotos) + IDEs detectadas + versão remota.
+- [x] Atualização via `update` preserva customizações de addons.
+- [x] Convenção formal de addon (schema validado em `tools/validar-templates.js`).
+- [ ] Registry remoto de addons de terceiros (alvo: v0.6.0).
+- [ ] Tutorial "Como criar seu próprio addon em 30 min" (alvo: v0.6.0).
 
 ## v0.6.0 — "Setor saúde + setor público" (alvo: set/2026)
 

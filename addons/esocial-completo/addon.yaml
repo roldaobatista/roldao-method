@@ -1,0 +1,40 @@
+name: esocial-completo
+version: 1.0.0
+description: Addon ROLDAO-METHOD para eSocial — eventos S-1000 a S-3000, CIPA, NRs, prazos legais, retificação.
+authors:
+  - Roldão Batista
+license: MIT
+homepage: https://github.com/roldaobatista/roldao-method/tree/main/addons/esocial-completo
+status: stable
+revisado-em: 2026-05-18
+
+requires:
+  roldao-method: ">=0.5.0"
+
+provides:
+  agents:
+    - esocial-arch
+  hooks:
+    - validate-esocial-prazo
+  skills:
+    - emitir-evento-esocial
+    - validar-pis-pasep
+  commands: []
+  templates:
+    - eventos-esocial-cobertos.md
+
+regras:
+  - id: ESOCIAL-001
+    titulo: "Eventos S-2200/S-2299 (admissão/desligamento) respeitam prazo legal"
+    descricao: "Admissão até o dia anterior ao início; desligamento até o 10º dia subsequente ou no envio do TRCT/recibo, o que ocorrer primeiro."
+  - id: ESOCIAL-002
+    titulo: "Retificação via S-3000 mantém histórico"
+    descricao: "Retificação NÃO sobrescreve evento original — gera S-3000 referenciando o anterior."
+  - id: ESOCIAL-003
+    titulo: "Ambiente eSocial vem de variável (produção/prod-restrita/homolog)"
+    descricao: "Equivalente ao FISCAL-003 — nunca hardcode."
+
+aplica-quando:
+  - "Sistema envia eventos pra eSocial (qualquer porte de empresa)"
+  - "Sistema integra com folha de pagamento"
+  - "Sistema gerencia obrigações trabalhistas (CIPA, NRs, ASO)"

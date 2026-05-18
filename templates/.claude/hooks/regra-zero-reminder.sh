@@ -23,6 +23,12 @@ fi
 TRIGGERS='\b(bug|erro|problema|n[aã]o[[:space:]]+funciona|n[aã]o[[:space:]]+sai|n[aã]o[[:space:]]+aparece|n[aã]o[[:space:]]+salva|tela[[:space:]]+errada|c[aá]lculo[[:space:]]+errado|valor[[:space:]]+errado|deveria|esperava|estranho|travou|quebrou)\b'
 
 if printf '%s' "$PROMPT" | grep -qiE -- "$TRIGGERS"; then
+  # Marcador pra require-investigador-before-fix.sh
+  PROJDIR="${CLAUDE_PROJECT_DIR:-$PWD}"
+  SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | perl -pe 'chomp; tr/a-zA-Z0-9//cd;')
+  mkdir -p "$PROJDIR/.claude/.runtime" 2>/dev/null
+  touch "$PROJDIR/.claude/.runtime/bug-trigger-${SESSION_HASH}" 2>/dev/null
+
   cat <<'EOF'
 
 [ROLDAO-METHOD — REGRA #0 ativada]
@@ -36,6 +42,8 @@ O prompt parece descrever um bug/comportamento errado. Antes de propor solução
 5. Só então corrija — no ponto RAIZ, não no sintoma.
 
 Considere invocar o subagente `investigador` (Task tool) antes de qualquer Edit/Write.
+O hook `require-investigador-before-fix` foi armado e vai bloquear edits em código
+de negócio até o investigador rodar.
 
 Aplica regras: INV-006, INV-AGENT-002.
 EOF

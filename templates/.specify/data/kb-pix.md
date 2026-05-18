@@ -44,7 +44,9 @@ Exemplo: `E12345678202605181430ABC123XYZ45`
 
 ### TxId
 
-Identificador da transação atribuído pelo recebedor. Aceita **letras, números e alguns símbolos**, max **35 caracteres** (Pix tradicional) ou **25** (Pix Cobrança v2).
+Identificador da transação atribuído pelo recebedor. Conforme **Manual Pix Bacen**, formato estrito: `[A-Za-z0-9]{1,35}` — somente letras (case-sensitive) e dígitos, **sem símbolos**, mínimo 1, máximo 35 caracteres (Pix tradicional). Para Pix Cobrança com vencimento (cobv) a regra é `[A-Za-z0-9]{26,35}` (mín 26, máx 35).
+
+Implementações que aceitam símbolos (`-`, `_`, `.`) violam o manual e podem ser rejeitadas pelo PSP. Use skill `validar-pix --txid` pra validar.
 
 ### Convocação ISPB
 

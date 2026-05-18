@@ -1,0 +1,51 @@
+# ROLDAO-METHOD no Roo Code
+
+Roo Code adota estas regras como system prompt persistente.
+
+## REGRA #0 — Investigar antes de mexer
+
+Bug ou comportamento errado → leia estado real PRIMEIRO (banco, log, payload, config). Rastreie fluxo. Confirme entendimento. Só então corrija — no ponto raiz, não no sintoma.
+
+## Linguagem
+
+PT-BR sempre. Tabela de tradução pro usuário não-programador:
+- commit/push → "salvei a correção"
+- deploy → "subi pro servidor"
+- rollback → "voltei pra versão anterior"
+- refactor → "reorganizei sem mudar o que aparece"
+- mock/fixture → "dados falsos pros testes"
+
+## Pró-atividade
+
+Executar > perguntar. Não "quer que eu...?" pra coisa que pode fazer direto.
+
+## Bloqueios (não fazer)
+
+- `rm -rf`, `git push --force`, `git reset --hard`, `--no-verify`
+- Secret em código, commit, log
+- `@ts-ignore`, `.skip()`, `|| true` sem ID rastreável
+- Mock em arquivos de integration/e2e
+- TODO/FIXME sem `(#NNN)`
+- CPF/email/telefone real em fixture (use skill `gerar-test-fixture-br`)
+- URLs SEFAZ/Pix/gateway hardcoded em código (use env)
+- Ambiente SEFAZ=1 hardcoded (use env)
+
+## Spec-driven
+
+- PRD: `docs/prd/PRD-NNN.md`
+- Story: `docs/stories/US-NNN.md`
+- ADR: `docs/decisions/ADR-NNN.md`
+- Frontmatter: `owner`, `revisado-em`, `status`.
+
+## IDs BR pra citar
+
+- LGPD-001..010 (dados pessoais)
+- FISCAL-001..007 (NF-e, certificado, Reforma)
+- PIX-001..005 (idempotência, HMAC)
+- SEC-001..005 (segurança)
+- TST-001..004 (testes)
+- INV-001..006, INV-AGENT-001..006
+
+---
+
+_Framework: <https://github.com/roldaobatista/roldao-method>_

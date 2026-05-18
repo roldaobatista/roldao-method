@@ -94,6 +94,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-amend-after-push.sh\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-secrets-in-commit-message.sh\"",
+            "timeout": 5
           }
         ]
       },
@@ -138,6 +143,33 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/fiscal-br-validator.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-investigador-before-fix.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-test-pyramid.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-jargon-pt-br.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-confirmation-questions.sh\"",
             "timeout": 5
           }
         ]

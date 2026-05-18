@@ -9,18 +9,56 @@ MCP_FILE="${CLAUDE_PROJECT_DIR:-$PWD}/.mcp.json"
 
 [ -f "$MCP_FILE" ] || exit 0
 
-# Servers MCP de fornecedores conhecidos (allowlist conservadora).
+# Servers MCP de fornecedores conhecidos (allowlist top-20 reais).
+# v0.5.0: ampliada com integracoes mais comuns em projetos profissionais.
 # Adicionar conforme catalogo oficial evolui.
 ALLOWLIST=(
+  # Oficiais Anthropic/MCP
   "modelcontextprotocol/"
   "anthropic-experimental/"
   "@modelcontextprotocol/"
   "@anthropic/"
+  "@anthropic-ai/"
   "github.com/modelcontextprotocol"
+  "github.com/anthropics"
+  "anthropic.com"
+  # Test/automation
   "@playwright/"
   "@vitest/"
-  "anthropic.com"
-  "github.com/anthropics"
+  "@cypress/"
+  # Comunicacao
+  "@slack/mcp"
+  "slack-mcp-server"
+  "linear-mcp"
+  "@linear/mcp"
+  # Codigo / SCM
+  "@github/mcp"
+  "github-mcp-server"
+  "@gitlab/mcp"
+  # Pesquisa
+  "@brave/brave-search-mcp"
+  "brave-search-mcp"
+  "@perplexity/mcp"
+  # Produtividade
+  "@notion/mcp"
+  "notion-mcp"
+  "@google/calendar-mcp"
+  "@google/drive-mcp"
+  # Banco de dados
+  "@postgres/mcp"
+  "postgres-mcp-server"
+  "@sqlite/mcp"
+  "mcp-server-sqlite"
+  # Cloud / infra
+  "@aws/mcp"
+  "@cloudflare/mcp"
+  # Filesystem / utilitarios
+  "@filesystem/mcp"
+  "mcp-server-filesystem"
+  "@memory/mcp"
+  "mcp-server-memory"
+  "@fetch/mcp"
+  "mcp-server-fetch"
 )
 
 # Le servers (com perl, sem dependencia externa de jq).

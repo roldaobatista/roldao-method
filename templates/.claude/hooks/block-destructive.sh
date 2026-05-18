@@ -27,6 +27,8 @@ PATTERNS=(
   'rm[[:space:]]+-f[[:space:]]+/'
   'git[[:space:]]+push.*--force'
   'git[[:space:]]+push.*-f[[:space:]]'
+  'git[[:space:]]+push.*[[:space:]]-f$'
+  'git[[:space:]]+push.*--force-with-lease'
   'git[[:space:]]+reset[[:space:]]+--hard'
   'git[[:space:]]+clean[[:space:]]+-fd'
   'git[[:space:]]+branch[[:space:]]+-D'

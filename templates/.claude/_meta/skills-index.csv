@@ -1,0 +1,19 @@
+skill,phase,preceded-by,followed-by,required,outputs,owner-agent
+brainstormar-ideia,analysis,,product-brief|prfaq|gerar-adr-pt-br,false,texto-com-tecnica-aplicada,analista
+traduzir-jargao,communication,*,*,true,texto-pt-br-claro,tech-writer
+gerar-adr-pt-br,solutioning,brainstormar-ideia,readiness-check,false,docs/decisions/ADR-NNN.md,tech-lead
+gerar-test-fixture-br,implementation,,validar-cpf-cnpj|validar-pix|validar-cep,false,dados-sinteticos-validos,dev-senior
+validar-cpf-cnpj,implementation,gerar-test-fixture-br,,false,resultado-validacao,dev-senior
+validar-pix,implementation,gerar-test-fixture-br,,false,resultado-validacao,dev-senior
+validar-cep,implementation,gerar-test-fixture-br,,false,resultado-validacao,dev-senior
+checklist-lgpd,analysis,brainstormar-ideia,gerar-ripd,false,relatorio-base-legal,auditor-seguranca
+# Addons:
+migration-sqlite-segura,implementation,,checkpoint,false,migration-script-com-backup,electron-arch
+estruturar-open-finance,solutioning,brainstormar-ideia,gerar-adr-pt-br,false,docs/decisions/ADR-NNN-open-finance.md,pix-arch
+gerar-br-code,implementation,validar-pix,,false,br-code-emv-valido,pix-arch
+validar-webhook-pix,implementation,,gerar-br-code,false,resultado-validacao,pix-arch
+emitir-nfe-55,implementation,validar-cnpj-alfanumerico,validar-cnpj-alfanumerico,false,xml-nfe-mod-55,nfe-arch
+validar-cnpj-alfanumerico,implementation,gerar-test-fixture-br,,false,resultado-validacao,fiscal-br
+gerar-canal-dpo,implementation,,resposta-titular,false,template-pagina-publica-dpo,dpo-virtual
+gerar-ripd,analysis,checklist-lgpd,readiness-check,false,docs/lgpd/ripd-NNN.md,dpo-virtual
+resposta-titular,communication,,traduzir-jargao,false,resposta-em-pt-br,dpo-virtual

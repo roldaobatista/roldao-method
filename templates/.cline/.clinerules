@@ -1,0 +1,46 @@
+# ROLDAO-METHOD no Cline
+
+Cline carrega este arquivo automaticamente como contexto persistente.
+
+## REGRA #0 — Investigar antes de mexer (NEGOCIÁVEL: NÃO)
+
+Bug? Não toque no código antes de:
+1. Ler estado real (banco/log/payload).
+2. Rastrear fluxo completo (origem → leitura).
+3. Confirmar entendimento se ambíguo.
+4. Implementar no ponto raiz.
+
+## Comunicação
+
+PT-BR sempre. Sem jargão técnico ao usuário não-programador.
+Tabela: "commit"→"salvei", "deploy"→"subi", "rollback"→"voltei versão anterior", "refactor"→"reorganizei sem mudar o visível".
+
+## Pró-atividade
+
+Faça o melhor caminho. Não pergunte "quer que eu...?".
+Confirme só: destrutivo, gasto, mudança pública, credenciais.
+
+## Proibições duras
+
+| Ação | Por quê |
+|---|---|
+| `rm -rf`, `git push --force` | irreversível sem autorização |
+| Secret em código/commit | SEC-001 |
+| `@ts-ignore` sem ID | TST-001 |
+| Mock em `integration/` ou `e2e/` | TST-003 |
+| TODO sem ID | INV-005 |
+| Dado real em fixture | TST-004 |
+| URL hardcoded SEFAZ/Pix | SEC-005 |
+| Ambiente SEFAZ=1 hardcoded | FISCAL-003 |
+
+## Spec-driven
+
+PRD/Story/ADR vivem em `docs/`. Frontmatter (`owner`, `revisado-em`, `status`) obrigatório.
+
+## Cobertura BR
+
+LGPD-001..010 / FISCAL-001..007 / PIX-001..005 / SEC-001..005 / TST-001..004. Cite ID ao aplicar.
+
+---
+
+_Framework: <https://github.com/roldaobatista/roldao-method>_

@@ -2,6 +2,119 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.5.0] — 2026-05-18
+
+Entrega completa das 25 ações priorizadas da auditoria 10-agentes (segunda rodada). Sem breaking changes — toda funcionalidade v0.4.0 preservada.
+
+### Corrigido (P0 — bloqueadores)
+
+- **Contagem real de hooks** atualizada em README/ROADMAP/CHANGELOG/CLAUDE.md/package.json: eram **11 bloqueadores + 3 auxiliares + 1 test-runner** (não "10+5" como anunciado).
+- **`test/install.test.js`** atualizado pra exigir todos os 14 hooks ativos pré-v0.5 (regressão silenciosa desde v0.3).
+- **`addons/lgpd-compliance/templates/`** — criados os 6 templates prometidos no README mas que não existiam: `ripd-modelo.md`, `politica-privacidade.md`, `dpa-operador.md`, `resposta-titular/{acesso,exclusao,portabilidade}.md`.
+- **Documentação Git Bash no Windows** — README + TROUBLESHOOTING agora declaram explicitamente que hooks dependem de bash+perl e PowerShell puro não funciona.
+- **CI cross-platform** — workflow `validar.yml` agora roda matriz Windows/macOS/Linux pra hooks e instalador.
+
+### Corrigido (hooks bugados)
+
+- `block-destructive.sh` — regex `git push -f` agora casa quando `-f` está no fim da linha.
+- `no-amend-after-push.sh` — compara HEAD com `@{u}` em vez de exigir `git fetch` recente.
+- `no-test-data-in-fixtures.sh` — reescrito sem substring expansion bash-4-only (roda em bash 3.2).
+- `mcp-validator.sh` — allowlist ampliada pra incluir top-20 MCPs reais (Slack, Linear, Brave Search, GitHub, Notion, etc).
+- `commit-message-validator.sh` — agora trata commits feitos via editor (sem `-m` inline).
+- `fiscal-br-validator.sh` — `tpAmb=1` não dispara em comentário explicativo.
+
+### Adicionado
+
+**Hooks (5 novos bloqueadores, total 16):**
+- `block-jargon-pt-br.sh` — detecta "commit", "branch", "deploy" em resposta ao usuário (INV-AGENT-001).
+- `block-secrets-in-commit-message.sh` — secret na mensagem do commit (gap do secrets-scanner).
+- `block-confirmation-questions.sh` — "quer que eu...?" em resposta (viola INV-AGENT-006).
+- `require-investigador-before-fix.sh` — Edit em código de negócio sem investigador quando bug foi reportado (REGRA #0).
+- `validate-test-pyramid.sh` — E2E sem unit no mesmo módulo.
+
+**Comandos (7 novos, total 19):**
+- `/replanejar` — correct-course quando escopo muda no meio do épico.
+- `/sprint` — plano sequencial das próximas N stories com dependências.
+- `/status` — progresso em PT-BR sem jargão.
+- `/checkpoint` — walkthrough de PR/branch antes de merge.
+- `/readiness` — gate entre épico e dev.
+- `/help` — catálogo dos comandos com códigos curtos.
+- `/shard` — quebra PRD/ARQ longo em chunks navegáveis.
+
+**Agentes (1 novo, total 12):**
+- `tech-writer` (Camila 📝) — CHANGELOG, README, docs de release.
+- Frontmatter dos 12 agentes expandido com `identity`, `communication_style`, `principles`, `menu`, `skills`. Nomes PT-BR + ícones (Sofia 📋, Bruno 💻, Dona Marta 🧾, etc).
+
+**Skills (2 novas no core, total 8):**
+- `brainstormar-ideia` — menu de 15 técnicas BR (Seis Chapéus, SCAMPER, 5 Porquês, Pre-mortem, etc).
+- `gerar-test-fixture-br` — gera CPFs/CNPJs/CEPs/E.164 válidos pra mocks.
+
+**Knowledge bases (2 novas, total 7):**
+- `kb-brainstorming-pt-br.md` — 15 técnicas adaptadas ao contexto BR.
+- `kb-elicitation-pt-br.md` — 10 métodos críticos (Pre-mortem, Stakeholder Round Table, Red/Blue Team, Crítica Socrática, etc).
+
+**Templates (4 novos, total 11):**
+- `prfaq.md` — Working Backwards style Amazon em PT-BR.
+- `product-brief.md` — brief curto de iniciativa.
+- `ux-design.md` — wireframe ASCII + 5 estados por tela.
+- `headless-schemas.md` — JSON Schema dos frontmatter de cada template (validação programática).
+- **Story estendida** com `Dev Agent Record` (modelo usado, arquivos tocados, hooks bloqueados, custo).
+- **PRD expandido** com "Menu de Adaptação por Domínio" (SaaS B2B, mobile consumer, sistema regulado, CLI/lib).
+
+**Checklists (2 novos, total 7):**
+- `release-readiness.md` — gates pré-deploy.
+- `pix-compliance.md` — checklist Pix completo (Bacen Resolução 1, MED, devolução, HMAC).
+
+**Addons (2 novos, total 6):**
+- `esocial-completo` — eventos S-1000 a S-3000, CIPA, NRs, prazo legal, retificação.
+- `varejo-pdv-br` — SAT-CF-e, NFC-e, TEF, MFE-CE, ECF, integração com balança/impressora.
+
+**CLI (`bin/install.js`):**
+- `add <addon>` — instala addon com `doctor` reconhecendo.
+- `list` — lista IDEs detectadas + addons disponíveis + versão atual vs remota.
+- Update check assíncrono via `https://registry.npmjs.org/roldao-method/latest`.
+- Wizard interativo (readline puro com menu numerado) na primeira instalação: escolha de IDE + perfil (web/electron/fiscal/fintech/LGPD-strict) + addons.
+- Alias bin `roldao` (curto) além de `roldao-method`.
+
+**Adapters reais de IDE:**
+- `templates/.cursor/` — regras em `.cursorrules` + agentes traduzidos pra prompt
+- `templates/.windsurf/` — `.windsurfrules` + commands
+- `templates/.cline/` — `.clinerules` + agents YAML
+- `templates/.roo/` — formato Roo Code
+- `templates/.continue/` — formato Continue
+- `templates/.aider/` — `.aider.conf.yml` + convenções
+
+**Governança e distribuição:**
+- `SECURITY.md` — política de divulgação responsável.
+- `CONTRIBUTORS.md` — créditos e processo de PR.
+- `.claude-plugin/plugin.json` — distribuição como plugin nativo Claude Code.
+
+**Evals:**
+- `evals/` — testes de qualidade dos 12 agentes (input → resposta esperada).
+- CI obrigatório.
+
+**Orquestração:**
+- `_meta/skills-index.csv` — `skill,phase,preceded-by,followed-by,required,outputs` (modelo BMAD `bmad-help.csv`).
+
+**Skills — correção:**
+- `validar-pix/scripts/validar-pix.py` — path hardcoded substituído por embedding da lógica de CPF/CNPJ (sem `sys.path` frágil).
+
+**KBs — correções de conteúdo:**
+- `kb-pix.md`: TxId restrito a `[A-Za-z0-9]{1,35}` conforme Manual Pix Bacen.
+- `kb-fiscal.md`: DIRF — citado prazo final (extinta para fatos geradores ≥ 2025).
+- `kb-fiscal.md`: cancelamento NF-e — citada exceção SEFAZ-SP (extensão em casos específicos).
+
+### Mudado
+
+- README reescrito: hero com "Por que ROLDAO vs BMAD" no topo, bloco "Novidades v0.5.0", contagens corrigidas, nomes+ícones dos agentes, tabela vs BMAD expandida com 24 dimensões.
+- Badge "Hooks: 50/50" renomeado pra "test_runner: 50/50" + badge novo "hooks_bloqueadores: 16".
+- ROADMAP marcado como v0.5.0 entregue; metas v0.6+ ajustadas.
+- `package.json`: bin alias `roldao`, description atualizada, `files` inclui evals/SECURITY/CONTRIBUTORS.
+
+### Preservado
+
+Zero breaking change. Toda funcionalidade da v0.4.0 mantida. Customizações do usuário continuam protegidas no `update`.
+
 ## [0.4.0] — 2026-05-18
 
 Expansão pós-auditoria comparativa profunda com BMAD-METHOD (10 agentes em paralelo, segunda rodada). Foco em fechar gaps de qualidade auditável, knowledge base estruturada, addons especializados BR, e melhorias de DX no CLI. Sem breaking changes.

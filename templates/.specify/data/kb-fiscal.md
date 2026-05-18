@@ -106,7 +106,7 @@ Skill `validar-cpf-cnpj` cobre os dois formatos.
 | **eSocial** | Eventos trabalhistas | Eventos com prazo variado (S-1000 cadastro, S-2200 admissão, S-1200 folha) |
 | **REINF** | Retenções (PIS/COFINS/CSLL, INSS) | Dia 15 do mês seguinte |
 | **DCTFWeb** | Consolida eSocial + REINF | Dia 15 do mês seguinte |
-| **DIRF** | Imposto de Renda Retido | Fevereiro do ano seguinte (em extinção, vai pra DCTFWeb) |
+| **DIRF** | Imposto de Renda Retido | **Extinta** a partir de fatos geradores ≥ 2025 (IN RFB 2.181/2024). Substituída pela DCTFWeb + eSocial + EFD-Reinf. Última entrega: fevereiro/2025 referente a 2024. |
 
 ## Certificado digital
 
@@ -123,7 +123,7 @@ Skill `validar-cpf-cnpj` cobre os dois formatos.
 ❌ Emitir sem contingência quando SEFAZ cai — perde venda (FISCAL-004).
 ❌ Hardcoded alíquota — Reforma 2026-2033 muda a cada ano (FISCAL-006).
 ❌ CPF/CNPJ em log em texto puro — LGPD-004.
-❌ Cancelar NF-e após 24h — não é mais permitido por SEFAZ.
+❌ Cancelar NF-e após 24h — regra geral nacional. **Atenção:** SEFAZ-SP permite cancelamento extemporâneo (após 24h, dentro de 480h/20 dias) com sujeição a multa, conforme Portaria CAT 12/2015 — exceção restrita a casos específicos (não usar como rotina). Outros estados podem ter regras próprias — sempre consultar a SEFAZ da UF.
 
 ## Referências oficiais
 

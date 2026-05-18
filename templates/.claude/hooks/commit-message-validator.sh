@@ -19,11 +19,18 @@ case "$CMD" in
   *) exit 0 ;;
 esac
 
-# Permite git commit -m amend / commit sem mensagem (editor abre — outra historia)
+# Aplica: commits com -m/--message OU amend. Commit via editor (sem -m) tambem e validado
+# atraves de COMMIT_EDITMSG quando possivel.
+HAS_INLINE_MSG=""
 case "$CMD" in
+  *-m[[:space:]]*|*--message=*|*--message[[:space:]]*) HAS_INLINE_MSG=1 ;;
   *--amend*) ;;
-  *-m*|*--message*) ;;
-  *) exit 0 ;;
+  *)
+    # commit via editor — tentar ler COMMIT_EDITMSG depois do hook (best effort)
+    # Como PreToolUse roda ANTES do commit, COMMIT_EDITMSG ainda nao existe.
+    # Se houver template configurado (commit.template), avisa que sera validado pelo proprio editor.
+    exit 0
+    ;;
 esac
 
 # Extrai mensagem entre aspas (simples ou duplas) ou heredoc

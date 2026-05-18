@@ -64,7 +64,23 @@ Não tem exceção. O comando é mesmo destrutivo. Peça autorização explícit
 ### Hooks não estão rodando no Cursor
 Cursor não tem `PreToolUse`. Os hooks rodam apenas no Claude Code. Em Cursor, as regras viram texto em `AGENTS.md`/`.cursorrules` — disciplina por prompt, não bloqueio.
 
-### Hook quebra no Windows
+### Hooks não rodam no Windows (silencioso)
+**Sintoma:** o framework parece instalado, mas hooks nunca bloqueiam nada.
+**Causa principal:** os 16 hooks bloqueadores são scripts `bash` que usam `perl -MJSON::PP` pra parsear o JSON de input do Claude Code. PowerShell e CMD não têm bash nem perl no PATH.
+**Fix obrigatório:**
+1. Instale o **Git for Windows** (https://git-scm.com/download/win) — ele vem com Git Bash, bash e perl.
+2. Abra o **Git Bash** (não PowerShell, não CMD).
+3. Rode o Claude Code (ou Cursor com terminal) a partir do Git Bash.
+4. Confira: `which bash && which perl && bash --version`. Tudo precisa existir.
+5. Se usa Cursor/Windsurf: configure o terminal padrão pra Git Bash em Settings → Terminal → Default Profile.
+
+**Diagnóstico rápido:**
+```bash
+npx roldao-method doctor
+```
+A partir da v0.5.0 o `doctor` reporta "Hooks vão rodar?" com base em bash+perl detectados.
+
+### Hook quebra no Windows com erro de comando
 **Sintoma:** `bash: command not found` ou erro de perl/grep.
 **Causa:** PATH do Git Bash não está completo.
 **Fix:** abra o Git Bash (vem com Git for Windows) e rode o Claude Code a partir dele. Ou ajuste `claude` pra usar o `bash.exe` do Git.

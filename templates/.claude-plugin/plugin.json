@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "roldao-method",
+  "version": "0.5.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 12 agentes, 16 hooks bloqueadores, 19 workflows, 8 skills BR core + 9 em addons, 7 checklists, 7 KBs, 6 addons BR. Para Claude Code, Cursor, Windsurf, Cline, Roo.",
+  "author": "Roldão Batista",
+  "homepage": "https://github.com/roldaobatista/roldao-method",
+  "license": "MIT",
+  "keywords": [
+    "pt-br",
+    "brazil",
+    "lgpd",
+    "nfe",
+    "pix",
+    "fiscal",
+    "agile",
+    "spec-driven",
+    "agents",
+    "hooks"
+  ],
+  "agents": [
+    "agents/analista.md",
+    "agents/gerente-produto.md",
+    "agents/ux-designer.md",
+    "agents/tech-lead.md",
+    "agents/investigador.md",
+    "agents/dev-senior.md",
+    "agents/revisor.md",
+    "agents/auditor-seguranca.md",
+    "agents/auditor-qualidade.md",
+    "agents/auditor-produto.md",
+    "agents/fiscal-br.md",
+    "agents/tech-writer.md"
+  ],
+  "commands": [
+    "commands/inicio.md",
+    "commands/brownfield.md",
+    "commands/prd.md",
+    "commands/epico.md",
+    "commands/historia.md",
+    "commands/feature.md",
+    "commands/quick-dev.md",
+    "commands/bug.md",
+    "commands/refactor.md",
+    "commands/qa.md",
+    "commands/auditoria.md",
+    "commands/retro.md",
+    "commands/replanejar.md",
+    "commands/sprint.md",
+    "commands/status.md",
+    "commands/checkpoint.md",
+    "commands/readiness.md",
+    "commands/help.md",
+    "commands/shard.md"
+  ],
+  "skills": [
+    "skills/gerar-adr-pt-br",
+    "skills/traduzir-jargao",
+    "skills/brainstormar-ideia",
+    "skills/gerar-test-fixture-br",
+    "skills/validar-cpf-cnpj",
+    "skills/validar-pix",
+    "skills/validar-cep",
+    "skills/checklist-lgpd"
+  ],
+  "hooks": "hooks/",
+  "settings": "settings.json",
+  "requires": {
+    "claude-code": ">=2.0.0",
+    "platform": ["win32-gitbash", "darwin", "linux"]
+  },
+  "addons": [
+    {
+      "name": "electron-br",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/electron-br"
+    },
+    {
+      "name": "fiscal-br-completo",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/fiscal-br-completo"
+    },
+    {
+      "name": "lgpd-compliance",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/lgpd-compliance"
+    },
+    {
+      "name": "fintech-br",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/fintech-br"
+    },
+    {
+      "name": "esocial-completo",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/esocial-completo"
+    },
+    {
+      "name": "varejo-pdv-br",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/varejo-pdv-br"
+    }
+  ]
+}

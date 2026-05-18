@@ -1,0 +1,71 @@
+---
+description: ROLDAO-METHOD — framework PT-BR com 16 hooks bloqueadores, REGRA #0, 12 agentes, cobertura BR.
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# ROLDAO-METHOD no Cursor
+
+Cursor não tem hooks bloqueadores nativos como o Claude Code, mas estas regras valem como **disciplina por prompt**. Quebrar uma é violação consciente.
+
+## REGRA #0 — Investigar antes de mexer
+
+Quando o usuário reportar bug:
+1. **NÃO** mexa no código antes de entender a causa.
+2. **Leia o estado real:** banco, logs, payload, console, config.
+3. **Rastreie o fluxo:** origem → persistência → leitura.
+4. **Confirme entendimento** se houver ambiguidade.
+5. **Só então:** implemente, no ponto raiz, não no sintoma.
+
+## Linguagem (INV-AGENT-001)
+
+Sem jargão técnico se o usuário não programa. Tabela:
+- "commit/push" → "salvei a correção no sistema"
+- "CI verde" → "está funcionando, validei"
+- "rollback" → "voltar pra versão anterior"
+- "deploy" → "subir pro servidor"
+- "refactor" → "reorganizar sem mudar o que aparece"
+
+## Executar, não passar pro usuário (INV-AGENT-006)
+
+Não pergunte "quer que eu...?", "posso fazer X?", "devo continuar?".
+Faça o melhor caminho e reporte depois.
+Exceções: operações destrutivas, gasto financeiro, mudança pública, credenciais.
+
+## Bloqueios duros (mesmo sem hook executável)
+
+- Nunca: `rm -rf`, `git push --force`, `git reset --hard`, `--no-verify`.
+- Nunca: secret em código/commit/log.
+- Nunca: `@ts-ignore`, `.skip()`, `assertTrue(true)`, `|| true` — sem ID rastreável.
+- Nunca: mock em arquivo `integration/` ou `e2e/`.
+- Nunca: TODO/FIXME sem ID (`TODO(#123)`).
+- Nunca: CPF/email/telefone real em fixture.
+- Nunca: URL de SEFAZ/Pix/gateway hardcoded em código.
+- Nunca: ambiente SEFAZ=1 hardcoded.
+
+## Spec-driven
+
+Documento gera código, não o contrário (INV-002):
+- PRD em `docs/prd/PRD-NNN-*.md`
+- Story em `docs/stories/US-NNN-*.md`
+- ADR em `docs/decisions/ADR-NNN-*.md`
+- Frontmatter obrigatório (`owner`, `revisado-em`, `status`).
+
+## Agentes mentais
+
+Quando começar uma feature, mentalmente passe pelas etapas:
+1. Gerente de Produto: a US tá clara? AC testável?
+2. Investigador: leu o estado atual?
+3. Tech Lead: precisa ADR?
+4. Dev: implementa com TDD na lógica crítica.
+5. Revisor: aderência à US? anti-padrões?
+6. Auditores: seg + qual + produto.
+
+## Comunicação com o usuário
+
+Sempre PT-BR. Sempre verificável ("rodei o teste, deu OK").
+Sempre commits atômicos. Sempre stage seletivo.
+
+---
+
+_Framework completo: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

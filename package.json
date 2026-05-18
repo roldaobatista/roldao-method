@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
-  "version": "0.4.0",
-  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 11 agentes especialistas, 10 hooks bloqueadores, 12 workflows, 6 skills BR (CPF/CNPJ alfanumérico 2026, Pix, CEP, LGPD), 5 checklists auditáveis, 5 knowledge bases, 4 addons especializados (electron, fiscal, LGPD, fintech), spec-driven com templates PT-BR. Para Claude Code, Cursor, Windsurf, Cline, Roo.",
+  "version": "0.5.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 12 agentes especialistas, 16 hooks bloqueadores, 19 workflows, 8 skills BR no core + 9 nos addons (CPF/CNPJ alfanumérico 2026, Pix, CEP, LGPD, brainstorming, fixtures BR), 7 checklists auditáveis, 7 knowledge bases, 6 addons especializados (electron, fiscal, LGPD, fintech, eSocial, varejo-PDV), spec-driven com templates PT-BR. Adapters reais para Claude Code, Cursor, Windsurf, Cline, Roo, Continue, Aider.",
   "keywords": [
     "ai",
     "claude-code",
@@ -40,7 +40,8 @@
   "license": "MIT",
   "author": "Roldão",
   "bin": {
-    "roldao-method": "./bin/install.js"
+    "roldao-method": "./bin/install.js",
+    "roldao": "./bin/install.js"
   },
   "files": [
     "bin",
@@ -48,9 +49,12 @@
     "addons",
     "docs",
     "tools",
+    "evals",
     "README.md",
     "CHANGELOG.md",
     "ROADMAP.md",
+    "SECURITY.md",
+    "CONTRIBUTORS.md",
     "LICENSE"
   ],
   "bugs": {

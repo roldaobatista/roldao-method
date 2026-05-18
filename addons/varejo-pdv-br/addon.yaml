@@ -1,0 +1,41 @@
+name: varejo-pdv-br
+version: 1.0.0
+description: Addon ROLDAO-METHOD para varejo / PDV brasileiro — SAT-CF-e (SP), NFC-e (demais UF), MFE (CE), TEF, integração balança/impressora, contingência offline.
+authors:
+  - Roldão Batista
+license: MIT
+homepage: https://github.com/roldaobatista/roldao-method/tree/main/addons/varejo-pdv-br
+status: stable
+revisado-em: 2026-05-18
+
+requires:
+  roldao-method: ">=0.5.0"
+
+provides:
+  agents:
+    - pdv-arch
+  hooks:
+    - validate-tef-flow
+  skills:
+    - emitir-sat-cfe
+    - emitir-nfce
+    - integrar-balanca-impressora
+  commands: []
+  templates: []
+
+regras:
+  - id: PDV-001
+    titulo: "Operação offline obrigatória"
+    descricao: "PDV deve operar com SEFAZ/SAT offline (modo contingência). Vendas continuam, sincronizam depois."
+  - id: PDV-002
+    titulo: "TEF (transferência eletrônica de fundos) sem cartão em texto puro"
+    descricao: "PAN nunca em código/log/banco. Tokenização obrigatória."
+  - id: PDV-003
+    titulo: "Validação de balança / impressora antes da operação"
+    descricao: "Calibração e teste de impressão de cupom no startup. Falha em qualquer = bloqueio operacional."
+
+aplica-quando:
+  - "PDV de varejo (loja física, restaurante, posto, farmácia, padaria)"
+  - "Emissão de SAT-CF-e (SP) ou NFC-e (demais UF) ou MFE-CE (CE)"
+  - "Integração com TEF (Stone, Cielo, Rede, GetNet, SafraPay)"
+  - "Integração com balança de açougue/padaria, impressora não-fiscal de cupom"
