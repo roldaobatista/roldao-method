@@ -2,6 +2,34 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.7.0] — 2026-05-18
+
+**Auditoria 10-agentes round 2** — fechou 5 gaps identificados após a v0.6.0. Foco: transformar em **mecânico** o que ainda era **convencional** no pipeline `/feature` e no `/quick-dev`.
+
+### Corrigido (gaps da auditoria)
+
+- **Pipeline Sofia→Detetive→Rafael agora é mecânico.** Antes, etapas 1-3 do `/feature` (gerente-produto, investigador, tech-lead) eram só texto pedindo pro agente invocar. Agora cada etapa cria marker em `.claude/.runtime/` (`sofia-done-*`, `detetive-done-*`, `rafael-done-*` ou `rafael-skipped-*` se trivial). Novo hook `require-agent-sequence-before-dev.sh` bloqueia Edit/Write em código se faltar qualquer marker. Resolve achado do Auditor 2/10.
+- **`/quick-dev` ganhou freio mecânico de escopo.** Limite "≤3 arquivos, ≤50 linhas" era checklist visual. Agora `/quick-dev` cria marker `quick-dev-active-*` na Etapa 0 e o novo hook `validate-quick-dev-scope.sh` conta arquivos únicos tocados — passando de 3, bloqueia com exit 2 e sugere `/feature`. Resolve achado do Auditor 9/10.
+- **Commits com `/feature` ou `/bug` ativos exigem `(US-NNN T-NNN)`.** `commit-message-validator.sh` ganhou Regra 4: dentro de sessão de feature/bug, commits `feat|fix|refactor|perf` precisam citar US-NNN ou T-NNN na mensagem (rastreabilidade cadeia → commit). Skip pra `chore|docs|test|build|ci`. Resolve achado do Auditor 1/10.
+- **`/checkpoint` agora roda no `/feature` automaticamente.** Adicionada Etapa 7 (walkthrough antes do merge) ao `feature.md` — gera sumário estruturado em `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` antes da saída final. Resolve achado do Auditor 7/10.
+- **Contagem real de hooks atualizada.** v0.6 declarava 16 bloqueadores; auditor 5/10 contou 15 (faltou validate-test-pyramid). Auditoria desta release listou 16 corretamente. v0.7 adiciona 2: total agora é **18 bloqueadores + 5 auxiliares + 1 test-runner = 24 hooks core**.
+
+### Adicionado
+
+**Hooks (2 novos bloqueadores, total 18):**
+- `require-agent-sequence-before-dev.sh` — bloqueia Edit/Write em código se `/feature` ativo e Sofia/Detetive/Rafael não rodaram (16º bloqueador).
+- `validate-quick-dev-scope.sh` — bloqueia Edit/Write em `/quick-dev` quando passar de 3 arquivos únicos (17º bloqueador).
+
+**Workflow:**
+- `feature.md` Etapa 1-3: instrução explícita pra criar markers (`sofia-done`, `detetive-done`, `rafael-done`/`rafael-skipped`).
+- `feature.md` Etapa 7: checkpoint walkthrough antes da saída final (era só comando manual `/checkpoint`).
+- `feature.md` Etapa 8: limpeza dos markers de sequência ao fim da sessão.
+- `quick-dev.md` Etapa 0: cria marker `quick-dev-active-*` pra ativar gate de escopo.
+
+### Test coverage
+
+- `_test-runner.sh` ganhou 14 casos novos: 5 cobrindo sequência de agentes, 6 cobrindo escopo de quick-dev, 3 cobrindo regra T-NNN do commit validator. **73/73 OK** (era 59/59).
+
 ## [0.6.0] — 2026-05-18
 
 **Gates mecânicos** — pacote pós-auditoria 10-agentes (terceira rodada). Tornou mecânico o que era convencional: readiness, dependências entre stories e auditores no `/feature`. Sem breaking changes em hooks existentes.

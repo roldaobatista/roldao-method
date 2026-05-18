@@ -41,7 +41,7 @@ Em uma linha: **BMAD orienta**, **ROLDAO impede**.
 | | BMAD | ROLDAO |
 |---|---|---|
 | Idioma | Inglês (+CN/VN) | 🇧🇷 PT-BR nativo |
-| Hooks que bloqueiam o erro | 0 | **16 bloqueadores** |
+| Hooks que bloqueiam o erro | 0 | **18 bloqueadores** |
 | Investigação em bug | Opcional | **Obrigatória** (REGRA #0) |
 | Cobertura BR (NF-e, LGPD, Pix, eSocial) | Zero | Total + 6 addons |
 | Auditores especializados | 0 | 3 (segurança, qualidade, produto) |
@@ -130,7 +130,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | `/help` | Catálogo dos comandos com códigos curtos |
 | `/shard` | Quebra PRD/ARQ longo em chunks navegáveis com índice |
 
-## 16 hooks bloqueadores + 5 auxiliares + 1 test-runner = 22 hooks core (+5 em addons)
+## 18 hooks bloqueadores + 5 auxiliares + 1 test-runner = 24 hooks core (+5 em addons)
 
 **Bloqueadores** (retornam exit 2 ou `decision: block`, barram a ação):
 
@@ -149,7 +149,9 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006 (usa `decision: block` JSON)
 - `require-investigador-before-fix` — Edit/Write em código de negócio sem `investigador` ter sido invocado quando bug foi reportado
 - `require-readiness-before-feature` — Edit/Write em código quando `/feature` ativo mas `docs/readiness/EP-NNN-status.md` ≠ `PRONTO` (gate mecânico de planejamento)
+- `require-agent-sequence-before-dev` — Edit/Write em código quando `/feature` ativo mas Sofia (gerente-produto), Detetive (investigador) ou Rafael (tech-lead) não rodaram — codifica o pipeline 3-etapas obrigatório (v0.7)
 - `validate-story-dependencies` — Edit/Write em código quando US-NNN ativa tem `depende-de:` apontando pra US não-entregue
+- `validate-quick-dev-scope` — `/quick-dev` ativo e mudança já tocou >3 arquivos de código — força escalar pra `/feature` (v0.7)
 - `validate-test-pyramid` — criação de E2E sem unit tests no mesmo módulo
 
 **Auxiliares** (avisam, não bloqueiam):
@@ -241,7 +243,7 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 | Idioma | Inglês (+CN/VN, sem PT-BR) | 🇧🇷 PT-BR nativo |
 | Mercado-foco | Global/genérico | Brasil (LGPD, fiscal, BR) |
 | Investigação em bug | Opcional | **Obrigatória** (REGRA #0) |
-| Hooks que bloqueiam o erro | 0 | **16 bloqueadores** |
+| Hooks que bloqueiam o erro | 0 | **18 bloqueadores** |
 | Filosofia | Orienta o agente | **Impede o agente de errar** |
 | Auditores dedicados | 0 | 3 (segurança, qualidade, produto) |
 | Agente fiscal BR | Não tem | `fiscal-br` (Dona Marta) |

@@ -5,7 +5,7 @@ trigger: always
 
 # ROLDAO-METHOD no Windsurf
 
-Windsurf usa este arquivo como contexto sempre presente. As regras dos 16 hooks bloqueadores do Claude Code viram **disciplina obrigatória** aqui.
+Windsurf usa este arquivo como contexto sempre presente. As regras dos 18 hooks bloqueadores do Claude Code viram **disciplina obrigatória** aqui.
 
 ## REGRA #0 — Investigar antes de mexer
 

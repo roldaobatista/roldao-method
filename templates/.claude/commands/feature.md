@@ -28,7 +28,7 @@ Use `$ARGUMENTS` como `US-NNN` (preferido) ou descrição inicial da feature ped
 
 > O hook `require-readiness-before-feature.sh` valida que `feature-active-*` E `readiness-passed-*` existem antes de permitir Edit/Write em código de negócio. Tentar pular essa etapa resulta em exit 2.
 
-## Etapa 1 — Gerente de Produto
+## Etapa 1 — Gerente de Produto (Sofia 📋)
 
 Invoque `gerente-produto`:
 - Recebe a descrição informal da feature (ou a US existente).
@@ -38,7 +38,12 @@ Invoque `gerente-produto`:
 
 Apresentar US e **confirmar** com o usuário.
 
-## Etapa 2 — Investigador
+Ao terminar, crie marker:
+```
+touch .claude/.runtime/sofia-done-${CLAUDE_SESSION_ID}
+```
+
+## Etapa 2 — Investigador (Detetive 🔬)
 
 Invoque `investigador`:
 - Lê código existente nas áreas que a feature toca.
@@ -47,15 +52,28 @@ Invoque `investigador`:
 
 Esse passo **NÃO escreve código.** Só reporta o que existe.
 
-## Etapa 3 — Tech Lead
+Ao terminar, crie marker:
+```
+touch .claude/.runtime/detetive-done-${CLAUDE_SESSION_ID}
+```
+
+## Etapa 3 — Tech Lead (Rafael 🏛️)
 
 Invoque `tech-lead` SOMENTE se:
 - A feature exige decisão arquitetural nova (nova lib, nova tabela, novo endpoint complexo).
 - O Investigador identificou impacto em ADR existente.
 
-Se a feature é trivial (campo novo em form, regra de validação simples), **pular para Dev Sênior**.
+Se a feature é trivial (campo novo em form, regra de validação simples), **pode pular para Dev Sênior** — mas precisa declarar explicitamente:
+```
+touch .claude/.runtime/rafael-skipped-${CLAUDE_SESSION_ID}
+```
 
-Quando invocado, o Tech Lead escreve ADR.
+Quando invocado, o Tech Lead escreve ADR. Ao terminar, crie marker:
+```
+touch .claude/.runtime/rafael-done-${CLAUDE_SESSION_ID}
+```
+
+> O hook `require-agent-sequence-before-dev.sh` valida que Sofia, Detetive e Rafael (ou rafael-skipped) rodaram antes de qualquer Edit/Write em código de negócio. Exit 2 se faltar.
 
 ## Etapa 4 — Dev Sênior
 
@@ -86,10 +104,29 @@ Invoque **sempre, em paralelo**:
 
 Se qualquer auditor retornar BLOQUEADO: voltar pra Dev Sênior. Re-rodar Etapa 5 e 6.
 
-## Etapa 7 — Limpeza de markers
+## Etapa 7 — Checkpoint (walkthrough antes de mergear)
 
-Após APROVADO por todos:
+Antes de declarar feature pronta, gere o walkthrough estruturado do `/checkpoint`:
+
+- Diff completo (`git diff main...HEAD`).
+- Sumário em PT-BR seguindo o template de `commands/checkpoint.md`:
+  - Propósito em 1 frase
+  - O que muda pro cliente final + non-goals
+  - Arquivos tocados (com motivo)
+  - Tabela de riscos (Probabilidade × Impacto × Mitigação)
+  - Migrações de dados (com plano de rollback se houver)
+  - Dependências adicionadas
+  - Cobertura de testes (Unit/Integration/E2E)
+  - Decisões consolidadas (Revisor + 3 Auditores)
+- Salvar em `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md`.
+
+Se algum risco crítico aparecer aqui que escapou da Etapa 6, volte pra Dev Sênior. Re-rodar Etapa 5, 6 e 7.
+
+## Etapa 8 — Limpeza de markers
+
+Após APROVADO por todos e checkpoint salvo:
 - Remova `.claude/.runtime/feature-active-${CLAUDE_SESSION_ID}` (sessão fechada).
+- Remova `.claude/.runtime/sofia-done-*`, `detetive-done-*`, `rafael-done-*`, `rafael-skipped-*`.
 - Mantenha `readiness-passed-*` (válido pra próximas stories do mesmo épico nesta sessão).
 
 ## Saída final
@@ -106,6 +143,7 @@ Revisor: APROVADO
 Auditor segurança: APROVADO | RESSALVAS: <lista>
 Auditor qualidade: APROVADO | RESSALVAS: <lista>
 Auditor produto: APROVADO | RESSALVAS: <lista>
+Checkpoint: docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md
 Próximo passo: <subir pra prod | aguardar release scheduler | próxima story>
 ```
 
@@ -114,4 +152,4 @@ Próximo passo: <subir pra prod | aguardar release scheduler | próxima story>
 - **Sem jargão técnico** com usuário não-técnico.
 - **Verificar antes de afirmar** — rodar testes e mostrar resultado.
 - **Sem over-engineering** — se a feature é simples, não inventar abstração.
-- **Etapa 0 e Etapa 6 são MECÂNICAS** — hooks impõem. Não tente pular.
+- **Etapas 0, 1-3 e 6 são MECÂNICAS** — hooks `require-readiness-before-feature`, `require-agent-sequence-before-dev` e a obrigatoriedade dos auditores impõem. Não tente pular.

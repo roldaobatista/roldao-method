@@ -157,7 +157,17 @@
           },
           {
             "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-agent-sequence-before-dev.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-dependencies.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-quick-dev-scope.sh\"",
             "timeout": 5
           },
           {

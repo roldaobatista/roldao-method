@@ -4,8 +4,9 @@
  * Cria pasta temporaria, roda `install --yes`, verifica que arquivos chegaram,
  * roda `doctor`, depois `uninstall --yes`. Sem dependencia externa.
  *
- * v0.6.0: cobre 16 hooks bloqueadores + 5 auxiliares + test-runner = 22 arquivos no core.
- * (v0.5 tinha 14 bloqueadores; v0.6 adicionou require-readiness-before-feature e validate-story-dependencies)
+ * v0.7.0: cobre 18 hooks bloqueadores + 5 auxiliares + test-runner = 24 arquivos no core.
+ * (v0.5 tinha 14 bloqueadores; v0.6 adicionou require-readiness-before-feature e validate-story-dependencies;
+ *  v0.7 adicionou require-agent-sequence-before-dev e validate-quick-dev-scope — gaps da auditoria 10-agentes round 2)
  */
 
 const fs = require('fs');
@@ -79,7 +80,7 @@ const exigidos = [
   '.claude/commands/help.md',
   '.claude/commands/shard.md',
 
-  // 16 hooks bloqueadores
+  // 18 hooks bloqueadores
   '.claude/hooks/anti-mascaramento.sh',
   '.claude/hooks/block-destructive.sh',
   '.claude/hooks/block-mock-in-integration.sh',
@@ -96,7 +97,9 @@ const exigidos = [
   '.claude/hooks/block-confirmation-questions.sh',
   '.claude/hooks/require-investigador-before-fix.sh',
   '.claude/hooks/require-readiness-before-feature.sh',
+  '.claude/hooks/require-agent-sequence-before-dev.sh',
   '.claude/hooks/validate-story-dependencies.sh',
+  '.claude/hooks/validate-quick-dev-scope.sh',
   '.claude/hooks/validate-test-pyramid.sh',
 
   // 5 auxiliares + test-runner

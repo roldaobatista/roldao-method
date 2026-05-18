@@ -261,6 +261,83 @@ run_case "bloqueia quando dependencia nao entregue" "validate-story-dependencies
 
 rm -rf /tmp/roldao-test-deps
 
+# ------- require-agent-sequence-before-dev --------
+run_case "passa sem feature ativa" "require-agent-sequence-before-dev.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"export const x = 1;"}}' 0
+
+run_case "ignora docs" "require-agent-sequence-before-dev.sh" \
+  '{"tool_input":{"file_path":"./docs/foo.md","content":"x"}}' 0
+
+# Setup: cria sessao /feature sem markers de Sofia/Detetive/Rafael
+mkdir -p /tmp/roldao-test-seq/.claude/.runtime
+touch /tmp/roldao-test-seq/.claude/.runtime/feature-active-seq1
+run_case "bloqueia sem Sofia/Detetive/Rafael" "require-agent-sequence-before-dev.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-seq CLAUDE_SESSION_ID=seq1
+
+# Adiciona Sofia + Detetive → ainda falta Rafael
+touch /tmp/roldao-test-seq/.claude/.runtime/sofia-done-seq1
+touch /tmp/roldao-test-seq/.claude/.runtime/detetive-done-seq1
+run_case "bloqueia sem Rafael decidido" "require-agent-sequence-before-dev.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-seq CLAUDE_SESSION_ID=seq1
+
+# Rafael skipped (feature trivial) → libera
+touch /tmp/roldao-test-seq/.claude/.runtime/rafael-skipped-seq1
+run_case "libera com rafael-skipped (trivial)" "require-agent-sequence-before-dev.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-seq CLAUDE_SESSION_ID=seq1
+
+rm -rf /tmp/roldao-test-seq
+
+# ------- validate-quick-dev-scope --------
+run_case "passa sem quick-dev ativo" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"./src/foo.ts","content":"x"}}' 0
+
+# Setup: ativa quick-dev e toca 3 arquivos diferentes
+mkdir -p /tmp/roldao-test-qd/.claude/.runtime
+touch /tmp/roldao-test-qd/.claude/.runtime/quick-dev-active-qd1
+
+run_case "libera 1o arquivo" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"./src/a.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+
+run_case "libera 2o arquivo" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"./src/b.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+
+run_case "libera 3o arquivo" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"./src/c.ts","content":"x"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+
+run_case "bloqueia 4o arquivo (estourou limite)" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"./src/d.ts","content":"x"}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+
+run_case "libera reedicao de arquivo ja contado" "validate-quick-dev-scope.sh" \
+  '{"tool_input":{"file_path":"./src/a.ts","content":"y"}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-qd CLAUDE_SESSION_ID=qd1
+
+rm -rf /tmp/roldao-test-qd
+
+# ------- commit-message-validator (regra T-NNN com /feature ativo) --------
+mkdir -p /tmp/roldao-test-commit/.claude/.runtime
+touch /tmp/roldao-test-commit/.claude/.runtime/feature-active-cmt1
+
+run_case "bloqueia feat sem T-NNN com /feature ativa" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: adiciona campo cnpj\""}}' 2 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-commit CLAUDE_SESSION_ID=cmt1
+
+run_case "libera feat com (US-NNN T-NNN)" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"feat: cnpj alfanum (US-001 T-001)\""}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-commit CLAUDE_SESSION_ID=cmt1
+
+run_case "libera docs sem T-NNN (nao exige)" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"docs: atualiza readme\""}}' 0 \
+  CLAUDE_PROJECT_DIR=/tmp/roldao-test-commit CLAUDE_SESSION_ID=cmt1
+
+rm -rf /tmp/roldao-test-commit
+
 # ------- relatório --------
 echo ""
 for r in "${RESULTS[@]}"; do

@@ -28,6 +28,16 @@ Se qualquer item falhar, **abortar e chamar `/feature`** em vez de `/quick-dev`.
 ❌ "Adiciona esse campo na API" → contrato público, use `/feature`.
 ❌ "Muda esse cálculo de imposto" → fiscal, precisa `fiscal-br`.
 
+## Etapa 0 — Marcar sessão (mecânico)
+
+Antes de qualquer mudança, crie marker pra ativar o gate de escopo:
+
+```
+mkdir -p .claude/.runtime && touch .claude/.runtime/quick-dev-active-${CLAUDE_SESSION_ID}
+```
+
+> O hook `validate-quick-dev-scope.sh` conta arquivos únicos tocados nesta sessão. Se passar de 3, bloqueia com exit 2 e sugere `/feature`. Isso codifica o limite "≤3 arquivos" que antes era só checklist visual.
+
 ## Etapa 1 — Compressão de intent
 
 Você descreve a mudança em **1 frase** sem ambiguidade:
@@ -74,6 +84,12 @@ Arquivos tocados: <N> (limite: 3)
 Linhas: <N> (limite: 50)
 Revisor: APROVADO
 Hooks: PASSARAM
+```
+
+Ao final, limpe os markers da sessão:
+```
+rm -f .claude/.runtime/quick-dev-active-${CLAUDE_SESSION_ID}
+rm -f .claude/.runtime/quick-dev-files-${CLAUDE_SESSION_ID}
 ```
 
 ## Importante

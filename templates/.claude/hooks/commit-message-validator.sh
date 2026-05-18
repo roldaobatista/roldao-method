@@ -64,6 +64,23 @@ if [ "$NUM_PREFIXES" -eq 0 ]; then
   printf '[commit-message-validator] AVISO: sem prefixo (feat/fix/refactor/chore/docs/test): %s\n' "$PRIMEIRA_LINHA" >&2
 fi
 
+# Regra 4: se ha sessao /feature ou /bug ativa, commit feat/fix/refactor deve citar (US-NNN T-NNN) ou (T-NNN).
+# Resolve gap auditado em 2026-05-18 (auditor 1/10): rastreabilidade T-NNN -> commit so era best practice.
+PROJDIR="${CLAUDE_PROJECT_DIR:-$PWD}"
+SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | perl -pe 'chomp; tr/a-zA-Z0-9//cd;')
+MARK_FEATURE="$PROJDIR/.claude/.runtime/feature-active-${SESSION_HASH}"
+MARK_BUG="$PROJDIR/.claude/.runtime/bug-trigger-${SESSION_HASH}"
+
+if [ -f "$MARK_FEATURE" ] || [ -f "$MARK_BUG" ]; then
+  case " $PREFIXES " in
+    *" feat "*|*" fix "*|*" refactor "*|*" perf "*)
+      if ! printf '%s' "$MSG" | grep -qE '\b(US-[0-9]+|T-[0-9]+)\b'; then
+        VIOLATIONS+=("sessao /feature ou /bug ativa — commit precisa citar (US-NNN T-NNN) ou (T-NNN) na mensagem para rastreabilidade")
+      fi
+      ;;
+  esac
+fi
+
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
   cat >&2 <<EOF
 [commit-message-validator] BLOQUEADO: mensagem de commit nao atende politica.

@@ -13,7 +13,7 @@ status: stable
 Pacote pós-auditoria 10-agentes (segunda rodada), entregando as 25 ações priorizadas:
 - 12 agentes especialistas (com nome + ícone)
 - 19 workflows (incluindo `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`)
-- 16 hooks bloqueadores + 5 auxiliares + 1 test-runner = 22 hooks core (+5 em addons; v0.6 adicionou `require-readiness-before-feature` e `validate-story-dependencies`)
+- 18 hooks bloqueadores + 5 auxiliares + 1 test-runner = 24 hooks core (+5 em addons; v0.6 adicionou `require-readiness-before-feature` e `validate-story-dependencies`; v0.7 adicionou `require-agent-sequence-before-dev` e `validate-quick-dev-scope`)
 - 8 skills BR no core + 9 nos addons = 17 skills totais
 - 7 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance)
 - 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
