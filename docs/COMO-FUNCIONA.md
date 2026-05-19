@@ -218,7 +218,7 @@ docs/retros/AAAA-MM-DD.md + atualiza AGENTS.md §10
 | `fiscal-br` | NF-e, certificado, eSocial, reforma tributária | sonnet |
 | `tech-writer` | CHANGELOG, release notes, msg de commit, anúncio | haiku |
 
-Lista canônica de hooks (bloqueadores + auxiliares + utilitários) em [`README.md` seção "22 hooks bloqueadores"](../README.md#22-hooks-bloqueadores--4-auxiliares--2-infra-_lib--test-runner--28-hooks-core-5-em-addons). Test-runner cobre **147 casos**.
+Lista canônica de hooks (bloqueadores + auxiliares + utilitários) em [`README.md` seção "22 hooks bloqueadores"](../README.md#22-hooks-bloqueadores--4-auxiliares--2-infra-_lib--test-runner--28-hooks-core-5-em-addons). Test-runner cobre **155 casos**.
 
 ## Os 8 skills BR core
 

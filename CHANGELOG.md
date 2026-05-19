@@ -2,6 +2,12 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.14.1] — 2026-05-18
+
+### Adicionado
+
+- **8 testes de regressão** no `_test-runner.sh` (147 → 155) cobrindo exatamente os furos P0/P1 fechados na round 8: `rm` destrutivo sem espaço (5 casos), `|| true` seguido de `;`/`#` (2 casos), e falso-positivo de prefixo no commit-validator (1 caso). Sem isso, uma "simplificação" futura reabriria o furo silenciosamente. Badges e docs atualizados para 155/155.
+
 ## [0.14.0] — 2026-05-18
 
 **Recomendações da round 8 tratadas (as não-bloqueantes que dependiam de decisão de produto).**

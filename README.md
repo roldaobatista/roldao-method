@@ -4,16 +4,16 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.14.0-blue.svg)](#)
+[![Versão](https://img.shields.io/badge/versão-0.14.1-blue.svg)](#)
 [![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-22-red.svg)](#)
-[![Testes do framework](https://img.shields.io/badge/test_runner-147%2F147-green.svg)](#)
+[![Testes do framework](https://img.shields.io/badge/test_runner-155%2F155-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
 
 ## 🆕 Novidades na v0.13.1 (paridade SDD + auditoria 10-agentes round 7)
 
-Fecha gaps táticos de spec-driven sem mexer na identidade — hooks bloqueadores e cobertura BR continuam o diferencial. 147/147 mantidos.
+Fecha gaps táticos de spec-driven sem mexer na identidade — hooks bloqueadores e cobertura BR continuam o diferencial. 155/155 mantidos.
 
 - **Comando `/consistencia`** — cross-check PRD↔ARQ↔stories↔tasks↔código (caça órfãos).
 - **Comando `/clarificar`** — questionamento estruturado ANTES de codar. Total: **22 workflows**.
@@ -167,7 +167,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `block-jargon-pt-br` — flag de jargão técnico em resposta ao usuário não-programador (PostToolUse, soft warning)
 - `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006 (PostToolUse, soft warning)
 
-**Test-runner:** `_test-runner.sh` com **147 casos** contra os hooks (manual + CI cross-platform).
+**Test-runner:** `_test-runner.sh` com **155 casos** contra os hooks (manual + CI cross-platform).
 
 **Addons trazem +5 hooks:** `block-ipc-without-validation` (electron-br), `validate-webhook-signature`, `require-sefaz-env`, `validate-tef-flow`, `validate-esocial-prazo`.
 

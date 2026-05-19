@@ -65,6 +65,22 @@ run_case "bloqueia curl | bash" "block-destructive.sh" \
 run_case "bloqueia DROP TABLE" "block-destructive.sh" \
   '{"tool_input":{"command":"sqlite3 db DROP TABLE users"}}' 2
 
+# Regressao round 8 — rm destrutivo sem espaco apos as flags (furo P0 fechado)
+run_case "bloqueia rm -rf sem espaco (./)" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf./build"}}' 2
+
+run_case "bloqueia rm -fr~ sem espaco" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -fr~/data"}}' 2
+
+run_case "bloqueia rm -r ./*" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -r ./*"}}' 2
+
+run_case "bloqueia rm -rf* glob colado" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf*"}}' 2
+
+run_case "rm -f arquivo unico nao bloqueia" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -f unico.txt"}}' 0
+
 # ------- secrets-scanner --------
 run_case "bloqueia escrita em .env" "secrets-scanner.sh" \
   '{"tool_input":{"file_path":"./.env","content":"FOO=bar"}}' 2
@@ -148,6 +164,10 @@ run_case "permite commit feat curto" "commit-message-validator.sh" \
 
 run_case "bloqueia commit feat+fix misturado" "commit-message-validator.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: nova tela + fix: bug do login\""}}' 2
+
+# Regressao round 8 — palavra-tipo no corpo nao e falso-positivo de mistura
+run_case "permite fix: com 'build' no corpo" "commit-message-validator.sh" \
+  '{"tool_input":{"command":"git commit -m \"fix: corrige bug do build\""}}' 0
 
 run_case "bloqueia primeira linha >72" "commit-message-validator.sh" \
   '{"tool_input":{"command":"git commit -m \"feat: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""}}' 2
@@ -739,6 +759,13 @@ run_case "bloqueia npm test --silent" "anti-mascaramento.sh" \
 run_case "bloqueia expect(true).toBe(true)" "anti-mascaramento.sh" \
   '{"tool_input":{"file_path":"./x.test.js","content":"expect(true).toBe(true);"}}' 2
 
+# Regressao round 8 — || true seguido de ;/# (antes so casava fim de linha)
+run_case "bloqueia || true seguido de ;" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./x.sh","content":"cmd || true ; echo ok"}}' 2
+
+run_case "bloqueia || true seguido de #" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./x.sh","content":"cmd || true # mascarado"}}' 2
+
 # ------- secrets-scanner (cobertura ampliada round 6) --------
 run_case "bloqueia GitHub PAT (ghp_)" "secrets-scanner.sh" \
   '{"tool_input":{"file_path":"./x.js","content":"const t = \"ghp_abc1234567890ABCDEFGHIJKLMNOPqrstuvwx\";"}}' 2
@@ -829,7 +856,7 @@ echo "Total: $((PASS + FAIL))  |  OK: $PASS  |  FAIL: $FAIL"
 
 # Invariante: se um bloco de setup pular (perl/git/mktemp ausente), o total cai
 # e a suite ainda daria verde. Checar o numero esperado impede esse falso-verde.
-EXPECTED_TOTAL=147
+EXPECTED_TOTAL=155
 if [ "$((PASS + FAIL))" -ne "$EXPECTED_TOTAL" ]; then
   echo "ERRO: rodaram $((PASS + FAIL)) testes, esperado $EXPECTED_TOTAL (setup pulado? dependencia ausente?)" >&2
   exit 1
