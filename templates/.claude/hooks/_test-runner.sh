@@ -537,6 +537,19 @@ check_stdout "emite block em 'posso continuar?'" "block-confirmation-questions.s
   '{"response":"feito. posso continuar?"}' '"decision":[[:space:]]*"block"'
 run_case "libera quando pergunta envolve npm publish (legit)" "block-confirmation-questions.sh" \
   '{"response":"quer que eu rode npm publish? Precisa de credenciais."}' 0
+# Regressao round 9: variacoes PT-BR que antes escapavam (auditoria 10-agentes)
+check_stdout "emite block em 'posso prosseguir?'" "block-confirmation-questions.sh" \
+  '{"response":"terminei a etapa 1. posso prosseguir?"}' '"decision":[[:space:]]*"block"'
+check_stdout "emite block em 'qual voce prefere'" "block-confirmation-questions.sh" \
+  '{"response":"tenho dois caminhos. qual voce prefere?"}' '"decision":[[:space:]]*"block"'
+check_stdout "emite block em 'deixa eu' coloquial" "block-confirmation-questions.sh" \
+  '{"response":"deixa eu ajustar isso primeiro?"}' '"decision":[[:space:]]*"block"'
+check_stdout "emite block em 'aguardo sua confirmacao'" "block-confirmation-questions.sh" \
+  '{"response":"preparei a mudanca. aguardo sua confirmacao."}' '"decision":[[:space:]]*"block"'
+check_stdout "emite block em 'devo avancar?'" "block-confirmation-questions.sh" \
+  '{"response":"fiz o diagnostico. devo avancar com a correcao?"}' '"decision":[[:space:]]*"block"'
+run_case "nao falso-positiva em 'avancei e parei o servico' (reporte)" "block-confirmation-questions.sh" \
+  '{"response":"avancei a migracao e parei o servico antigo. tudo validado."}' 0
 
 # ------- block-jargon-pt-br (PostToolUse — JSON output) --------
 run_case "passa resposta sem jargao" "block-jargon-pt-br.sh" \

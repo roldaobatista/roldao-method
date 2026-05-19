@@ -26,11 +26,16 @@ fi
 TRIGGERS='\b(bug|erro|problema|n[aã]o[[:space:]]+funciona|n[aã]o[[:space:]]+sai|n[aã]o[[:space:]]+aparece|n[aã]o[[:space:]]+salva|tela[[:space:]]+errada|c[aá]lculo[[:space:]]+errado|valor[[:space:]]+errado|deveria|esperava|estranho|travou|quebrou)\b'
 
 if printf '%s' "$PROMPT" | grep -qiE -- "$TRIGGERS"; then
-  # Marcador pra require-investigador-before-fix.sh
-  PROJDIR=$(sanitize_projdir) || exit 0
-  SESSION_HASH=$(sanitize_session_hash)
-  RUNTIME_DIR=$(safe_runtime_dir "$PROJDIR")
-  touch "$RUNTIME_DIR/bug-trigger-${SESSION_HASH}" 2>/dev/null
+  # Marcador pra require-investigador-before-fix.sh.
+  # Se PROJDIR for invalido, ainda assim injeta o lembrete (degradacao graciosa):
+  # o valor principal do hook e o contexto da REGRA #0, nao so o marker.
+  if PROJDIR=$(sanitize_projdir); then
+    SESSION_HASH=$(sanitize_session_hash)
+    RUNTIME_DIR=$(safe_runtime_dir "$PROJDIR")
+    touch "$RUNTIME_DIR/bug-trigger-${SESSION_HASH}" 2>/dev/null
+  else
+    printf '[regra-zero-reminder] aviso: PROJDIR invalido — lembrete injetado, mas o marker bug-trigger NAO foi criado. require-investigador-before-fix pode nao armar nesta sessao.\n' >&2
+  fi
 
   cat <<'EOF'
 
