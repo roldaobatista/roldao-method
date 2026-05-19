@@ -69,7 +69,7 @@ Cada PSP (Provedor de Serviço de Pagamento) tem ISPB único de 8 dígitos no Ba
 ## Limites operacionais
 
 - **Por transação**: definido por cada PSP, configurável pelo usuário.
-- **Horário noturno** (20h às 6h): limite reduzido por padrão (R$ 1.000 — usuário pode aumentar com aviso prévio de 24h ao banco).
+- **Horário noturno**: janela padrão do Bacen 20h–6h; o usuário pode pedir início às 22h (IN BCB 185 — só essas duas faixas). Limite padrão de **R$ 1.000/transação para PF e MEI** definido pelo Bacen; é **configurável** (reduzir = efeito imediato; aumentar = efetivação em 24h–48h por segurança). Não hardcodar valor nem horário no código: vêm da configuração do PSP/usuário (ver `no-hardcoded-env-urls`).
 - **Pessoa física**: sem limite global do Bacen — depende do PSP.
 - **Pessoa jurídica**: idem.
 - **Pix Saque**: R$ 500 (dia) / R$ 100 (noite) por padrão.

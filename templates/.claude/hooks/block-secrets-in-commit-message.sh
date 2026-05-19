@@ -5,6 +5,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 CMD=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -36,23 +39,15 @@ if [ -z "$MSG" ]; then
   MSG="$CMD"
 fi
 
-# Padroes de segredo no texto da mensagem
-PATTERNS=(
-  'AKIA[0-9A-Z]{16}'
-  '-----BEGIN[[:space:]]+[A-Z]+[[:space:]]+(PRIVATE[[:space:]]+)?KEY-----'
-  'sk-[A-Za-z0-9]{32,}'
-  'sk-ant-(api[0-9]{2}-)?[A-Za-z0-9_-]{32,}'
-  'ghp_[A-Za-z0-9]{36}'
-  'github_pat_[A-Za-z0-9_]{82}'
-  'xox[baprs]-[A-Za-z0-9-]{10,}'
-  'AIza[0-9A-Za-z_-]{35}'
-  'glpat-[A-Za-z0-9_-]{20}'
-  # Bearer tokens longos
-  'Bearer[[:space:]]+[A-Za-z0-9._-]{40,}'
-  # Senhas inline
-  'password[[:space:]]*[:=][[:space:]]*[^[:space:]]{6,}'
-  'senha[[:space:]]*[:=][[:space:]]*[^[:space:]]{6,}'
-)
+# Padroes de segredo no texto: lista canônica compartilhada (_lib.sh) +
+# senha inline (na mensagem de commit não exige aspas — contexto difere
+# do secrets-scanner, por isso esta regra fica aqui).
+PATTERNS=()
+while IFS= read -r _p; do
+  [ -n "$_p" ] && PATTERNS+=("$_p")
+done < <(secret_token_patterns)
+PATTERNS+=('password[[:space:]]*[:=][[:space:]]*[^[:space:]]{6,}')
+PATTERNS+=('senha[[:space:]]*[:=][[:space:]]*[^[:space:]]{6,}')
 
 for pat in "${PATTERNS[@]}"; do
   if printf '%s\n' "$MSG" | grep -qE -- "$pat"; then

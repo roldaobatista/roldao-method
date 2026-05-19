@@ -58,7 +58,7 @@ revisado-em: 2026-05-18
 9. **Revogação** do consentimento.
 10. **Revisão** de decisões automatizadas (Art. 20).
 
-**SLA legal**: resposta em até **15 dias** (Art. 19).
+**Prazos (precisão jurídica)**: o prazo legal de **15 dias** é específico da **declaração clara e completa de acesso** (Art. 19, II). A *confirmação de existência* e o *acesso em formato simplificado* são **imediatos** (Art. 19, I). Os demais direitos do Art. 18 (correção, eliminação, portabilidade, anonimização, informação sobre compartilhamento, revisão Art. 20) **não têm prazo numérico fixado na LGPD** — adotar 15 dias como SLA interno é boa prática, não exigência legal.
 
 ## Incidente de segurança (Art. 48)
 

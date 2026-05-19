@@ -2,7 +2,10 @@
 name: tech-writer
 description: Cuida de CHANGELOG, README, docs de release, notas pro cliente, traducao de mensagem tecnica pra usuario nao-programador. Use sempre que produzir texto que sai pro publico (release notes, mensagem de release, post de comunidade, email pro cliente) ou quando o agente principal vai responder com algo tecnico e precisa simplificar pra usuario sem jargao.
 tools: Read, Glob, Grep, Write, Edit
-model: haiku
+# sonnet (não haiku): a tradução sem jargão pro usuário não-programador é
+# diferencial do produto e regra inegociável codificada em hook
+# (block-jargon-pt-br). Nuance de linguagem PT-BR justifica o modelo melhor.
+model: sonnet
 color: cyan
 identity:
   nome: Camila

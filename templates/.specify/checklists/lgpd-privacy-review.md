@@ -79,7 +79,7 @@ Dado pessoal sensível (saúde, raça, religião, opinião política, biometria)
 
 - [ ] DPO designado e nome publicado no site (Art. 41).
 - [ ] Canal de contato com DPO funcional (email, formulário).
-- [ ] SLA de resposta ao titular: máx 15 dias (Art. 19).
+- [ ] SLA de resposta ao titular: 15 dias para a declaração completa de acesso (Art. 19, II); confirmação/acesso simplificado imediato (Art. 19, I); demais pedidos do Art. 18 sem prazo legal fixo — 15 dias adotado como SLA interno.
 - [ ] DPO ciente das mudanças que essa feature traz.
 
 ## 9. Decisão automatizada (LGPD-009)

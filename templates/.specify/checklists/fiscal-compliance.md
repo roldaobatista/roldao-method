@@ -83,7 +83,7 @@ revisado-em: 2026-05-18
 ## 10. Cancelamento e correção
 
 - [ ] Cancelamento dentro de 24h (NF-e) implementado.
-- [ ] Carta de Correção Eletrônica (CC-e) suportada — máx 20 por nota.
+- [ ] Carta de Correção Eletrônica (CC-e) suportada — máx 20 por nota (`nSeqEvento` 1→20); cada CC-e consolida as anteriores (a última é a válida); prazo 720h (30 dias) após autorização da NF-e.
 - [ ] Inutilização de numeração tratada (pulou número de série).
 - [ ] Denegação tratada (nota recusada não pode ser reemitida com mesma chave).
 

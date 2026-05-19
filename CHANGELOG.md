@@ -2,6 +2,22 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.14.2] — 2026-05-18
+
+**Débito técnico e precisão jurídica da round 8 zerados.**
+
+### Corrigido
+
+- **Lista de detecção de segredos unificada** — `secrets-scanner` e `block-secrets-in-commit-message` tinham cópias divergentes; agora consomem `secret_token_patterns()` do `_lib.sh` (superset: ambos só ganham detecção, nenhum perde). Risco de divergência futura eliminado.
+- **`paths-frontmatter-validator`** lia só as 15 primeiras linhas (cortava cabeçalho longo, ex.: story com bloco `aprovacoes:`) — agora lê o bloco de frontmatter inteiro (até o 2º `---`).
+- **`install.js`** comparava versão com `split('.').map(Number)` → `NaN` em sufixo de pré-release (`0.14.0-rc.1`); agora ignora o sufixo e compara o núcleo X.Y.Z.
+- **Precisão jurídica nas KBs:** Pix noturno reescrito conforme Bacen/IN BCB 185 (faixa 20h–6h ou 22h–6h, R$ 1.000 padrão PF/MEI configurável, reduzir imediato / aumentar 24–48h, não hardcodar); LGPD — 15 dias é prazo legal só da declaração completa de acesso (Art. 19, II), confirmação/acesso simplificado é imediato (Art. 19, I), demais direitos do Art. 18 sem prazo legal fixo (15 dias = SLA interno); CC-e confirmada **correta** (máx 20/nota) e enriquecida (consolidação + 720h/30 dias).
+
+### Alterado
+
+- **`tech-writer` e `ux-designer` promovidos de `haiku` para `sonnet`** — a tradução sem jargão pro usuário não-programador é diferencial do produto (regra inegociável em hook) e wireframes/estados/acessibilidade exigem nuance que haiku degrada. Decisão documentada no frontmatter de cada agente.
+- **`_lib.sh`** ganhou `secret_token_patterns()` e `hook_block_header()` (convenção de cabeçalho para hooks novos; existentes mantêm o próprio para evitar churn de 26 arquivos sem ganho funcional).
+
 ## [0.14.1] — 2026-05-18
 
 ### Adicionado

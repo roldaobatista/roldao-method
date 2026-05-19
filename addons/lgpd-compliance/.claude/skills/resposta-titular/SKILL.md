@@ -224,7 +224,7 @@ DPO — {Nome da Empresa}
 
 - [ ] Identidade do titular confirmada (CPF + email do cadastro batem).
 - [ ] Direito corretamente classificado.
-- [ ] Resposta dentro do SLA de 15 dias.
+- [ ] Resposta no prazo: acesso completo em até 15 dias (Art. 19, II); confirmação/acesso simplificado imediato (Art. 19, I); demais direitos do Art. 18 sem prazo legal fixo — 15 dias como SLA interno.
 - [ ] Linguagem clara, sem juridiquês.
 - [ ] Protocolo numerado e rastreável.
 - [ ] Trilha completa no sistema de ticket.

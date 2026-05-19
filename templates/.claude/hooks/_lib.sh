@@ -101,3 +101,44 @@ safe_tmpfile() {
   : > "$tmpf" || return 2
   printf '%s' "$tmpf"
 }
+
+# ---------------------------------------------------------------------------
+# secret_token_patterns — lista CANONICA de regex de tokens/segredos (ERE),
+# uma por linha. Fonte unica consumida por secrets-scanner.sh e
+# block-secrets-in-commit-message.sh — antes cada hook tinha sua copia e
+# elas divergiam (auditoria round 8). Cobre o superset: nenhum hook perde
+# deteccao, ambos ganham a uniao. Regra de senha inline fica em cada hook
+# (contexto difere: arquivo exige aspas, mensagem de commit nao).
+# ---------------------------------------------------------------------------
+secret_token_patterns() {
+  cat <<'PATTERNS'
+AKIA[0-9A-Z]{16}
+aws_secret_access_key[[:space:]]*=[[:space:]]*[A-Za-z0-9/+=]{40}
+-----BEGIN[[:space:]]+[A-Z]+[[:space:]]+(PRIVATE[[:space:]]+)?KEY-----
+-----BEGIN[[:space:]]+PRIVATE[[:space:]]+KEY-----
+sk-[A-Za-z0-9]{32,}
+sk-ant-(api[0-9]{2}-)?[A-Za-z0-9_-]{32,}
+ghp_[A-Za-z0-9]{36}
+github_pat_[A-Za-z0-9_]{82}
+xox[baprs]-[A-Za-z0-9-]{10,}
+AIza[0-9A-Za-z_-]{35}
+glpat-[A-Za-z0-9_-]{20}
+Bearer[[:space:]]+[A-Za-z0-9._-]{40,}
+sk_live_[0-9a-zA-Z]{16,}
+rk_live_[0-9a-zA-Z]{16,}
+eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}
+(postgres|postgresql|mysql|mongodb(\+srv)?|redis|amqps?)://[^:@/[:space:]]+:[^@/[:space:]]+@
+"private_key"[[:space:]]*:[[:space:]]*"-----BEGIN
+PATTERNS
+}
+
+# ---------------------------------------------------------------------------
+# hook_block_header — cabecalho padronizado de bloqueio em stderr.
+# Uso: hook_block_header "nome-hook" "motivo curto"
+# Convencao a partir da round 8: hooks novos DEVEM usar isto. Os existentes
+# permanecem (heredoc proprio) ate proxima refatoracao — trocar 26 heredocs
+# de uma vez e churn com risco de regressao, sem ganho funcional.
+# ---------------------------------------------------------------------------
+hook_block_header() {
+  printf '[%s] BLOQUEADO: %s\n\n' "${1:-hook}" "${2:-violacao de politica}" >&2
+}

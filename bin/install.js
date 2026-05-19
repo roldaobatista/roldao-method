@@ -391,10 +391,12 @@ async function checkUpdate() {
   const remote = await fetchRemoteVersion();
   if (!remote) return;
   if (remote === local) return;
-  // Comparação simples X.Y.Z
+  // Comparação X.Y.Z, ignorando sufixo de pré-release (ex: 0.14.0-rc.1).
+  // Sem o strip, split('.').map(Number) produzia NaN e o aviso de update errava.
   const cmp = (a, b) => {
-    const aa = a.split('.').map(Number);
-    const bb = b.split('.').map(Number);
+    const core = (v) => String(v).replace(/[-+].*$/, '').split('.');
+    const aa = core(a).map((n) => parseInt(n, 10) || 0);
+    const bb = core(b).map((n) => parseInt(n, 10) || 0);
     for (let i = 0; i < 3; i++) {
       if ((aa[i] || 0) !== (bb[i] || 0)) return (aa[i] || 0) - (bb[i] || 0);
     }

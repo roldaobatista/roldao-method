@@ -5,6 +5,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/secrets-scan.$$"
@@ -75,25 +78,13 @@ EOF
   done
 fi
 
-# Padrões de segredo dentro do conteúdo
-CONTENT_PATTERNS=(
-  'AKIA[0-9A-Z]{16}'                              # AWS Access Key
-  'aws_secret_access_key[[:space:]]*=[[:space:]]*[A-Za-z0-9/+=]{40}'
-  '-----BEGIN[[:space:]]+[A-Z]+[[:space:]]+(PRIVATE[[:space:]]+)?KEY-----'
-  '-----BEGIN[[:space:]]+PRIVATE[[:space:]]+KEY-----'
-  'sk-[A-Za-z0-9]{32,}'                           # OpenAI-style
-  'sk-ant-(api[0-9]{2}-)?[A-Za-z0-9_-]{32,}'      # Anthropic (cobre sk-ant-api03-...)
-  'ghp_[A-Za-z0-9]{36}'                           # GitHub PAT
-  'github_pat_[A-Za-z0-9_]{82}'                   # GitHub PAT fine-grained
-  'xox[baprs]-[A-Za-z0-9-]{10,}'                  # Slack
-  'AIza[0-9A-Za-z_-]{35}'                         # Google API
-  'sk_live_[0-9a-zA-Z]{16,}'                      # Stripe live key
-  'rk_live_[0-9a-zA-Z]{16,}'                      # Stripe restricted live key
-  'eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}'  # JWT (header.payload.sig)
-  '(postgres|postgresql|mysql|mongodb(\+srv)?|redis|amqps?)://[^:@/[:space:]]+:[^@/[:space:]]+@'  # connection string com senha
-  '"private_key"[[:space:]]*:[[:space:]]*"-----BEGIN'              # GCP service-account JSON
-  '(password|passwd|senha)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"' ]{6,}'  # senha inline literal
-)
+# Padrões de segredo dentro do conteúdo: lista canônica compartilhada
+# (_lib.sh) + senha inline literal específica deste hook (exige aspas).
+CONTENT_PATTERNS=()
+while IFS= read -r _p; do
+  [ -n "$_p" ] && CONTENT_PATTERNS+=("$_p")
+done < <(secret_token_patterns)
+CONTENT_PATTERNS+=('(password|passwd|senha)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"' ]{6,}')
 
 for pat in "${CONTENT_PATTERNS[@]}"; do
   if grep -qE -- "$pat" "$TMPF"; then

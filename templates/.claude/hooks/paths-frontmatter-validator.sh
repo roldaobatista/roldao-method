@@ -70,9 +70,18 @@ EOF
   exit 2
 fi
 
-# Validar campos mínimos
+# Extrai o BLOCO de frontmatter (entre o 1o e o 2o '---'), ignorando BOM/linha
+# em branco inicial. `head -n 15` cortava cabeçalho longo (ex.: story com bloco
+# `aprovacoes:`) e dava falso "campo faltando".
+FM_BLOCK=$(perl -0777 -ne '
+  s/^\x{EF}\x{BB}\x{BF}//;
+  s/^\s*\n//;
+  print $1 if /\A---\s*\n(.*?)\n---/s;
+' < "$TMPF")
+
+# Validar campos mínimos no bloco de frontmatter
 for field in owner revisado-em status; do
-  if ! head -n 15 "$TMPF" | grep -qE "^${field}:"; then
+  if ! printf '%s\n' "$FM_BLOCK" | grep -qE "^${field}:"; then
     echo "[paths-frontmatter-validator] AVISO: frontmatter sem campo obrigatório '$field' em $FILE_PATH" >&2
     exit 2
   fi
