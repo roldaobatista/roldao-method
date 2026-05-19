@@ -36,7 +36,7 @@ Aplicavel apenas no Caso D acima. Invoque `analista` em **modo 1 (brief)**:
 ## Etapa 2 — Gerente de Produto (modo B — PRD)
 
 Invoque `gerente-produto` em **modo B**:
-- Le `templates/.specify/templates/prd.md` como base.
+- Le `.specify/templates/prd.md` como base.
 - Preenche tudo, mas SEM listar US ainda na secao 4 (vai vir da decomposicao).
 - Salva em `docs/prd/PRD-NNN-slug.md`.
 
@@ -73,7 +73,7 @@ Invoque `tech-lead`:
 Antes de criar as stories filhas, criar o arquivo do **proprio epico**:
 
 1. Numero novo: olhe `docs/epicos/` e pegue o proximo `EP-NNN`.
-2. Use `templates/.specify/templates/epico.md` como base.
+2. Use `.specify/templates/epico.md` como base.
 3. Preencher: PRD pai, stories filhas (tabela), ADRs bloqueantes, readiness pendente, non-goals, metricas.
 4. Salvar em `docs/epicos/EP-NNN-slug.md`.
 

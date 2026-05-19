@@ -39,10 +39,12 @@ ALLOWLIST=(
   "@github/mcp"
   "github-mcp-server"
   "@gitlab/mcp"
-  # Pesquisa
+  # Pesquisa / docs
   "@brave/brave-search-mcp"
   "brave-search-mcp"
   "@perplexity/mcp"
+  "@upstash/context7-mcp"
+  "context7"
   # Produtividade
   "@notion/mcp"
   "notion-mcp"

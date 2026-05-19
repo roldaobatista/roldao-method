@@ -32,7 +32,7 @@ Apresentar brief ao usuario, confirmar antes de prosseguir.
 
 Invoque `gerente-produto` em **modo B**:
 - Le caminho do brief em `.claude/.runtime/last-research-path` e abre `docs/research/<slug>.md`.
-- Le `templates/.specify/templates/prd.md` como base.
+- Le `.specify/templates/prd.md` como base.
 - Numero PRD novo: olhe `docs/prd/` e pegue o proximo `PRD-NNN`.
 - Slug em kebab-case curto.
 - Preenche todas as 9 secoes do template.

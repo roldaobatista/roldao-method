@@ -245,6 +245,15 @@ function isUserOwned(relPath) {
   return USER_OWNED.has(norm);
 }
 
+// Garante bit de execucao em scripts shell. npm pack / copyFileSync nao
+// preservam +x de forma confiavel — sem isso o Claude Code nao consegue
+// invocar os hooks e o cliente Unix fica com TODOS os bloqueadores inertes.
+function ensureExecutable(dest) {
+  if (process.platform === 'win32') return;
+  if (!/\.sh$/.test(dest)) return;
+  try { fs.chmodSync(dest, 0o755); } catch { /* best effort */ }
+}
+
 function copyFile(src, dest, mode) {
   const rel = path.relative(CWD, dest);
   const exists = fs.existsSync(dest);
@@ -267,6 +276,7 @@ function copyFile(src, dest, mode) {
 
   if (!exists) {
     fs.copyFileSync(src, dest);
+    ensureExecutable(dest);
     counters.criados++;
     detalhes.criados.push(rel);
     return;
@@ -320,6 +330,7 @@ function copyFile(src, dest, mode) {
     detalhes.erros.push(`${rel}: backup falhou (${e.message}) — sobrescrito com --force`);
   }
   fs.copyFileSync(src, dest);
+  ensureExecutable(dest);
   counters.atualizados++;
   detalhes.atualizados.push(`${rel} (backup: ${path.basename(bak)})`);
 }

@@ -30,9 +30,10 @@ menu:
   - codigo: SPED
     descricao: SPED Fiscal/Contribuicoes/ECD/ECF
 skills:
-  - validar-cnpj-alfanumerico
-  - emitir-nfe-55
   - validar-cpf-cnpj
+# `emitir-nfe-55` e `migrar-cnpj-alfanumerico` chegam via addon
+# `fiscal-br-completo` (nao fazem parte do core). A validacao de CNPJ
+# alfanumerico ja esta coberta pela skill core `validar-cpf-cnpj`.
 ---
 
 # Fiscal BR

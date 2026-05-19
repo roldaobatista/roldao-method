@@ -12,8 +12,13 @@ migration-sqlite-segura,implementation,,checkpoint,false,migration-script-com-ba
 estruturar-open-finance,solutioning,brainstormar-ideia,gerar-adr-pt-br,false,docs/decisions/ADR-NNN-open-finance.md,pix-arch
 gerar-br-code,implementation,validar-pix,,false,br-code-emv-valido,pix-arch
 validar-webhook-pix,implementation,,gerar-br-code,false,resultado-validacao,pix-arch
-emitir-nfe-55,implementation,validar-cnpj-alfanumerico,validar-cnpj-alfanumerico,false,xml-nfe-mod-55,nfe-arch
-validar-cnpj-alfanumerico,implementation,gerar-test-fixture-br,,false,resultado-validacao,fiscal-br
+emitir-nfe-55,implementation,validar-cpf-cnpj,,false,xml-nfe-mod-55,nfe-arch
+migrar-cnpj-alfanumerico,solutioning,,validar-cpf-cnpj,false,checklist-migracao-cnpj,nfe-arch
 gerar-canal-dpo,implementation,,resposta-titular,false,template-pagina-publica-dpo,dpo-virtual
 gerar-ripd,analysis,checklist-lgpd,readiness-check,false,docs/lgpd/ripd-NNN.md,dpo-virtual
 resposta-titular,communication,,traduzir-jargao,false,resposta-em-pt-br,dpo-virtual
+emitir-evento-esocial,implementation,validar-pis-pasep,,false,evento-esocial-validado,esocial-arch
+validar-pis-pasep,implementation,gerar-test-fixture-br,,false,resultado-validacao,esocial-arch
+emitir-nfce,implementation,gerar-br-code,,false,xml-nfce-mod-65,pdv-arch
+emitir-sat-cfe,implementation,,,false,cfe-sat-mod-59,pdv-arch
+integrar-balanca-impressora,implementation,,emitir-nfce,false,integracao-perifericos,pdv-arch

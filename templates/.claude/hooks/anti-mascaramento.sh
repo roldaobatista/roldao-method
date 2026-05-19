@@ -47,7 +47,7 @@ PATTERNS=(
   'pytest\.mark\.skip'
   '\.todo\('
   '@Disabled'
-  '\|\|[[:space:]]*true[[:space:]]*$'
+  '\|\|[[:space:]]*true([[:space:]]*($|;|#|&|\|))'
   '--no-verify'
   '--skip-tests'
   '--ignore-errors'

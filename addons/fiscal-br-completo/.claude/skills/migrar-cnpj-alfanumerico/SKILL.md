@@ -26,16 +26,16 @@ A partir de **julho/2026**, novos CNPJs podem ter letras nos 12 primeiros caract
 
 ## Mapeamento alfanumérico → valor numérico
 
-Para cálculo do DV, cada caractere é convertido conforme tabela:
+Conforme **IN RFB 2.229/2024**, o valor de cada caractere é o **código ASCII menos 48** (`ord(c) - 48`) — **não** uma tabela A=10. Isso mantém `'0'..'9'` → `0..9` e gera, para letras:
 
 ```
-0=0, 1=1, ..., 9=9
-A=10, B=11, C=12, D=13, E=14, F=15, G=16, H=17,
-J=18, K=19, L=20, M=21, N=22,
-P=23, Q=24, R=25, S=26, T=27, U=28, V=29, W=30, X=31, Y=32, Z=33
+0=0 .. 9=9
+A=17, B=18, C=19, D=20, E=21, F=22, G=23, H=24, I=25,
+J=26, K=27, L=28, M=29, N=30, O=31, P=32, Q=33, R=34,
+S=35, T=36, U=37, V=38, W=39, X=40, Y=41, Z=42
 ```
 
-(I e O são excluídos pra evitar confusão com 1 e 0.)
+> ⚠️ **I e O não fazem parte da tabela de valores** — eles entram no cálculo normalmente via `ord-48` se aparecerem. A exclusão de I/O vale apenas para a **geração** de novos CNPJs (confusão visual com 1/0), não para o cálculo do DV. Use exatamente o mesmo algoritmo da skill core `validar-cpf-cnpj` — qualquer divergência rejeita CNPJs reais.
 
 ## Algoritmo do DV (módulo 11)
 
@@ -55,19 +55,14 @@ DV1 = 0 if resto < 2 else 11 - resto
 ## Implementação (TypeScript)
 
 ```typescript
-const MAPA: Record<string, number> = {
-  '0': 0, '1': 1, '2': 2, '3': 3, '4': 4,
-  '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-  'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15, 'G': 16, 'H': 17,
-  'J': 18, 'K': 19, 'L': 20, 'M': 21, 'N': 22,
-  'P': 23, 'Q': 24, 'R': 25, 'S': 26, 'T': 27, 'U': 28, 'V': 29, 'W': 30, 'X': 31, 'Y': 32, 'Z': 33,
-};
+// Valor oficial IN RFB 2.229/2024: codigo ASCII - 48. Sem tabela A=10.
+const valorChar = (c: string): number => c.charCodeAt(0) - 48;
 
 const MULT_DV1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
 const MULT_DV2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
 
 function calcularDV(chars: string[], multiplicadores: number[]): number {
-  const soma = chars.reduce((acc, c, i) => acc + (MAPA[c] ?? -1) * multiplicadores[i], 0);
+  const soma = chars.reduce((acc, c, i) => acc + valorChar(c) * multiplicadores[i], 0);
   const resto = soma % 11;
   return resto < 2 ? 0 : 11 - resto;
 }
@@ -97,20 +92,14 @@ export function validarCNPJAlfanumerico(cnpj: string): boolean {
 ## Implementação (Python)
 
 ```python
-MAPA = {
-    **{str(i): i for i in range(10)},
-    **{c: i + 10 for i, c in enumerate("ABCDEFGH")},
-    **{c: i + 18 for i, c in enumerate("JKLMN")},
-    **{c: i + 23 for i, c in enumerate("PQRSTUVWXYZ")},
-}
+import re
 
+# Valor oficial IN RFB 2.229/2024: codigo ASCII - 48. Sem tabela A=10.
 MULT_DV1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
 MULT_DV2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
 
-import re
-
 def calcular_dv(chars, multiplicadores):
-    soma = sum(MAPA[c] * m for c, m in zip(chars, multiplicadores))
+    soma = sum((ord(c) - 48) * m for c, m in zip(chars, multiplicadores))
     resto = soma % 11
     return 0 if resto < 2 else 11 - resto
 
@@ -153,10 +142,10 @@ Checklist para preparar sistema **antes** de jul/2026:
 | CNPJ | Válido? | Por quê |
 |---|---|---|
 | `12345678000195` | Sim | Numérico legado válido |
+| `12.ABC.345/01DE-35` | Sim | Exemplo oficial RFB — DV calculado por `ord-48` (confirmado vs skill core) |
 | `00000000000000` | Não | Todos iguais |
-| `12.AB5.678/0001-95` | Depende | Validar DV — exemplo |
-| `12345678ABC195` | Não | Letras nas posições errôneas (deve ser nos 12 primeiros) |
-| `IAB45678000195` | Não | Contém `I` (não permitido) |
+| `12345678ABC195` | Não | Letras nas posições errôneas (devem estar nos 12 primeiros) |
+| `IAB45678000195` | Não | Contém `I` — não emitido pela Receita (formato de input rejeitado) |
 
 ## Referências
 

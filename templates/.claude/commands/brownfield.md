@@ -35,7 +35,7 @@ Reporta tudo em formato estruturado.
 Invoque `tech-lead`:
 
 1. Le o relatorio do investigador.
-2. Le `templates/.specify/templates/architecture.md` como base.
+2. Le `.specify/templates/architecture.md` como base.
 3. Cria `docs/arquitetura/ARQ-001.md` preenchendo:
    - Camadas (frontend, API, banco, filas, etc.)
    - Tabela de componentes com tecnologia + ADR (vazio inicial)

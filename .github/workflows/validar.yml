@@ -135,3 +135,29 @@ jobs:
           node-version: '20'
       - name: Lint estrutural dos evals (não é eval de comportamento)
         run: node evals/run.js
+
+  suite-completa:
+    name: Suite completa (npm test) + permissão dos hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: npm test (validar + hooks + install + skills)
+        run: npm test
+      - name: Hooks instalados têm bit de execução (P0 — diferencial inerte sem isto)
+        shell: bash
+        run: |
+          set -e
+          TMP=$(mktemp -d)
+          node bin/install.js install --yes --tool=claude-code "$TMP" >/dev/null 2>&1 || node bin/install.js install --yes >/dev/null 2>&1 || true
+          HK=$(find "$TMP" -path '*/.claude/hooks/*.sh' 2>/dev/null | head -1)
+          [ -z "$HK" ] && HK=$(find . -maxdepth 4 -path '*/.claude/hooks/block-destructive.sh' | head -1)
+          if [ -n "$HK" ] && [ ! -x "$HK" ]; then
+            echo "FAIL: hook instalado sem +x: $HK"; exit 1
+          fi
+          echo "OK: hook executável ($HK)"

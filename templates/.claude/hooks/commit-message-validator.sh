@@ -60,8 +60,19 @@ if [ "$LEN" -gt 72 ]; then
   VIOLATIONS+=("primeira linha tem $LEN caracteres (maximo 72): $PRIMEIRA_LINHA")
 fi
 
-# Regra 2: nao misturar prefixos na primeira linha
-PREFIXES=$(printf '%s' "$PRIMEIRA_LINHA" | grep -oiE '\b(feat|fix|refactor|chore|docs|test|perf|build|ci|revert)\b' | tr '[:upper:]' '[:lower:]' | sort -u | tr '\n' ' ')
+# Regra 2: nao misturar prefixos. Conta apenas tipos em posicao de
+# DECLARACAO Conventional Commit — palavra-tipo seguida de `:` (com
+# escopo/`!` opcional). Assim "feat: nova tela + fix: bug" casa feat E
+# fix (2 declaracoes -> bloqueia), mas "fix: corrige bug do build" casa
+# so fix (build e palavra do corpo, sem `:` -> nao e falso-positivo).
+_TIPOS='feat|fix|refactor|chore|docs|test|perf|build|ci|revert'
+# (a) tipos em posicao de declaracao "tipo:" em qualquer ponto da linha
+_DECL=$(printf '%s' "$PRIMEIRA_LINHA" | grep -oiE "\b($_TIPOS)(\([^)]*\))?!?:" | grep -oiE "^($_TIPOS)")
+# (b) tipos dentro do segmento ANTES do primeiro ':' (pega "feat/fix:",
+#     "feat+fix:") — sem varrer o corpo, entao "fix: ... build" nao casa
+_SEG=$(printf '%s' "$PRIMEIRA_LINHA" | perl -ne 'print $1 if /^([^:]{0,40}):/')
+_SEGT=$(printf '%s' "$_SEG" | grep -oiE "\b($_TIPOS)\b")
+PREFIXES=$(printf '%s\n%s\n' "$_DECL" "$_SEGT" | grep -oiE "^($_TIPOS)$" | tr '[:upper:]' '[:lower:]' | sort -u | tr '\n' ' ')
 NUM_PREFIXES=$(echo "$PREFIXES" | wc -w)
 if [ "$NUM_PREFIXES" -gt 1 ]; then
   VIOLATIONS+=("commit mistura prefixos: $PREFIXES — separe em commits atomicos (INV-AGENT-005)")

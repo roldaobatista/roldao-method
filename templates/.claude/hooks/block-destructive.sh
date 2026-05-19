@@ -27,12 +27,13 @@ fi
 
 # Padrões destrutivos
 PATTERNS=(
-  'rm[[:space:]]+-rf[[:space:]]'
-  'rm[[:space:]]+-fr[[:space:]]'
-  'rm[[:space:]]+-r[[:space:]]+/'
-  'rm[[:space:]]+-f[[:space:]]+/'
+  'rm[[:space:]]+-[A-Za-z]*r[A-Za-z]*f'
+  'rm[[:space:]]+-[A-Za-z]*f[A-Za-z]*r'
+  'rm[[:space:]]+-[A-Za-z]*r([[:space:]]|$)'
+  'rm[[:space:]]+-[fr][A-Za-z]*[[:space:]]*[-./~"'"'"'$*]'
   'rm[[:space:]]+.*--recursive'
   'rm[[:space:]]+.*--force'
+  'rm[[:space:]]+.*--no-preserve-root'
   'find[[:space:]]+.*-delete'
   'find[[:space:]]+.*-exec[[:space:]]+rm'
   '[[:space:]]shred[[:space:]]'

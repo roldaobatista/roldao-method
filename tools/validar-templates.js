@@ -170,6 +170,51 @@ try {
   if (clTop && clTop[1] !== ver) {
     fail(`versao dessincronizada: package.json=${ver} mas topo do CHANGELOG=${clTop[1]}`);
   }
+  // plugin.json e .continue/config.yaml tambem carregam versao — ja driftaram
+  // (0.13.0 enquanto tudo subiu pra 0.13.1) porque ninguem os checava.
+  try {
+    const plug = JSON.parse(fs.readFileSync(path.join(TEMPLATES, '.claude-plugin/plugin.json'), 'utf8'));
+    if (plug.version && plug.version !== ver) {
+      fail(`versao dessincronizada: package.json=${ver} mas plugin.json=${plug.version}`);
+    }
+  } catch (e) { fail(`plugin.json invalido: ${e.message}`); }
+  const contYml = fs.readFileSync(path.join(TEMPLATES, '.continue/config.yaml'), 'utf8');
+  const contVer = contYml.match(/^version:\s*["']?([0-9]+\.[0-9]+\.[0-9]+)/m);
+  if (contVer && contVer[1] !== ver) {
+    fail(`versao dessincronizada: package.json=${ver} mas .continue/config.yaml=${contVer[1]}`);
+  }
+
+  // PORTAO doc-vs-codigo: a `description` do package.json e a vitrine no npm.
+  // As contagens ali eram strings manuais — foi assim que plugin.json driftou.
+  // Agora qualquer divergencia entre o que a vitrine afirma e a arvore real
+  // BLOQUEIA (exit 1), fechando a classe inteira de bug.
+  const addonsSkills = listDir(ADDONS_DIR).reduce((n, a) => {
+    const sd = path.join(ADDONS_DIR, a, '.claude/skills');
+    return n + listDir(sd).filter((x) => {
+      try { return fs.statSync(path.join(sd, x)).isDirectory(); } catch { return false; }
+    }).length;
+  }, 0);
+  const blockingHooks = listDir(hooksDir).filter((f) =>
+    f.endsWith('.sh') && !/^_/.test(f) &&
+    /\bexit 2(?!\d)/.test(fs.readFileSync(path.join(hooksDir, f), 'utf8'))).length;
+  const addonCount = listDir(ADDONS_DIR).filter((a) =>
+    fs.existsSync(path.join(ADDONS_DIR, a, 'addon.yaml'))).length;
+  const real = {
+    agentes: okCount.agents,
+    'hooks bloqueadores': blockingHooks,
+    workflows: okCount.commands,
+    'skills BR': okCount.skills + addonsSkills,
+    addons: addonCount,
+  };
+  const desc = pkg.description || '';
+  for (const [label, count] of Object.entries(real)) {
+    const m = desc.match(new RegExp(`(\\d+)\\s+${label.replace(/ /g, '\\s+')}`, 'i'));
+    if (!m) {
+      fail(`package.json description nao declara "${label}" (esperado: ${count})`);
+    } else if (Number(m[1]) !== count) {
+      fail(`description diz "${m[1]} ${label}" mas a arvore real tem ${count}`);
+    }
+  }
 } catch (e) {
   fail(`package.json invalido: ${e.message}`);
 }

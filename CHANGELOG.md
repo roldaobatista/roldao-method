@@ -2,6 +2,33 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.13.2] — 2026-05-18
+
+**Auditoria 10-agentes round 8.** 10 auditores independentes varreram hooks, agentes, comandos, skills, addons, instalador, docs, camada spec-driven, adapters e governança. Correções de 2 P0 e vários P1. 147/147 hooks + 11/11 skills Python + validador OK.
+
+### Corrigido (P0)
+
+- **`block-destructive.sh` — furo de segurança fechado:** `rm -rf./build`, `rm -fr~/data`, `rm -rf"$DIR"`, `rm -r ./*`, `rm -rf*` passavam livres (padrões exigiam espaço após as flags). Reescritos para casar qualquer `rm` recursivo/forçado independentemente do separador, sem falso-positivo em `rm arquivo.txt`/`rm -f unico.txt`.
+- **Addon `migrar-cnpj-alfanumerico` — erro fiscal grave:** o guia ensinava `A=10, B=11…` (tabela errada) que **contradizia** a skill core e rejeitaria CNPJs alfanuméricos reais a partir de jul/2026. Corrigido para o algoritmo oficial IN RFB 2.229/2024 (`ord(c)-48`, A=17), TS e Python alinhados e verificados contra a skill core com o exemplo oficial `12.ABC.345/01DE-35`.
+- **Instalador não dava permissão de execução aos hooks:** em Linux/macOS os `.sh` chegavam sem `+x` e **todos os bloqueadores ficavam inertes**. `bin/install.js` agora faz `chmod 0755` em todo hook copiado; CI passa a verificar o bit pós-instalação.
+
+### Corrigido (P1)
+
+- **`anti-mascaramento.sh`:** `cmd || true ;` e `cmd || true # comentário` burlavam o bloqueio — só casava `|| true` em fim de linha. Agora cobre `;`, `#`, `&`, `|` e fim.
+- **`commit-message-validator.sh`:** `fix: corrige bug do build` gerava falso-positivo "mistura prefixos". Agora só conta tipos em posição de declaração `tipo:` + segmento antes do primeiro `:` — `feat: x + fix: y` e `feat/fix:` ainda bloqueiam.
+- **`validar-pix.py`:** `--e2eid`/`--txid` sem valor causava `IndexError` cru; agora retorna mensagem PT-BR e código 2.
+- **`fiscal-br.md`:** removida skill fantasma `validar-cnpj-alfanumerico`; `emitir-nfe-55`/`migrar-cnpj-alfanumerico` documentadas como addon.
+- **`skills-index.csv`:** removida skill inexistente; adicionadas 6 skills de addon ausentes (eSocial, PIS, NFC-e, SAT, balança/impressora, migração CNPJ).
+- **5 comandos** (`brownfield`, `epico`, `historia`, `prd`) usavam `templates/.specify/...` — caminho inválido após instalação; corrigido para `.specify/...`.
+- **`mcp-validator.sh`:** `context7` (oferecido no `.mcp.json.example`) não estava na allowlist.
+- **Versão dessincronizada:** `plugin.json` e `.continue/config.yaml` estavam em 0.13.0.
+
+### Adicionado
+
+- **Portão doc-vs-código no `validar-templates.js`:** trava (exit 1) se a `description` do `package.json` divergir da árvore real (agentes/hooks bloqueadores/workflows/skills/addons) e se `plugin.json`/`.continue` saírem de sincronia com a versão. Fecha a classe de bug que deixou o `plugin.json` driftar.
+- **`prepublishOnly: npm test`** — impossível publicar sem a suíte verde.
+- **Job CI `suite-completa`** — roda `npm test` agregado e verifica o `+x` dos hooks instalados.
+
 ## [0.13.1] — 2026-05-18
 
 **Auditoria 10-agentes round 7 (sem viés).** 10 auditores independentes, escopos isolados. **Backlog completo fechado** — P0, P1, P2 e P3. 147/147 hooks + 11/11 skills Python + 12/12 evals (lint) + install OK.

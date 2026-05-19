@@ -21,7 +21,7 @@ Exemplo: `docs/stories/US-007-cadastro-cliente-pj.md`.
 ## Etapa 2 — Gerente de Produto (modo C)
 
 Invoque `gerente-produto` em **modo C (story)**:
-- Le `templates/.specify/templates/story.md` como base.
+- Le `.specify/templates/story.md` como base.
 - Preenche todos os campos do template usando `$ARGUMENTS` + perguntas de desambiguacao.
 - Lista AC testaveis (AC-NNN-1, AC-NNN-2, ...).
 - Declara non-goals.

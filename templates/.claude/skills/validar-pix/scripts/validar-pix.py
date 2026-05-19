@@ -172,12 +172,16 @@ def main() -> int:
     if not args:
         print("uso: validar-pix.py <chave> | --e2eid <id> | --txid <id> | --txid-cob <id>", file=sys.stderr)
         return 2
-    if args[0] == "--e2eid":
-        ok, msg = valida_e2eid(args[1])
-    elif args[0] == "--txid":
-        ok, msg = valida_txid(args[1])
-    elif args[0] == "--txid-cob":
-        ok, msg = valida_txid(args[1], cob=True)
+    if args[0] in ("--e2eid", "--txid", "--txid-cob"):
+        if len(args) < 2:
+            print(f"uso: validar-pix.py {args[0]} <id>", file=sys.stderr)
+            return 2
+        if args[0] == "--e2eid":
+            ok, msg = valida_e2eid(args[1])
+        elif args[0] == "--txid":
+            ok, msg = valida_txid(args[1])
+        else:
+            ok, msg = valida_txid(args[1], cob=True)
     else:
         ok, msg = detectar_e_validar(args[0])
     if ok:
