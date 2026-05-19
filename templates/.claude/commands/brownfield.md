@@ -46,7 +46,7 @@ Invoque `tech-lead`:
 
 ## Etapa 3 — Gerente de Produto (preenche AGENTS.md)
 
-Invoque `gerente-produto` em **modo A (brief)**:
+Invoque `gerente-produto` para **preencher o contrato a partir do relatório do investigador** (não é descoberta de mercado — é consolidar o que o código já revela; por isso não usa o modo de brief, que é do `analista`):
 
 1. Le `AGENTS.md` atual e identifica campos `_(preencher)_`.
 2. A partir do que o investigador encontrou, preenche:

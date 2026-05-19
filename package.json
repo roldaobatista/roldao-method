@@ -1,6 +1,6 @@
 {
   "name": "roldao-method",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "description": "Framework agentic em PT-BR. 12 agentes, 22 hooks bloqueadores, 22 workflows, 22 skills BR (CNPJ alfanumérico 2026, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",

@@ -119,7 +119,7 @@ Compare lado-a-lado. Não escolha antes de ter 3 árvores.
 - Quando seria a melhor escolha
 - Razão pra rejeitar
 
-**Quando:** ADR formal. **Obrigatório no template `decision-log.md` v0.5+.**
+**Quando:** ADR formal. **Registrar também no template `decision-log.md`.**
 
 ---
 

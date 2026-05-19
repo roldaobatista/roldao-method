@@ -57,7 +57,6 @@ revisado-em: 2026-05-18
 | boilerplate | "código repetitivo que é só esqueleto" |
 | linter / lint | "verificador de estilo do código" |
 | type check | "verificação se os tipos batem" |
-| race | "competição entre dois processos" |
 
 ## Termos do negócio BR (NÃO traduzir — usar como está)
 

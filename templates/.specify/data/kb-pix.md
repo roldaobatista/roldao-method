@@ -48,7 +48,7 @@ Identificador da transação atribuído pelo recebedor. Conforme **Manual Pix Ba
 
 Implementações que aceitam símbolos (`-`, `_`, `.`) violam o manual e podem ser rejeitadas pelo PSP. Use skill `validar-pix --txid` pra validar.
 
-### Convocação ISPB
+### Diretório ISPB
 
 Cada PSP (Provedor de Serviço de Pagamento) tem ISPB único de 8 dígitos no Bacen. Lista pública: <https://www.bcb.gov.br/estabilidadefinanceira/spbadm>
 

@@ -69,8 +69,12 @@ Investigador entrega **2 artefatos**: (1) JSON estruturado em `.claude/.runtime/
 ### 1. JSON estruturado (obrigatório)
 
 Salvar em `.claude/.runtime/investigation-<ref>.json`, onde `<ref>` é `US-NNN`
-quando há story, ou `BUG-<slug-curto>` quando o `/bug` não tem story associada
-(ex.: `investigation-BUG-pdf-flag-zero.json`). Use o mesmo `<ref>` no campo `ref_id`.
+quando há story, ou `BUG-<slug>` quando o `/bug` não tem story associada.
+**Regra determinística do slug** (para dev-senior e revisor acharem o mesmo
+arquivo): kebab-case das 3 primeiras palavras significativas do título do bug,
+sem acento, minúsculas (ex.: bug "PDF sai com flag zerada" → `BUG-pdf-flag-zerada`
+→ `investigation-BUG-pdf-flag-zerada.json`). Use exatamente o mesmo `<ref>` no
+campo `ref_id`.
 
 ```json
 {

@@ -2,6 +2,26 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.14.3] — 2026-05-18
+
+**Varredura final dos relatórios originais dos 10 agentes — itens P1/P2/P3 que não tinham sido retomados.**
+
+### Corrigido
+
+- **`brownfield.md` invocava `gerente-produto` em "modo A (brief)"** — modo que o agente explicitamente nega ter (brief é do `analista`). Reescrito: a Etapa 3 preenche o contrato a partir do relatório do investigador, sem modo fictício.
+- **`templates/.specify/templates/README.md` listava só 4 de 12 templates** (faltavam epico, prd-fiscal, brownfield-prd, fullstack-architecture, ux-design, prfaq, product-brief, headless-schemas). Tabela completa, enum `tipo:` corrigido, `EP-NNN` adicionado à convenção de IDs, data atualizada.
+- **Slug do investigador agora é determinístico** — regra única (kebab-case das 3 primeiras palavras do título, sem acento) para `dev-senior`/`revisor` acharem o mesmo `investigation-<ref>.json`. Antes "slug-curto" vs "slug" era ambíguo e quebrava o contrato do `/bug`.
+- **Cosméticos:** `kb-pix` "Convocação ISPB" → "Diretório ISPB"; `kb-pt-br` entrada "race" duplicada removida; `kb-elicitation` referência a "decision-log.md v0.5+" (esquema de versão inexistente) corrigida.
+
+### Adicionado
+
+- **Gate de hook órfão no `validar-templates.js`** — falha se um `.sh` existir em `templates/.claude/hooks/` mas não estiver registrado em `settings.json` (nunca dispararia — falso "tenho o bloqueador"). Fecha a direção que faltava na checagem hooks↔settings.
+
+### Notas
+
+- Verificado: o `skills:` no frontmatter dos agentes **não é código morto** — o Claude Code lê o `.md` inteiro como prompt do subagente, então o campo é informativo para o modelo (design correto, sem ação).
+- Sincronização total de conteúdo entre os 8 adapters derivados (geração a partir de fonte única) permanece como item estrutural maior, deliberadamente fora desta rodada — o gate de paridade (0.14.0) já barra a perda das regras centrais.
+
 ## [0.14.2] — 2026-05-18
 
 **Débito técnico e precisão jurídica da round 8 zerados.**

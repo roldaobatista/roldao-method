@@ -122,6 +122,16 @@ try {
       fail(`settings.json referencia hook inexistente: ${h}`);
     }
   }
+  // Direcao inversa: hook .sh que existe mas ninguem registrou em
+  // settings.json nunca dispara — falso "tenho o bloqueador" (gap de
+  // governanca, auditoria round 8). _lib/_test-runner sao infra, nao hooks.
+  const registered = new Set(unique);
+  for (const f of listDir(hooksDir)) {
+    if (!f.endsWith('.sh') || /^_/.test(f)) continue;
+    if (!registered.has(f)) {
+      fail(`hook órfão: templates/.claude/hooks/${f} existe mas não está registrado em settings.json (nunca dispara)`);
+    }
+  }
 } catch (e) {
   fail(`settings.json invalido: ${e.message}`);
 }
