@@ -41,15 +41,24 @@ Preencher os campos `_(preencher)_` em:
 - `REGRAS-INEGOCIAVEIS.md` — adicionar regras específicas do projeto se houver.
 - `AGENTS.md` seção 10 ("O que está pendente") — registrar onde paramos (mesmo lugar que o `/retro` atualiza).
 
+## Etapa 5 — Épico inicial + readiness (destrava o /feature)
+
+`/feature` tem gate mecânico (`require-readiness-before-feature.sh`): exige `docs/readiness/EP-NNN-status.md` com `status: PRONTO`. `/inicio` já fez o trabalho de prontidão (stack, ADRs, esqueleto na Etapa 2-3), então registre-o — senão o usuário roda `/feature US-001` e bate em bloqueio sem explicação.
+
+1. Criar `docs/epicos/EP-000-bootstrap.md` (use `.specify/templates/epico.md` como base) agrupando US-001..US-NNN como stories filhas. `prd:` pode ser `null` (greenfield direto). Frontmatter: `tipo: epico`, `id: EP-000`, `status: aprovado`, `owner`, `revisado-em`.
+2. Em cada `docs/stories/US-NNN-*.md`, garantir `epico: EP-000` no frontmatter (o hook resolve o readiness via esse campo).
+3. Criar `docs/readiness/EP-000-status.md` com frontmatter `owner`, `revisado-em`, `status: PRONTO` e corpo listando o que já está pronto (stack decidida via ADR-0001, esqueleto rodando, ambiente de teste configurado). Isto é honesto: a prontidão foi efetivamente avaliada nas Etapas 2-3.
+
 ## Saída final
 
 ```
 PROJETO INICIADO
 
-User stories: US-001 a US-NNN definidas.
+User stories: US-001 a US-NNN definidas (épico EP-000).
 ADRs: ADR-0001 a ADR-NNN aceitos.
+Readiness: EP-000 PRONTO.
 Esqueleto: rodando em <comando>.
-Próximo passo: começar US-001 via /feature.
+Próximo passo: começar US-001 via /feature US-001 (gate de readiness já satisfeito).
 ```
 
 ## Importante

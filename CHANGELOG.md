@@ -2,6 +2,21 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.14.0] — 2026-05-18
+
+**Recomendações da round 8 tratadas (as não-bloqueantes que dependiam de decisão de produto).**
+
+### Adicionado
+
+- **Comando `/release`** (22º workflow) — fecha o ciclo entre `/checkpoint` aprovado e `/retro`: bump de versão sincronizado, CHANGELOG via tech-writer, tag e nota PT-BR pro cliente. Registrado em help, AGENTS.md, plugin.json e README; nunca publica em serviço pago sem confirmação.
+- **Gate de paridade de adapters no `validar-templates.js`** — trava se qualquer adapter sumir ou se um adapter derivado (Cursor/Windsurf/Cline/Roo/Codex/Continue/Aider/Gemini) perder a REGRA #0 ou o princípio "executar, não passar pro usuário". Fecha o drift manual entre adapters a cada release.
+
+### Alterado
+
+- **Contrato de frontmatter unificado:** `headless-schemas.md` reescrito como referência **honesta** do contrato real (espelha os templates + nomeia os hooks que aplicam) — antes descrevia schemas e uma validação JSON-Schema que nunca existiu. `audit-trail.md` alinhado ao bloco `aprovacoes:` que o `validate-story-approvals.sh` de fato exige (antes pedia `auditores:`/`audit_sha`, formato que o hook não valida).
+- **`/inicio` destrava o `/feature`:** nova etapa cria `EP-000` + `docs/readiness/EP-000-status.md` com `status: PRONTO` (a prontidão já era avaliada nas etapas de stack/esqueleto). Antes, projeto novo seguia a instrução e batia no gate de readiness com bloqueio sem explicação.
+- **Versões dos 6 addons padronizadas em `1.0.0`** (todos `status: stable`); README de addons e data do electron-br alinhados.
+
 ## [0.13.2] — 2026-05-18
 
 **Auditoria 10-agentes round 8.** 10 auditores independentes varreram hooks, agentes, comandos, skills, addons, instalador, docs, camada spec-driven, adapters e governança. Correções de 2 P0 e vários P1. 147/147 hooks + 11/11 skills Python + validador OK.

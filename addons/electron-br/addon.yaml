@@ -1,5 +1,5 @@
 name: electron-br
-version: 0.1.0
+version: 1.0.0
 description: Padrões para app Electron BR com SQLite local, IPC seguro e armazenamento offline de dado pessoal (LGPD)
 authors:
   - Roldão Batista

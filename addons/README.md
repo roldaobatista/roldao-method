@@ -29,7 +29,7 @@ Schema real (idêntico nos 6 addons — chaves de estrutura em inglês, conteúd
 
 ```yaml
 name: <kebab-case>
-version: 0.1.0
+version: 1.0.0
 description: <1 linha em PT-BR>
 authors:
   - <nome>

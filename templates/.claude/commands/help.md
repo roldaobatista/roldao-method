@@ -4,7 +4,7 @@ argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | 
 disable-model-invocation: true
 ---
 
-# /help — catálogo dos 21 workflows
+# /help — catálogo dos 22 workflows
 
 Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre detalhes do workflow correspondente.
 
@@ -30,6 +30,7 @@ Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um có
 | SP | `/sprint` | Plano sequencial das próximas N stories |
 | ST | `/status` | "Como tá indo?" em PT-BR sem jargão |
 | CK | `/checkpoint` | Walkthrough de PR/branch antes de merge |
+| RL | `/release` | Fechar marco: versão sincronizada, CHANGELOG, tag, nota PT-BR |
 | RD | `/readiness` | Gate entre épico e dev (PRD/ARQ/stories prontos?) |
 | HP | `/help` | Este comando |
 | SH | `/shard` | Quebra PRD/ARQ longo em chunks navegáveis |
@@ -61,7 +62,7 @@ Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um có
 
 ### Subir pra produção
 1. `/consistencia` → confere se doc e código batem (acha órfãos)
-2. `/checkpoint <branch>` → walkthrough
+2. `/checkpoint <branch>` → walkthrough → `/release` quando aprovado
 3. Se aprovado, mergear
 4. `/retro` ao fim do marco
 
@@ -79,5 +80,5 @@ Exemplo: `/help BG` mostra detalhe completo de `/bug`.
 
 ## Importante
 
-- **Workflows do projeto ≠ comandos do harness Claude Code.** Este help cobre só os 21 workflows ROLDAO-METHOD.
+- **Workflows do projeto ≠ comandos do harness Claude Code.** Este help cobre só os 22 workflows ROLDAO-METHOD.
 - **Códigos curtos** servem pra falar rápido com o agente ("vamos rodar BG agora"), não substituem o comando completo.

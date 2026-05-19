@@ -1,6 +1,6 @@
 ---
 owner: addon
-revisado-em: 2026-05-17
+revisado-em: 2026-05-18
 status: stable
 ---
 

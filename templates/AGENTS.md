@@ -97,6 +97,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/replanejar` | Mudança de escopo no épico | gerente-produto → tech-writer |
 | `/status` | Reportar progresso PT-BR | tech-writer |
 | `/checkpoint` | Walkthrough antes do merge | (sem agente — walkthrough) |
+| `/release` | Fechar marco: versão, CHANGELOG, tag, nota PT-BR | tech-writer |
 | `/retro` | Retrospectiva pós-marco | (sem agente específico — 4L) |
 
 ---

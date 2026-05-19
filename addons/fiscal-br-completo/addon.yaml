@@ -1,5 +1,5 @@
 name: fiscal-br-completo
-version: 0.1.0
+version: 1.0.0
 description: Base fiscal BR — NF-e modelo 55 com assinatura digital, CNPJ alfanumérico (jul/2026) e contingência SEFAZ. NFC-e fica no addon `varejo-pdv-br`. CT-e/MDF-e/NFS-e: roadmap futuro.
 authors:
   - Roldão Batista

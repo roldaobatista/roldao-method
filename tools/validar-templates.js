@@ -219,6 +219,35 @@ try {
   fail(`package.json invalido: ${e.message}`);
 }
 
+// Paridade de adapters — CLAUDE.md/AGENTS.md sao o par-fonte (CLAUDE importa
+// AGENTS via @AGENTS.md), os demais sao resumos derivados mantidos a mao.
+// Sem gate, um adapter derivado pode perder a regra central a cada release
+// sem ninguem ver. Exige que TODOS existam e que os derivados carreguem
+// REGRA #0 + o conceito "executar, nao passar pro usuario".
+const SOURCE_ADAPTERS = ['CLAUDE.md', 'AGENTS.md'];
+const DERIVED_ADAPTERS = [
+  'GEMINI.md',
+  '.cursor/rules/roldao-method.mdc',
+  '.windsurf/rules/roldao-method.md',
+  '.clinerules',
+  '.roorules',
+  '.codex/instructions.md',
+  '.continue/config.yaml',
+  '.aider.conf.yml',
+];
+for (const a of [...SOURCE_ADAPTERS, ...DERIVED_ADAPTERS]) {
+  if (!fs.existsSync(path.join(TEMPLATES, a))) fail(`adapter ausente: templates/${a}`);
+}
+const reRegra0 = /regra\s*#?\s*0/i;
+const reExecutar = /INV-AGENT-006|executar.*n[ãa]o.*passar|quer que eu/i;
+for (const a of DERIVED_ADAPTERS) {
+  const f = path.join(TEMPLATES, a);
+  if (!fs.existsSync(f)) continue;
+  const t = fs.readFileSync(f, 'utf8');
+  if (!reRegra0.test(t)) fail(`adapter ${a}: drift — perdeu REGRA #0`);
+  if (!reExecutar.test(t)) fail(`adapter ${a}: drift — perdeu "executar, não passar pro usuário"`);
+}
+
 // Relatorio
 console.log(`agents:        ${okCount.agents}`);
 console.log(`commands:      ${okCount.commands}`);
@@ -229,7 +258,7 @@ console.log('');
 
 // Minimos esperados: se um diretorio inteiro sumir, listDir retorna [] e a
 // validacao passaria com zero arquivos. Travar contagem minima evita esse falso-verde.
-const MINIMOS = { agents: 12, commands: 21, hooks: 26, skills: 8, specTemplates: 12 };
+const MINIMOS = { agents: 12, commands: 22, hooks: 26, skills: 8, specTemplates: 12 };
 for (const [k, min] of Object.entries(MINIMOS)) {
   if (okCount[k] < min) {
     issues.push(`contagem de ${k} abaixo do minimo: ${okCount[k]} < ${min} (diretorio faltando?)`);

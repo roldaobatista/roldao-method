@@ -24,7 +24,7 @@ Confirme com `s`. O comando copia:
 - `.agent/CURRENT.md` — estado da sessão.
 - `.claude/agents/` — 12 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer).
 - `.claude/hooks/` — 22 bloqueadores + 4 auxiliares + 2 utilitários (lib + test-runner) = 28 hooks core.
-- `.claude/commands/` — 21 workflows.
+- `.claude/commands/` — 22 workflows.
 - `.claude/skills/` — 8 skills BR core (CPF/CNPJ alfanum, Pix, CEP, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +14.
 - `.claude/output-styles/pt-br-conciso.md`.
 - `.claude/settings.json` — permissões + hooks.

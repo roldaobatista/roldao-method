@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.13.2-blue.svg)](#)
+[![Versão](https://img.shields.io/badge/versão-0.14.0-blue.svg)](#)
 [![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-22-red.svg)](#)
 [![Testes do framework](https://img.shields.io/badge/test_runner-147%2F147-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
@@ -16,7 +16,7 @@
 Fecha gaps táticos de spec-driven sem mexer na identidade — hooks bloqueadores e cobertura BR continuam o diferencial. 147/147 mantidos.
 
 - **Comando `/consistencia`** — cross-check PRD↔ARQ↔stories↔tasks↔código (caça órfãos).
-- **Comando `/clarificar`** — questionamento estruturado ANTES de codar. Total: **21 workflows**.
+- **Comando `/clarificar`** — questionamento estruturado ANTES de codar. Total: **22 workflows**.
 - **CLI `roldao remove <addon>`** — remoção cirúrgica preservando core e demais addons.
 - **CLI `roldao search [termo]`** — lista/filtra addons, marca instalados.
 - **CLI `roldao tasks-to-issues`** — varre `T-NNN` das stories e cria GitHub Issues (idempotente).
@@ -104,7 +104,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | **Fiscal BR** (Dona Marta 🧾) | NF-e, certificado, eSocial, Reforma Tributária, CNPJ alfanum. | sonnet |
 | **Tech Writer** (Camila 📝) | CHANGELOG, README, docs de release | haiku |
 
-## 21 workflows (slash commands)
+## 22 workflows (slash commands)
 
 | Comando | Quando |
 |---|---|
@@ -126,6 +126,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 | `/sprint` | Plano sequencial das próximas N stories com dependências |
 | `/status` | Reporta progresso em PT-BR sem jargão |
 | `/checkpoint` | Walkthrough guiado de PR/branch antes do merge |
+| `/release` | Fechar marco: versão sincronizada, CHANGELOG, tag, nota PT-BR |
 | `/readiness` | Gate antes de partir de `/epico` pra `/feature` |
 | `/help` | Catálogo dos comandos com códigos curtos |
 | `/shard` | Quebra PRD/ARQ longo em chunks navegáveis com índice |
