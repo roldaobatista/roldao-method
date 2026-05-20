@@ -1,17 +1,27 @@
 #!/usr/bin/env node
 /**
- * evals/run.js — verificador estrutural dos evals dos agentes.
+ * evals/run.js — verificador dos evals dos agentes.
  *
- * IMPORTANTE: por padrão (sem ANTHROPIC_API_KEY) isto é um LINT ESTRUTURAL,
- * não um eval de comportamento. Valida que cada .eval.md tem ≥ 3 cenários
- * bem formados (Input + ≥ 2 validações). NÃO executa modelo nenhum.
+ * Dois modos:
  *
- * Modo "live" (com ANTHROPIC_API_KEY): placeholder — ainda não roda modelo.
+ * 1. LINT-ONLY (sem ANTHROPIC_API_KEY, default em CI): valida que cada
+ *    .eval.md tem ≥ 3 cenários bem formados (Input + ≥ 2 validações).
+ *    NÃO chama modelo nenhum.
  *
- * Cruza com templates/.claude/agents/: todo agente DEVE ter .eval.md
- * (a ausência falha — antes era silenciosa).
+ * 2. LIVE (com ANTHROPIC_API_KEY): chama a API Anthropic com o prompt
+ *    do agente (templates/.claude/agents/<nome>.md) + Input do cenário,
+ *    e aplica as validações sobre a resposta.
  *
- * Sem dependência externa.
+ *    Formatos suportados de validação (linha em "Resposta esperada"):
+ *      - "inclui <texto>"      — substring match case-insensitive
+ *      - "não inclui <texto>"  — substring negada
+ *      - "mínimo N palavras"   — resposta tem ≥ N palavras
+ *
+ *    Modelo default: claude-haiku-4-5-20251001 (barato pra eval).
+ *    Override via env EVAL_MODEL=claude-sonnet-4-6 (etc.).
+ *
+ * Cruza com templates/.claude/agents/: todo agente DEVE ter .eval.md.
+ * Sem dependência externa (usa fetch nativo Node 18+).
  */
 
 const fs = require('fs');
@@ -29,6 +39,7 @@ const wantAgent = (() => {
 const jsonMode = args.includes('--json');
 
 const HAS_KEY = !!process.env.ANTHROPIC_API_KEY;
+const MODEL = process.env.EVAL_MODEL || 'claude-haiku-4-5-20251001';
 
 function listEvals() {
   if (!fs.existsSync(ROOT)) return [];
@@ -67,9 +78,76 @@ function lintScenario(s) {
   return issues;
 }
 
-// applyValidation removida em v0.10.0 (auditoria round 5): era stub
-// chamada apenas em codigo comentado. Quando modo live for implementado,
-// restaurar de evals/ inicial ou git log antes de 2026-05-18.
+// Lê o prompt do agente (templates/.claude/agents/<nome>.md) e extrai o
+// corpo após o frontmatter — é o system prompt do subagente no Claude Code.
+function readAgentPrompt(agent) {
+  const file = path.join(AGENTS_DIR, `${agent}.md`);
+  if (!fs.existsSync(file)) throw new Error(`Agente ${agent} não tem .md em ${AGENTS_DIR}`);
+  const raw = fs.readFileSync(file, 'utf8').replace(/^﻿/, '');
+  const m = raw.match(/^---\n[\s\S]*?\n---\n([\s\S]*)$/);
+  return (m ? m[1] : raw).trim();
+}
+
+async function callClaude(systemPrompt, userInput, model) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userInput }],
+    }),
+  });
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Anthropic API ${resp.status}: ${text.substring(0, 300)}`);
+  }
+  const data = await resp.json();
+  return (data.content || []).map((b) => b.text || '').join('\n').trim();
+}
+
+// Aplica uma validação à resposta. Retorna { ok: bool, reason?: string }.
+// Sintaxes suportadas (case-insensitive, "não" também aceita "nao"):
+//   - "inclui <texto>"      — substring match
+//   - "não inclui <texto>"  — substring negada
+//   - "mínimo N palavras"   — resposta tem ≥ N palavras (separador whitespace)
+// Validação fora desses padrões = lint-only (ignora em live, conta como ok).
+function applyValidation(rule, response) {
+  const lowerResp = response.toLowerCase();
+  const noWords = (response.match(/\S+/g) || []).length;
+
+  const inclui = rule.match(/^inclui\s+(.+)$/i);
+  if (inclui) {
+    const needle = inclui[1].trim().toLowerCase();
+    return lowerResp.includes(needle)
+      ? { ok: true }
+      : { ok: false, reason: `não encontrou "${needle}"` };
+  }
+
+  const naoInclui = rule.match(/^n[ãa]o\s+inclui\s+(.+)$/i);
+  if (naoInclui) {
+    const needle = naoInclui[1].trim().toLowerCase();
+    return !lowerResp.includes(needle)
+      ? { ok: true }
+      : { ok: false, reason: `continha proibido "${needle}"` };
+  }
+
+  const minPal = rule.match(/^m[íi]nimo\s+(\d+)\s+palavras?$/i);
+  if (minPal) {
+    const n = parseInt(minPal[1], 10);
+    return noWords >= n
+      ? { ok: true }
+      : { ok: false, reason: `${noWords} palavras < ${n}` };
+  }
+
+  // Padrão não reconhecido — não falha (apenas avisa).
+  return { ok: true, note: `regra livre não validada: "${rule}"` };
+}
 
 async function main() {
   const evals = listEvals().filter((e) => !wantAgent || e.agent === wantAgent);
@@ -104,6 +182,16 @@ async function main() {
       failures++;
       continue;
     }
+    let systemPrompt = null;
+    if (HAS_KEY) {
+      try { systemPrompt = readAgentPrompt(e.agent); }
+      catch (err) {
+        console.error(`[${e.agent}] FAIL: ${err.message}`);
+        failures++;
+        continue;
+      }
+    }
+
     for (const s of scenarios) {
       totalScenarios++;
       const lintIssues = lintScenario(s);
@@ -113,14 +201,25 @@ async function main() {
         continue;
       }
       if (!HAS_KEY) {
-        // lint-only OK
         results.push({ agent: e.agent, n: s.n, status: 'lint-ok' });
         continue;
       }
-      // Modo live: rodar contra modelo (não implementado aqui — placeholder)
-      // const response = await callClaude(s.input);
-      // for (const v of s.validations) { if (!applyValidation(v, response)) ... }
-      results.push({ agent: e.agent, n: s.n, status: 'live-skipped-stub' });
+      try {
+        const response = await callClaude(systemPrompt, s.input, MODEL);
+        const ruleResults = s.validations.map((v) => ({ rule: v, ...applyValidation(v, response) }));
+        const failed = ruleResults.filter((r) => !r.ok);
+        if (failed.length > 0) {
+          console.error(`[${e.agent}/${s.n}] LIVE FAIL: ${failed.map((f) => `${f.rule} (${f.reason})`).join(' | ')}`);
+          failures++;
+          results.push({ agent: e.agent, n: s.n, status: 'live-fail', failed: failed.map((f) => f.rule) });
+        } else {
+          results.push({ agent: e.agent, n: s.n, status: 'live-ok' });
+        }
+      } catch (err) {
+        console.error(`[${e.agent}/${s.n}] LIVE ERROR: ${err.message}`);
+        failures++;
+        results.push({ agent: e.agent, n: s.n, status: 'live-error', error: err.message });
+      }
     }
   }
 
