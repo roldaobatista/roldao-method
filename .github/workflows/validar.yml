@@ -161,3 +161,32 @@ jobs:
             echo "FAIL: hook instalado sem +x: $HK"; exit 1
           fi
           echo "OK: hook executável ($HK)"
+
+  empacotamento:
+    name: Empacotamento npm (pack dry-run + sanidade)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: npm pack --dry-run e checagens de sanidade
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=$(npm pack --dry-run --json)
+          echo "$OUT" | head -100
+          # Tamanho descompactado nao pode disparar (regressao silenciosa em files)
+          SIZE=$(echo "$OUT" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const a=JSON.parse(s);console.log(a[0].unpackedSize)})")
+          MAX=$((2*1024*1024))  # 2 MB descompactado — alerta de regressao
+          if [ "$SIZE" -gt "$MAX" ]; then
+            echo "FAIL: pacote descompactado $SIZE bytes (>2MB). Algum arquivo grande vazou no files?"
+            exit 1
+          fi
+          echo "OK: pacote descompactado $SIZE bytes (<2MB)"
+          # Guias internos NAO podem vazar pro tarball
+          if echo "$OUT" | grep -q "docs/PUBLICAR-NPM.md"; then
+            echo "FAIL: docs/PUBLICAR-NPM.md vazou pro tarball — corrigir .npmignore/files"
+            exit 1
+          fi
+          echo "OK: guias internos excluidos do tarball"
