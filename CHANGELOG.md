@@ -2,6 +2,29 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.14.5] — 2026-05-20
+
+**Round 10 — segunda onda. P2 estruturais (CI + evals + cobertura) fechados.**
+
+### Adicionado
+
+- **Modo `live` dos evals dos agentes** — `evals/run.js` agora chama a API Anthropic quando `ANTHROPIC_API_KEY` está presente (lint-only sem key, default em CI). Valida 3 padrões na resposta: `inclui <texto>`, `não inclui <texto>`, `mínimo N palavras`. Modelo via `EVAL_MODEL` (default `claude-haiku-4-5-20251001`). Antes era placeholder — 36 cenários verdes sem nenhuma resposta de fato verificada.
+- **Job CI `empacotamento`** — `.github/workflows/validar.yml` agora roda `npm pack --dry-run`, valida que descompactado < 2 MB e que guias internos (`docs/PUBLICAR-NPM.md`) não vazam pro tarball. Pega regressão silenciosa em `files`/`.npmignore`.
+- **Teste E2E `install → hook → uninstall`** — `test/install.test.js` agora invoca o hook `block-destructive.sh` instalado com input real (`rm -rf`, `git push --force`, `ls`) e valida exit code. Antes só checava presença do arquivo — diferencial era inerte se o hook estivesse quebrado pós-install.
+- **`docs/REGRESSIONS.md`** — rastreia a evolução do `EXPECTED_TOTAL` do `_test-runner.sh` (132 → 147 → 155 → 161) por round. Próxima divergência tem explicação obrigatória no commit.
+- **`main` em `package.json`** — `bin/install.js` declarado como entry. Não-crítico em CLI, melhora compat com importadores.
+
+### Corrigido
+
+- **`docs/PUBLICAR.md` obsoleto removido** — citava v0.8.0 e instruções de "criar repositório" que já não fazem sentido. `docs/PUBLICAR-NPM.md` é o único guia agora, atualizado para refletir o fluxo real (eu faço testes/tag/release, você só roda `npm publish`).
+- **Requisitos Perl 5.12+ e Python 3.8+ declarados explicitamente no README** — antes o usuário descobria via erro em runtime. Auditoria de hooks bash da round 10 sinalizou.
+
+### Notas
+
+- 161/161 testes mantidos + 3 testes E2E novos passam = `npm test` ainda OK.
+- Pacote: 343 kB compactado, 967 kB descompactado, 195 arquivos.
+- P2 que sobram pro próximo round: skills Python em dev local Windows (depende de Python instalado), addons sem teste próprio.
+
 ## [0.14.4] — 2026-05-20
 
 **Auditoria round 10 com 10 agentes paralelos isolados. P0 de segurança + P0 de docs zerados.**

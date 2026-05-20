@@ -8,9 +8,9 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v0.14.4 (mai/2026)
+## Versão atual: v0.14.5 (mai/2026)
 
-Pacote pós **sucessivas** rodadas de auditoria 10-agentes (round 10 — v0.14.4 — P0 de segurança + P0 de docs zerados):
+Pacote pós **sucessivas** rodadas de auditoria 10-agentes (round 10 — v0.14.4 fechou P0; v0.14.5 fechou P2 estruturais: CI pack-check, evals modo live, E2E hooks, REGRESSIONS.md):
 - 12 agentes especialistas (com nome + ícone)
 - 22 workflows (incluindo `/clarificar`, `/consistencia`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`, `/release`)
 - 22 hooks bloqueadores + 4 auxiliares + 2 infra (`_lib.sh`, `_test-runner.sh`) = **28 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD; v0.13 paridade SDD + Gemini/Codex; v0.14 hardening cumulativo + regex de secrets cobrindo `sk-proj-*`/`github_pat_`/PEM PKCS8 + path traversal blindado em `remove <addon>`.
@@ -43,7 +43,8 @@ Pacote pós **sucessivas** rodadas de auditoria 10-agentes (round 10 — v0.14.4
 - **v0.14.1** "Regressões round 8" — 8 testes de regressão dos furos da round 8 (147 → 155).
 - **v0.14.2** "Débito + precisão jurídica round 8" — texto de regulação alinhado a fonte primária.
 - **v0.14.3** "Varredura final round 9" — P1/P2/P3 não retomados (precisão jurídica de Pix/LGPD/eSocial; CNPJ alfanumérico corrigido onde divergia do validador oficial). 161/161.
-- **v0.14.4** "Auditoria round 10" — path traversal blindado em `remove <addon>`, regex de secrets cobrindo `sk-proj-*`, `github_pat_*` real, PEM PKCS8; contagem de testes consistente (`EXPECTED_TOTAL=161`); docs em paridade com release (versão, contagens, badges dinâmicos npm).
+- **v0.14.4** "Auditoria round 10 — P0" — path traversal blindado em `remove <addon>`, regex de secrets cobrindo `sk-proj-*`, `github_pat_*` real, PEM PKCS8; contagem de testes consistente (`EXPECTED_TOTAL=161`); docs em paridade com release (versão, contagens, badges dinâmicos npm).
+- **v0.14.5** "Auditoria round 10 — P2" — evals modo live (chama API Anthropic se `ANTHROPIC_API_KEY`); job CI `empacotamento` (`npm pack --dry-run` + sanidade tamanho/conteúdo); E2E hooks no `install.test.js` (invoca `block-destructive.sh` recém-instalado com input real); `docs/REGRESSIONS.md` rastreando evolução do `EXPECTED_TOTAL`; requisitos Perl/Python explícitos no README; `docs/PUBLICAR.md` obsoleto removido; `main` em `package.json`.
 
 ## Próximas releases
 
