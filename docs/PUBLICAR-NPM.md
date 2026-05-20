@@ -1,12 +1,14 @@
 ---
 owner: roldao
-revisado-em: 2026-05-18
+revisado-em: 2026-05-20
 status: stable
 ---
 
-# Publicar no npm — guia para o Roldão
+# Publicar no npm — guia único pro Roldão
 
-> Eu (assistente) não posso publicar sozinho — precisa da SUA conta npm e do código 2FA do seu telefone. Mas deixei TUDO pronto. Você só roda os comandos abaixo.
+> Eu (assistente) **não publico sozinho** — precisa da SUA conta npm e do código 2FA do seu telefone. Tudo o mais (testes, tag git, release no GitHub) eu faço direto. Você só roda `npm publish`.
+>
+> Este é o **único** guia de publicação. O antigo `PUBLICAR.md` foi removido na v0.14.5 (estava obsoleto, citava v0.8.0 e instruções de "criar repo" que já não fazem sentido).
 
 ---
 
@@ -71,26 +73,25 @@ já funciona pra qualquer pessoa do mundo.
 npm view roldao-method
 ```
 
-Deve mostrar versão `0.8.0`. Também aparece em https://www.npmjs.com/package/roldao-method.
-
----
-
-## Próxima vez (versão nova)
-
-1. Subir o número em `package.json` (ex: `0.8.0` → `0.8.1`).
-2. Rodar `npm test` (tem que dar verde).
-3. Rodar `npm publish`.
-
-Não precisa logar de novo enquanto a sessão npm não expirar.
+Deve mostrar a versão atual do `package.json`. Também aparece em https://www.npmjs.com/package/roldao-method.
 
 ---
 
 ## O que estamos publicando
 
-- 290 kB compactado, 805 kB descompactado.
-- ~192 arquivos: CLI + 28 hooks (+5 em addons) + 12 agentes + 21 commands + 22 skills (8 core + 14 addons) + 6 addons + docs. Confira o numero exato com `npm pack --dry-run`.
-- Zero dependências runtime (só Node + bash + perl no PC do usuário).
+- Tamanho exato: rode `npm pack --dry-run` antes (o job `empacotamento` no CI também valida que descompactado < 2 MB).
+- CLI + 28 hooks core (+5 em addons) + 12 agentes + 22 commands + 22 skills (8 core + 14 addons) + 6 addons + docs.
+- Zero dependências runtime (só Node + bash + perl no PC do usuário; Python só pra skills).
 - Licença MIT.
+
+## Próxima vez (versão nova)
+
+1. Subir o número em `package.json` (ex.: `0.14.4` → `0.14.5`).
+2. Atualizar `templates/.claude-plugin/plugin.json` e `templates/.continue/config.yaml` pra mesma versão (o `validar-templates.js` falha se divergir).
+3. Adicionar entrada no `CHANGELOG.md`.
+4. Rodar `npm test` (tem que dar verde — 161/161).
+5. `git tag v0.X.Y` e `git push --follow-tags` (eu já faço isso direto quando termino release).
+6. **Você roda:** `npm publish` (precisa de 2FA seu).
 
 ---
 

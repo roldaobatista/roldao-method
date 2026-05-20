@@ -82,8 +82,10 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 ### Requisitos
 
 - **Node.js 18+** (em CI: 20+).
-- **Windows:** hooks usam `bash` + `perl`, então rode o Claude Code a partir do **Git Bash** (vem com Git for Windows). PowerShell puro **não roda os hooks** — eles ficam silenciosos. Ver [docs/TROUBLESHOOTING.md (seção Hooks)](docs/TROUBLESHOOTING.md#hooks).
-- **macOS/Linux:** funciona em bash 3.2+ (compatibilidade testada em CI matriz).
+- **bash 3.2+** (macOS antigo OK; Linux moderno OK; Windows via **Git Bash**).
+- **Perl 5.12+** — usado em 25 hooks para parsing seguro de JSON (`-MJSON::PP`) sem depender de `jq`. Já vem com Git for Windows, macOS e quase toda distro Linux.
+- **Python 3.8+** (opcional) — usado pelas 5 skills de validação (CPF/CNPJ, Pix, CEP, PIS, fixtures BR). Sem Python local, as skills são executadas em CI; testes locais marcam SKIP claro.
+- **Windows:** rode o Claude Code a partir do **Git Bash** (vem com Git for Windows). PowerShell puro **não roda os hooks** — eles ficam silenciosos. Ver [docs/TROUBLESHOOTING.md (seção Hooks)](docs/TROUBLESHOOTING.md#hooks).
 
 ## 12 especialistas virtuais
 
