@@ -234,7 +234,12 @@ function fileHash(file) {
   try {
     const data = fs.readFileSync(file);
     return crypto.createHash('sha256').update(data).digest('hex');
-  } catch { return null; }
+  } catch {
+    // Symbol unico por chamada — duas falhas NUNCA dao ===.
+    // Antes retornava null, e a===b virava true em "ambos falharam",
+    // fazendo o update pular cópia válida (potencial perda de update).
+    return Symbol('UNREAD');
+  }
 }
 
 function isUserOwned(relPath) {
@@ -572,7 +577,9 @@ async function install() {
 
 async function update() {
   log(`atualizando ROLDAO-METHOD em: ${CWD}`);
-  checkUpdate().catch(() => {});
+  // Promise fire-and-forget aguardada no fim — igual a install().
+  // Antes era ignorada totalmente e podia vazar no output do proximo comando.
+  const updateCheckP = checkUpdate().catch(() => {});
   if (!YES && !FORCE) {
     const a = await ask('Update sobrescreve arquivos do framework (preservando AGENTS.md, CLAUDE.md, REGRAS, settings.local.json). Backup em *.bak. Confirmar? [s/N] ');
     if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
@@ -590,6 +597,7 @@ async function update() {
   log('update concluido.');
   log('arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, settings.local.json).');
   log('arquivos sobrescritos tem .bak ao lado.');
+  await updateCheckP;
 }
 
 async function installAddon(name, skipConfirm = false, throwOnError = false) {
@@ -641,6 +649,11 @@ async function installAddon(name, skipConfirm = false, throwOnError = false) {
 
 // Enumera os arquivos que um addon instala dentro de .claude/ (paths
 // relativos ao CWD). Usado pra remocao cirurgica sem tocar no core.
+//
+// Sym links sao pulados (lstat + isSymbolicLink) — addon malicioso poderia
+// gravar symlink apontando pra ~/.ssh/id_rsa, e a remocao seguiria o link
+// e apagaria a chave do usuario. Validacao final do path resolvido fica
+// em `removeAddon` antes do rmSync.
 function addonClaudeFiles(name) {
   const addonClaudeDir = path.join(ADDONS_DIR, name, '.claude');
   const out = [];
@@ -649,6 +662,7 @@ function addonClaudeFiles(name) {
     for (const e of fs.readdirSync(dir)) {
       const full = path.join(dir, e);
       const st = fs.lstatSync(full);
+      if (st.isSymbolicLink()) continue;
       if (st.isDirectory()) walk(full);
       else if (st.isFile()) out.push(path.join('.claude', path.relative(addonClaudeDir, full)));
     }
@@ -693,17 +707,38 @@ async function removeAddon(name) {
     if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
   }
 
+  // SECURITY: re-resolver cada path e validar que cai dentro de CWD/.claude/.
+  // Sem isto, addon malicioso com symlink (ou TOCTOU entre walk e rm) podia
+  // induzir rmSync em alvo fora do projeto (ex.: ~/.ssh/id_rsa).
+  const resolvedCwd = path.resolve(CWD);
+  const claudeBoundary = path.join(resolvedCwd, '.claude') + path.sep;
   let removed = 0;
   for (const rel of claudeFiles) {
     const full = path.join(CWD, rel);
-    if (!fs.existsSync(full)) continue;
+    const resolvedFull = path.resolve(full);
+    if (!resolvedFull.startsWith(claudeBoundary)) {
+      console.log(`  ${c.red}RECUSADO${c.reset} ${rel}: path fora de .claude/ (${resolvedFull})`);
+      continue;
+    }
+    // Re-checa que nao virou symlink entre o walk e agora.
+    let st;
+    try { st = fs.lstatSync(full); } catch { continue; }
+    if (st.isSymbolicLink()) {
+      console.log(`  ${c.yellow}PULADO${c.reset} ${rel}: symlink (recusado por seguranca)`);
+      continue;
+    }
     if (DRY_RUN) { console.log(`  REMOVERIA ${rel}`); continue; }
     try { fs.rmSync(full, { force: true }); removed++; console.log(`  removido: ${rel}`); }
     catch (e) { console.log(`  ${c.red}ERRO${c.reset} ${rel}: ${e.message}`); }
   }
   if (fs.existsSync(addonProjDir)) {
-    if (DRY_RUN) console.log(`  REMOVERIA addons/${name}/`);
-    else {
+    const resolvedProj = path.resolve(addonProjDir);
+    const addonsBoundary = path.join(resolvedCwd, 'addons') + path.sep;
+    if (!resolvedProj.startsWith(addonsBoundary)) {
+      console.log(`  ${c.red}RECUSADO${c.reset} addons/${name}/: path fora de addons/`);
+    } else if (DRY_RUN) {
+      console.log(`  REMOVERIA addons/${name}/`);
+    } else {
       try { fs.rmSync(addonProjDir, { recursive: true, force: true }); removed++; console.log(`  removido: addons/${name}/`); }
       catch (e) { console.log(`  ${c.red}ERRO${c.reset} addons/${name}: ${e.message}`); }
     }
@@ -756,7 +791,11 @@ async function tasksToIssues() {
   }
   const mapFile = path.join(CWD, '.specify', '.tasks-to-issues.json');
   let map = {};
-  try { if (fs.existsSync(mapFile)) map = JSON.parse(fs.readFileSync(mapFile, 'utf8')); } catch {}
+  try {
+    if (fs.existsSync(mapFile)) map = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
+  } catch (e) {
+    warn(`mapa ${path.relative(CWD, mapFile)} corrompido (${e.message}) — usando mapa vazio (issues duplicadas podem ser criadas)`);
+  }
 
   const seen = new Set();
   const tasks = [];

@@ -114,12 +114,12 @@ secret_token_patterns() {
   cat <<'PATTERNS'
 AKIA[0-9A-Z]{16}
 aws_secret_access_key[[:space:]]*=[[:space:]]*[A-Za-z0-9/+=]{40}
------BEGIN[[:space:]]+[A-Z]+[[:space:]]+(PRIVATE[[:space:]]+)?KEY-----
------BEGIN[[:space:]]+PRIVATE[[:space:]]+KEY-----
-sk-[A-Za-z0-9]{32,}
+-----BEGIN[[:space:]]+[A-Z]*[[:space:]]*(PRIVATE[[:space:]]+)?KEY-----
+sk-[A-Za-z0-9_-]{20,}
+sk-proj-[A-Za-z0-9_-]{20,}
 sk-ant-(api[0-9]{2}-)?[A-Za-z0-9_-]{32,}
 ghp_[A-Za-z0-9]{36}
-github_pat_[A-Za-z0-9_]{82}
+github_pat_[A-Za-z0-9_]{70,}
 xox[baprs]-[A-Za-z0-9-]{10,}
 AIza[0-9A-Za-z_-]{35}
 glpat-[A-Za-z0-9_-]{20}
