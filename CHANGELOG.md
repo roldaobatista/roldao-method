@@ -2,6 +2,36 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.14.4] — 2026-05-20
+
+**Auditoria round 10 com 10 agentes paralelos isolados. P0 de segurança + P0 de docs zerados.**
+
+### Segurança
+
+- **Path traversal em `remove <addon>`** — `bin/install.js` agora re-resolve cada path antes de `rmSync` e recusa qualquer alvo fora de `.claude/`. Addon malicioso com symlink apontando para `~/.ssh/id_rsa` não consegue mais induzir a remoção a apagar arquivo do usuário. `addonClaudeFiles` também pula symlinks no enumerate.
+- **Regex de segredos cobrindo mais formatos reais** — `_lib.sh::secret_token_patterns()` agora captura: OpenAI novo (`sk-proj-*`), GitHub PAT real (70+ chars, antes exigia exatos 82 que não existem na prática), PEM PKCS8 (`-----BEGIN PRIVATE KEY-----` sem o tipo intermediário). Antes esses passavam invisíveis no scanner.
+
+### Corrigido
+
+- **`_test-runner.sh` esperava `EXPECTED_TOTAL=155`** mas rodavam 161 testes (round 8 + 9 adicionaram 6 testes sem atualizar o invariante). `npm test` saía com exit 1 mesmo com 161/161 OK. Atualizado para 161.
+- **`README.md` declarava "v0.13.1" no cabeçalho de "Novidades"** — usuário lendo o README pensava que era a versão atual (3 releases atrás). Reescrito com as novidades reais de 0.14.0 → 0.14.4.
+- **`ROADMAP.md` declarava "Versão atual: v0.13.1"** — mesma deriva. Atualizado para 0.14.4 com todas as releases intermediárias listadas em "Rodadas entregues".
+- **`fileHash` retornava `null` em falha de leitura** (`bin/install.js:233`) — `a === b` virava verdadeiro quando ambos falhavam, fazendo o `update` pular cópia válida. Agora retorna `Symbol('UNREAD')` único por chamada (duas falhas nunca são iguais).
+- **`tasksToIssues` engolia `JSON.parse` corrompido** com `catch {}` silencioso (`bin/install.js:786`) — usuário não sabia que `.tasks-to-issues.json` estava ruim e via issues duplicadas sendo criadas. Agora avisa.
+- **`update()` não aguardava `checkUpdate()`** — banner de versão podia vazar no output do próximo comando. Agora aguarda no fim, igual ao `install()`.
+- **`validate-story-dependencies.sh:81`** tinha `concluida|concluida` (cosmético duplicado no case). Limpo.
+
+### Adicionado
+
+- **Matriz "Suporte por IDE — paridade real" no README** — deixa explícito que hooks bash só executam em Claude Code; nos 8 outros adapters (Cursor/Windsurf/Continue/Cline/Roo/Aider/Gemini/Codex) a regra fica em texto carregado no contexto, sem bloqueio mecânico. Sem isso o usuário podia esperar `exit 2` onde não tem.
+- **Badge dinâmico de versão no README** — `shields.io/npm/v/roldao-method` em vez de versão hardcoded que ficava atrasada a cada release.
+- **`dev-senior.md` cita explicitamente os hooks `require-agent-sequence-before-dev.sh` e `require-investigador-before-fix.sh`** — antes a sequência obrigatória era implícita, agora o agente sabe qual hook bloqueia e por quê.
+
+### Notas
+
+- 161/161 testes mantidos. Total real do test-runner agora é o invariante esperado.
+- Auditoria round 10 entregou 10 relatórios isolados (segurança, qualidade JS, testes, docs, hooks bash, agentes .md, skills BR, adapters multi-IDE, addons, packaging NPM). Esta release fecha todos os P0; P1 e P2 das demais dimensões continuam no backlog para próxima rodada.
+
 ## [0.14.3] — 2026-05-18
 
 **Varredura final dos relatórios originais dos 10 agentes — itens P1/P2/P3 que não tinham sido retomados.**

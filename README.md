@@ -2,27 +2,25 @@
 
 > Framework de desenvolvimento ágil assistido por IA, **em português brasileiro**, com especialistas virtuais, regras automáticas e fluxos guiados para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI e Codex CLI.
 
+[![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
-[![Versão](https://img.shields.io/badge/versão-0.14.3-blue.svg)](#)
 [![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-22-red.svg)](#)
-[![Testes do framework](https://img.shields.io/badge/test_runner-155%2F155-green.svg)](#)
+[![Testes do framework](https://img.shields.io/badge/test_runner-161%2F161-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
 
-## 🆕 Novidades na v0.13.1 (paridade SDD + auditoria 10-agentes round 7)
+## 🆕 Novidades na v0.14.3 (varredura final pós auditoria 10-agentes round 9)
 
-Fecha gaps táticos de spec-driven sem mexer na identidade — hooks bloqueadores e cobertura BR continuam o diferencial. 155/155 mantidos.
+Quatro releases de hardening sucessivo (0.14.0 → 0.14.3) saindo de **147 → 161 testes** com 0 falhas. Hooks bloqueadores e cobertura BR continuam o diferencial.
 
-- **Comando `/consistencia`** — cross-check PRD↔ARQ↔stories↔tasks↔código (caça órfãos).
-- **Comando `/clarificar`** — questionamento estruturado ANTES de codar. Total: **22 workflows**.
-- **CLI `roldao remove <addon>`** — remoção cirúrgica preservando core e demais addons.
-- **CLI `roldao search [termo]`** — lista/filtra addons, marca instalados.
-- **CLI `roldao tasks-to-issues`** — varre `T-NNN` das stories e cria GitHub Issues (idempotente).
-- **Overrides por projeto sem fork** — `.specify/overrides/` vence o oficial e nunca é tocado por `update`.
-- **Adapters Gemini CLI (`GEMINI.md`) e Codex CLI (`.codex/`)** — **9 IDEs suportadas**.
-- **Round 7 (auditoria 10-agentes):** REGRA #0 destravada de fato no `/bug` (marcador `investigator-invoked` agora é criado), hash de sessão consistente entre comandos e hooks, `investigador`/`analista` → sonnet, CNPJ de base repetida agora rejeitado, hooks de segurança endurecidos (segredo via `git commit -F`, exceção de confirmação por linha, regex case-insensitive), `test/` incluído no pacote npm.
+- **v0.14.3** — varredura final dos 10 relatórios: P1/P2/P3 não retomados (precisão jurídica de Pix/LGPD/eSocial; CNPJ alfanumérico corrigido onde divergia do validador oficial).
+- **v0.14.2** — débito técnico + precisão jurídica round 8 (texto de regulação alinhado a fonte primária).
+- **v0.14.1** — 8 testes de regressão dos furos da round 8 (147 → 155).
+- **v0.14.0** — Paridade sequência obrigatória de agentes nos 7 adapters sem hooks (texto reforça o que o hook bloqueia em Claude Code).
+- **Hardening contínuo dos hooks:** `block-confirmation-questions` + `regra-zero-reminder` endurecidos; `_lib.sh` centraliza `secret_token_patterns()` (cobre AWS, OpenAI `sk-proj-*`, Anthropic, GitHub PAT, Slack, JWT, PEM PKCS8, conexão BD).
+- **Path traversal em `remove <addon>` blindado** — re-resolve cada path e recusa fora de `.claude/`, pula symlinks.
 
 Detalhes em [CHANGELOG.md](CHANGELOG.md).
 
@@ -39,7 +37,7 @@ E pior: a maioria pula direto pra escrever código. **Sem investigar.** Sem ler 
 Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 
 - 🇧🇷 **PT-BR nativo** — não é tradução. Tabela de jargão integrada pra usuário não-programador.
-- 🛡️ **22 hooks bloqueadores** — retornam exit 2 e barram a ação na hora (secret, destrutivo, mascaramento, mock indevido, jargão técnico, fix sem investigação, escopo estourado, commit sem rastreio).
+- 🛡️ **22 hooks bloqueadores + 4 auxiliares** — bloqueadores retornam exit 2 e barram a ação na hora (secret, destrutivo, mascaramento, mock indevido, fix sem investigação, escopo estourado, commit sem rastreio). Auxiliares avisam (jargão, REGRA #0 reminder, perguntas de confirmação, context budget).
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada no workflow `/bug` e em hook mecânico (`require-investigador-before-fix`).
 - 🧾 **Cobertura BR real** — LGPD, NF-e, NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto rodando em paralelo no fim de cada feature, bloqueando commit se reprovado.
@@ -51,7 +49,7 @@ Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 - 🇧🇷 **Fala português nativo** — não é tradução
 - 🔍 **Investiga antes de mexer** — REGRA #0 codificada no workflow `/bug`
 - 👥 **12 especialistas virtuais** com papéis claros (analista, PM, UX, tech-lead, investigador, dev, revisor, 3 auditores, fiscal-BR, tech-writer)
-- 🛡️ **22 regras automáticas que bloqueiam** erros antes de acontecer (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
+- 🛡️ **22 regras automáticas que bloqueiam** + 4 auxiliares que avisam (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
 - 📜 **Spec-driven total** — 12 templates (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico) em PT-BR
 - ✅ **8 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance, audit-trail
 - 📚 **7 knowledge bases** que os agentes consultam — PT-BR (glossário), fiscal, LGPD, Pix, stack BR, brainstorming, elicitation
@@ -167,7 +165,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - `block-jargon-pt-br` — flag de jargão técnico em resposta ao usuário não-programador (PostToolUse, soft warning)
 - `block-confirmation-questions` — "quer que eu...?", "posso fazer X?" em resposta — viola INV-AGENT-006 (PostToolUse, soft warning)
 
-**Test-runner:** `_test-runner.sh` com **155 casos** contra os hooks (manual + CI cross-platform).
+**Test-runner:** `_test-runner.sh` com **161 casos** contra os hooks (manual + CI cross-platform).
 
 **Addons trazem +5 hooks:** `block-ipc-without-validation` (electron-br), `validate-webhook-signature`, `require-sefaz-env`, `validate-tef-flow`, `validate-esocial-prazo`.
 
@@ -242,9 +240,25 @@ Bug reportado? Use `/bug` — REGRA #0 obriga `investigador` antes de qualquer m
 - ❌ Não trava idiomas além de PT-BR.
 - ❌ Não é template de projeto (Django/React/etc).
 
+## Suporte por IDE — paridade real
+
+Os 9 adapters não são iguais. Hooks bash são executados só pelo Claude Code; nos outros 8 IDEs a disciplina vem por **prompt textual** (a regra fica no `.cursorrules`/`.windsurf/rules`/etc., mas não bloqueia mecanicamente).
+
+| Feature | Claude Code | Cursor | Windsurf | Continue | Cline | Roo | Aider | Gemini | Codex |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Agentes (12) | ✅ exec | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto |
+| Hooks bloqueadores (22) | ✅ exit 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Comandos (22) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Skills (8 core) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `settings.json` (permissões MCP) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Sequência obrigatória | 🔒 hook | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto |
+| Spec-driven + PT-BR | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+**Leitura:** Claude Code é o único onde o agente é mecanicamente **impedido** de pular etapa. Nos outros 8, o agente é orientado por texto carregado no contexto (`AGENTS.md` + `REGRAS-INEGOCIAVEIS.md` + regra do adapter). Se você usa Cursor/Windsurf/Cline/etc. e quer hooks de fato, considere rodar o Claude Code em paralelo nos pontos de validação críticos.
+
 ## Capacidades em uma tabela
 
-| Categoria | ROLDAO-METHOD v0.13 |
+| Categoria | ROLDAO-METHOD v0.14 |
 |---|---|
 | Idioma | 🇧🇷 PT-BR nativo |
 | Mercado-foco | Brasil (LGPD, fiscal, Pix, eSocial, BR) |
