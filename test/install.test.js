@@ -187,6 +187,41 @@ try {
   check('override preservado no update', false);
 }
 
+// 4c) E2E hook: o hook instalado executa e bloqueia ataque real
+// (não é só o arquivo existir — tem que rodar e devolver exit 2).
+// Pular em Windows sem bash (CI Windows usa Git Bash, dev local pode não ter).
+if (process.platform !== 'win32' || (() => {
+  try { execSync('bash --version', { stdio: 'pipe' }); return true; } catch { return false; }
+})()) {
+  const hookPath = path.join(TMP, '.claude/hooks/block-destructive.sh');
+  if (fs.existsSync(hookPath)) {
+    // Garantir +x em Unix (npm pack pode ter preservado, mas defensivo)
+    try { fs.chmodSync(hookPath, 0o755); } catch {}
+    const runHook = (input) => {
+      try {
+        execSync(`bash "${hookPath}"`, { input, stdio: 'pipe' });
+        return 0;
+      } catch (e) { return e.status ?? 1; }
+    };
+    check(
+      'E2E: hook instalado bloqueia rm -rf real (exit 2)',
+      runHook('{"tool_input":{"command":"rm -rf /tmp/foo"}}') === 2,
+    );
+    check(
+      'E2E: hook instalado permite ls (exit 0)',
+      runHook('{"tool_input":{"command":"ls -la"}}') === 0,
+    );
+    check(
+      'E2E: hook instalado bloqueia git push --force (exit 2)',
+      runHook('{"tool_input":{"command":"git push --force origin main"}}') === 2,
+    );
+  } else {
+    check('E2E: hook block-destructive.sh presente apos install', false);
+  }
+} else {
+  console.log('  SKIP E2E hooks: bash indisponível neste runner Windows');
+}
+
 // 5) List
 try {
   const out = execSync(`node "${BIN}" list`, { stdio: 'pipe' }).toString();
