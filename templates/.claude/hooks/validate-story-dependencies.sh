@@ -78,7 +78,7 @@ while IFS= read -r DEP; do
   fi
   DEP_STATUS=$(perl -ne 'print $1 if /^status:\s*(\S+)/' "$DEP_FILE" | head -1)
   case "$DEP_STATUS" in
-    entregue|done|concluida|concluida|completed) ;;
+    entregue|done|concluida|completed) ;;
     *) BLOCKERS="${BLOCKERS}  - ${DEP}: status atual = '${DEP_STATUS:-desconhecido}' (precisa: entregue/done)\n" ;;
   esac
 done <<< "$DEPS"
