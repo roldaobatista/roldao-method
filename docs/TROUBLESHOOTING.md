@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-17
+revisado-em: 2026-05-20
 status: stable
 ---
 
@@ -110,6 +110,34 @@ status: draft
 ### Skill Python falha com "ModuleNotFoundError"
 **Causa:** Python 3 não está no PATH.
 **Fix:** garanta que `python3` (ou `python`) está disponível. No Windows, use o Python da Microsoft Store ou python.org.
+
+### `npm test` mostra "SKIP skills Python: interpretador não encontrado"
+**Causa:** Python 3.8+ não está instalado no dev local. CI tem um job dedicado que cobre as 5 skills Python (CPF/CNPJ, Pix, CEP, PIS, fixtures BR), então **isto não bloqueia release** — só cobertura local.
+
+**Detecção:** o teste procura `python3` → `python` → `py` (nesta ordem). `py` é o Python Launcher do Windows (vem com o instalador oficial de python.org).
+
+**Fix Windows (recomendado):**
+1. Baixe Python 3.11+ em https://python.org/downloads/windows.
+2. **Marque "Add python.exe to PATH"** no primeiro passo do instalador (sem isto, nem `python` nem `py` ficam disponíveis no Git Bash).
+3. Feche e reabra o Git Bash.
+4. Confirme: `python --version` ou `py --version`.
+
+**Fix Windows (alternativo):** instale via Microsoft Store ("Python 3.11").
+
+**Fix macOS:** `brew install python@3.11` (Homebrew) ou já vem com algumas versões.
+
+**Fix Linux:** geralmente já vem. Se não: `sudo apt install python3` (Debian/Ubuntu) ou equivalente da sua distro.
+
+### Hook bash falha com "perl: command not found"
+**Causa:** 25 dos 28 hooks usam `perl -MJSON::PP` pra parsear o JSON de input. Perl não está no PATH.
+
+**Fix Windows:** instale o **Git for Windows** (https://git-scm.com/download/win) — já traz `bash`, `perl` e `grep` num pacote. Rode o Claude Code/Cursor a partir do Git Bash que vem junto.
+
+**Fix Linux:** `sudo apt install perl` (já vem em quase toda distro).
+
+**Fix macOS:** já vem com o sistema.
+
+**Confirme:** `perl --version` deve mostrar 5.12+ (qualquer versão recente serve).
 
 ## MCP
 
