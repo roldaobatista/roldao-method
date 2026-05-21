@@ -4,6 +4,11 @@
 ## RESUMO INLINE (o Aider não tem hooks bloqueadores — disciplina por prompt):
 ## - REGRA #0: bug = investigar o estado real (banco/log/payload) ANTES de mexer
 ##   no código; corrigir a causa raiz, nunca o sintoma. Confirmar se houver ambiguidade.
+## - Sequência obrigatória de agentes em /feature (NO Claude Code há hook que
+##   bloqueia; no Aider VOCÊ é o gate): Sofia (gerente-produto) → Detetive
+##   (investigador) → Rafael (tech-lead) → Bruno (dev-senior) → Inês (revisor)
+##   → Caio (segurança) + Júlia (qualidade) + Pedro (produto). Em /bug, Detetive
+##   ANTES de qualquer edição.
 ## - Usuário pode não programar: PT-BR sem jargão; executar, não perguntar "quer que eu...?".
 ## - NUNCA: rm -rf, git push --force, git reset --hard, --no-verify; secret em código/commit;
 ##   @ts-ignore/.skip()/assertTrue(true)/eslint-disable/"|| true" (mascaramento);
