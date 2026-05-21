@@ -12,7 +12,10 @@ const S = path.join(ROOT, 'templates', '.claude', 'skills');
 const PIS = path.join(ROOT, 'addons', 'esocial-completo', '.claude', 'skills', 'validar-pis-pasep');
 
 function pythonBin() {
-  for (const bin of ['python3', 'python']) {
+  // python3/python: Unix + Windows Store/python.org.
+  // py: Windows Python Launcher (vem com installer oficial Python no Windows;
+  //     resolve a versão preferida automaticamente).
+  for (const bin of ['python3', 'python', 'py']) {
     try { execFileSync(bin, ['--version'], { stdio: 'pipe' }); return bin; } catch { /* tenta próximo */ }
   }
   return null;
@@ -20,7 +23,9 @@ function pythonBin() {
 
 const PY = pythonBin();
 if (!PY) {
-  console.log('SKIP skills Python: interpretador não encontrado (python3/python). CI tem job dedicado.');
+  console.log('SKIP skills Python: interpretador não encontrado (python3/python/py).');
+  console.log('  Instale Python 3.8+ em https://python.org (Windows) ou via gestor da distro (Linux/Mac).');
+  console.log('  CI tem job dedicado (validar-skills-python); este skip é só do dev local.');
   process.exit(0);
 }
 
