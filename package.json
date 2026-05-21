@@ -39,7 +39,9 @@
     "test:hooks": "bash templates/.claude/hooks/_test-runner.sh",
     "test:install": "node test/install.test.js",
     "test:skills": "node test/skills.test.js",
-    "test": "npm run validar && npm run test:hooks && npm run test:install && npm run test:skills",
+    "test:addons": "node test/addons.test.js",
+    "test:adapters": "node test/adapters.test.js",
+    "test": "npm run validar && npm run test:hooks && npm run test:install && npm run test:skills && npm run test:addons && npm run test:adapters",
     "prepublishOnly": "npm test"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",
