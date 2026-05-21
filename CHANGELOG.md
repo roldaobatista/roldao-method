@@ -2,6 +2,30 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.14.6] — 2026-05-20
+
+**Round 10 — terceira onda. Cobertura de addons e adapters fechada.**
+
+### Adicionado
+
+- **`test/addons.test.js`** (97 checagens) — pra cada um dos 6 addons valida: `addon.yaml` com campos obrigatórios, status válido, nome bate com diretório, cada agente/hook/skill/command em `provoca:` existe no FS, hooks de addon passam `bash -n` e smoke test (`exit 0|2`, nunca crash). Pega regressão silenciosa em qualquer addon.
+- **`test/adapters.test.js`** (53 checagens) — pra cada um dos 8 adapters multi-IDE valida CONTEÚDO (não só presença): cita REGRA #0, cita sequência obrigatória (Sofia/Detetive/Rafael), cita anti-mascaramento, declara PT-BR, ≥ 500 chars. Aider valida `read:` apontando pra AGENTS.md; Continue valida bloco `rules:` + `context.file` apontando AGENTS.md.
+- **`npm test` agora chama as 6 suites** — validar + hooks + install + skills + addons + adapters. Total: 161 hooks + 97 addons + 53 adapters + install + skills.
+
+### Corrigido
+
+- **`.aider.conf.yml` não citava sequência obrigatória de agentes** (Sofia/Detetive/Rafael) — descoberto pelo novo `test/adapters.test.js`. Adicionado o resumo da pipeline no header inline. Aider depende 100% de prompt (sem hook bloqueador), então a sequência precisa estar literalmente no texto que o LLM lê.
+- **`test/skills.test.js` agora detecta `py`** (Python Launcher do Windows) além de `python3`/`python`. Mensagem de SKIP agora aponta link de download e cita que CI tem job dedicado.
+
+### Documentação
+
+- **`docs/TROUBLESHOOTING.md` ganha seções Python no Windows e Perl** com comandos passo-a-passo (instalador, "Add to PATH", confirmação). Antes a mensagem do SKIP era seca demais pra dev resolver sozinho.
+
+### Notas
+
+- Pacote permanece pequeno (test/ já estava no `files`). Sem mudança no tamanho do tarball.
+- P2 que sobram: cada addon ter teste próprio rico (decisão arquitetural de estrutura por addon — fora desta rodada).
+
 ## [0.14.5] — 2026-05-20
 
 **Round 10 — segunda onda. P2 estruturais (CI + evals + cobertura) fechados.**
