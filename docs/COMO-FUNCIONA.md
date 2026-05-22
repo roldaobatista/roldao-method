@@ -6,6 +6,13 @@ status: stable
 
 # Como funciona — fluxos e estrutura
 
+> **TL;DR (1 min)**
+> 1. **`/inicio` ou `/brownfield`** → produz `AGENTS.md` + 1ª story.
+> 2. **`/feature US-NNN`** → Sofia → Detetive → Rafael → Bruno → Revisor → 3 auditores (paralelo) → Checkpoint → Commit.
+> 3. **`/bug` é o único que TEM que começar pelo Detetive** (REGRA #0 — codificada em hook).
+> 4. **3 tipos de proteção:** hooks (exit 2 imediato) + agentes (papel humano) + workflows (sequência).
+> 5. **Cada commit rastreável:** `feat(escopo): X (US-NNN T-NNN)`.
+
 Documento operacional do framework. Para entender pelo exemplo, leia `EXEMPLO-FEATURE-COMPLETA.md`. Para troubleshooting, `TROUBLESHOOTING.md`.
 
 ## Estrutura instalada
@@ -18,7 +25,7 @@ seu-projeto/
 ├── .claude/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
-│   ├── agents/                    <- 12 especialistas
+│   ├── agents/                    <- 13 especialistas
 │   ├── hooks/                     <- 22 bloqueadores + 6 aux/lifecycle + 2 utilitários
 │   ├── commands/                  <- 22 workflows
 │   ├── skills/                    <- 8 skills BR core (+14 em addons)

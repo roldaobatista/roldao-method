@@ -22,7 +22,7 @@ Confirme com `s`. O comando copia:
 - `.specify/memory/constitution.md` — 6 princípios universais.
 - `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
 - `.agent/CURRENT.md` — estado da sessão.
-- `.claude/agents/` — 12 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer).
+- `.claude/agents/` — 13 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados).
 - `.claude/hooks/` — 22 bloqueadores + 4 auxiliares + 2 utilitários (lib + test-runner) = 28 hooks core.
 - `.claude/commands/` — 22 workflows.
 - `.claude/skills/` — 8 skills BR core (CPF/CNPJ alfanum, Pix, CEP, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +14.
@@ -49,7 +49,7 @@ Esse arquivo é a **fonte da verdade** que todo agente lê primeiro. Bem preench
 bash .claude/hooks/_test-runner.sh
 ```
 
-Deve mostrar `Total: 161  |  OK: 161  |  FAIL: 0`. Se falhar, abra issue.
+Deve mostrar `Total: 167  |  OK: 167  |  FAIL: 0`. Se falhar, abra issue.
 
 ## 4. Output style PT-BR — já ativo
 

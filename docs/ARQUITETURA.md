@@ -132,7 +132,7 @@ Compatibilidade do `update`: sempre preserva `AGENTS.md`, `CLAUDE.md`, `REGRAS-I
 
 Antes de publicar:
 1. `node tools/validar-templates.js` — verde.
-2. `bash templates/.claude/hooks/_test-runner.sh` — 161/161.
+2. `bash templates/.claude/hooks/_test-runner.sh` — 167/167.
 3. `node test/install.test.js` — verde.
 4. `npm pack --dry-run` — confirmar que `files` inclui só o necessário.
 5. Atualizar `CHANGELOG.md`.

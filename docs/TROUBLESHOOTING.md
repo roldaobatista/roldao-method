@@ -23,6 +23,24 @@ cd ~/projetos/meu-app
 npx roldao-method install
 ```
 
+### `.claude/settings.json` parece corrompido / hooks não rodam
+**Causa:** edição manual quebrou o JSON (vírgula faltando, chave a mais, encoding errado).
+**Fix:** valide e restaure:
+
+```bash
+# 1. Confirma se o JSON está válido
+node -e "JSON.parse(require('fs').readFileSync('.claude/settings.json', 'utf8'))"
+# Se sair erro de syntax, o arquivo está corrompido.
+
+# 2. Compara com o template do framework
+diff .claude/settings.json node_modules/roldao-method/templates/.claude/settings.json
+
+# 3. Restaura o core (preserva settings.local.json pessoal)
+npx roldao-method update
+```
+
+`settings.local.json` (pessoal, não versionado) tem precedência sobre `settings.json`. Se o problema está nele, abra e valide o JSON antes de editar mais.
+
 ### "pulando (já existe)" pra todos os arquivos
 **Causa:** o framework já foi instalado e `install` é conservador.
 **Fix:** use `update` (sobrescreve mantendo customizações com `.bak`):

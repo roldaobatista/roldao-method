@@ -73,7 +73,23 @@ npx roldao-method add fiscal-br-completo
 npx roldao-method add lgpd-compliance
 ```
 
-Pra desinstalar, remova manualmente a pasta `addons/<nome>/` do seu projeto e desfaça as entradas correspondentes em `.claude/`.
+## Como desinstalar
+
+**Use o comando do CLI** — ele remove cirurgicamente os arquivos do addon **e** desfaz as entradas que o addon adicionou em `.claude/settings.json` (hooks novos, permissões novas):
+
+```bash
+npx roldao-method remove <nome>
+```
+
+Exemplo:
+```bash
+npx roldao-method remove fintech-br
+```
+
+**Remoção manual NÃO é recomendada** — só apagar a pasta `addons/<nome>/` deixa hooks órfãos referenciados em `settings.json` que vão falhar silenciosamente. Se for inevitável (script de cleanup, etc.), lembre de também:
+1. Remover entradas do addon em `.claude/settings.json` (procure pelo nome do hook do addon).
+2. Limpar `.claude/.runtime/` (markers órfãos).
+3. Rodar `npx roldao-method doctor` pra confirmar consistência.
 
 ## Como criar um addon
 

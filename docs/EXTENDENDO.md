@@ -6,6 +6,13 @@ status: stable
 
 # Estendendo o ROLDAO-METHOD
 
+> **TL;DR (1 min)**
+> - **Agente novo:** copie `templates/.claude/agents/dev-senior.md` → renomeie + ajuste `name`/`description`/`tools` (seção 1).
+> - **Hook novo:** copie esqueleto da seção 2 + adicione em `templates/.claude/settings.json` no evento certo (PreToolUse/PostToolUse/etc.) + rode `bash templates/.claude/hooks/_test-runner.sh`.
+> - **Skill nova:** crie `templates/.claude/skills/<nome>/SKILL.md` com gatilho concreto + script Python (seção 3).
+> - **Addon novo:** pasta `addons/<nome>/` com `addon.yaml` + estrutura `.claude/` espelhada (seção 4).
+> - **Valide:** sempre `node tools/validar-templates.js` + `npm test` antes de commitar.
+
 Guia prático para criar **seu primeiro agente, hook, skill ou addon**. Pressuposto: você já leu [`docs/ARQUITETURA.md`](ARQUITETURA.md) e [`docs/COMO-FUNCIONA.md`](COMO-FUNCIONA.md).
 
 > **Quando criar o quê?**

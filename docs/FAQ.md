@@ -43,6 +43,35 @@ Sim: `npx roldao-method uninstall`. Remove os arquivos do framework e preserva s
 ### Como confiro se está tudo OK?
 `npx roldao-method doctor`. Lista o que está faltando.
 
+### Como volto pra versão anterior (downgrade)?
+Se a versão X quebrou alguma coisa pro seu time:
+
+```bash
+npm install -g roldao-method@0.15.0    # ou a versão que funcionava
+npx roldao-method update
+```
+
+O `update` preserva customizações (`AGENTS.md`, `CLAUDE.md`, `REGRAS-INEGOCIAVEIS.md`, `.specify/overrides/`, `settings.local.json`). Arquivos do core voltam à versão anterior; o `.bak` ao lado guarda o que estava.
+
+Se um addon parou de funcionar com a versão nova:
+
+```bash
+npx roldao-method remove fintech-br
+npx roldao-method add fintech-br
+```
+
+Reinstalação limpa do addon sob a versão atual.
+
+### Como crio meu primeiro agente customizado?
+**Passo-a-passo de 30 minutos** em [`docs/EXTENDENDO.md`](EXTENDENDO.md) (seção 1 — Agente novo). Resumo:
+
+1. Copie `templates/.claude/agents/dev-senior.md` → renomeie pra `seu-agente.md`.
+2. Mude `name`, `description` (gatilho concreto: "Use quando..."), `tools` (lista mínima).
+3. Rode `node tools/validar-templates.js` — verifica frontmatter.
+4. Teste invocando no Claude Code: o agente aparece em `/agents`.
+
+Mesmo procedimento pra hook (seção 2), skill (seção 3) e addon (seção 4).
+
 ## Uso
 
 ### Quando uso cada comando?

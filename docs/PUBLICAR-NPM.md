@@ -89,7 +89,7 @@ Deve mostrar a versão atual do `package.json`. Também aparece em https://www.n
 1. Subir o número em `package.json` (ex.: `0.14.4` → `0.14.5`).
 2. Atualizar `templates/.claude-plugin/plugin.json` e `templates/.continue/config.yaml` pra mesma versão (o `validar-templates.js` falha se divergir).
 3. Adicionar entrada no `CHANGELOG.md`.
-4. Rodar `npm test` (tem que dar verde — 161/161).
+4. Rodar `npm test` (tem que dar verde — 167/167).
 5. `git tag v0.X.Y` e `git push --follow-tags` (eu já faço isso direto quando termino release).
 6. **Você roda:** `npm publish` (precisa de 2FA seu).
 
