@@ -53,7 +53,8 @@ JARGON_TERMS=(
   '\bstash(es|ar|ado)?\b'
   '\bcherry-pick(s|ed|ar|ado)?\b'
   '\bbisect(s|ar|ado)?\b'
-  '\bhook(s|ar|ado)?\b'
+  # 'hook' NAO entra na lista — e termo central do framework e da configuracao
+  # do Claude Code; usuarios precisam falar de hooks normalmente.
 )
 
 # Termos OK quando vem traduzidos OU dentro de bloco de codigo, OU acompanhados de explicacao

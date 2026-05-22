@@ -51,8 +51,9 @@ PATTERNS=(
   '--no-verify'
   '--skip-tests'
   '--ignore-errors'
-  '--silent'
-  '--quiet'
+  # '--silent' / '--quiet' fora — falso positivo em uso legitimo
+  # (npm install --silent, curl -s, grep -q em scripts de CI/dev).
+  # O mascaramento real e silenciar TESTE; bloquear flag generica e ruido.
   'pytest\.skip'
 )
 

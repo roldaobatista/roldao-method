@@ -785,8 +785,8 @@ run_case "bloqueia || true em sh" "anti-mascaramento.sh" \
 run_case "bloqueia eslint-disable-next-line" "anti-mascaramento.sh" \
   '{"tool_input":{"file_path":"./x.js","content":"// eslint-disable-next-line\nconst x = any;"}}' 2
 
-run_case "bloqueia npm test --silent" "anti-mascaramento.sh" \
-  '{"tool_input":{"file_path":"./ci.sh","content":"npm test --silent"}}' 2
+run_case "permite npm test --silent (uso legitimo de log silencioso)" "anti-mascaramento.sh" \
+  '{"tool_input":{"file_path":"./ci.sh","content":"npm test --silent"}}' 0
 
 run_case "bloqueia expect(true).toBe(true)" "anti-mascaramento.sh" \
   '{"tool_input":{"file_path":"./x.test.js","content":"expect(true).toBe(true);"}}' 2
@@ -878,6 +878,99 @@ case "$SS_OUT" in
   *) PASS=$((PASS + 1)); RESULTS+=("OK   _lib.sh  →  sanitize_session_hash sanitiza caracteres") ;;
 esac
 
+# ------- lgpd-base-legal-reminder --------
+# Soft warning (exit 0 sempre, mas escreve em stderr quando detecta PII sem base legal).
+LGPD_T="$BASE/lgpd-test"
+mkdir -p "$LGPD_T/.claude/.runtime"
+
+# Caso 1: codigo sem PII = silencioso
+LGPD_OUT_1=$(
+  CLAUDE_PROJECT_DIR="$LGPD_T" \
+  bash -c 'printf "%s" "$1" | bash "$2"' _ \
+    '{"tool_input":{"file_path":"./src/util.ts","content":"function soma(a, b) { return a + b; }"}}' \
+    "$HOOKS_DIR/lgpd-base-legal-reminder.sh" 2>&1
+)
+if [ -z "$LGPD_OUT_1" ]; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   lgpd-base-legal-reminder.sh  →  silencioso em codigo sem PII")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL lgpd-base-legal-reminder.sh  →  falso positivo (out=$LGPD_OUT_1)")
+fi
+
+# Caso 2: codigo com CPF + sem ADR = warning em stderr
+LGPD_OUT_2=$(
+  CLAUDE_PROJECT_DIR="$LGPD_T" \
+  bash -c 'printf "%s" "$1" | bash "$2"' _ \
+    '{"tool_input":{"file_path":"./src/cliente.ts","content":"interface Cliente { cpf: string; email: string; }"}}' \
+    "$HOOKS_DIR/lgpd-base-legal-reminder.sh" 2>&1
+)
+if echo "$LGPD_OUT_2" | grep -qi "LGPD-001\|base legal"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   lgpd-base-legal-reminder.sh  →  avisa CPF sem ADR")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL lgpd-base-legal-reminder.sh  →  deveria avisar CPF sem ADR (out=$LGPD_OUT_2)")
+fi
+
+# Caso 3: codigo com CPF + ADR com LGPD-007 = silencioso
+mkdir -p "$LGPD_T/docs/decisions"
+echo "# ADR-0001 — base legal (LGPD-007)" > "$LGPD_T/docs/decisions/ADR-0001-base-legal.md"
+LGPD_OUT_3=$(
+  CLAUDE_PROJECT_DIR="$LGPD_T" \
+  bash -c 'printf "%s" "$1" | bash "$2"' _ \
+    '{"tool_input":{"file_path":"./src/cliente.ts","content":"interface Cliente { cpf: string; }"}}' \
+    "$HOOKS_DIR/lgpd-base-legal-reminder.sh" 2>&1
+)
+if [ -z "$LGPD_OUT_3" ]; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   lgpd-base-legal-reminder.sh  →  silencioso com ADR base-legal")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL lgpd-base-legal-reminder.sh  →  falso positivo com ADR (out=$LGPD_OUT_3)")
+fi
+
+# ------- enforce-pipeline-completion --------
+# Stop hook: bloqueia encerrar sessao quando ha feature-active sem checkpoint-done.
+# Setup: cria estrutura .claude/.runtime fake.
+EPC_T="$BASE/epc-test"
+mkdir -p "$EPC_T/.claude/.runtime"
+EPC_SESS="testsession"
+echo "$EPC_SESS" > "$EPC_T/.claude/.runtime/.session-hash"
+
+# Caso 1: sem feature ativa = exit 0 (deixa encerrar normal)
+EPC_OUT_1=$(
+  CLAUDE_PROJECT_DIR="$EPC_T" CLAUDE_SESSION_ID="$EPC_SESS" \
+  bash -c 'echo "{}" | bash "$1"' _ "$HOOKS_DIR/enforce-pipeline-completion.sh"
+  echo "exit=$?"
+)
+if echo "$EPC_OUT_1" | grep -q "exit=0"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   enforce-pipeline-completion.sh  →  sem feature ativa, deixa encerrar")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL enforce-pipeline-completion.sh  →  sem feature ativa deveria liberar (out=$EPC_OUT_1)")
+fi
+
+# Caso 2: feature ativa + checkpoint feito = exit 0 (pipeline fechou)
+touch "$EPC_T/.claude/.runtime/feature-active-${EPC_SESS}"
+touch "$EPC_T/.claude/.runtime/checkpoint-done-${EPC_SESS}"
+EPC_OUT_2=$(
+  CLAUDE_PROJECT_DIR="$EPC_T" CLAUDE_SESSION_ID="$EPC_SESS" \
+  bash -c 'echo "{}" | bash "$1"' _ "$HOOKS_DIR/enforce-pipeline-completion.sh"
+  echo "exit=$?"
+)
+if echo "$EPC_OUT_2" | grep -q "exit=0"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   enforce-pipeline-completion.sh  →  checkpoint feito, deixa encerrar")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL enforce-pipeline-completion.sh  →  checkpoint feito deveria liberar (out=$EPC_OUT_2)")
+fi
+
+# Caso 3: feature ativa + Sofia rodou mas sem checkpoint = bloqueio (decision:block no JSON)
+rm "$EPC_T/.claude/.runtime/checkpoint-done-${EPC_SESS}"
+touch "$EPC_T/.claude/.runtime/sofia-done-${EPC_SESS}"
+EPC_OUT_3=$(
+  CLAUDE_PROJECT_DIR="$EPC_T" CLAUDE_SESSION_ID="$EPC_SESS" \
+  bash -c 'echo "{}" | bash "$1"' _ "$HOOKS_DIR/enforce-pipeline-completion.sh"
+)
+if echo "$EPC_OUT_3" | grep -qi "decision.*block\|enforce-pipeline"; then
+  PASS=$((PASS + 1)); RESULTS+=("OK   enforce-pipeline-completion.sh  →  bloqueia encerrar com pipeline aberto")
+else
+  FAIL=$((FAIL + 1)); RESULTS+=("FAIL enforce-pipeline-completion.sh  →  deveria bloquear pipeline aberto (out=$EPC_OUT_3)")
+fi
+
 # ------- relatório --------
 echo ""
 for r in "${RESULTS[@]}"; do
@@ -888,7 +981,7 @@ echo "Total: $((PASS + FAIL))  |  OK: $PASS  |  FAIL: $FAIL"
 
 # Invariante: se um bloco de setup pular (perl/git/mktemp ausente), o total cai
 # e a suite ainda daria verde. Checar o numero esperado impede esse falso-verde.
-EXPECTED_TOTAL=167
+EXPECTED_TOTAL=173
 if [ "$((PASS + FAIL))" -ne "$EXPECTED_TOTAL" ]; then
   echo "ERRO: rodaram $((PASS + FAIL)) testes, esperado $EXPECTED_TOTAL (setup pulado? dependencia ausente?)" >&2
   exit 1
