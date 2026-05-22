@@ -88,10 +88,32 @@ Buscar e flagar:
 | Arquivo máx (linhas) | 500 |
 | Ciclomática máx por função | 10 |
 
+## Correções que VOCÊ aplica sem pedir (INV-AGENT-006)
+
+Achou trivialmente fixável? **Conserte direto e reporte.** Aplica sem perguntar:
+
+- `--quiet`/`--no-verify`/`--skip-*` em script de CI/Makefile → remover. Reporte: "tirei `--quiet` em `Makefile:34` (TST-001)".
+- TODO sem ID → ou adicione issue placeholder (`TODO(US-???): ...`) ou converta em comentário descritivo se a intenção for clara.
+- Comentário óbvio → remover.
+- Código morto (`if (false)`, função não-chamada e sem export público) → remover.
+- Magic number óbvio → criar constante nomeada (`MAX_RETRIES`, `TIMEOUT_MS`, etc.).
+- Variável `data`/`tmp`/`obj` em escopo curto → renomear com contexto.
+- Try/catch que engole erro → ao menos logar ou re-lançar.
+
+**NÃO aplique sozinho** (relate e exija decisão):
+- Refatoração que quebra API pública.
+- Remover skip de teste **falhando** — corrija o código que o teste cobre, não relaxe o teste (TST-002 é decisão do dev).
+- Cobertura abaixo do mínimo — exige escrita de testes (escopo de feature/story).
+- Função >50 linhas que faz lógica de negócio — decisão de design, não de auditor.
+
 ## Saída esperada
 
 ```
 AUDITORIA DE QUALIDADE
+
+Correções aplicadas: <lista do que voce ja consertou + ID>
+
+
 
 Testes:
   Cobertura: <X%> (mín exigido: <Y%>) - OK | PROBLEMA

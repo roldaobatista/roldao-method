@@ -110,15 +110,20 @@ const exigidos = [
   '.claude/hooks/regra-zero-reminder.sh',
   '.claude/hooks/_test-runner.sh',
 
-  // 8 skills BR no core
+  // 12 skills BR no core
   '.claude/skills/gerar-adr-pt-br/SKILL.md',
   '.claude/skills/traduzir-jargao/SKILL.md',
   '.claude/skills/brainstormar-ideia/SKILL.md',
   '.claude/skills/gerar-test-fixture-br/SKILL.md',
+  '.claude/skills/gerar-br-code/SKILL.md',
   '.claude/skills/validar-cpf-cnpj/SKILL.md',
   '.claude/skills/validar-cpf-cnpj/scripts/validar.py',
+  '.claude/skills/validar-chave-acesso-nfe/SKILL.md',
+  '.claude/skills/validar-chave-acesso-nfe/scripts/validar.py',
   '.claude/skills/validar-pix/SKILL.md',
   '.claude/skills/validar-cep/SKILL.md',
+  '.claude/skills/validar-ie/SKILL.md',
+  '.claude/skills/validar-boleto/SKILL.md',
   '.claude/skills/checklist-lgpd/SKILL.md',
 
   // .specify — constitution + 11 templates + 7 checklists + 7 KBs

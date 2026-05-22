@@ -11,6 +11,18 @@ Voce vai conduzir a implementacao de uma funcionalidade nova. **Nao pule etapas.
 
 Use `$ARGUMENTS` como `US-NNN` (preferido) ou descricao inicial da feature.
 
+## Caminho rapido — delegue ao Maestro
+
+```
+Task subagent_type=maestro prompt="Modo FT. US=$ARGUMENTS. Orquestre o pipeline completo (Sofia → Detetive → Rafael → Bruno → Inês → 3 auditores em paralelo → checkpoint). Crie todos os markers em .claude/.runtime/."
+```
+
+O **Maestro** (`.claude/agents/maestro.md`) e o orquestrador mecanico do pipeline. Ele cria os markers em cada etapa, dispara os auditores em paralelo, re-roda quando o hash do diff muda, e reporta em etapas numeradas. Use-o sempre que rodar `/feature` — voce nao precisa conduzir o pipeline manualmente.
+
+Se preferir orquestrar manualmente (debug do pipeline, sessao parcial), siga as etapas abaixo. **O conteudo eh equivalente** — o maestro so automatiza a sequencia.
+
+---
+
 ## REGRA #0 — decida o caminho antes de chamar Sofia
 
 Pergunta sozinho (nao pro usuario):

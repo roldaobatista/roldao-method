@@ -246,6 +246,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-test-pyramid.sh\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-base-legal-reminder.sh\"",
+            "timeout": 5
           }
         ]
       }
@@ -306,6 +311,11 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-confirmation-questions.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/enforce-pipeline-completion.sh\"",
             "timeout": 5
           }
         ]
