@@ -23,25 +23,8 @@
  * Bin tambem disponivel como 'roldao' (alias curto).
  */
 
-// Checa Node 18+ antes de qualquer require — usa fs basico so depois.
-// Mensagem em PT-BR pra usuario nao-tecnico entender o que fazer.
-(function checkNodeVersion() {
-  const required = 18;
-  const current = process.versions && process.versions.node;
-  if (!current) return;
-  const major = parseInt(current.split('.')[0], 10);
-  if (isNaN(major) || major >= required) return;
-  process.stderr.write(
-    '\n[roldao-method] Node ' + required + '+ necessario. Voce esta usando: ' + current + '\n' +
-    '\n' +
-    'Como atualizar:\n' +
-    '  - Windows/macOS: baixe instalador em https://nodejs.org (versao LTS)\n' +
-    '  - Linux: use nvm (https://github.com/nvm-sh/nvm) ou pacote da distro\n' +
-    '\n' +
-    'Depois rode novamente: npx roldao-method install\n\n'
-  );
-  process.exit(1);
-})();
+// Gate de versão Node. Único require permitido antes desta linha: builtin/lib/* (zero deps).
+require('./lib/node-version-check').checkNodeVersion();
 
 const fs = require('fs');
 const path = require('path');
@@ -64,30 +47,9 @@ const FORCE = flags.has('--force');
 const DRY_RUN = flags.has('--dry-run');
 const NO_COLOR = flags.has('--no-color') || process.env.NO_COLOR === '1';
 
-// Windows moderno (Terminal/Git Bash/VS Code) suporta ANSI; isTTY ja cobre o caso CMD/PowerShell sem TTY.
-const supportsColor = !NO_COLOR && process.stdout.isTTY;
-const c = {
-  reset: supportsColor ? '\x1b[0m' : '',
-  bold: supportsColor ? '\x1b[1m' : '',
-  dim: supportsColor ? '\x1b[2m' : '',
-  green: supportsColor ? '\x1b[32m' : '',
-  yellow: supportsColor ? '\x1b[33m' : '',
-  red: supportsColor ? '\x1b[31m' : '',
-  blue: supportsColor ? '\x1b[34m' : '',
-  cyan: supportsColor ? '\x1b[36m' : '',
-  magenta: supportsColor ? '\x1b[35m' : '',
-};
-
-const USER_OWNED = new Set([
-  'AGENTS.md',
-  'CLAUDE.md',
-  'CLAUDE.local.md',
-  'REGRAS-INEGOCIAVEIS.md',
-  '.specify/memory/constitution.md',
-  '.claude/settings.local.json',
-  '.mcp.json',
-  '.claude/.runtime',
-]);
+// Cores ANSI e lista USER_OWNED extraídas pra bin/lib/* (Sprint 2.4).
+const c = require('./lib/colors').makeColors({ noColor: NO_COLOR, isTTY: process.stdout.isTTY });
+const { USER_OWNED } = require('./lib/user-owned');
 
 const counters = { criados: 0, pulados: 0, atualizados: 0, preservados: 0, erros: 0 };
 const detalhes = { criados: [], pulados: [], atualizados: [], preservados: [], erros: [] };
