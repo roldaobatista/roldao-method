@@ -32,6 +32,28 @@ jobs:
           node --check evals/run.js
       - name: Validar estrutura
         run: node tools/validar-templates.js
+      - name: Validar rastreabilidade de IDs (REGRAS-INEGOCIAVEIS.md)
+        run: node tools/validar-ids-rastreaveis.js
+      - name: Validar cobertura de hooks (todo bloqueador tem run_case)
+        run: node tools/validar-cobertura-hooks.js
+
+  shellcheck-hooks:
+    name: shellcheck nos hooks (.sh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar shellcheck
+        run: sudo apt-get install -y shellcheck
+      - name: Rodar shellcheck (severity=warning)
+        run: |
+          set -e
+          # Inclui hooks publicados nos templates + hooks ativos no projeto.
+          # SC1091 (não consegue seguir source dinâmico) é esperado em hooks que
+          # sourceiam _lib.sh via "$(dirname "$0")/_lib.sh" — usamos shellcheck
+          # source=_lib.sh no header pra resolução estática.
+          shellcheck --severity=warning --shell=bash \
+            --exclude=SC1091 \
+            templates/.claude/hooks/*.sh
 
   rodar-hooks:
     name: Test-runner dos hooks (matriz)
