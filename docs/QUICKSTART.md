@@ -75,6 +75,18 @@ Abra o Claude Code na raiz do projeto. Antes de comandar:
 - **Continuar sessão** — `claude --continue` retoma de onde parou. Snapshot é salvo automaticamente pelo hook `session-snapshot.sh`.
 - **Várias stories em paralelo** — use `git worktree`, um por story.
 
+### Não sabe por onde começar? Use `/help`.
+
+`/help` lista os 22 comandos com códigos curtos e cenários comuns. Digite `/help FT` pra ver detalhes do `/feature`, `/help BG` pra `/bug`.
+
+### Seu primeiro comando
+
+Se acabou de instalar:
+
+- **Projeto novo do zero:** `/inicio` — Sofia define escopo, Rafael escolhe stack, Bruno monta esqueleto.
+- **Projeto que já existe:** `/brownfield` — Detetive lê código, Rafael gera ARQ-001, Sofia preenche `AGENTS.md`.
+- **Já tem AGENTS.md e quer codar a primeira feature:** `/historia "<descrição em 1 frase>"` cria US-001 em disco. Depois `/feature US-001`.
+
 Digite um dos comandos:
 
 | Comando | Quando |
@@ -107,12 +119,24 @@ Exemplo:
 Reportei um bug: ao salvar pedido com valor zero, o sistema aceita.
 ```
 
-## 7. Próximos passos
+## 7. Addons (extender pra domínios específicos)
+
+O core entrega 13 agentes + 8 skills BR. Pra domínios profundos, instale addons:
+
+```bash
+npx roldao-method search        # listar addons disponíveis
+npx roldao-method add fintech-br # instalar addon (ex: Pix, Open Finance)
+```
+
+Addons disponíveis hoje: `fintech-br` (Pix + Open Finance), `fiscal-br-emissor` (NF-e, NFC-e, SAT), `electron` (SQLite seguro, balança/impressora), `lgpd-operacional`, `eSocial-folha`, `saude-mental`.
+
+## 8. Próximos passos
 
 - Leia `REGRAS-INEGOCIAVEIS.md` e ajuste regras específicas do seu projeto.
 - Mantenha `.agent/CURRENT.md` atualizado entre sessões.
 - Quando padrão repetir 3 vezes, considere criar uma skill em `.claude/skills/`.
 - Para casos BR reais (NF-e, Pix, telemedicina, eSocial), ver `docs/CASOS-DE-USO-BR.md`.
+- Para um exemplo completo do `/feature` ponta-a-ponta, ver `docs/EXEMPLO-FEATURE-COMPLETA.md`.
 
 ---
 

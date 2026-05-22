@@ -1,19 +1,19 @@
 ---
 owner: framework
-revisado-em: 2026-05-17
+revisado-em: 2026-05-22
 status: stable
 ---
 
 # Como funciona — fluxos e estrutura
 
-> **TL;DR (1 min)**
+> **TL;DR**
 > 1. **`/inicio` ou `/brownfield`** → produz `AGENTS.md` + 1ª story.
 > 2. **`/feature US-NNN`** → Sofia → Detetive → Rafael → Bruno → Revisor → 3 auditores (paralelo) → Checkpoint → Commit.
-> 3. **`/bug` é o único que TEM que começar pelo Detetive** (REGRA #0 — codificada em hook).
-> 4. **3 tipos de proteção:** hooks (exit 2 imediato) + agentes (papel humano) + workflows (sequência).
-> 5. **Cada commit rastreável:** `feat(escopo): X (US-NNN T-NNN)`.
+> 3. **`/bug`** sempre começa pelo Detetive (REGRA #0 — hook bloqueia).
+> 4. **3 camadas de proteção:** hooks (exit 2 imediato) + agentes (papel humano) + workflows (sequência).
+> 5. **Commit rastreável:** `feat(escopo): X (US-NNN T-NNN)`.
 
-Documento operacional do framework. Para entender pelo exemplo, leia `EXEMPLO-FEATURE-COMPLETA.md`. Para troubleshooting, `TROUBLESHOOTING.md`.
+Para aprender pelo exemplo: [`EXEMPLO-FEATURE-COMPLETA.md`](EXEMPLO-FEATURE-COMPLETA.md). Para resolver problemas: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
 
 ## Estrutura instalada
 
@@ -26,205 +26,96 @@ seu-projeto/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
 │   ├── agents/                    <- 13 especialistas
-│   ├── hooks/                     <- 22 bloqueadores + 6 aux/lifecycle + 2 utilitários
+│   ├── hooks/                     <- ~30 hooks (bloqueadores + lifecycle + utilitários)
 │   ├── commands/                  <- 22 workflows
 │   ├── skills/                    <- 8 skills BR core (+14 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
 ├── .specify/
 │   ├── memory/constitution.md     <- manifesto (6 princípios)
-│   └── templates/                 <- PRD, story, architecture, decision-log
+│   ├── templates/                 <- PRD, story, architecture, decision-log
+│   └── overrides/                 <- override de templates (não versionado pelo update)
 ├── .mcp.json                      <- MCP servers (opcional)
-└── docs/                          <- produtos do framework
+└── docs/
     ├── prd/                       <- PRD-NNN-slug.md
     ├── stories/                   <- US-NNN-slug.md
-    ├── adr/                       <- ADR-NNNN-slug.md
+    ├── decisions/                 <- ADR-NNNN-slug.md
     ├── arquitetura/               <- ARQ-NNN.md
     ├── research/                  <- briefs do analista
-    ├── ux/                        <- UX-NNN-slug.md (wireframes ASCII)
-    ├── fiscal/                    <- FISC-NNN.md
+    ├── ux/                        <- UX-NNN-slug.md
+    ├── readiness/                 <- EP-NNN-status.md (gate /feature)
+    ├── checkpoints/               <- CHK-AAAA-MM-DD-slug.md
     └── retros/                    <- AAAA-MM-DD-marco.md
 ```
 
-## Fluxo dos comandos
-
-### /inicio — projeto novo do zero
-
-```
-demanda informal
-    ↓
-gerente-produto (entende, escreve PRD/story)
-    ↓
-tech-lead (escolhe stack, escreve ADR-0001, cria ARQ-001)
-    ↓
-dev-senior (configura projeto, dependências mínimas)
-    ↓
-AGENTS.md preenchido com stack/comandos
-```
-
-### /brownfield — projeto que já existe
-
-```
-projeto existente sem doc
-    ↓
-investigador (varre código, banco, testes)
-    ↓
-tech-lead (gera ARQ-001 a partir do encontrado)
-    ↓
-gerente-produto (preenche AGENTS.md com inferências)
-    ↓
-auditor-seguranca (sweep inicial — secrets, CVEs)
-    ↓
-você confirma campos "inferido — confirmar"
-```
-
-### /prd — iniciativa grande (vários meses)
-
-```
-demanda exploratória
-    ↓
-analista modo brief (mercado, concorrentes, regulamentação BR)
-    ↓
-gerente-produto modo PRD (PRD-NNN em docs/prd/)
-    ↓
-tech-lead (ADRs bloqueantes + atualiza ARQ-001)
-    ↓
-ux-designer (se toca interface)
-    ↓
-gerente-produto modo decomposição (gera US-NNN filhas)
-    ↓
-arquivos skeleton em docs/stories/
-```
-
-### /epico — decompor coisa grande em stories
-
-```
-descrição de epic
-    ↓
-analista modo brief (opcional)
-    ↓
-gerente-produto modo PRD + modo decomposição
-    ↓
-tabela de stories com dependências
-    ↓
-arquivos skeleton em docs/stories/
-```
-
-### /historia — criar 1 story em disco
-
-```
-descrição informal
-    ↓
-gerente-produto modo C (preenche template story.md)
-    ↓
-investigador (preenche contexto técnico)
-    ↓
-docs/stories/US-NNN-slug.md persistido
-```
-
-### /feature — implementar funcionalidade
-
-```
-US-NNN (ou descrição informal → gera US)
-    ↓
-gerente-produto (estrutura/confirma US)
-    ↓
-investigador (lê código relacionado)
-    ↓
-tech-lead (se exige ADR novo)
-    ↓
-dev-senior (TDD onde aplicável; código + testes)
-    ↓
-revisor (aderência à US + anti-padrões)
-    ↓
-auditores em paralelo (segurança + qualidade + produto)
-    ↓
-"FEATURE ENTREGUE"
-```
-
-### /bug — corrigir comportamento (REGRA #0)
-
-```
-sintoma reportado
-    ↓
-investigador OBRIGATÓRIO
-    ↓ (lê banco, log, payload, código)
-relatório com causa raiz
-    ↓
-dev-senior (corrige no ponto raiz, não no sintoma)
-    ↓
-revisor
-    ↓
-"BUG RESOLVIDO"
-```
-
-### /refactor — reorganizar sem mudar comportamento
-
-```
-descrição da área
-    ↓
-tech-lead (decide se vale e como)
-    ↓
-dev-senior (refactor + testes existentes continuam verdes)
-    ↓
-revisor (confirma que comportamento não mudou)
-```
-
-### /qa — testes de uma área
-
-```
-área alvo
-    ↓
-investigador (mapa de testes existentes)
-    ↓
-auditor-qualidade (parecer de cobertura)
-    ↓
-dev-senior (escreve testes faltantes priorizados)
-    ↓
-revisor
-```
-
-### /auditoria — passar pelos 3 auditores
-
-```
-escopo (release / módulo / branch)
-    ↓
-auditor-seguranca + auditor-qualidade + auditor-produto (paralelo)
-    ↓
-relatório consolidado
-```
-
-### /retro — retrospectiva pós-marco
-
-```
-marco (release/sprint)
-    ↓
-levantar contexto (git log, stories entregues, ADRs)
-    ↓
-4L (liked/learned/lacked/longed for)
-    ↓
-ações com dono
-    ↓
-docs/retros/AAAA-MM-DD.md + atualiza AGENTS.md §10
-```
-
-### /clarificar, /consistencia, /quick-dev, /readiness, /shard, /sprint, /replanejar, /status, /checkpoint, /release, /help — workflows complementares
+## Os 22 workflows
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
-| `/clarificar <ideia>` | Tira ambiguidade antes de codar | gerente-produto (faz perguntas) |
-| `/consistencia <escopo>` | Cross-check doc↔código (acha órfãos) | investigador → 3 auditores |
-| `/quick-dev <descrição>` | Mudança trivial ≤ 3 arquivos / ≤ 50 linhas | dev-senior → revisor |
-| `/readiness EP-NNN` | Gate entre `/epico` e `/feature` | investigador → tech-lead |
-| `/shard <doc>` | Quebra PRD/ARQ longo em chunks navegáveis | (fatiamento, sem agente) |
-| `/sprint <N>` | Plano sequencial das próximas N stories | gerente-produto |
-| `/replanejar <escopo>` | Mudança de escopo no épico | gerente-produto → tech-writer |
-| `/status` | Reportar progresso em PT-BR sem jargão | tech-writer |
-| `/checkpoint` | Walkthrough guiado de branch antes do merge | (sem agente) |
-| `/release <versão>` | Fechar marco: versão, CHANGELOG, tag, nota PT-BR | tech-writer |
-| `/help` | Catálogo dos 22 comandos com códigos curtos | (sem agente) |
+| `/inicio` | Projeto novo do zero | gerente-produto → tech-lead → dev-senior |
+| `/brownfield` | Adotar em projeto existente | investigador → tech-lead → gerente-produto → auditor-segurança |
+| `/prd` | Iniciativa grande (vários meses) | analista → gerente-produto → tech-lead → (ux) → decomposição |
+| `/epico` | Decompor iniciativa em stories | analista → gerente-produto → tech-lead |
+| `/historia` | Criar 1 story em disco | gerente-produto → investigador |
+| `/clarificar` | Tirar ambiguidade antes de codar | gerente-produto |
+| `/feature` | Implementar funcionalidade | Sofia → Detetive → Rafael → Bruno → Revisor → 3 auditores |
+| `/bug` | Corrigir comportamento (REGRA #0) | **investigador (obrigatório)** → dev-senior → revisor |
+| `/refactor` | Reorganizar sem mudar comportamento | tech-lead → dev-senior → revisor |
+| `/qa` | Testes de uma área | investigador → auditor-qualidade → dev-senior → revisor |
+| `/auditoria` | 3 auditores em paralelo | auditor-segurança + auditor-qualidade + auditor-produto |
+| `/consistencia` | Cross-check doc↔código | investigador → 3 auditores |
+| `/quick-dev` | Mudança trivial (≤3 arquivos) | dev-senior → revisor |
+| `/readiness` | Gate entre `/epico` e `/feature` | investigador → tech-lead |
+| `/shard` | Quebrar PRD/ARQ longo em chunks | (fatiamento, sem agente) |
+| `/sprint` | Plano sequencial de próximas stories | gerente-produto |
+| `/replanejar` | Mudança de escopo no épico | gerente-produto → tech-writer |
+| `/status` | Reportar progresso em PT-BR | tech-writer |
+| `/checkpoint` | Walkthrough de branch antes do merge | (sem agente) |
+| `/release` | Fechar marco: versão, CHANGELOG, tag, nota | tech-writer |
+| `/retro` | Retrospectiva pós-marco (4L) | (sem agente) |
+| `/help` | Catálogo dos 22 comandos | (sem agente) |
 
-## Os 12 agentes
+### Fluxo principal — `/feature US-NNN`
+
+```
+US-NNN (ou descrição → vira US)
+   ↓ Etapa 0: gate /readiness PRONTO (hook bloqueia se não)
+Sofia (gerente-produto) — estrutura US com AC testáveis + non-goals
+   ↓
+Detetive (investigador) — lê código existente, mapeia impacto SEM escrever
+   ↓
+Rafael (tech-lead) — ADR se exige decisão arquitetural (senão skip explícito)
+   ↓
+Bruno (dev-senior) — implementa + testes (TDD onde aplicável)
+   ↓
+Revisor — aderência à US + anti-padrões
+   ↓
+3 Auditores em paralelo — segurança + qualidade + produto (com hash do diff)
+   ↓
+Checkpoint — walkthrough salvo em docs/checkpoints/
+   ↓
+"FEATURE ENTREGUE"
+```
+
+### Fluxo crítico — `/bug` (REGRA #0)
+
+```
+sintoma reportado
+   ↓
+Detetive OBRIGATÓRIO — lê banco, log, payload, código
+   ↓
+relatório com causa raiz em JSON (.claude/.runtime/investigation-*.json)
+   ↓
+Dev Sênior — corrige no PONTO RAIZ (não no sintoma)
+   ↓
+Revisor — confirma que `nao_fazer[]` do investigador não foi violado
+   ↓
+"BUG RESOLVIDO"
+```
+
+Hook `require-investigador-before-fix.sh` bloqueia Edit/Write em código de negócio se o Detetive não rodou. Sem bypass implícito.
+
+## Os 13 agentes
 
 | Agente | Papel | Modelo |
 |---|---|---|
@@ -234,14 +125,13 @@ docs/retros/AAAA-MM-DD.md + atualiza AGENTS.md §10
 | `tech-lead` | Arquitetura, ADR, ARQ, readiness check | sonnet |
 | `investigador` | Lê estado real antes de mudar (REGRA #0) | sonnet |
 | `dev-senior` | Implementa com TDD onde aplicável | sonnet |
-| `revisor` | Defeitos técnicos no diff (não AC nem cobertura geral) | sonnet |
+| `dba-dados` | Modelagem, índices, performance, migration, LGPD em repouso | sonnet |
+| `revisor` | Defeitos técnicos no diff | sonnet |
 | `auditor-seguranca` | LGPD, secrets, OWASP | sonnet |
-| `auditor-qualidade` | Cobertura agregada, mocks indevidos, TST-* | sonnet |
+| `auditor-qualidade` | Cobertura agregada, mocks indevidos | sonnet |
 | `auditor-produto` | Aderência ao pedido, non-goals | haiku |
 | `fiscal-br` | NF-e, certificado, eSocial, reforma tributária | sonnet |
-| `tech-writer` | CHANGELOG, release notes, msg de commit, anúncio | haiku |
-
-Lista canônica de hooks (bloqueadores + auxiliares + utilitários) em [`README.md` seção "22 hooks bloqueadores"](../README.md#22-hooks-bloqueadores--4-auxiliares--2-infra-_lib--test-runner--28-hooks-core-5-em-addons). Test-runner cobre **161 casos**.
+| `tech-writer` | CHANGELOG, release notes, msg de commit | haiku |
 
 ## Os 8 skills BR core
 
@@ -262,4 +152,8 @@ Addons trazem +14 skills (Pix, NF-e, NFC-e, SAT, eSocial, LGPD operacional, bala
 
 > **Regra crítica vira hook, não só doc.**
 
-Doc explica o quê e o porquê. Hook impede o agente de fazer o errado. Os dois são complementares: REGRAS-INEGOCIAVEIS.md tem os IDs, settings.json registra os hooks que os fazem cumprir.
+Doc explica o quê e o porquê. Hook impede o agente de fazer o errado. Os dois são complementares: `REGRAS-INEGOCIAVEIS.md` tem os IDs, `settings.json` registra os hooks que os fazem cumprir, `.claude/rules/roldao-method.md` tem a tabela hook→regra.
+
+---
+
+_Framework: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

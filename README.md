@@ -47,12 +47,29 @@ Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 
 - 🇧🇷 **Fala português nativo** — não é tradução
 - 🔍 **Investiga antes de mexer** — REGRA #0 codificada no workflow `/bug`
-- 👥 **13 especialistas virtuais** com papéis claros (analista, PM, UX, tech-lead, investigador, dev, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados)
+- 👥 **13 especialistas virtuais com personalidade** — você não chama "o agente de produto", você chama **Sofia**. Não chama "o investigador", chama **o Detetive**. Mariana pesquisa mercado, Rafael decide arquitetura, Bruno codifica com TDD, Helena cuida do banco, e três auditores (Caio, Julia, Pedro) cobrem segurança, qualidade e aderência ao pedido. Catálogo visual em `.claude/agents/MAPA-VISUAL.md`.
 - 🛡️ **22 regras automáticas que bloqueiam** + 4 auxiliares que avisam (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
 - 📜 **Spec-driven total** — 12 templates (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico) em PT-BR
 - ✅ **8 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance, audit-trail
 - 📚 **7 knowledge bases** que os agentes consultam — PT-BR (glossário), fiscal, LGPD, Pix, stack BR, brainstorming, elicitation
 - 🎯 **Cobertura BR real** — 10 IDs LGPD, 7 IDs FISCAL, 5 IDs PIX + 6 addons especializados (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
+
+## Quickstart em 3 passos
+
+```bash
+# 1. Instalar
+npx roldao-method install
+
+# 2. Preencher AGENTS.md (campos _(preencher)_)
+#    OU rodar /brownfield no Claude Code se já tem código
+
+# 3. Primeira story
+#    No Claude Code:
+#    /historia "Sua primeira feature em 1 frase"
+#    /feature US-001
+```
+
+`/help` lista os 22 workflows. `.claude/agents/MAPA-VISUAL.md` mostra quem chamar pra cada tarefa. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 ## Instalação
 
