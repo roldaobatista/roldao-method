@@ -80,7 +80,7 @@ Operações irreversíveis exigem confirmação. Hook `block-destructive.sh` blo
 ├── settings.json          ← permissões + hooks + outputStyle + statusLine (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
 ├── statusline.sh          ← status line PT-BR (versão, modelo, branch, agente)
-├── agents/                ← 12 especialistas (com nome + ícone)
+├── agents/                ← 13 especialistas (com nome + ícone)
 ├── hooks/                 ← bloqueadores + auxiliares + lifecycle (PostToolUse, SubagentStop, PreCompact, SessionEnd)
 ├── output-styles/         ← pt-br-conciso, dpo-lgpd, fiscal-br
 ├── commands/              ← 22 slash commands (com `allowed-tools`)

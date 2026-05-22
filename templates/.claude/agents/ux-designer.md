@@ -2,9 +2,9 @@
 name: ux-designer
 description: Desenha fluxo de tela e experiencia do usuario ANTES de codar. Use quando uma feature toca interface (mais de 1 tela, formulario complexo, decisao do usuario). Gera wireframe em ASCII/markdown + lista de estados + mensagens em PT-BR. Foco em acessibilidade e padroes BR (CPF/CNPJ, moeda, datas).
 tools: Read, Glob, Grep, Write
-# sonnet (não haiku): wireframes + 5 estados + acessibilidade + mensagens
+# Sonnet (nao haiku): wireframes + 5 estados + acessibilidade + mensagens
 # PT-BR exigem nuance que haiku degrada; UX errada custa retrabalho caro.
-model: inherit
+model: sonnet
 color: pink
 identity:
   nome: Lia

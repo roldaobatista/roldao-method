@@ -68,6 +68,10 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 - `fiscal-br` — NF-e, certificado, eSocial, REINF, SPED, Reforma Tributária 2026-2033.
 
+**Dados:**
+
+- `dba-dados` — modelagem, índices, performance, migration revisada, LGPD em repouso. Use ao criar tabela nova, diagnosticar query lenta ou validar migration antes do dev aplicar.
+
 **Documentação:**
 
 - `tech-writer` — CHANGELOG, README, release notes, tradução de mensagem técnica pra PT-BR claro. Usado por `/status`, `/replanejar`, releases.
