@@ -2,6 +2,47 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.15.0] — 2026-05-22
+
+**Auditoria 10-agentes vs documentação oficial Claude Code — paridade fechada.**
+
+10 agentes em paralelo cruzaram cada dimensão da spec oficial (`code.claude.com/docs`) contra o framework. Esta release fecha **todos os achados** das 10 dimensões — subagents, hooks, slash commands, memory, skills, settings/permissions, MCP, output styles/status line, SDK/headless, plan mode/worktrees.
+
+### Adicionado
+
+- **Status line nativa PT-BR** — `templates/.claude/statusline.sh` exibe `ROLDAO v0.15.0 | <modelo> | <branch> | <story> | <agente>` no rodapé do Claude Code. Atalho visual pro usuário não-programador saber estado da sessão sem perguntar.
+- **2 output styles especializados** — `dpo-lgpd.md` (tom jurídico-administrativo + base legal Art. 7/11 obrigatória + prazo Art. 18 §3) e `fiscal-br.md` (Layout NF-e/NT/UF/ambiente declarados + transição Reforma Tributária 2026-2033 + IDs FISCAL-001..007). `pt-br-conciso` agora vem ativado por padrão no `settings.json`.
+- **4 novos hooks lifecycle** — `auto-format-on-write.sh` (PostToolUse — prettier/eslint/ruff/black/gofmt/rustfmt/shfmt automático), `subagent-handoff-audit.sh` (SubagentStop — valida artefato em disco do investigador/auditores), `session-snapshot.sh` (PreCompact + SessionEnd — grava `session-snapshot.md` com stories ativas, bugs, markers, branch), `session-snapshot-restore.sh` (SessionStart — lê snapshot e contextualiza próxima sessão). Total: **161 → 167 testes**.
+- **Settings.json com defaults sãos** — `permissions.defaultMode: acceptEdits`, lista `permissions.ask` (push, tag, publish, install, docker, kubectl, terraform, migrations), deny ampliado com **certificados fiscais A1/A3** (`*.pfx`, `*.p12`, `cert-a1/`, `cert-a3/`, `certutil`, `openssl pkcs12`) — vazamento de A1 = NF-e em nome do cliente. Aponta `outputStyle: pt-br-conciso`, `env LANG=pt_BR.UTF-8`, `statusLine` automático.
+- **22 slash commands com `allowed-tools`** — elimina prompt de permissão repetido pro usuário não-programador. `/auditoria`, `/consistencia` e `lgpd-audit` ganham `model: opus`; `/help`, `/quick-dev`, `/status` ganham `model: haiku` — economia direta sem perda de qualidade.
+- **12 agentes core + 6 addon = 18 agentes** trocaram `model: sonnet` hardcoded por `model: inherit` — usuário escolhe modelo na sessão sem editar 18 arquivos.
+- **4 skills Python** (`validar-cpf-cnpj`, `validar-cep`, `validar-pix`, `gerar-test-fixture-br`) declaram `allowed-tools: Bash(python3:*) Bash(python:*) Bash(py:*)` — elimina prompt de permissão a cada uso.
+- **4 presets MCP BR** em `templates/.mcp.json.examples/` — `pix-asaas.json`, `nfe-focus.json`, `erp-omie.json`, `postgres-readonly-br.json` (com instrução SQL pra role read-only). Cada um declara `_lgpd` + `_fiscal`. `mcp-validator.sh` allowlist ampliada com 30+ fornecedores BR (Asaas, Pagar.me, Stone, Iugu, Cielo, Gerencianet, Focus NFe, NFe.io, eNotas, Webmania, Omie, Bling, Tiny, Conta Azul, TOTVS, Sankhya, Senior, Vindi, Inter, BB, Itaú, Bradesco, Santander, Nubank, Stark Bank).
+- **2 GitHub Action workflows PT-BR** — `claude-review.yml` (aciona `@claude` em PR/issue via `anthropics/claude-code-action@v1` com prompt PT-BR invocando agentes do framework) e `claude-headless-lgpd.yml` (auditoria LGPD automática em PR via `claude -p --output-format json` no modo headless, posta veredito no PR e bloqueia merge se BLOQUEADO).
+- **`docs/PLAN-MODE-E-SESSOES.md`** — guia PT-BR de Plan mode (`Shift+Tab`), `--continue`/`--resume`, worktrees paralelos (uma story por worktree), atalhos de teclado, integração com IDEs.
+- **`CLAUDE.local.md.example`** — template de preferências pessoais não-versionadas (perfil do usuário, verbosidade, atalhos, OS, lembretes pessoais, anti-padrões pessoais).
+- **`CLAUDE.md` com `@import` carregando REGRAS-INEGOCIAVEIS + rules** — antes só importava `AGENTS.md`. Agora `@REGRAS-INEGOCIAVEIS.md` e `@.claude/rules/roldao-method.md` entram automaticamente no contexto — IDs (`INV-`, `SEC-`, `TST-`, `LGPD-`, `FISCAL-`, `PIX-`) ficam disponíveis em toda sessão.
+
+### Atualizado
+
+- **`docs/MCP-GUIA-BR.md`** — adiciona escopos (local/project/user), 3 transports (stdio/sse/http), prefixo `mcp__server__tool`, resources `@server:protocol://path`, comando `claude mcp add`, seção "Fornecedores BR" linkando os presets novos.
+- **`docs/QUICKSTART.md`** — output style já ativo por padrão, status line PT-BR explicada, seção Plan mode/sessões/worktrees, anti-prompt `/output-style` (não precisa mais — settings.json já aponta).
+- **`bin/install.js`** — `USER_OWNED` inclui `CLAUDE.local.md` + `.claude/.runtime`; doctor() checa novos hooks + statusline + output styles + workflows; uninstall preserva `statusline.sh` e `.mcp.json.examples`; "próximos passos" atualizados (sem instrução manual de output style, com instruções de GitHub Action e MCP preset).
+
+### Diferencial mantido (não substituído)
+
+- Hooks bloqueadores PT-BR exclusivos (LGPD, fiscal, REGRA #0).
+- Sequência obrigatória de agentes via hook (Sofia → Detetive → Rafael).
+- 22 skills BR (CNPJ alfanumérico 2026, Pix EndToEndId, LGPD operacional).
+- `addons/profiles.json` (7 perfis de instalação).
+- JSON contract entre agentes (`investigation-<ref>.json`).
+
+### Métricas
+
+- **161 → 167 testes** (4 novos hooks → 6 testes novos), todos verdes.
+- **97 addons + 53 adapters** = paridade mantida.
+- **Pacote**: estimado < 400 kB compactado (adições pequenas: 1 statusline + 4 hooks + 2 output styles + 4 mcp examples + 2 workflows + 1 doc + 1 example).
+
 ## [0.14.6] — 2026-05-20
 
 **Round 10 — terceira onda. Cobertura de addons e adapters fechada.**

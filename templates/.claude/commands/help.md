@@ -2,6 +2,8 @@
 description: Catálogo dos workflows do ROLDAO-METHOD com códigos curtos e quando usar cada um.
 argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | RF | QA | AU | CN | RT | RP | SP | ST | CK | RD | HP | SH]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep
+model: haiku
 ---
 
 # /help — catálogo dos 22 workflows

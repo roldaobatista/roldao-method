@@ -2,6 +2,7 @@
 description: Corrige bug em comportamento existente. Investigador OBRIGATÓRIO antes de qualquer mudança de código. Codifica a REGRA #0 do ROLDAO-METHOD.
 argument-hint: "[descricao-do-bug]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Bash(touch:*), Bash(mkdir:*), Bash(grep:*), Bash(git diff:*), Edit, Write, Task
 ---
 
 # /bug — corrigir bug

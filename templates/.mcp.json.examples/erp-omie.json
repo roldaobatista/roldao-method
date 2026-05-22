@@ -1,0 +1,14 @@
+{
+  "_comentario": "MCP Omie — ERP completo (cadastros, pedidos, financeiro, NFe). Doc: https://developer.omie.com.br/",
+  "_lgpd": "Dados de cliente/fornecedor trafegam — base legal Art. 7º V (execucao de contrato). Auditar minimizacao (LGPD-003).",
+  "mcpServers": {
+    "omie": {
+      "command": "npx",
+      "args": ["-y", "omie-mcp"],
+      "env": {
+        "OMIE_APP_KEY": "${OMIE_APP_KEY}",
+        "OMIE_APP_SECRET": "${OMIE_APP_SECRET}"
+      }
+    }
+  }
+}

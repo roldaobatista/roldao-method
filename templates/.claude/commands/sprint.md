@@ -2,6 +2,7 @@
 description: Planeja a próxima sprint a partir do épico aberto — sequencia stories por dependência, identifica bloqueios e gera plano executável.
 argument-hint: "[epico-id | epico-N | sprint-N]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Task
 ---
 
 # /sprint — planejamento da próxima sprint

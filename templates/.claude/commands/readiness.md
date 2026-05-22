@@ -2,6 +2,7 @@
 description: Gate mecânico entre épico e implementação — checa se PRD/ARQ/stories estão prontos e GRAVA arquivo de status que /feature consome.
 argument-hint: "[epico-id]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Write, Edit, Bash(mkdir:*), Task
 ---
 
 # /readiness — gate antes de partir de épico pra dev

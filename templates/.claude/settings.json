@@ -1,6 +1,17 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "outputStyle": "pt-br-conciso",
+  "env": {
+    "LANG": "pt_BR.UTF-8",
+    "LC_ALL": "pt_BR.UTF-8"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/statusline.sh\"",
+    "padding": 0
+  },
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "Read",
       "Glob",
@@ -16,6 +27,25 @@
       "Bash(npm -v*)",
       "Bash(npm list*)",
       "Bash(which*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git tag*)",
+      "Bash(gh release create*)",
+      "Bash(gh pr merge*)",
+      "Bash(npm publish*)",
+      "Bash(npm install*)",
+      "Bash(npm uninstall*)",
+      "Bash(npm version*)",
+      "Bash(npx*)",
+      "Bash(pip install*)",
+      "Bash(docker*)",
+      "Bash(kubectl*)",
+      "Bash(terraform apply*)",
+      "Bash(supabase*)",
+      "Bash(prisma migrate*)",
+      "Bash(alembic upgrade*)",
+      "Bash(alembic downgrade*)"
     ],
     "deny": [
       "Bash(rm -rf*)",
@@ -35,6 +65,8 @@
       "Bash(wget * | sh*)",
       "Bash(mkfs*)",
       "Bash(dd if=*)",
+      "Bash(certutil*)",
+      "Bash(openssl pkcs12*)",
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(./secrets/**)",
@@ -42,9 +74,19 @@
       "Read(./**/*.pem)",
       "Read(./**/*.key)",
       "Read(./**/id_rsa*)",
+      "Read(./**/*.pfx)",
+      "Read(./**/*.p12)",
+      "Read(./**/certificado*.xml)",
+      "Read(./**/cert-a1/**)",
+      "Read(./**/cert-a3/**)",
+      "Read(./**/certificados/**)",
       "Write(./.env)",
       "Write(./.env.*)",
-      "Write(./secrets/**)"
+      "Write(./secrets/**)",
+      "Write(./**/*.pfx)",
+      "Write(./**/*.p12)",
+      "Write(./**/cert-a1/**)",
+      "Write(./**/cert-a3/**)"
     ]
   },
   "enableAllProjectMcpServers": false,
@@ -61,6 +103,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/mcp-validator.sh\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot-restore.sh\"",
+            "timeout": 3
           }
         ]
       }
@@ -189,6 +236,51 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-test-pyramid.sh\"",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-format-on-write.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/subagent-handoff-audit.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot.sh\"",
+            "timeout": 5
           }
         ]
       }

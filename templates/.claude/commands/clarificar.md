@@ -2,6 +2,7 @@
 description: Questionamento estruturado ANTES de implementar — tira ambiguidade de uma ideia/story antes do /feature. Reduz retrabalho. Use quando o pedido ainda está vago, ou antes de /prd e /feature em iniciativa não-trivial.
 argument-hint: "[ideia, story ou US-NNN a clarificar]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Task
 ---
 
 # /clarificar — tirar ambiguidade antes de codar

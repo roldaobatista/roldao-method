@@ -5,6 +5,8 @@ disable-model-invocation: true
 owner: lgpd-compliance
 revisado-em: 2026-05-18
 status: stable
+allowed-tools: Read, Glob, Grep, Task
+model: opus
 ---
 
 # /lgpd-audit — auditoria LGPD da codebase

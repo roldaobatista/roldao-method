@@ -2,7 +2,7 @@
 name: nfe-arch
 description: Especialista em arquitetura fiscal BR — NF-e, NFC-e, NFS-e, CT-e, MDF-e. Use ao decidir biblioteca vs SaaS, padrao de assinatura digital, contingencia, estrutura de Reforma Tributaria, fluxo de cancelamento e CC-e.
 tools: Read, Glob, Grep, Write
-model: sonnet
+model: inherit
 color: yellow
 owner: fiscal-br-completo
 revisado-em: 2026-05-18

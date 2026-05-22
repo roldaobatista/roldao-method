@@ -2,6 +2,8 @@
 description: Atalho pra features triviais — pula investigador + auditores. Use só pra mudanças cosméticas, copy, label, regra simples.
 argument-hint: "[descricao-curta]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash(npm test:*), Bash(npm run:*)
+model: haiku
 ---
 
 # /quick-dev — implementação rápida (apenas trivial)

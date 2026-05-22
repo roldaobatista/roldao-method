@@ -1,8 +1,12 @@
 # Contrato Claude Code — projeto
 
 @AGENTS.md
+@REGRAS-INEGOCIAVEIS.md
+@.claude/rules/roldao-method.md
 
-> Este arquivo é adendo do harness Claude Code. Produto e arquitetura ficam em `AGENTS.md` (importado acima).
+> Este arquivo é adendo do harness Claude Code. Produto e arquitetura ficam em `AGENTS.md`; regras com ID rastreável ficam em `REGRAS-INEGOCIAVEIS.md`; tabela hook→regra fica em `.claude/rules/roldao-method.md`. Os 3 são carregados automaticamente via `@import` acima.
+>
+> **Pessoal (não versionar):** `CLAUDE.local.md` no mesmo diretório (copiar de `CLAUDE.local.md.example`).
 
 ---
 
@@ -73,15 +77,22 @@ Operações irreversíveis exigem confirmação. Hook `block-destructive.sh` blo
 
 ```
 .claude/
-├── settings.json          ← permissões + hooks (versionado)
+├── settings.json          ← permissões + hooks + outputStyle + statusLine (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
+├── statusline.sh          ← status line PT-BR (versão, modelo, branch, agente)
 ├── agents/                ← 12 especialistas (com nome + ícone)
-├── hooks/                 ← 22 bloqueadores + 4 auxiliares + 2 infra (_lib, _test-runner) = 28 (+5 em addons)
-├── output-styles/         ← pt-br-conciso.md
-├── commands/              ← 22 slash commands (workflows)
+├── hooks/                 ← bloqueadores + auxiliares + lifecycle (PostToolUse, SubagentStop, PreCompact, SessionEnd)
+├── output-styles/         ← pt-br-conciso, dpo-lgpd, fiscal-br
+├── commands/              ← 22 slash commands (com `allowed-tools`)
 ├── skills/                ← 8 skills BR no core (criar quando padrão repetir 3x)
-└── rules/                 ← criar com `paths:` frontmatter
+└── rules/                 ← com `paths:` frontmatter (lazy load)
 ```
+
+## Plan mode, sessões e worktrees
+
+- **Plan mode (`Shift+Tab`):** Claude planeja sem tocar disco. Use antes de feature grande ou bug com causa ambígua. Detalhes em `docs/PLAN-MODE-E-SESSOES.md`.
+- **Continuar sessão:** `claude --continue` (última) ou `claude --resume` (escolher). Marker `feature-active-*` é preservado entre sessões.
+- **Worktrees paralelos:** uma story por worktree pra evitar conflito de marker. Comando `/paralelo` orienta.
 
 ---
 

@@ -2,7 +2,7 @@
 name: pix-arch
 description: Especialista em arquitetura Pix e Open Finance Brasil. Use ao decidir PSP (direto vs BaaS), padrao de idempotencia, fila de processamento, conciliacao, integracao Open Finance, ou implementacao de Pix Automatico/Cobranca/Devolucao.
 tools: Read, Glob, Grep, Write
-model: sonnet
+model: inherit
 color: cyan
 owner: fintech-br
 revisado-em: 2026-05-18

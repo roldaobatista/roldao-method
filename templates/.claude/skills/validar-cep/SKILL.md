@@ -1,6 +1,7 @@
 ---
 name: validar-cep
 description: Valida CEP brasileiro (formato + consulta opcional ao ViaCEP) e normaliza para 8 digitos. Use ao receber CEP de formulario, importacao ou integracao.
+allowed-tools: Bash(python3:*), Bash(python:*), Bash(py:*)
 owner: framework
 revisado-em: 2026-05-18
 status: stable

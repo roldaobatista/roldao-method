@@ -2,6 +2,7 @@
 description: Replanejamento de iniciativa em curso quando o escopo muda no meio do épico (correct-course). Decide entre atualizar PRD, redesenhar arquitetura, reordenar épico ou recomeçar.
 argument-hint: "[motivo-da-mudanca]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Task
 ---
 
 # /replanejar — correct-course de iniciativa em curso

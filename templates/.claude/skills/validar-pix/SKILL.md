@@ -1,6 +1,7 @@
 ---
 name: validar-pix
 description: Valida chave Pix (CPF, CNPJ, email, telefone E.164, aleatoria UUID) e identificadores Pix (EndToEndId, TxId). Use sempre que receber, salvar ou exibir chave/identificador Pix.
+allowed-tools: Bash(python3:*), Bash(python:*), Bash(py:*)
 owner: framework
 revisado-em: 2026-05-18
 status: stable

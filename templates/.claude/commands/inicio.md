@@ -2,6 +2,7 @@
 description: Inicia um projeto novo do zero — gerente-produto define escopo, tech-lead decide stack, dev-senior monta esqueleto.
 argument-hint: "[nome-projeto opcional]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash(mkdir:*), Bash(npm:*), Task
 ---
 
 # /inicio — projeto novo

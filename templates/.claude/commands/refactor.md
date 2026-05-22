@@ -2,6 +2,7 @@
 description: Reorganiza código sem mudar comportamento. Tech-lead avalia, dev-senior executa, revisor verifica.
 argument-hint: "[area-ou-arquivo-a-refatorar]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash(npm test:*), Bash(npm run:*), Task
 ---
 
 # /refactor — reorganizar sem mudar comportamento

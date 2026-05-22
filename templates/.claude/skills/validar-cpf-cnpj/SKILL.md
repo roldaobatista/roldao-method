@@ -1,6 +1,7 @@
 ---
 name: validar-cpf-cnpj
 description: Valida CPF e CNPJ (numerico legado + alfanumerico apos jul/2026) brasileiros usando algoritmo de digitos verificadores. Use sempre que precisar verificar se um CPF/CNPJ esta MATEMATICAMENTE valido antes de salvar ou processar.
+allowed-tools: Bash(python3:*), Bash(python:*), Bash(py:*)
 owner: framework
 revisado-em: 2026-05-18
 status: stable

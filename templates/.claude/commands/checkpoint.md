@@ -2,6 +2,7 @@
 description: Walkthrough guiado de uma mudança (PR, branch, commit) antes de subir pra produção. Audita propósito, riscos e contexto.
 argument-hint: "[branch | PR-N | commit-sha]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(mkdir:*), Write, Task
 ---
 
 # /checkpoint — review humano de mudança antes de merge

@@ -81,10 +81,12 @@ const c = {
 const USER_OWNED = new Set([
   'AGENTS.md',
   'CLAUDE.md',
+  'CLAUDE.local.md',
   'REGRAS-INEGOCIAVEIS.md',
   '.specify/memory/constitution.md',
   '.claude/settings.local.json',
   '.mcp.json',
+  '.claude/.runtime',
 ]);
 
 const counters = { criados: 0, pulados: 0, atualizados: 0, preservados: 0, erros: 0 };
@@ -564,9 +566,12 @@ async function install() {
   console.log(`${c.bold}Proximos passos:${c.reset}`);
   console.log(`  ${c.cyan}1.${c.reset} ler ${c.bold}AGENTS.md${c.reset} — seu documento-contrato`);
   console.log(`  ${c.cyan}2.${c.reset} ajustar ${c.bold}REGRAS-INEGOCIAVEIS.md${c.reset} ao seu projeto`);
-  console.log(`  ${c.cyan}3.${c.reset} ativar estilo PT-BR: ${c.dim}/output-style no Claude Code -> pt-br-conciso${c.reset}`);
-  console.log(`  ${c.cyan}4.${c.reset} listar comandos: ${c.green}/help${c.reset} (catalogo dos 21 workflows)`);
+  console.log(`  ${c.cyan}3.${c.reset} estilo PT-BR ja ativo no settings.json (${c.dim}pt-br-conciso${c.reset}). Trocar com ${c.dim}/config${c.reset} se quiser.`);
+  console.log(`  ${c.cyan}4.${c.reset} listar comandos: ${c.green}/help${c.reset} (catalogo dos 22 workflows)`);
   console.log(`  ${c.cyan}5.${c.reset} adicionar addon: ${c.cyan}npx roldao-method add <addon>${c.reset}`);
+  console.log(`  ${c.cyan}6.${c.reset} ${c.dim}(opcional)${c.reset} copiar ${c.dim}CLAUDE.local.md.example -> CLAUDE.local.md${c.reset} pra suas preferencias pessoais.`);
+  console.log(`  ${c.cyan}7.${c.reset} ${c.dim}(opcional)${c.reset} GitHub Action: copiar ${c.dim}templates/.github/workflows/claude-review.yml${c.reset} pro seu ${c.dim}.github/workflows/${c.reset} e setar ${c.dim}ANTHROPIC_API_KEY${c.reset}.`);
+  console.log(`  ${c.cyan}8.${c.reset} ${c.dim}(opcional)${c.reset} MCP preset BR: copiar de ${c.dim}.mcp.json.examples/${c.reset} pra ${c.dim}.mcp.json${c.reset}.`);
   console.log('');
   console.log(`${c.dim}docs: https://github.com/roldaobatista/roldao-method${c.reset}`);
   console.log('');
@@ -913,6 +918,14 @@ function doctor() {
     { path: '.claude/hooks/block-confirmation-questions.sh', exigido: false, label: 'v0.5+' },
     { path: '.claude/hooks/require-investigador-before-fix.sh', exigido: false, label: 'v0.5+' },
     { path: '.claude/hooks/validate-test-pyramid.sh', exigido: false, label: 'v0.5+' },
+    { path: '.claude/hooks/auto-format-on-write.sh', exigido: false, label: 'v0.15+' },
+    { path: '.claude/hooks/subagent-handoff-audit.sh', exigido: false, label: 'v0.15+' },
+    { path: '.claude/hooks/session-snapshot.sh', exigido: false, label: 'v0.15+' },
+    { path: '.claude/hooks/session-snapshot-restore.sh', exigido: false, label: 'v0.15+' },
+    { path: '.claude/statusline.sh', exigido: false, label: 'v0.15+' },
+    { path: '.claude/output-styles/pt-br-conciso.md', exigido: false, label: 'v0.5+' },
+    { path: '.claude/output-styles/dpo-lgpd.md', exigido: false, label: 'v0.15+' },
+    { path: '.claude/output-styles/fiscal-br.md', exigido: false, label: 'v0.15+' },
     { path: '.claude/commands/feature.md', exigido: true },
     { path: '.claude/commands/bug.md', exigido: true },
     { path: '.claude/commands/quick-dev.md', exigido: false, label: 'v0.4+' },
@@ -928,9 +941,12 @@ function doctor() {
     { path: '.specify/checklists/release-readiness.md', exigido: false, label: 'v0.5+' },
     { path: '.specify/data/kb-pt-br.md', exigido: false, label: 'v0.4+' },
     { path: '.specify/data/kb-brainstorming-pt-br.md', exigido: false, label: 'v0.5+' },
+    { path: '.mcp.json.examples/README.md', exigido: false, label: 'v0.15+' },
+    { path: '.github/workflows/claude-review.yml', exigido: false, label: 'v0.15+' },
     { path: 'AGENTS.md', exigido: true },
     { path: 'CLAUDE.md', exigido: true },
     { path: 'REGRAS-INEGOCIAVEIS.md', exigido: true },
+    { path: 'CLAUDE.local.md.example', exigido: false, label: 'v0.15+' },
   ];
   let okCount = 0; let faltando = 0; let opcionalFaltando = 0;
   for (const ck of checks) {
@@ -991,6 +1007,7 @@ async function uninstall() {
   }
   const candidatos = [
     '.claude/settings.json',
+    '.claude/statusline.sh',
     '.claude/agents',
     '.claude/hooks',
     '.claude/commands',
@@ -998,6 +1015,7 @@ async function uninstall() {
     '.claude/output-styles',
     '.claude/_meta',
     '.specify/templates',
+    '.mcp.json.examples',
   ];
   // Não apaga direto: MOVE pra um backup datado. O usuário pode ter criado
   // agente/skill/command próprio dentro dessas pastas — rmSync cego perderia

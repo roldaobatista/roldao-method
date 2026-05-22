@@ -2,7 +2,7 @@
 name: auditor-qualidade
 description: Auditor MACRO de qualidade. Verifica saúde GERAL do projeto: cobertura agregada, débito acumulado, duplicação cross-file, métricas globais, regras inegociáveis (TST-001..004, INV-005). Use ANTES DE RELEASE/MARCO, NUNCA para revisar um diff específico (isso é o `revisor`).
 tools: Read, Glob, Grep, Bash
-model: sonnet
+model: inherit
 color: orange
 identity:
   nome: Julia

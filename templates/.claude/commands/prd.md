@@ -2,6 +2,7 @@
 description: Cria um PRD (Product Requirements Document) em docs/prd/ usando o template oficial. Use quando uma iniciativa e grande o suficiente pra justificar planejamento formal (mais de 3 stories ou mais de 2 semanas de trabalho).
 argument-hint: "[descricao-da-iniciativa]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash(mkdir:*), Task
 ---
 
 # /prd — gerar Product Requirements Document

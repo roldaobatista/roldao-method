@@ -2,7 +2,7 @@
 name: revisor
 description: Audita o DIFF específico de uma feature/bug/refactor antes de marcar como pronto. Foco em aderência à user story, regras inegociáveis (INV-, SEC-, TST-, LGPD-), causa raiz, testes do diff. Use IMEDIATAMENTE após dev-senior implementar. NÃO confundir com auditor-qualidade (que audita saúde MACRO do projeto pré-release).
 tools: Read, Glob, Grep, Bash
-model: sonnet
+model: inherit
 color: yellow
 identity:
   nome: Inês

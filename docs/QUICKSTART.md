@@ -51,21 +51,31 @@ bash .claude/hooks/_test-runner.sh
 
 Deve mostrar `Total: 155  |  OK: 155  |  FAIL: 0`. Se falhar, abra issue.
 
-## 4. Ative o estilo PT-BR conciso
+## 4. Output style PT-BR — já ativo
 
-O output style **não ativa sozinho**. No Claude Code, rode:
+A partir da v0.15.0, o `.claude/settings.json` distribuído pelo `install` **já vem com `"outputStyle": "pt-br-conciso"`**. Não precisa rodar `/output-style` na mão.
+
+Quer trocar (`dpo-lgpd` ou `fiscal-br` pra contexto especializado, ou `default` pra inglês)? Use `/config` ou edite `.claude/settings.local.json`.
+
+## 4.1. Status line PT-BR — também ativa
+
+O `settings.json` aponta pra `.claude/statusline.sh`. No rodapé do Claude Code você verá:
 
 ```
-/output-style
+ROLDAO v0.15.0 | Sonnet 4.6 | main | US-042 | dev-senior
 ```
 
-E escolha `pt-br-conciso`. Alternativa: edite `.claude/settings.local.json` adicionando `"outputStyle": "pt-br-conciso"`.
-
-Sem isso, o framework está instalado mas o Claude continua respondendo no estilo padrão (geralmente em inglês).
+(versão framework, modelo ativo, branch, story em foco, último agente que rodou).
 
 ## 5. Use no Claude Code
 
-Abra o Claude Code na raiz do projeto e digite um dos comandos:
+Abra o Claude Code na raiz do projeto. Antes de comandar:
+
+- **Plan mode (`Shift+Tab`)** — revise o plano antes do Claude tocar disco. Detalhes em [`docs/PLAN-MODE-E-SESSOES.md`](PLAN-MODE-E-SESSOES.md).
+- **Continuar sessão** — `claude --continue` retoma de onde parou. Snapshot é salvo automaticamente pelo hook `session-snapshot.sh`.
+- **Várias stories em paralelo** — use `git worktree`, um por story.
+
+Digite um dos comandos:
 
 | Comando | Quando |
 |---|---|

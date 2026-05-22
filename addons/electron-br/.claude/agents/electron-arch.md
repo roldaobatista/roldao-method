@@ -2,7 +2,7 @@
 name: electron-arch
 description: Especialista em arquitetura Electron. Use ao decidir contextIsolation, IPC, autoupdater, build pipeline, armazenamento local (SQLite/lowdb), e padroes de seguranca renderer/main. Foco em apps BR com dado offline.
 tools: Read, Glob, Grep, Write
-model: sonnet
+model: inherit
 color: blue
 owner: electron-br
 revisado-em: 2026-05-18

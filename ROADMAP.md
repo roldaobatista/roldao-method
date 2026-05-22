@@ -8,9 +8,9 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v0.14.6 (mai/2026)
+## Versão atual: v0.15.0 (mai/2026)
 
-Pacote pós **sucessivas** rodadas de auditoria 10-agentes (round 10 — v0.14.4 fechou P0; v0.14.5 fechou P2 estruturais; v0.14.6 fechou cobertura de addons e adapters via 150 novas checagens em 2 suites novas):
+Pacote pós auditoria **10-agentes vs documentação oficial Claude Code** (`code.claude.com/docs`): 10 dimensões cruzadas (subagents, hooks, slash commands, memory, skills, settings/permissions, MCP, output styles/status line, SDK/headless, plan mode/worktrees), **todos os achados resolvidos** nesta release. Histórico cumulativo (round 10 — v0.14.4 fechou P0; v0.14.5 fechou P2 estruturais; v0.14.6 fechou cobertura de addons e adapters; v0.15.0 fecha paridade com a doc oficial):
 - 12 agentes especialistas (com nome + ícone)
 - 22 workflows (incluindo `/clarificar`, `/consistencia`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`, `/release`)
 - 22 hooks bloqueadores + 4 auxiliares + 2 infra (`_lib.sh`, `_test-runner.sh`) = **28 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD; v0.13 paridade SDD + Gemini/Codex; v0.14 hardening cumulativo + regex de secrets cobrindo `sk-proj-*`/`github_pat_`/PEM PKCS8 + path traversal blindado em `remove <addon>`.
@@ -46,10 +46,11 @@ Pacote pós **sucessivas** rodadas de auditoria 10-agentes (round 10 — v0.14.4
 - **v0.14.4** "Auditoria round 10 — P0" — path traversal blindado em `remove <addon>`, regex de secrets cobrindo `sk-proj-*`, `github_pat_*` real, PEM PKCS8; contagem de testes consistente (`EXPECTED_TOTAL=161`); docs em paridade com release (versão, contagens, badges dinâmicos npm).
 - **v0.14.5** "Auditoria round 10 — P2" — evals modo live (chama API Anthropic se `ANTHROPIC_API_KEY`); job CI `empacotamento` (`npm pack --dry-run` + sanidade tamanho/conteúdo); E2E hooks no `install.test.js` (invoca `block-destructive.sh` recém-instalado com input real); `docs/REGRESSIONS.md` rastreando evolução do `EXPECTED_TOTAL`; requisitos Perl/Python explícitos no README; `docs/PUBLICAR.md` obsoleto removido; `main` em `package.json`.
 - **v0.14.6** "Auditoria round 10 — cobertura addons/adapters" — `test/addons.test.js` (97 checagens: 6 addons, YAML/refs/smoke dos hooks); `test/adapters.test.js` (53 checagens: 8 adapters, conteúdo — REGRA #0, sequência, anti-mascaramento, PT-BR); `.aider.conf.yml` ganhou resumo da sequência obrigatória (gap pego pelo novo teste); `skills.test.js` detecta `py` (Python Launcher Windows); `TROUBLESHOOTING.md` com instruções Python/Perl passo-a-passo.
+- **v0.15.0** "Paridade com doc oficial Claude Code" — auditoria 10-agentes vs `code.claude.com/docs` em paralelo nas 10 dimensões da harness. Fechou: status line nativa PT-BR; 2 output styles especializados (`dpo-lgpd`, `fiscal-br`); 4 hooks lifecycle (`PostToolUse` auto-format, `SubagentStop` audit, `PreCompact`/`SessionEnd` snapshot, `SessionStart` restore); `defaultMode: acceptEdits` + `permissions.ask` + deny de certificados A1/A3; 22 commands com `allowed-tools` + model seletivo (opus/sonnet/haiku); 18 agentes com `model: inherit`; 4 skills Python com `allowed-tools`; 4 presets MCP BR (Asaas, Focus NFe, Omie, Postgres read-only) + allowlist com 30+ fornecedores BR; 2 GitHub Action workflows PT-BR (review @claude e LGPD headless); `CLAUDE.md` com `@import` REGRAS-INEGOCIAVEIS + rules; `docs/PLAN-MODE-E-SESSOES.md`; `CLAUDE.local.md.example`. **161 → 167 testes**.
 
 ## Próximas releases
 
-## v0.14.0 — "Setor saúde + setor público" (alvo: set/2026)
+## v0.16.0 — "Setor saúde + setor público" (alvo: set/2026)
 
 - [ ] Addon `telemedicina` — LGPD Art. 11 + CFM + ANS + receita digital + prescrição assinada.
 - [ ] Addon `govtech-br` — APIs do Governo, e-Protocolo, assinatura ICP-Brasil, transparência ativa.
@@ -57,14 +58,14 @@ Pacote pós **sucessivas** rodadas de auditoria 10-agentes (round 10 — v0.14.4
 - [ ] Skill `consultar-cnpj-receita` — wrapper RFB com cache + LGPD-004.
 - [ ] Skill `validar-receita-medica-digital` — ICP-Brasil + CFM.
 
-## v0.15.0 — "Setores produtivos" (alvo: nov/2026)
+## v0.17.0 — "Setores produtivos" (alvo: nov/2026)
 
 - [ ] Addon `agro-br` — CAR, nota fiscal de produtor, SISBOV, rastreabilidade.
 - [ ] Addon `logistica-br` — CT-e + MDF-e, RNTRC, rastreamento.
 - [ ] Addon `educacao-br` — ENADE, e-Docente, histórico escolar.
 - [ ] Skill `migration-postgres-segura` — pattern de migration PostgreSQL com lock estudado e backup.
 
-## v0.16.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
+## v0.18.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
 
 - [ ] Pix Automático completo no addon `fintech-br` (recorrência autorizada).
 - [ ] Addon `open-banking-iniciador` — implementação completa de ITP (Iniciadora de Pagamento).

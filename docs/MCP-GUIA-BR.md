@@ -32,6 +32,15 @@ Isso protege contra: clonar projeto malicioso que tenta sequestrar seu Claude.
 - **`supabase`** — se você usa Supabase como banco. Lê tabelas, executa queries em modo read-only.
 - **`sentry`** — se você usa Sentry pra erros em produção. Claude lê os erros e propõe correção.
 
+### Fornecedores BR (presets em `templates/.mcp.json.examples/`)
+
+- **`asaas-mcp`** — cobrança Pix, boleto, cartão. Use sandbox antes de produção.
+- **`focusnfe-mcp`** — emissão NF-e/NFC-e/NFS-e/CT-e/MDF-e. Comece em homologação (FISCAL-003).
+- **`omie-mcp`** — ERP completo (cadastros, pedidos, financeiro, NFe via Omie).
+- **`@modelcontextprotocol/server-postgres`** com role read-only — queries no banco do projeto (LGPD-004 trilha de acesso obrigatória).
+
+Cada preset é um `.mcp.json` pronto em `templates/.mcp.json.examples/`. Veja README dessa pasta pra instalar.
+
 ### Cuidado com
 
 - **`filesystem-mcp`** — redundante. Claude Code já tem Read/Edit/Write/Glob/Grep nativos. Instalar esse só consome contexto.
@@ -65,6 +74,35 @@ Veja `.mcp.json.example` na raiz do projeto pra começar.
 ### Opção 2 — Comando `/mcp` no Claude Code
 
 Dentro do Claude Code, rode `/mcp` pra ver MCPs disponíveis e ativar interativamente.
+
+### Opção 3 — CLI `claude mcp add`
+
+A doc oficial do Claude Code também permite:
+
+```bash
+claude mcp add --transport stdio github npx -y @modelcontextprotocol/server-github
+claude mcp add --transport http myremote https://api.exemplo.com.br/mcp
+```
+
+Escopos disponíveis:
+
+- **`--scope local`** (default): só sua máquina, sua sessão.
+- **`--scope project`**: grava no `.mcp.json` do projeto (versionado, time todo herda).
+- **`--scope user`**: grava em `~/.claude.json` (todos seus projetos).
+
+### Transports
+
+Claude Code suporta 3:
+
+- **`stdio`** — padrão. Server roda como processo local (npx, python, binário). Usado em 95% dos casos.
+- **`sse`** — Server-Sent Events. Útil pra MCP remoto que precisa empurrar eventos.
+- **`http`** — HTTP simples (POST). Pra MCP remoto stateless.
+
+### Resources e prefixo de tool
+
+- Tool de MCP aparece prefixada: `mcp__github__create_issue`, `mcp__asaas__create_charge`.
+- Resource referenciado com `@server:protocol://path` — ex.: `@github:repo://owner/name/file/README.md`.
+- Quando você adiciona um MCP novo, atualize o allowlist do hook `mcp-validator.sh` se o fornecedor for desconhecido — abra PR.
 
 ## Atenção LGPD
 

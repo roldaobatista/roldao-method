@@ -2,6 +2,7 @@
 description: Implementa uma funcionalidade nova — passa por gate de readiness, gerente-produto, investigador, tech-lead, dev-senior, revisor e auditores obrigatórios.
 argument-hint: "[US-NNN | descricao-da-feature]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash(touch:*), Bash(mkdir:*), Bash(git diff:*), Bash(shasum:*), Bash(sha256sum:*), Bash(rm:*), Task
 ---
 
 # /feature — funcionalidade nova

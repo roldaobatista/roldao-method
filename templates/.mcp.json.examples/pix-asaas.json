@@ -1,0 +1,14 @@
+{
+  "_comentario": "MCP Asaas — cobrança Pix, boleto, cartão. Use sandbox (ASAAS_ENV=sandbox) antes de produção. Doc oficial: https://docs.asaas.com",
+  "_lgpd": "Dado pessoal de cobrança trafega — base legal Art. 7º V (execução de contrato). LGPD-005: servidor Asaas no Brasil.",
+  "mcpServers": {
+    "asaas": {
+      "command": "npx",
+      "args": ["-y", "asaas-mcp"],
+      "env": {
+        "ASAAS_API_KEY": "${ASAAS_API_KEY}",
+        "ASAAS_ENV": "${ASAAS_ENV:-sandbox}"
+      }
+    }
+  }
+}

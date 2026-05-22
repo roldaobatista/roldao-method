@@ -4,7 +4,7 @@ description: Desenha fluxo de tela e experiencia do usuario ANTES de codar. Use 
 tools: Read, Glob, Grep, Write
 # sonnet (não haiku): wireframes + 5 estados + acessibilidade + mensagens
 # PT-BR exigem nuance que haiku degrada; UX errada custa retrabalho caro.
-model: sonnet
+model: inherit
 color: pink
 identity:
   nome: Lia

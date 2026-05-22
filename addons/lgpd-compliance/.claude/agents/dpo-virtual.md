@@ -2,7 +2,7 @@
 name: dpo-virtual
 description: Atua como Encarregado de Dados (DPO) virtual. Use ao analisar feature que trata dado pessoal, mapear bases legais, decidir RIPD, redigir politica de privacidade ou responder direito de titular. NAO substitui advogado.
 tools: Read, Glob, Grep, Write
-model: sonnet
+model: inherit
 color: purple
 owner: lgpd-compliance
 revisado-em: 2026-05-18

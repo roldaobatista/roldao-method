@@ -1,0 +1,15 @@
+{
+  "_comentario": "MCP Focus NFe — emite NF-e, NFC-e, NFS-e, CT-e, MDF-e. Sempre comece em homologacao (FOCUS_NFE_ENV=homologacao). Doc: https://focusnfe.com.br/doc",
+  "_lgpd": "CPF do destinatario trafega — base legal Art. 7º II (obrigacao legal fiscal). LGPD-005: servidor Focus NFe no Brasil.",
+  "_fiscal": "FISCAL-001/002/003 — certificado A1 NUNCA versionado. Senha em cofre, nao em env em texto puro.",
+  "mcpServers": {
+    "focus-nfe": {
+      "command": "npx",
+      "args": ["-y", "focusnfe-mcp"],
+      "env": {
+        "FOCUS_NFE_TOKEN": "${FOCUS_NFE_TOKEN}",
+        "FOCUS_NFE_ENV": "${FOCUS_NFE_ENV:-homologacao}"
+      }
+    }
+  }
+}

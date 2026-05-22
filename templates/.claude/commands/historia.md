@@ -2,6 +2,7 @@
 description: Cria um arquivo de user story (US-NNN) em docs/stories/ preenchendo o template .specify/templates/story.md. Persiste a story em disco — nao deixa na conversa.
 argument-hint: "[descricao-curta-da-historia]"
 disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash(mkdir:*), Task
 ---
 
 # /historia — gravar user story em disco
