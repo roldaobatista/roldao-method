@@ -71,24 +71,33 @@ while IFS= read -r line || [ -n "$line" ]; do
 done < <(grep -niE -- "$COMBINED" "$TMPF" || true)
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
+  MAX=3
   cat >&2 <<EOF
-[anti-mascaramento] BLOQUEADO: padrão de mascaramento detectado.
+[anti-mascaramento] Bloqueei a escrita: padrao de mascaramento detectado.
 
 Arquivo: $FILE_PATH
 
-Violações encontradas:
+Violacoes (mostrando ate $MAX):
 EOF
+  i=0
   for v in "${VIOLATIONS[@]}"; do
+    [ "$i" -ge "$MAX" ] && break
     printf '  - %s\n' "$v" >&2
+    i=$((i+1))
   done
+  if [ "${#VIOLATIONS[@]}" -gt "$MAX" ]; then
+    printf '  (... e mais %d ocorrencia(s))\n' "$((${#VIOLATIONS[@]} - MAX))" >&2
+  fi
   cat >&2 <<EOF
 
-Regra: TST-001 — nunca mascarar teste/erro que falha.
+Por que: teste mascarado = bug silencioso. O teste falhou porque o CODIGO
+esta errado — esconder o erro nao corrige nada, so atrasa a descoberta.
+Corrija o codigo, nao o teste.
 
-Se o teste falha, o problema está no SISTEMA. Corrija o código, não esconda o erro.
+Excecao com prazo (use so se for inevitavel):
+  // TST-001-exception: <razao + prazo, ex: "API externa fora ate 2026-05-25">
 
-Exceção: se MESMO assim você precisa do mascaramento (e é justificável), adicione comentário na mesma linha:
-  // TST-001-exception: <razão clara e específica>
+Regra: TST-001.
 EOF
   exit 2
 fi

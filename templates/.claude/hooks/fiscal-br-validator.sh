@@ -107,28 +107,33 @@ while IFS= read -r line || [ -n "$line" ]; do
 done < "$TMPF"
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
+  MAX=3
   cat >&2 <<EOF
-[fiscal-br-validator] BLOQUEADO: padrao que viola regra fiscal BR detectado.
+[fiscal-br-validator] Bloqueei a escrita: padrao que viola regra fiscal BR.
 
 Arquivo: $FILE_PATH
 
-Violacoes encontradas:
+Violacoes (ate $MAX):
 EOF
+  i=0
   for v in "${VIOLATIONS[@]}"; do
+    [ "$i" -ge "$MAX" ] && break
     printf '  - %s\n' "$v" >&2
+    i=$((i+1))
   done
+  if [ "${#VIOLATIONS[@]}" -gt "$MAX" ]; then
+    printf '  (... e mais %d ocorrencia(s))\n' "$((${#VIOLATIONS[@]} - MAX))" >&2
+  fi
   cat >&2 <<EOF
 
-Regras tocadas:
-  - FISCAL-001: NF-e/XML autorizado e IMUTAVEL. Cancelar ou CC-e, nunca alterar.
-  - FISCAL-002: certificado A1/A3 vem de cofre (Vault/Secrets Manager), nao hardcoded.
-  - FISCAL-003: ambiente SEFAZ (1=prod, 2=homolog) vem de env, nunca hardcoded.
-  - FISCAL-005: a partir de jul/2026, CNPJ aceita letras. Regex e coluna preparadas.
+Como destravar (caso a caso):
+  FISCAL-001: NF-e autorizada nao pode ser alterada. Cancele ou emita CC-e.
+  FISCAL-002: tire o certificado/senha do codigo. Coloque em variavel de ambiente.
+  FISCAL-003: ambiente SEFAZ (1=producao, 2=homolog) vem de env, nunca do codigo.
+  FISCAL-005: jul/2026: CNPJ aceita letras. Use [0-9A-Z]{14}, nao [0-9]{14}.
 
-Para detalhes: ver REGRAS-INEGOCIAVEIS.md (FISCAL-001 a FISCAL-007).
-
-Excecao por linha (use com parcimonia):
-  // FISCAL-001-exception: <razao tecnica clara, com aval do fiscal-br>
+Detalhe: REGRAS-INEGOCIAVEIS.md (FISCAL-001..007).
+Excecao por linha: // FISCAL-NNN-exception: <razao + responsavel>.
 EOF
   exit 2
 fi

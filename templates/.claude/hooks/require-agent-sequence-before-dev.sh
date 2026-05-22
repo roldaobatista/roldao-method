@@ -55,38 +55,30 @@ MARK_RAFAEL_SKIPPED="$PROJDIR/.claude/.runtime/rafael-skipped-${SESSION_HASH}"
 [ -f "$MARK_FEATURE" ] || exit 0
 
 MISSING=()
-[ -f "$MARK_SOFIA" ] || MISSING+=("Etapa 1 — Sofia (gerente-produto) — define US-NNN, AC testaveis, non-goals")
-[ -f "$MARK_DETETIVE" ] || MISSING+=("Etapa 2 — Detetive (investigador) — le codigo existente, mapeia impacto SEM escrever")
+[ -f "$MARK_SOFIA" ] || MISSING+=("rodar /feature → Sofia (define o que entregar)")
+[ -f "$MARK_DETETIVE" ] || MISSING+=("rodar /feature → Detetive (le o codigo atual antes de mexer)")
 
 # Rafael (tech-lead) e condicional — etapa 3 do /feature pode pular se for trivial
 if [ ! -f "$MARK_RAFAEL" ] && [ ! -f "$MARK_RAFAEL_SKIPPED" ]; then
-  MISSING+=("Etapa 3 — Rafael (tech-lead) — ADR se feature exige decisao arquitetural (OU crie marker rafael-skipped se trivial)")
+  MISSING+=("rodar /feature → Rafael (so se houver decisao arquitetural; senao crie rafael-skipped)")
 fi
 
 [ "${#MISSING[@]}" -eq 0 ] && exit 0
 
 cat >&2 <<EOF
-[require-agent-sequence-before-dev] BLOQUEADO: tentativa de Edit/Write em codigo de negocio
-sem ter passado pela sequencia obrigatoria do /feature.
+[require-agent-sequence-before-dev] Bloqueei Edit/Write em codigo de negocio.
 
 Arquivo: $FILE_PATH
+Motivo: voce esta no /feature mas pulou etapas obrigatorias.
 
-Etapas pendentes antes do Dev Senior:
+Falta:
 EOF
 for m in "${MISSING[@]}"; do
-  printf '  ✗ %s\n' "$m" >&2
+  printf '  - %s\n' "$m" >&2
 done
 cat >&2 <<EOF
 
-Pular essas etapas reintroduz os 3 erros classicos que o framework resolve:
-  - Codigo sem AC testavel (Sofia)         → entrega errada, retrabalho
-  - Codigo sem entender o sistema (Detetive) → fix no sintoma, nao na raiz (REGRA #0)
-  - Decisao arquitetural sem ADR (Rafael)  → divida tecnica silenciosa
-
-Volte ao /feature e complete as etapas. Cada subagente cria seu marker ao terminar.
-Se Rafael for dispensavel (feature trivial sem decisao arquitetural), execute:
-  mkdir -p "$PROJDIR/.claude/.runtime" && touch "$MARK_RAFAEL_SKIPPED"
-
-Aplica regras: INV-AGENT-005, INV-AGENT-006.
+Como destravar: volte ao /feature em ordem. Sem isso o codigo sai sem AC testavel
+ou trata sintoma em vez de causa raiz (REGRA #0). Regras: INV-AGENT-005/006.
 EOF
 exit 2

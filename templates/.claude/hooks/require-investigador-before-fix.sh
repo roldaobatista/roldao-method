@@ -45,26 +45,16 @@ MARK_INV="$PROJDIR/.claude/.runtime/investigator-invoked-${SESSION_HASH}"
 [ -f "$MARK_INV" ] && exit 0
 
 cat >&2 <<EOF
-[require-investigador-before-fix] BLOQUEADO: tentativa de mudar codigo de negocio
-SEM ter rodado o agente 'investigador' (Detetive 🔬) antes — REGRA #0.
+[require-investigador-before-fix] Bloqueei Edit/Write em codigo de negocio.
 
 Arquivo: $FILE_PATH
+Motivo: o pedido inicial falou de bug/comportamento errado e o Detetive
+(investigador) ainda nao rodou. Mexer no codigo agora vira fix-no-sintoma
+(REGRA #0 — INV-006).
 
-POR QUE: o prompt inicial mencionou bug/comportamento errado. Mudar codigo sem ler
-o estado real (banco, log, payload) reproduz o erro classico: corrigir o sintoma
-em vez da causa.
+Como destravar: rode /investigar ou /bug primeiro — o Detetive le banco/log/
+payload, identifica causa raiz e libera a edicao.
 
-O QUE FAZER:
-  1. Rode o agente 'investigador' agora — ele le os dados reais e te diz onde
-     esta a causa raiz.
-  2. Apos a investigacao, o proprio investigador grava o marcador e libera o
-     proximo Edit/Write.
-
-Detalhes: docs/COMO-FUNCIONA.md secao "REGRA #0" e workflow '/bug'.
-
-Override manual (so com autorizacao explicita do usuario nao-tecnico):
-  mkdir -p "$PROJDIR/.claude/.runtime" && touch "$MARK_INV"
-
-Aplica regras: INV-006, INV-AGENT-002, INV-AGENT-004.
+Bypass (so se o usuario autorizar): touch $MARK_INV
 EOF
 exit 2

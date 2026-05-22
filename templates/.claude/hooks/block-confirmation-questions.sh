@@ -62,31 +62,61 @@ LEGIT_EXCEPTIONS=(
 LEGIT_RE=$(IFS='|'; printf '%s' "${LEGIT_EXCEPTIONS[*]}")
 
 VIOLATIONS=()
-for pat in "${PATTERNS[@]}"; do
-  # Linhas que contem a pergunta de confirmacao
-  while IFS= read -r ctx_line || [ -n "$ctx_line" ]; do
-    [ -z "$ctx_line" ] && continue
-    # Se a propria linha da pergunta cita operacao destrutiva/custo, e legitima
-    if printf '%s\n' "$ctx_line" | grep -qiE -- "$LEGIT_RE"; then
-      continue
-    fi
-    HIT=$(printf '%s\n' "$ctx_line" | grep -oiE -- "$pat" | head -n1 || true)
-    VIOLATIONS+=("pergunta de confirmacao: '$HIT' -> $ctx_line")
-  done < <(printf '%s\n' "$RESP" | grep -iE -- "$pat" || true)
-done
+# Perl scan: pra cada linha que bate com algum padrao proibido, olha as
+# 3 linhas anteriores. Se qualquer uma das 4 (3 acima + a propria) cita
+# operacao destrutiva/gasto/credencial, considera legitima e libera.
+PERL_PATS=$(printf '%s\n' "${PATTERNS[@]}" | paste -sd '|' -)
+PERL_LEGIT="$LEGIT_RE"
+
+while IFS= read -r vline || [ -n "$vline" ]; do
+  [ -z "$vline" ] && continue
+  VIOLATIONS+=("$vline")
+done < <(
+  printf '%s' "$RESP" | PAT="$PERL_PATS" LEGIT="$PERL_LEGIT" perl -e '
+    my $pat   = $ENV{PAT};
+    my $legit = $ENV{LEGIT};
+    my @buf;
+    while (my $line = <STDIN>) {
+      chomp $line;
+      push @buf, $line;
+      shift @buf if @buf > 4;  # mantem janela de 4 (3 acima + atual)
+      if ($line =~ /$pat/i) {
+        my $ctx = join("\n", @buf);
+        next if $ctx =~ /$legit/i;
+        my ($hit) = ($line =~ /($pat)/i);
+        print "pergunta de confirmacao: \x27$hit\x27 -> $line\n";
+      }
+    }
+  '
+)
 
 if [ "${#VIOLATIONS[@]}" -gt 0 ]; then
-  # Gera JSON via perl encode_json — VIOLATIONS contem texto livre da resposta
-  # do agente, que pode ter aspas/newlines que quebram heredoc cru.
-  VIOLATIONS_STR=$(printf '  - %s\n' "${VIOLATIONS[@]}")
-  REASON_TEXT="[block-confirmation-questions] resposta contem pergunta de confirmacao que poderia ser executada direto (INV-AGENT-006).
+  # Limita a 3 violacoes pra nao vomitar resposta inteira de volta.
+  MAX=3
+  VIOLATIONS_STR=$(printf '  - %s\n' "${VIOLATIONS[@]:0:$MAX}")
+  EXTRA=""
+  if [ "${#VIOLATIONS[@]}" -gt "$MAX" ]; then
+    EXTRA="  (... e mais $((${#VIOLATIONS[@]} - MAX)) ocorrencia(s))"
+  fi
 
-O usuario nao programa. Pergunta como 'quer que eu...?' empurra tarefa de volta. Execute o melhor caminho e reporte depois.
+  # Mensagem clara em stderr (para humanos lerem nos logs) +
+  # JSON estruturado em stdout (para o harness bloquear a resposta).
+  cat >&2 <<EOF
+[block-confirmation-questions] resposta empurrou decisao pro usuario (INV-AGENT-006).
 
-Violacoes:
+O usuario nao programa. Pergunta como "quer que eu...?" / "posso X?" / "devo continuar?"
+quebra o fluxo. Voce tem a ferramenta — execute o melhor caminho e reporte depois.
+
+Violacoes (limite $MAX):
 ${VIOLATIONS_STR}
+${EXTRA}
 
-Excecao legitima: operacao destrutiva, gasto financeiro, mudanca publica, credenciais. Se for um desses casos, mencione explicitamente o motivo da confirmacao."
+Como corrigir: refaca a resposta executando direto. Se for operacao destrutiva
+(rm -rf, push --force, drop table, npm publish, gasto financeiro, credencial),
+cite isso EXPLICITAMENTE na mesma linha da pergunta.
+EOF
+
+  REASON_TEXT="Resposta contem pergunta de confirmacao que poderia ser executada direto (INV-AGENT-006). Execute e reporte depois."
   printf '%s' "$REASON_TEXT" | perl -MJSON::PP -e '
     local $/;
     my $reason = <STDIN>;
