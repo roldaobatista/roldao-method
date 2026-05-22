@@ -2,6 +2,51 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.15.3] — 2026-05-22
+
+**Auditoria 10-agentes (3ª rodada) — 26 achados consolidados em 7 commits atômicos.**
+
+Terceira varredura paralela com 10 agentes focou em **coerência interna do framework** — drift entre o que a documentação afirma e o que o código realmente entrega. Esta release fecha todos os achados estruturais identificados, adiciona 1 skill BR nova, modulariza início de `bin/install.js`, e cria o registro de decisões arquiteturais fundadoras.
+
+### Adicionado
+
+- **Skill `validar-chave-acesso-nfe`** — valida chave de acesso 44 dígitos de NF-e, NFC-e, CT-e, MDF-e, SAT/CF-e e CT-e OS via módulo 11 oficial. Tabela completa de UFs IBGE + modelos válidos + estrutura por posição (UF + AAMM + CNPJ + modelo + série + número + tpEmis + cNF + DV). Resolve o gap fiscal mais óbvio do core (boleto, Pix, CPF/CNPJ tinham cobertura; chave NF-e não tinha). Total: **12 skills BR no core** (era 11) / 26 com addons.
+- **6 ADRs fundadores** em `docs/decisions/` — registra decisões que antes viviam só em git log/folclore oral: zero deps runtime, hooks bash+perl, override sem fork via `.specify/overrides/`, spec-driven com IDs rastreáveis, dogfooding, multi-IDE via adapters. Index navegável + frontmatter padrão.
+- **`tools/sincronizar-claude-md.js`** — gate no `npm test` que garante que `CLAUDE.md` da raiz (dogfood) bate byte-a-byte com `templates/CLAUDE.md`. Detecta drift silencioso. Modo `--write` reescreve raiz a partir do template.
+- **Módulos `bin/lib/*.js`** — início da modularização do monolito `bin/install.js` (1241 linhas, zero testes unitários). Extraídos `colors.js` (helper ANSI injetável), `user-owned.js` (Set USER_OWNED + isUserOwned com normalização Windows e prefixo `.specify/overrides/`), `node-version-check.js` (gate Node ≥18 testável). Mantém contrato externo idêntico.
+- **`test/install-lib.test.js`** — 12 testes unitários pra os módulos extraídos. Primeira cobertura unitária do `bin/`. Roda em <100ms.
+- **`.gitignore` cobre dogfood na raiz** — `.claude/`, `.specify/`, `.agent/`, `.claude-plugin/` e os 4 contratos (`AGENTS.md`, `CLAUDE.md`, `CLAUDE.local.md`, `REGRAS-INEGOCIAVEIS.md`) na raiz agora são ignorados. Fonte canônica é `templates/`.
+
+### Corrigido
+
+- **Cluster "13 vs 14 agentes"** — `MAPA-VISUAL.md` listava 13 (Maestro ausente) e tinha 3 agentes com nome vazio. Reescrito com 14 agentes, todos com nome humano (Maestro, Mariana, Sofia, Lia, Rafael, Detetive, Bruno, Helena, Inês, Caio, Julia, Pedro, Dona Marta, Camila). Cadeia de workflows e tabela de identidade sincronizadas com frontmatter real.
+- **Cluster "22 hooks vs realidade"** — `validar-templates` contava só `exit 2`, ignorando 3 hooks bloqueadores via JSON `decision:block`. Recontagem canônica: **25 bloqueadores + 2 soft warnings + 5 lifecycle + 2 infra = 34 hooks**. Propagado em 9 arquivos públicos (README, ROADMAP, CONTRIBUTORS, CLAUDE.md, QUICKSTART, COMO-FUNCIONA, FAQ, ARQUITETURA, plugin.json).
+- **Addons com nome errado em 3 docs** — AGENTS.md, templates/AGENTS.md e QUICKSTART.md citavam `fiscal-br-emissor`, `electron`, `lgpd-operacional`, `eSocial-folha`, `saude-mental`. Corrigido para os nomes reais: `fiscal-br-completo`, `electron-br`, `lgpd-compliance`, `esocial-completo`, `varejo-pdv-br`.
+- **`/paralelo` fantasma** — `CLAUDE.md` raiz e template citavam comando `/paralelo` que não existia em `templates/.claude/commands/`. Substituído por ponteiro pra `docs/PLAN-MODE-E-SESSOES.md`.
+- **TST-001 desalinhada com hook** — `REGRAS-INEGOCIAVEIS.md` listava `--quiet` como mascaramento bloqueado, mas o hook `anti-mascaramento.sh` (atualizado) só bloqueia em comando de teste. Regra reescrita pra refletir a realidade: "flags `--quiet`/`--silent` só bloqueadas se silenciarem o resultado do teste em si; silenciar output de instalador/build não é mascaramento".
+- **Workflows GitHub usavam caminho dogfood** — `claude-headless-lgpd.yml` e `claude-review.yml` apontavam pra `.claude/agents/auditor-seguranca.md` (gerado pelo install), quebrando em fork limpo. Agora fazem fallback pra `templates/.claude/agents/`.
+- **`tech-writer/output-templates.md`** confundia o instalador (pasta dentro de `agents/` ao lado de `tech-writer.md`). Movido pra `templates/.claude/rules/tech-writer-output-templates.md`. Referências cruzadas atualizadas.
+- **`statusline.sh` mostrava slug técnico** — agora mapeia `dev-senior` → `💻 Bruno` (case com 14 entradas). Formato com separadores legíveis (`📍 v0.15.3 · 🤖 Sonnet · 🌿 main · 👤 Bruno`).
+- **`block-destructive.sh` expunha regex bruta ao usuário** — 30 padrões agora têm descrição humana PT-BR ("apagar pasta inteira recursivamente" em vez de `rm[[:space:]]+-[A-Za-z]*r[A-Za-z]*f`). Mensagem segue template "o quê / por quê / como destravar".
+- **`dba-dados.md` inteiro sem acentos PT-BR** — reescrito raiz + template com acentuação completa.
+- **`docs/EXTENDENDO/` sem índice navegável** — adicionado `README.md` na pasta com tabela dos 4 shards (agente, hook, skill, addon).
+- **Acentos faltando** em `REGRAS-INEGOCIAVEIS.md:181` e `rules/roldao-method.md` ("Codigo" → "Código").
+- **`FAQ.md` `revisado-em` desatualizado** — `2026-05-17` → `2026-05-22`.
+
+### Mudado
+
+- **`anti-mascaramento.sh`** removeu `--silent` e `--quiet` da lista — falso positivo em `npm install --silent`, `curl -s`, `grep -q`. Mascaramento real é silenciar teste; flag genérica é ruído. Test runner ajustado: agora "permite npm test --silent".
+- **`block-jargon-pt-br.sh`** removeu `hook` da lista de jargão — é termo central do framework e da configuração Claude Code; usuários precisam falar de hooks sem warning.
+- **`feature.md`** delega ao Maestro por padrão (caminho rápido); manual fica como fallback pra debug.
+- **CI** ganhou 3 gates novos: `validar-ids-rastreaveis`, `validar-cobertura-hooks`, `shellcheck` nos 34 hooks (severity=warning, exclude=SC1091).
+- **ROADMAP** — v0.16/v0.17/v0.18 ganharam definição de pronto explícita por item (agentes + hooks + skills + testes). v1.0 separado em "pré-requisitos técnicos" (controláveis pelo time) e "sinais de tração" (dependem da comunidade — Discord, conferência, contribuidores externos).
+- **3 auditores** (`auditor-produto/qualidade/seguranca`) ganharam seção "Correções que VOCÊ aplica sem pedir (INV-AGENT-006)" listando o que cada um corrige sozinho vs o que exige conversa com o dono.
+
+### Preservado
+
+- Zero breaking change. Skill nova é aditiva. Hooks novos (Maestro, enforce-pipeline, lgpd-base-legal) entram via `settings.json`. Refactor do `bin/install.js` mantém contrato externo. Todos os 22 workflows existentes seguem idênticos.
+- 173/173 testes de hook verdes; 53 install + 53 adapters + 97 install (97 checagens) + 12 unitários novos; 43/43 IDs rastreados; 27/27 hooks bloqueadores com teste.
+
 ## [0.15.2] — 2026-05-22
 
 **Auditoria de usabilidade 10-agentes (2ª rodada) — 12 P0 + 16 P1 + 12 P2 fechados.**
