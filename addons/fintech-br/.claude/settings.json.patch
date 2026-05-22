@@ -1,0 +1,17 @@
+{
+  "_comentario": "Mescla automatica em .claude/settings.json quando addon e instalado via 'npx roldao-method add fintech-br'. NAO copia este arquivo pro projeto — so e usado como template de merge.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-webhook-signature.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

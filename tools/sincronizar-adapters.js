@@ -17,9 +17,10 @@
  *   node tools/sincronizar-adapters.js              # relatorio completo
  *   node tools/sincronizar-adapters.js --quiet      # so divergencias
  *   node tools/sincronizar-adapters.js --adapter=cursor   # so um
+ *   node tools/sincronizar-adapters.js --check      # exit 1 se houver gap (gate pre-release)
  *
- * Exit 0 sempre — esta ferramenta e diagnostico, nao gate. Pra gate use
- * `npm test` (roda test/adapters.test.js).
+ * Em modo default sai 0 (diagnostico). Em --check, sai 1 se houver drift —
+ * usado em `npm run prepublishOnly` pra impedir release com adapter dessincronizado.
  */
 
 const fs = require('fs');
@@ -31,6 +32,7 @@ const T = path.join(ROOT, 'templates');
 // Argumentos CLI
 const args = process.argv.slice(2);
 const QUIET = args.includes('--quiet');
+const CHECK = args.includes('--check');
 const ONLY = (args.find((a) => a.startsWith('--adapter=')) || '').split('=')[1] || null;
 
 // Topicos canonicos: cada um deve aparecer em TODOS os adapters derivados.
@@ -174,6 +176,10 @@ if (totalGaps === 0) {
   console.log(`Paridade OK — ${filtered.length} adapter(s) sincronizado(s).`);
 } else {
   console.log(`${totalGaps} gap(s) detectado(s) em ${filtered.length} adapter(s).`);
-  console.log('Esta ferramenta e diagnostica. O gate de bloqueio fica em test/adapters.test.js.');
+  if (CHECK) {
+    console.log('Modo --check: drift de adapter bloqueia release. Corrija os patches sugeridos antes de publicar.');
+    process.exit(1);
+  }
+  console.log('Esta ferramenta e diagnostica. Use --check no CI/prepublish pra falhar em drift.');
 }
 process.exit(0);

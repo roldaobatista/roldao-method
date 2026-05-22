@@ -152,6 +152,22 @@ function warnWindowsShell() {
   console.log('');
 }
 
+// Em modo interativo (sem --yes/--force/--dry-run) PERGUNTA se quer prosseguir
+// sem proteção. Sem TTY ou em CI, apenas avisa (warnWindowsShell). Em --yes/--force
+// segue sem perguntar. Auditoria 10-agentes (2026-05-22): warnWindowsShell era
+// silencioso demais — cliente lia "instalado" e achava que estava protegido.
+async function confirmWindowsShellOrExit() {
+  if (!isWindowsWithoutBash()) return;
+  warnWindowsShell();
+  if (YES || FORCE || DRY_RUN) return;
+  if (!process.stdin.isTTY) return;
+  const a = await ask(`${c.yellow}Continuar instalando sem proteção dos hooks?${c.reset} [s/N] `);
+  if (a.toLowerCase() !== 's') {
+    log('cancelado — abra Git Bash e rode de novo.');
+    process.exit(2);
+  }
+}
+
 function detectTools() {
   const tools = [];
   if (fs.existsSync(path.join(CWD, '.claude'))) tools.push('claude-code');
@@ -342,6 +358,11 @@ function copyFile(src, dest, mode) {
   detalhes.atualizados.push(`${rel} (backup: ${path.basename(bak)})`);
 }
 
+// Arquivos de metadado/instalacao do addon que NAO devem ser copiados pro projeto.
+// Sao consumidos pelo CLI (ex: settings.json.patch e mesclado em applyAddonSettingsPatch),
+// nao pelo Claude Code em runtime.
+const ADDON_META_FILES = new Set(['settings.json.patch']);
+
 function walkAndCopy(src, dest, mode) {
   const resolvedCwd = path.resolve(CWD);
   const resolvedDest = path.resolve(dest);
@@ -349,6 +370,7 @@ function walkAndCopy(src, dest, mode) {
     err(`destino fora do diretorio alvo, abortando: ${dest}`);
     process.exit(2);
   }
+  if (ADDON_META_FILES.has(path.basename(src))) return;
   const stat = fs.lstatSync(src);
   if (stat.isSymbolicLink()) {
     warn(`pulando symlink: ${path.relative(FRAMEWORK_ROOT, src)}`);
@@ -522,6 +544,10 @@ async function install() {
     process.exit(1);
   }
 
+  // Gate Windows-sem-Git-Bash ANTES de copiar arquivos — evita instalar e o
+  // cliente achar que esta protegido quando hooks nao vao rodar.
+  await confirmWindowsShellOrExit();
+
   // Wizard interativo (apenas se TTY + sem --yes/--force).
   // Perfis vem de addons/profiles.json — data-driven, sem hardcode no CLI.
   let addonsEscolhidos = [];
@@ -530,6 +556,19 @@ async function install() {
     const escolhido = await askMenu('Qual o perfil do projeto?', perfis.map((p) => p.label));
     const matched = perfis.find((p) => p.label === escolhido);
     addonsEscolhidos = matched ? matched.addons : [];
+
+    // Validacao: addons do perfil precisam existir em addons/ (defensivo contra
+    // profiles.json desatualizado). Filtra invalidos com aviso, evita falha
+    // tardia em installAddon.
+    if (addonsEscolhidos.length) {
+      const available = listAddonsAvailable();
+      const invalid = addonsEscolhidos.filter((a) => !available.includes(a));
+      if (invalid.length) {
+        warn(`perfil cita addon(s) inexistente(s): ${invalid.join(', ')} — pulados.`);
+        warn(`disponiveis: ${available.join(', ')}`);
+        addonsEscolhidos = addonsEscolhidos.filter((a) => available.includes(a));
+      }
+    }
 
     const a = await ask(`${c.bold}Confirmar instalacao em ${CWD}?${c.reset} [s/N] `);
     if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
@@ -646,10 +685,81 @@ async function installAddon(name, skipConfirm = false, throwOnError = false) {
   if (fs.existsSync(yamlSrc)) {
     walkAndCopy(yamlSrc, path.join(CWD, 'addons', name, 'addon.yaml'), 'install');
   }
+  // Aplica settings.json.patch do addon (ativa hooks do addon no settings real).
+  // Sem isso, o addon copia o .sh mas o Claude Code nunca o invoca — falso senso
+  // de protecao detectado na auditoria 10-agentes (2026-05-22).
+  applyAddonSettingsPatch(name);
   resumo();
   ok(`addon ${name} instalado.`);
   log(`Veja: ${c.cyan}addons/${name}/README.md${c.reset} pra detalhes.`);
   return true;
+}
+
+// Mescla .claude/settings.json.patch do addon no .claude/settings.json do projeto.
+// Formato do patch: mesma estrutura do settings.json, parcial.
+// Estrategia: profunda pra hooks (append em arrays sob hooks.<event>[].hooks[]);
+// shallow pros demais. Idempotente — nao duplica se mesma command ja existe.
+function applyAddonSettingsPatch(name) {
+  const patchPath = path.join(ADDONS_DIR, name, '.claude', 'settings.json.patch');
+  const settingsPath = path.join(CWD, '.claude', 'settings.json');
+  if (!fs.existsSync(patchPath) || !fs.existsSync(settingsPath)) return;
+
+  let patch, settings;
+  try {
+    patch = JSON.parse(fs.readFileSync(patchPath, 'utf8'));
+    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  } catch (e) {
+    warn(`addon ${name}: settings.json.patch invalido (${e.message}); pulado.`);
+    return;
+  }
+
+  let changed = false;
+
+  // Hooks: append por evento+matcher se a command exata nao existir
+  if (patch.hooks && typeof patch.hooks === 'object') {
+    settings.hooks = settings.hooks || {};
+    for (const [event, entries] of Object.entries(patch.hooks)) {
+      if (!Array.isArray(entries)) continue;
+      settings.hooks[event] = settings.hooks[event] || [];
+      for (const patchEntry of entries) {
+        const matcher = patchEntry.matcher || '';
+        const patchHooks = Array.isArray(patchEntry.hooks) ? patchEntry.hooks : [];
+        let group = settings.hooks[event].find((g) => (g.matcher || '') === matcher);
+        if (!group) {
+          group = { ...(matcher ? { matcher } : {}), hooks: [] };
+          settings.hooks[event].push(group);
+        }
+        group.hooks = group.hooks || [];
+        for (const h of patchHooks) {
+          if (!group.hooks.some((existing) => existing.command === h.command)) {
+            group.hooks.push(h);
+            changed = true;
+          }
+        }
+      }
+    }
+  }
+
+  // Permissions: union (allow/ask/deny) por string
+  if (patch.permissions && typeof patch.permissions === 'object') {
+    settings.permissions = settings.permissions || {};
+    for (const k of ['allow', 'ask', 'deny']) {
+      if (Array.isArray(patch.permissions[k])) {
+        settings.permissions[k] = settings.permissions[k] || [];
+        for (const item of patch.permissions[k]) {
+          if (!settings.permissions[k].includes(item)) {
+            settings.permissions[k].push(item);
+            changed = true;
+          }
+        }
+      }
+    }
+  }
+
+  if (changed) {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf8');
+    log(`  ${c.green}+${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} ativadas`);
+  }
 }
 
 // Enumera os arquivos que um addon instala dentro de .claude/ (paths
@@ -961,28 +1071,47 @@ function doctor() {
   }
   console.log('');
 
-  // Check bash + perl no Windows
-  if (process.platform === 'win32') {
-    const { execSync } = require('child_process');
-    if (isWindowsWithoutBash()) {
-      console.log(`  ${c.yellow}AVISO${c.reset} parece que este terminal nao e Git Bash (MSYSTEM/SHELL nao detectado).`);
-      console.log(`         Em PowerShell/CMD, hooks .sh ${c.bold}nao executam${c.reset} — abra Git Bash antes.`);
-      faltando++;
+  // Check bash + perl em TODAS as plataformas (hooks dependem de ambos).
+  // Auditoria 10-agentes v0.15.2: Linux/macOS minimal (Alpine/BusyBox/sh-only)
+  // tambem podem rodar sem bash; antes so checavamos no Windows.
+  const { execSync } = require('child_process');
+  if (process.platform === 'win32' && isWindowsWithoutBash()) {
+    console.log(`  ${c.yellow}AVISO${c.reset} parece que este terminal nao e Git Bash (MSYSTEM/SHELL nao detectado).`);
+    console.log(`         Em PowerShell/CMD, hooks .sh ${c.bold}nao executam${c.reset} — abra Git Bash antes.`);
+    faltando++;
+  }
+  try {
+    const ver = execSync('bash --version', { stdio: 'pipe' }).toString();
+    // Extrai versao maior. Hooks usam features de bash >=3.2 (mac antigo) ate 4.x.
+    const m = ver.match(/version\s+(\d+)\.(\d+)/);
+    if (m) {
+      const major = parseInt(m[1], 10);
+      if (major < 3) {
+        console.log(`  ${c.yellow}AVISO${c.reset} bash ${m[0]} muito antigo — hooks usam bash >=3.2.`);
+      } else {
+        console.log(`  ${c.green}OK   ${c.reset} bash ${major}.${m[2]} disponivel`);
+      }
+    } else {
+      console.log(`  ${c.green}OK   ${c.reset} bash disponivel`);
     }
-    try {
-      execSync('bash --version', { stdio: 'pipe' });
-      console.log(`  ${c.green}OK   ${c.reset} bash disponivel (Git Bash)`);
-    } catch {
+  } catch {
+    if (process.platform === 'win32') {
       console.log(`  ${c.red}FALTA${c.reset} bash — hooks nao vao funcionar. Instale Git for Windows.`);
-      faltando++;
+    } else {
+      console.log(`  ${c.red}FALTA${c.reset} bash — hooks nao vao funcionar. Instale via gestor da distro (apt install bash, apk add bash, etc).`);
     }
-    try {
-      execSync('perl --version', { stdio: 'pipe' });
-      console.log(`  ${c.green}OK   ${c.reset} perl disponivel`);
-    } catch {
+    faltando++;
+  }
+  try {
+    execSync('perl --version', { stdio: 'pipe' });
+    console.log(`  ${c.green}OK   ${c.reset} perl disponivel`);
+  } catch {
+    if (process.platform === 'win32') {
       console.log(`  ${c.red}FALTA${c.reset} perl — hooks usam perl -MJSON::PP. Instale Strawberry Perl ou use Git Bash.`);
-      faltando++;
+    } else {
+      console.log(`  ${c.red}FALTA${c.reset} perl — hooks usam perl -MJSON::PP. Instale via gestor da distro (apt install perl, apk add perl, etc).`);
     }
+    faltando++;
   }
 
   console.log('');
