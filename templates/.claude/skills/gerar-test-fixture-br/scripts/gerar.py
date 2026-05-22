@@ -62,6 +62,26 @@ def gerar_cnpj_alfa(seq: int) -> str:
     return f"{full[:2]}.{full[2:5]}.{full[5:8]}/{full[8:12]}-{full[12:]}"
 
 
+# ===== PIS / PASEP / NIS =====
+
+_PESOS_PIS = [3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+
+
+def _pis_dv(parcial: str) -> str:
+    soma = sum(int(d) * p for d, p in zip(parcial, _PESOS_PIS))
+    resto = soma % 11
+    dv = 11 - resto
+    return "0" if dv >= 10 else str(dv)
+
+
+def gerar_pis(seq: int) -> str:
+    # Base sequencial sintetica. Bloqueia o mito '12068306449' (sequencia que
+    # circula como PIS valido em fixtures por confusao com radical 'CR').
+    base = f"{12345678 + seq:010d}"[-10:]
+    full = base + _pis_dv(base)
+    return f"{full[:3]}.{full[3:8]}.{full[8:10]}-{full[10:]}"
+
+
 # ===== CEP =====
 
 def gerar_cep(seq: int) -> str:
@@ -103,6 +123,7 @@ def gerar_all(seq: int) -> str:
     return (
         f"nome: {gerar_nome(seq)}\n"
         f"cpf: {gerar_cpf(seq)}\n"
+        f"pis: {gerar_pis(seq)}\n"
         f"email: {gerar_email(seq)}\n"
         f"telefone: {gerar_telefone(seq)}\n"
         f"cep: {gerar_cep(seq)}\n"
@@ -114,6 +135,7 @@ GERADORES = {
     "cpf": gerar_cpf,
     "cnpj": gerar_cnpj,
     "cnpj-alfa": gerar_cnpj_alfa,
+    "pis": gerar_pis,
     "cep": gerar_cep,
     "telefone": gerar_telefone,
     "email": gerar_email,

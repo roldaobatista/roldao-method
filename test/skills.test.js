@@ -60,5 +60,19 @@ run('CEP válido', cep, '01310-100', true);
 run('PIS válido', pisS, '17033259504', true);
 run('PIS inválido (mito 12068306449)', pisS, '12068306449', false);
 
+// Regressão cruzada: cada PIS gerado por gerar-test-fixture-br DEVE passar
+// no validador-pis-pasep oficial — desalinhamento de algoritmo entre gerador
+// e validador deixa fixture com PIS que viola TST-004 silenciosamente.
+const fixtureGen = path.join(S, 'gerar-test-fixture-br', 'scripts', 'gerar.py');
+try {
+  const out = execFileSync(PY, [fixtureGen, 'pis', '5'], { encoding: 'utf8' });
+  const pisList = out.trim().split(/\r?\n/);
+  for (const p of pisList) {
+    run(`PIS sintetico de gerar-test-fixture-br aceito pelo validador (${p})`, pisS, p, true);
+  }
+} catch (err) {
+  fail++; console.log(`  FAIL geracao de PIS: ${err.message}`);
+}
+
 console.log(`\nskills Python: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);

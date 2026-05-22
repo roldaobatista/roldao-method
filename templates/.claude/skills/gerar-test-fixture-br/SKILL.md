@@ -27,12 +27,13 @@ Gera dados sintéticos brasileiros **matematicamente válidos** mas obviamente f
 python3 scripts/gerar.py cpf 5
 python3 scripts/gerar.py cnpj 3
 python3 scripts/gerar.py cnpj-alfa 2
+python3 scripts/gerar.py pis 4           # PIS/PASEP/NIS válido por módulo 11
 python3 scripts/gerar.py cep 4
 python3 scripts/gerar.py telefone 3
 python3 scripts/gerar.py email 2
 python3 scripts/gerar.py nome 2
 python3 scripts/gerar.py razao-social 2
-python3 scripts/gerar.py all 1   # 1 fixture completa: nome, CPF, email, telefone, CEP
+python3 scripts/gerar.py all 1   # 1 fixture completa: nome, CPF, PIS, email, telefone, CEP
 ```
 > **Windows:** substitua `python3` por `python` (o instalador oficial do Python no Windows cria apenas `python.exe`). No Git Bash, `python3` so existe via alias do user.
 
@@ -50,6 +51,7 @@ python3 scripts/gerar.py cpf 100 > tests/fixtures/cpfs.txt
 - **CPF:** prefixo `123456789` + DV calculado por módulo 11 → resultado obviamente sequencial.
 - **CNPJ numérico:** prefixo `12345678000` + sequência + DV → obviamente sintético.
 - **CNPJ alfanumérico (jul/2026+):** prefixo `12ABC34501DE` + DV (algoritmo módulo 11 com `ord(c) - 48`).
+- **PIS/PASEP/NIS:** prefixo `123456789` + DV módulo 11 com pesos `[3,2,9,8,7,6,5,4,3,2]` — evita o mito `12068306449` (PIS que circula como válido mas falha no algoritmo).
 - **CEP:** prefixo de bairro fictício `99999-NNN`, sequencial.
 - **Telefone E.164:** `+5511991234NNN` (sequencial pra evitar telefone real).
 - **Email:** `usuarioNNN@example.com.br` (domínio reservado RFC 2606).
