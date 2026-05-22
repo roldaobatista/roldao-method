@@ -81,6 +81,25 @@ run_case "bloqueia rm -rf* glob colado" "block-destructive.sh" \
 run_case "rm -f arquivo unico nao bloqueia" "block-destructive.sh" \
   '{"tool_input":{"command":"rm -f unico.txt"}}' 0
 
+# Whitelist de artefatos regeneraveis (auditoria 10-agentes v0.15.2)
+run_case "permite rm -rf node_modules" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf node_modules"}}' 0
+
+run_case "permite rm -rf ./dist" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf ./dist"}}' 0
+
+run_case "permite rm -rf .next" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf .next"}}' 0
+
+run_case "bloqueia rm -rf node_modules ../foo (multi-alvo)" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf node_modules ../foo"}}' 2
+
+run_case "bloqueia rm -rf ~ (home)" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf ~"}}' 2
+
+run_case "bloqueia rm -rf /etc (absoluto)" "block-destructive.sh" \
+  '{"tool_input":{"command":"rm -rf /etc"}}' 2
+
 # ------- secrets-scanner --------
 run_case "bloqueia escrita em .env" "secrets-scanner.sh" \
   '{"tool_input":{"file_path":"./.env","content":"FOO=bar"}}' 2
@@ -869,7 +888,7 @@ echo "Total: $((PASS + FAIL))  |  OK: $PASS  |  FAIL: $FAIL"
 
 # Invariante: se um bloco de setup pular (perl/git/mktemp ausente), o total cai
 # e a suite ainda daria verde. Checar o numero esperado impede esse falso-verde.
-EXPECTED_TOTAL=161
+EXPECTED_TOTAL=167
 if [ "$((PASS + FAIL))" -ne "$EXPECTED_TOTAL" ]; then
   echo "ERRO: rodaram $((PASS + FAIL)) testes, esperado $EXPECTED_TOTAL (setup pulado? dependencia ausente?)" >&2
   exit 1
