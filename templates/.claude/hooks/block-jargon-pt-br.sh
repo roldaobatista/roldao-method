@@ -46,7 +46,9 @@ JARGON_TERMS=(
   '\bCI\b'
   '\bPR\b'
   '\bMR\b'
-  '\brepo(s|sitorio)?\b'
+  # 'repo' so isolado em ingles — 'repositorio' / 'repositorios' em PT-BR e correto e nao deve ser flagado
+  '\brepo(s)?\b'
+  '\brepository(\b|ies)'
   '\bcheckout(s|ar|ado)?\b'
   '\bstash(es|ar|ado)?\b'
   '\bcherry-pick(s|ed|ar|ado)?\b'
