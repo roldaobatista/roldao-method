@@ -26,6 +26,10 @@ if [ -z "$CMD" ]; then
 fi
 
 # Padrões destrutivos
+# NOTA SEC-002: 'git push --force-with-lease' (sem '=value') E PERMITIDO — e o caminho
+# seguro recomendado pelo proprio git pra rebase de feature branch privada. Bloqueamos
+# apenas '--force' cru, '-f' isolado e variantes ':<ref>' / '--delete'. Force-with-lease
+# verifica que o ref remoto nao mudou — opera so se a expectativa local bater.
 PATTERNS=(
   'rm[[:space:]]+-[A-Za-z]*r[A-Za-z]*f'
   'rm[[:space:]]+-[A-Za-z]*f[A-Za-z]*r'
@@ -38,10 +42,9 @@ PATTERNS=(
   'find[[:space:]]+.*-exec[[:space:]]+rm'
   '[[:space:]]shred[[:space:]]'
   ':\(\)[[:space:]]*\{[[:space:]]*:[[:space:]]*\|[[:space:]]*:'
-  'git[[:space:]]+push.*--force'
+  'git[[:space:]]+push.*--force([[:space:]]|$)'
   'git[[:space:]]+push.*-f[[:space:]]'
   'git[[:space:]]+push.*[[:space:]]-f$'
-  'git[[:space:]]+push.*--force-with-lease'
   'git[[:space:]]+push.*--delete'
   'git[[:space:]]+push[[:space:]]+[^|]*[[:space:]]:[A-Za-z]'
   'git[[:space:]]+reset[[:space:]]+--hard'
