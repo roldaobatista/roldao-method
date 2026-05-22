@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/roldaobatista/roldao-method/blob/main/addons/addon.schema.json",
+  "title": "ROLDAO-METHOD addon manifest",
+  "description": "Schema do addon.yaml. Cada addon em addons/<nome>/ DEVE validar contra este schema antes de publicar.",
+  "type": "object",
+  "required": ["name", "version", "description", "authors", "license", "status", "revisado-em", "requires", "provoca"],
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]+$",
+      "description": "kebab-case, igual ao diretorio do addon."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[A-Za-z0-9.-]+)?$",
+      "description": "SemVer (major.minor.patch[-prerelease])."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 300,
+      "description": "1 linha em PT-BR descrevendo o escopo do addon."
+    },
+    "authors": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "license": {
+      "type": "string",
+      "enum": ["MIT", "Apache-2.0", "BSD-3-Clause", "ISC"],
+      "description": "Licenca SPDX. MIT e o default do framework."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["stable", "beta", "deprecated"]
+    },
+    "revisado-em": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Data ISO da ultima revisao."
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    },
+    "requires": {
+      "type": "object",
+      "required": ["roldao-method"],
+      "properties": {
+        "roldao-method": {
+          "type": "string",
+          "pattern": "^(>=|>|<=|<|=|\\^|~)?[0-9]+\\.[0-9]+\\.[0-9]+",
+          "description": "Versao minima do framework (ex: >=0.15.0)."
+        }
+      }
+    },
+    "provoca": {
+      "type": "object",
+      "description": "Lista artefatos que este addon CRIA. Cada nome deve existir em disco — validado por tools/validar-templates.js.",
+      "additionalProperties": false,
+      "properties": {
+        "agents":    { "type": "array", "items": { "type": "string" } },
+        "commands":  { "type": "array", "items": { "type": "string" } },
+        "hooks":     { "type": "array", "items": { "type": "string" } },
+        "skills":    { "type": "array", "items": { "type": "string" } },
+        "templates": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "regras": {
+      "type": "array",
+      "description": "IDs de regras introduzidas. Prefixo unico por addon (PIX-EXT-*, ELECTRON-*, etc.) — nao colidir com IDs do core (LGPD-, FISCAL-, SEC-, TST-, INV-, PIX-).",
+      "items": {
+        "type": "object",
+        "required": ["id", "titulo", "descricao"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9-]+-[0-9]+$"
+          },
+          "titulo":    { "type": "string", "minLength": 5 },
+          "descricao": { "type": "string", "minLength": 10 }
+        }
+      }
+    },
+    "requisitos": {
+      "type": "array",
+      "description": "Pre-requisitos do projeto (stack, conectividade, certificado etc.).",
+      "items": { "type": "string" }
+    },
+    "aplica-quando": {
+      "type": "array",
+      "description": "Alternativa a 'requisitos' quando o gatilho e situacional.",
+      "items": { "type": "string" }
+    },
+    "non-goals": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Obrigatorio (INV-003). O que este addon NAO faz.",
+      "items": { "type": "string" }
+    },
+    "layout-esocial": {
+      "type": "string",
+      "description": "Versao do layout eSocial coberto (somente esocial-completo)."
+    }
+  }
+}
