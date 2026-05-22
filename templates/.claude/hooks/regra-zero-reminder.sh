@@ -49,7 +49,7 @@ O prompt parece descrever um bug/comportamento errado. Antes de propor solução
 4. Se houver ambiguidade no relato, PERGUNTE antes de implementar (use AskUserQuestion).
 5. Só então corrija — no ponto RAIZ, não no sintoma.
 
-Considere invocar o subagente `investigador` (Task tool) antes de qualquer Edit/Write.
+Considere rodar o agente `investigador` (Detetive 🔬) antes de qualquer Edit/Write.
 O hook `require-investigador-before-fix` foi armado e vai bloquear edits em código
 de negócio até o investigador rodar.
 
