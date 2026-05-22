@@ -46,7 +46,18 @@ function run(label, script, arg, expectOk) {
 const cpfCnpj = path.join(S, 'validar-cpf-cnpj', 'scripts', 'validar.py');
 const pix = path.join(S, 'validar-pix', 'scripts', 'validar-pix.py');
 const cep = path.join(S, 'validar-cep', 'scripts', 'validar-cep.py');
+const ie = path.join(S, 'validar-ie', 'scripts', 'validar-ie.py');
+const boleto = path.join(S, 'validar-boleto', 'scripts', 'validar-boleto.py');
+const brCode = path.join(S, 'gerar-br-code', 'scripts', 'gerar-br-code.py');
 const pisS = path.join(PIS, 'scripts', 'validar-pis.py');
+
+// IE precisa de 2 argumentos. Wrapper local pra reusar `run` que assume arg unico.
+function runIE(label, uf, valor, expectOk) {
+  let ok = true;
+  try { execFileSync(PY, [ie, uf, valor], { stdio: 'pipe' }); } catch { ok = false; }
+  if (ok === expectOk) { pass++; console.log(`  OK   ${label}`); }
+  else { fail++; console.log(`  FAIL ${label} (esperado ${expectOk ? 'valido' : 'invalido'})`); }
+}
 
 run('CPF válido', cpfCnpj, '111.444.777-35', true);
 run('CPF inválido (DV errado)', cpfCnpj, '111.444.777-00', false);
@@ -59,6 +70,31 @@ run('Pix UUID v1 rejeitado', pix, '123e4567-e89b-12d3-a456-426614174000', false)
 run('CEP válido', cep, '01310-100', true);
 run('PIS válido', pisS, '17033259504', true);
 run('PIS inválido (mito 12068306449)', pisS, '12068306449', false);
+
+// validar-ie (3 skills BR novas v0.15.2)
+runIE('IE SP ISENTO aceito', 'SP', 'ISENTO', true);
+runIE('IE SP 12 digitos com DV invalido rejeitado', 'SP', '110042490100', false);
+runIE('IE RJ DV invalido rejeitado', 'RJ', '99999999', false);
+runIE('IE UF invalida', 'ZZ', '12345', false);
+runIE('IE de UF sem algoritmo dedicado (CE) — aceito formalmente', 'CE', '12345678', true);
+
+// validar-boleto: linha digitavel real de teste (44 digitos numerico)
+// O codigo gera DV correto na hora do calculo; usamos uma string que sabemos invalida
+run('boleto tamanho invalido (33 digitos)', boleto, '123456789012345678901234567890123', false);
+run('boleto vazio invalido', boleto, '', false);
+
+// gerar-br-code: smoke (gera output sem crash). Validacao do EMV completo
+// fica pra suite Python no CI, este teste so confere que o script roda.
+try {
+  const emv = execFileSync(PY, [brCode, 'estatico', '--chave', 'teste@exemplo.com.br', '--nome', 'TESTE', '--cidade', 'SAO PAULO'], { encoding: 'utf8' }).trim();
+  if (emv.startsWith('00020126') && emv.length > 40 && /6304[0-9A-F]{4}$/.test(emv)) {
+    pass++; console.log('  OK   gerar-br-code estatico gera EMV valido (prefixo + CRC)');
+  } else {
+    fail++; console.log(`  FAIL gerar-br-code formato inesperado: ${emv}`);
+  }
+} catch (err) {
+  fail++; console.log(`  FAIL gerar-br-code crashou: ${err.message}`);
+}
 
 // Regressão cruzada: cada PIS gerado por gerar-test-fixture-br DEVE passar
 // no validador-pis-pasep oficial — desalinhamento de algoritmo entre gerador
