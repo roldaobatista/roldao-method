@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
-  "version": "0.15.1",
-  "description": "Framework agentic em PT-BR. 12 agentes, 22 hooks bloqueadores + 4 auxiliares, 22 workflows, 22 skills BR (8 core + 14 em addons; CNPJ alfanumérico 2026, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
+  "version": "0.15.2",
+  "description": "Framework agentic em PT-BR. 13 agentes, 22 hooks bloqueadores + 4 auxiliares, 22 workflows, 25 skills BR (11 core + 14 em addons; CNPJ alfanumérico 2026, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
     "claude-code",
@@ -41,8 +41,9 @@
     "test:skills": "node test/skills.test.js",
     "test:addons": "node test/addons.test.js",
     "test:adapters": "node test/adapters.test.js",
+    "test:adapter-drift": "node tools/sincronizar-adapters.js --check --quiet",
     "test": "npm run validar && npm run test:hooks && npm run test:install && npm run test:skills && npm run test:addons && npm run test:adapters",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm test && npm run test:adapter-drift"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",

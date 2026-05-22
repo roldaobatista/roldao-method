@@ -2,6 +2,49 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.15.2] — 2026-05-22
+
+**Auditoria de usabilidade 10-agentes (2ª rodada) — 12 P0 + 16 P1 + 12 P2 fechados.**
+
+Nova varredura paralela com 10 agentes focou em ângulos não cobertos pela rodada da v0.15.1: continuidade de sessões longas (`--continue`/`--resume`), uso por não-técnico (Roldão), uso por dev senior corporativo, ativação de hooks de addon, paridade entre `.mcp.json.example` e os presets BR, falsos positivos em bloqueadores, e gaps de skills BR. Esta release fecha todos os achados estruturais.
+
+### Adicionado
+
+- **`docs/README.md`** — índice navegável dos 12 docs (jornada inicial → aprofundamento → BR → troubleshooting → mantenedor). Auditoria detectou que o usuário caía no README raiz e ficava perdido entre 15 links sem visão geral.
+- **Agente `dba-dados` (Helena 🗄️)** — modelagem, índices, performance, migration revisada antes do dev aplicar, LGPD em repouso. Cobre gap apontado por auditor #7 (nenhum dos 12 agentes anteriores tocava DB de fato). Tools restritas a Read/Glob/Grep/Bash(psql/mysql/sqlite3)/WebFetch — não aplica DDL.
+- **3 skills BR no core (8 → 11):**
+  - `validar-ie` — Inscrição Estadual por UF com DV calculado (SP/RJ/RS/SC/PR/BA) + fallback formal nas demais. Aceita literal "ISENTO".
+  - `gerar-br-code` — string EMV de QR Pix (Bacen) estático e dinâmico, CRC16-CCITT, normalização de nome/cidade (sem acento, truncado).
+  - `validar-boleto` — código de barras 44 dígitos (bancário e arrecadação) + linha digitável 47 e 48, DV mod-10 e mod-11, valor + fator-vencimento.
+- **`SESSION_HASH` persistente em `.claude/.runtime/.session-hash`** — `--continue` e `--resume` agora reusam o hash da sessão anterior. Markers de Sofia/Detetive/Rafael não viram órfãos quando `CLAUDE_SESSION_ID` muda. Auditoria detectou que sessões >5h perdiam progresso de etapa.
+- **`session-snapshot-restore.sh` RECRIA markers** — antes só imprimia o snapshot em stderr. Agora lê `.claude/.runtime/session-state.json` (gravado pelo `session-snapshot.sh`) e re-cria os markers ativos (feature-active-*, *-done-*, auditor-*-pass-*). Continuidade real entre sessões.
+- **`applyAddonSettingsPatch()` no `installAddon()`** — addon que precisa de hook novo agora declara `.claude/settings.json.patch` e o CLI mescla idempotentemente em `.claude/settings.json`. Resolve P0 #5: `fintech-br` copiava `validate-webhook-signature.sh` mas o hook **nunca era ativado** — falso senso de proteção PIX-EXT-002.
+- **`addons/fintech-br/.claude/settings.json.patch`** — registra o `validate-webhook-signature` em `PreToolUse(Write|Edit)`. Aplicado automaticamente em `npx roldao-method add fintech-br`.
+- **`confirmWindowsShellOrExit()`** — em modo interativo, `install` agora PERGUNTA se quer continuar sem proteção quando detecta Windows sem Git Bash. Antes era warning silencioso; cliente lia "instalado" e achava que estava protegido.
+- **Whitelist de artefatos regeneráveis em `block-destructive.sh`** — `rm -rf node_modules` / `.next` / `dist` / `build` / `.cache` / `.parcel-cache` / `coverage` / `venv` e equivalentes passam (alvo único, sem traversal, sem path absoluto/home). Bloqueio permanece pra multi-alvo, `..`, `~`, `/etc`, `/usr`. 6 testes novos no `_test-runner.sh` cobrem casos liberados e ainda bloqueados.
+- **`npm run test:adapter-drift`** — `node tools/sincronizar-adapters.js --check --quiet`. Adicionado ao `prepublishOnly`: release não sai se algum adapter perdeu tópico canônico (REGRA #0, sequência Sofia/Detetive/Rafael, anti-mascaramento, PT-BR).
+- **`doctor` checa bash/perl em todas as plataformas** — antes só validava no Windows. Agora Linux/macOS minimal (Alpine, BusyBox) também detectam falta. Versão do bash exibida (avisa se <3.2).
+- **FAQ: 2 perguntas novas** — "Como volto pra versão anterior (downgrade)?" e "Como crio meu primeiro agente customizado?".
+- **TROUBLESHOOTING: cenário `settings.json` corrompido** — validação com `node -e` + comparação com template + restauro via `update`.
+- **TL;DR no topo de `docs/EXTENDENDO.md` e `docs/COMO-FUNCIONA.md`** — leitura inicial em 1 minuto antes de mergulhar.
+
+### Corrigido
+
+- **CHANGELOG da v0.15.0 dizia "161 → 167 testes" por engano de leitura** — o real era 155 → 161. Esta release adiciona 6 testes novos (block-destructive whitelist), elevando o invariante para **167**. Atualizado em CHANGELOG, README, ARQUITETURA, QUICKSTART, PUBLICAR-NPM, `_test-runner.sh` (`EXPECTED_TOTAL`).
+- **`tech-writer.md` 188 → 149 linhas** — dentro do limite de 150 do INV-005 pra agentes. Cortou repetição de templates, manteve cada modo (CHG/REL/RDM/MSG/ANN) com bloco de saída completo.
+- **`commands/feature.md` 195 → 151 linhas** — etapas 0 a 8 mantidas, blocos bash compactados, hash de sessão definido uma vez no topo.
+- **`ux-designer.md`, `tech-writer.md` e `fiscal-br.md` saíram de `model: inherit` pra `model: sonnet`** — auditor #7 detectou que herdavam Haiku quando o trabalho exige nuance (UX nuançada, tradução PT-BR sem jargão, legislação fiscal BR). Comentário inline justifica.
+- **Mensagens de hooks sem jargão técnico** — `require-investigador-before-fix.sh` e `regra-zero-reminder.sh` não mencionam mais "subagent_type"/"Task tool" (jargão Claude Code interno). Trocado por "agente investigador (Detetive 🔬)" + estrutura POR QUÊ / O QUE FAZER / Override manual.
+- **`profiles.json` validado contra `listAddonsAvailable()`** — wizard de install filtra silenciosamente addons inexistentes em vez de falhar tardiamente em `installAddon`. Avisa o usuário que addons sumiram do perfil.
+- **`.mcp.json.example` (raiz) marcado claramente como TEMPLATE GENÉRICO** — comentários internos apontam que `.mcp.json.examples/` (presets BR auditados: Pix-Asaas, NF-e Focus, ERP-Omie, Postgres read-only) é a fonte recomendada pra projetos BR.
+- **`addons/README.md` documenta remoção via `npx roldao-method remove`** — removia só pasta deixava hooks órfãos em `settings.json`. Procedimento manual agora desencorajado com 3 passos explícitos pra emergência.
+
+### Detalhado
+
+- **Diff `_lib.sh:sanitize_session_hash()`** — aceita argumento opcional `projdir`. Persiste em `.claude/.runtime/.session-hash`. Best-effort: falha silenciosa se sem permissão de escrita. Worktrees diferentes têm `.runtime` separado → sem colisão.
+- **`session-snapshot.sh`** — agora grava 2 arquivos: `session-snapshot.md` (humano/Claude lê) e `session-state.json` (máquina restaura). Lista 11 padrões de marker preservados (feature-active, bug-active, *-done, *-skipped, readiness-passed, auditor-*-pass, investigator-invoked, sofia-invoked, rafael-invoked/skipped, checkpoint-done).
+- **`AGENTS.md`** — seção 4 ganhou "Dados" com `dba-dados`.
+
 ## [0.15.1] — 2026-05-22
 
 **Auditoria de usabilidade 10-agentes (não-técnico / técnico / programador / autonomia) — todos os P0 fechados.**
@@ -47,7 +90,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versioname
 
 - **Status line nativa PT-BR** — `templates/.claude/statusline.sh` exibe `ROLDAO v0.15.0 | <modelo> | <branch> | <story> | <agente>` no rodapé do Claude Code. Atalho visual pro usuário não-programador saber estado da sessão sem perguntar.
 - **2 output styles especializados** — `dpo-lgpd.md` (tom jurídico-administrativo + base legal Art. 7/11 obrigatória + prazo Art. 18 §3) e `fiscal-br.md` (Layout NF-e/NT/UF/ambiente declarados + transição Reforma Tributária 2026-2033 + IDs FISCAL-001..007). `pt-br-conciso` agora vem ativado por padrão no `settings.json`.
-- **4 novos hooks lifecycle** — `auto-format-on-write.sh` (PostToolUse — prettier/eslint/ruff/black/gofmt/rustfmt/shfmt automático), `subagent-handoff-audit.sh` (SubagentStop — valida artefato em disco do investigador/auditores), `session-snapshot.sh` (PreCompact + SessionEnd — grava `session-snapshot.md` com stories ativas, bugs, markers, branch), `session-snapshot-restore.sh` (SessionStart — lê snapshot e contextualiza próxima sessão). Total: **161 → 167 testes**.
+- **4 novos hooks lifecycle** — `auto-format-on-write.sh` (PostToolUse — prettier/eslint/ruff/black/gofmt/rustfmt/shfmt automático), `subagent-handoff-audit.sh` (SubagentStop — valida artefato em disco do investigador/auditores), `session-snapshot.sh` (PreCompact + SessionEnd — grava `session-snapshot.md` com stories ativas, bugs, markers, branch), `session-snapshot-restore.sh` (SessionStart — lê snapshot e contextualiza próxima sessão). Total: **155 → 161 testes** (a entrada anterior dizia "167" por engano de leitura — o real do test-runner sempre foi 161, corrigido em v0.15.1).
 - **Settings.json com defaults sãos** — `permissions.defaultMode: acceptEdits`, lista `permissions.ask` (push, tag, publish, install, docker, kubectl, terraform, migrations), deny ampliado com **certificados fiscais A1/A3** (`*.pfx`, `*.p12`, `cert-a1/`, `cert-a3/`, `certutil`, `openssl pkcs12`) — vazamento de A1 = NF-e em nome do cliente. Aponta `outputStyle: pt-br-conciso`, `env LANG=pt_BR.UTF-8`, `statusLine` automático.
 - **22 slash commands com `allowed-tools`** — elimina prompt de permissão repetido pro usuário não-programador. `/auditoria`, `/consistencia` e `lgpd-audit` ganham `model: opus`; `/help`, `/quick-dev`, `/status` ganham `model: haiku` — economia direta sem perda de qualidade.
 - **12 agentes core + 6 addon = 18 agentes** trocaram `model: sonnet` hardcoded por `model: inherit` — usuário escolhe modelo na sessão sem editar 18 arquivos.

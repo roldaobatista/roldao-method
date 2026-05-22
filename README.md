@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
 [![Hooks bloqueadores](https://img.shields.io/badge/hooks_bloqueadores-22-red.svg)](#)
-[![Testes do framework](https://img.shields.io/badge/test_runner-161%2F161-green.svg)](#)
+[![Testes do framework](https://img.shields.io/badge/test_runner-167%2F167-green.svg)](#)
 [![Addons](https://img.shields.io/badge/addons-6-purple.svg)](addons/)
 
 ---
@@ -47,7 +47,7 @@ Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 
 - 🇧🇷 **Fala português nativo** — não é tradução
 - 🔍 **Investiga antes de mexer** — REGRA #0 codificada no workflow `/bug`
-- 👥 **12 especialistas virtuais** com papéis claros (analista, PM, UX, tech-lead, investigador, dev, revisor, 3 auditores, fiscal-BR, tech-writer)
+- 👥 **13 especialistas virtuais** com papéis claros (analista, PM, UX, tech-lead, investigador, dev, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados)
 - 🛡️ **22 regras automáticas que bloqueiam** + 4 auxiliares que avisam (secrets em código, secrets em commit message, destrutivo, mascaramento, mock em integration, TODO sem ID, commit mal formado, amend após push, dado real em fixture, URLs hardcoded, padrões fiscais inválidos, fix sem investigação prévia, pirâmide de testes invertida, readiness antes de feature, dependências de story, sequência Sofia→Detetive→Rafael, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, audit trail em story entregue, frontmatter de spec)
 - 📜 **Spec-driven total** — 12 templates (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico) em PT-BR
 - ✅ **8 checklists** auditáveis — DoD de story, readiness arquitetural, compliance fiscal, privacidade LGPD, readiness de PM, release-readiness, pix-compliance, audit-trail
@@ -86,7 +86,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 - **Python 3.8+** (opcional) — usado pelas 5 skills de validação (CPF/CNPJ, Pix, CEP, PIS, fixtures BR). Sem Python local, as skills são executadas em CI; testes locais marcam SKIP claro.
 - **Windows:** rode o Claude Code a partir do **Git Bash** (vem com Git for Windows). PowerShell puro **não roda os hooks** — eles ficam silenciosos. Ver [docs/TROUBLESHOOTING.md (seção Hooks)](docs/TROUBLESHOOTING.md#hooks).
 
-## 12 especialistas virtuais
+## 13 especialistas virtuais
 
 | Agente | Papel | Modelo |
 |---|---|---|
@@ -170,7 +170,7 @@ Aliases: o binário pode ser chamado de `roldao-method` ou só `roldao`.
 
 **Addons trazem +5 hooks:** `block-ipc-without-validation` (electron-br), `validate-webhook-signature`, `require-sefaz-env`, `validate-tef-flow`, `validate-esocial-prazo`.
 
-## 8 skills BR (core) + 14 nos addons = 22 skills
+## 11 skills BR (core) + 14 nos addons = 25 skills
 
 **Core (em `templates/.claude/skills/`):**
 
@@ -268,7 +268,7 @@ Os 9 adapters não são iguais. Hooks bash são executados só pelo Claude Code;
 | Filosofia | **Impede o agente de errar** (exit 2), não só orienta |
 | Auditores dedicados | 3 (segurança, qualidade, produto) |
 | Agente fiscal BR | `fiscal-br` (Dona Marta) — NF-e, eSocial, Reforma Tributária |
-| Skills BR | 8 no core + 14 nos addons = **22 skills** |
+| Skills BR | 11 no core + 14 nos addons = **25 skills** |
 | Técnicas de raciocínio | 15 brainstorming + 10 elicitation adaptadas BR |
 | Checklists auditáveis | 8 (story-DoD, arch-readiness, fiscal, LGPD, PM, release, Pix, audit-trail) |
 | Knowledge bases | 7 (PT-BR, fiscal, LGPD, Pix, stack, brainstorm, elicit) |
