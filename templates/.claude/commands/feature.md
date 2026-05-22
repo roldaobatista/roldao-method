@@ -33,13 +33,12 @@ Esse desvio é codificado em `templates/CLAUDE.md` REGRA #0 e `regra-zero-remind
 > [ -z "$SESSION_HASH" ] && SESSION_HASH=default
 > ```
 
-1. Identifique a US-NNN alvo (de `$ARGUMENTS` ou pergunte ao usuário).
+1. Identifique a US-NNN alvo a partir de `$ARGUMENTS`. Se não veio, leia o último `docs/stories/US-*.md` modificado (mais recente) e use ele. **Não pergunte ao usuário** — INV-AGENT-006: tudo que você pode resolver, resolve.
 2. Abra `docs/stories/US-NNN-*.md` e leia o frontmatter — extraia o campo `epico:` (EP-NNN).
 3. Verifique se existe `docs/readiness/EP-NNN-status.md` com `status: PRONTO` no frontmatter.
 4. Se NÃO existir ou status for diferente de `PRONTO`:
-   - **Pare imediatamente.**
-   - Diga ao usuário: "O épico EP-NNN não passou no /readiness ainda. Rode `/readiness EP-NNN` antes."
-   - Não escreva código. Não invoque dev-senior.
+   - **Invoque `/readiness EP-NNN` sozinho** (você tem a ferramenta — INV-AGENT-006). Não diga ao usuário pra rodar.
+   - Se mesmo após `/readiness` o status continuar diferente de `PRONTO` (gate genuíno reprovou), pare e reporte a causa concreta da reprovação ao usuário em 1 frase. Aí sim ele decide.
 5. Se readiness está `PRONTO`:
    - Crie marcador: `mkdir -p .claude/.runtime && touch .claude/.runtime/feature-active-${SESSION_HASH}` com o conteúdo `US-NNN`.
    - **Não** crie `readiness-passed-*` manualmente — o próprio hook `require-readiness-before-feature.sh` cria esse marcador ao validar o frontmatter `status: PRONTO`. Criar à mão fura o gate (o hook sai cedo se o marcador já existe, sem checar o status real).
@@ -51,11 +50,11 @@ Esse desvio é codificado em `templates/CLAUDE.md` REGRA #0 e `regra-zero-remind
 
 Invoque `gerente-produto`:
 - Recebe a descrição informal da feature (ou a US existente).
-- Faz perguntas de desambiguação.
+- Faz perguntas de desambiguação **somente quando há ambiguidade real** (decisão que muda escopo/UX/regra de negócio e não dá pra inferir do pedido). Detalhe técnico que você consegue julgar não vira pergunta — INV-AGENT-006.
 - Estrutura como user story (US-NNN) com critérios de aceitação testáveis.
 - **Lista non-goals (INV-003).**
 
-Apresentar US e **confirmar** com o usuário.
+Reporte ao usuário em até 3 linhas: título da US + 1 frase sobre escopo + 1 frase sobre non-goals. Siga direto pra Etapa 2 sem pedir "ok" — se o usuário discordar, ele interrompe; INV-AGENT-006.
 
 Ao terminar, crie marker:
 ```
