@@ -10,3 +10,17 @@ build/
 __pycache__/
 *.pyc
 *.tgz
+
+# Dogfood: o repo se instala em si próprio (ADR-005). A fonte canônica é
+# `templates/`; os destinos abaixo são gerados por `npm run install` e
+# nunca devem ser versionados. Drift entre dogfood e template é detectado
+# por `tools/sincronizar-claude-md.js` no `npm test`.
+# Ancoradas em `/` pra só ignorar na raiz — `templates/.claude/` continua versionado.
+/.agent/
+/.claude/
+/.claude-plugin/
+/.specify/
+/AGENTS.md
+/CLAUDE.md
+/CLAUDE.local.md
+/REGRAS-INEGOCIAVEIS.md
