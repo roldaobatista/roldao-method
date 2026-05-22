@@ -41,7 +41,7 @@ Mudar template, UI, validação, mensagem ou cálculo sem antes confirmar o que 
 1. **Pare.** Não escreva código.
 2. **Leia o estado real.** Banco (`sqlite3` / SELECT direto), logs do app, payload de IPC, console do navegador, arquivo de configuração. O que está SALVO lá?
 3. **Rastreie o fluxo.** Onde esse dado é gerado? Onde é salvo? Onde é lido? Qual handler/função toca nele? Existem dois caminhos (auto-save vs emissão)? Existem builders duplicados?
-4. **Confirme com o usuário** se houver ambiguidade. "X não saiu" pode significar "quero que apareça" OU "tirar essa mensagem chata". Pergunte antes de implementar.
+4. **Documente ambiguidade no JSON** (campo `pendencias[]`). NÃO pare o pipeline pra perguntar — registre as 2-3 interpretações possíveis ("X não saiu" = "quero que apareça" OU "tirar essa mensagem"). O orquestrador do `/bug` decide se vale perguntar ao usuário com base no impacto.
 5. **Só então proponha solução** — e no ponto raiz, não no sintoma.
 
 ## Sinais de que você está no caminho errado e deve parar
@@ -91,6 +91,9 @@ campo `ref_id`.
     "ignorar a flag em vez de gravar certa",
     "<outras 'soluções' que tratam sintoma>"
   ],
+  "pendencias": [
+    "<ambiguidade não resolvível por inferência — orquestrador decide se pergunta ao usuário>"
+  ],
   "investigado_em": "AAAA-MM-DDThh:mm:ssZ"
 }
 ```
@@ -110,7 +113,7 @@ Local da correção sugerida: <arquivo:linha ou função:linha>
 NÃO faria: <quais "soluções" são tratar sintoma>
 ```
 
-Se faltar informação pra concluir: **pergunte**. Não escreva código no escuro.
+Se faltar informação pra concluir, registre em `pendencias[]` do JSON e reporte. O orquestrador decide se vale perguntar ao usuário. **NÃO escreva código** — você só investiga.
 
 ## Idioma
 
