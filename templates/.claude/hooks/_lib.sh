@@ -52,17 +52,47 @@ sanitize_projdir() {
 }
 
 # ---------------------------------------------------------------------------
-# sanitize_session_hash — gera hash da sessao com fallback.
+# sanitize_session_hash — gera hash da sessao com persistencia.
 # Strip-a tudo que nao e [a-zA-Z0-9]. Se vazio, usa "default" pra evitar
 # marcadores genericos tipo "feature-active-" (que liberam qualquer sessao).
+#
+# Auditoria 10-agentes (2026-05-22): em --continue/--resume, CLAUDE_SESSION_ID
+# muda — markers de Sofia/Detetive/Rafael ficam orfaos e workflow obriga refazer.
+# Solucao: persistir o hash da PRIMEIRA invocacao em .claude/.runtime/.session-hash
+# e reusar enquanto o arquivo existir. Worktrees diferentes tem .runtime separado,
+# entao nao ha colisao. SessionEnd/PreCompact removem se quiser forcar hash novo.
+#
+# Argumento opcional: PROJDIR (default: sanitize_projdir).
 # ---------------------------------------------------------------------------
 sanitize_session_hash() {
   local raw="${1:-${CLAUDE_SESSION_ID:-default}}"
+  local projdir="${2:-}"
   local hash
+
+  # Tenta ler hash persistido primeiro (so se projdir for valido).
+  if [ -z "$projdir" ]; then
+    projdir=$(sanitize_projdir 2>/dev/null) || projdir=""
+  fi
+  if [ -n "$projdir" ] && [ -f "$projdir/.claude/.runtime/.session-hash" ]; then
+    hash=$(head -1 "$projdir/.claude/.runtime/.session-hash" 2>/dev/null | tr -cd 'a-zA-Z0-9')
+    if [ -n "$hash" ]; then
+      printf '%s' "$hash"
+      return 0
+    fi
+  fi
+
   hash=$(printf '%s' "$raw" | perl -pe 'chomp; tr/a-zA-Z0-9//cd;')
   if [ -z "$hash" ]; then
     hash="default"
   fi
+
+  # Persiste pra proxima sessao (best-effort, nao falha se sem permissao).
+  if [ -n "$projdir" ]; then
+    local runtime="$projdir/.claude/.runtime"
+    mkdir -p "$runtime" 2>/dev/null
+    printf '%s\n' "$hash" > "$runtime/.session-hash" 2>/dev/null || true
+  fi
+
   printf '%s' "$hash"
 }
 
