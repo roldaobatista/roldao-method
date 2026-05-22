@@ -10,6 +10,16 @@ status: stable
 
 Quando o usuário pede "me ajude a pensar em...", "como abordo...", "que opções tenho pra...", esta skill oferece menu numerado de técnicas adaptadas ao contexto BR (e em PT-BR) e executa a escolhida com prompt estruturado.
 
+## Argumentos (args binding)
+
+A skill aceita args em formato `topico:<tema> tecnica:<N>` pra rodar sem menu interativo:
+
+- `args="topico:nome do app"` → mostra menu pro tópico fornecido
+- `args="topico:retencao de clientes tecnica:5"` → pula menu e roda técnica 5 (5 Porquês) direto
+- `args=""` (vazio) → pergunta o tópico ao agente chamador (NÃO ao usuário final) e depois mostra menu
+
+Quando `tecnica:N` for fornecido, **não pergunte qual técnica usar** — rode direto.
+
 ## Quando usar
 
 - Início de PRD/brief (`/inicio`, `/prd`).

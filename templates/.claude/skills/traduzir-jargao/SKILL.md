@@ -10,28 +10,23 @@ status: stable
 
 Você está revisando um texto que pode ser lido por usuário **não-programador** (cliente, dono de produto, gerente leigo).
 
+## Argumentos (args binding)
+
+A skill aceita `args="<texto a traduzir>"`. Se `args` está vazio, peça ao agente chamador o texto (não ao usuário final). Saída: o texto reescrito com jargão substituído pela linguagem acessível da tabela abaixo, em PT-BR.
+
 ## Tabela de tradução obrigatória
 
 | Jargão | Linguagem acessível |
 |---|---|
 | commit / push | "salvei a correção" |
-| branch | "linha de trabalho separada" |
-| merge | "juntei a mudança na versão principal" |
-| PR / MR / pull request | "pedido de revisão antes de aplicar a mudança" |
-| checkout | "abrir uma versão diferente do código" |
-| repo / repositório (em contexto técnico) | "pasta versionada do projeto" (o termo "repositório" sozinho é PT correto, manter) |
 | CI verde / testes passando | "está funcionando, validei" |
 | tests failing / build red | "tem erro, vou investigar" |
-| build | "empacotamento do sistema pra rodar" |
-| lint | "verificação automática de padrões do código" |
 | rollback / revert | "voltar pra versão anterior" |
 | deploy em produção | "subir pro servidor que o cliente usa" |
 | E2E tests | "robô que simula o usuário" |
 | refactor | "reorganizar essa parte (sem mudar o que aparece pro usuário)" |
 | migration | "mudança na estrutura dos dados salvos" |
 | mock / fixture | "dados falsos pros testes" |
-| regex | "padrão de busca em texto" |
-| hook | "regra que dispara automaticamente em um momento específico" |
 | endpoint | "tela / serviço que recebe a chamada" |
 | API | "ponte entre dois sistemas" |
 | frontend | "parte visível ao usuário" |
@@ -40,7 +35,6 @@ Você está revisando um texto que pode ser lido por usuário **não-programador
 | cache | "memória rápida" |
 | token / JWT | "código de acesso" |
 | webhook | "aviso automático que um sistema manda pro outro" |
-| issue (GitHub) | "ticket / tarefa registrada" |
 | race condition | "duas coisas acontecendo ao mesmo tempo e atrapalhando" |
 | edge case | "caso fora do comum" |
 | dependency / lib | "biblioteca / componente externo" |

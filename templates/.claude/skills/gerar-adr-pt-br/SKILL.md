@@ -10,11 +10,15 @@ status: stable
 
 Você está sendo chamado pra gerar um ADR (Architecture Decision Record) novo.
 
+## Argumentos (args binding)
+
+A skill aceita `args="titulo:<curto> contexto:<por que> opcoes:<A|B|C>"`. Se algum dos 3 campos faltar, peça ao **agente chamador** (tech-lead) — não ao usuário final.
+
 ## Passo a passo
 
-1. **Identifique o próximo número de ADR.** Liste `docs/decisions/` e use `N+1` do maior número existente. Se for o primeiro, use `001`.
+1. **Identifique o próximo número de ADR automaticamente.** Liste `docs/decisions/` e use `N+1` do maior número existente. Se for o primeiro, use `001`. Não pergunte o número.
 
-2. **Pergunte ao usuário** (se ainda não foi fornecido):
+2. **Use os args** (ou peça ao agente chamador, não ao usuário final):
    - Título curto da decisão (ex: "Adotar PostgreSQL como banco principal").
    - Contexto: por que essa decisão está sendo tomada agora?
    - Alternativas consideradas (mínimo 2 — se só tem 1 opção, não é decisão).
