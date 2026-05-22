@@ -16,16 +16,26 @@
       "Read",
       "Glob",
       "Grep",
+      "Read(./.claude/**)",
+      "Read(./.specify/**)",
+      "Read(./docs/**)",
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
       "Bash(git show*)",
       "Bash(git branch*)",
+      "Bash(git config --get*)",
+      "Bash(git config --list*)",
+      "Bash(git remote -v)",
+      "Bash(git stash list*)",
       "Bash(ls*)",
       "Bash(pwd)",
+      "Bash(cat *.md)",
       "Bash(node -v*)",
       "Bash(npm -v*)",
       "Bash(npm list*)",
+      "Bash(npm test*)",
+      "Bash(npm run*)",
       "Bash(which*)"
     ],
     "ask": [
@@ -97,7 +107,7 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/context-budget.sh\"",
-            "timeout": 5
+            "timeout": 10
           },
           {
             "type": "command",

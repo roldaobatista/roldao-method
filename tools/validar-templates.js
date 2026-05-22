@@ -46,9 +46,14 @@ function listDir(dir) {
 }
 
 // Agents
+// Convenção: nome de agente é kebab-case minúsculo (ex: dev-senior.md).
+// Catálogos/docs em .claude/agents/ começam com `_` ou usam SCREAMING-CASE
+// (ex: MAPA-VISUAL.md) — esses pulamos (não são agentes invocáveis).
 const agentsDir = path.join(TEMPLATES, '.claude/agents');
 for (const file of listDir(agentsDir)) {
   if (!file.endsWith('.md')) continue;
+  if (file.startsWith('_')) continue;
+  if (/[A-Z]/.test(file.replace(/\.md$/, ''))) continue;
   const fm = readFrontmatter(path.join(agentsDir, file));
   if (!fm) { fail(`agent sem frontmatter: ${file}`); continue; }
   if (!fm.name) fail(`agent sem name: ${file}`);
