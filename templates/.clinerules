@@ -57,6 +57,10 @@ PRD/Story/ADR vivem em `docs/`. Frontmatter (`owner`, `revisado-em`, `status`) o
 
 LGPD-001..010 / FISCAL-001..007 / PIX-001..005 / SEC-001..005 / TST-001..004. Cite ID ao aplicar.
 
+## Contrato canônico
+
+Carregue `AGENTS.md` da raiz do projeto no contexto. Este arquivo `.clinerules` é o adaptador específico do Cline; a fonte de verdade está em `AGENTS.md` + `REGRAS-INEGOCIAVEIS.md`.
+
 ---
 
 _Framework: <https://github.com/roldaobatista/roldao-method>_

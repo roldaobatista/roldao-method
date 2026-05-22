@@ -66,6 +66,10 @@ Toda feature (`/feature`) segue esta ordem. **NÃO escreva código de negócio a
 
 Demais papéis mentais: Mariana 🔎 (analista), Lia 🎨 (UX), Dona Marta 🧾 (fiscal), Camila 📝 (tech-writer).
 
+## Contrato canônico
+
+Carregue `AGENTS.md` da raiz do projeto no contexto — fonte de verdade do framework. Este arquivo é o adaptador específico do Windsurf.
+
 ---
 
 _Framework completo: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

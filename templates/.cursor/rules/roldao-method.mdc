@@ -74,6 +74,10 @@ Antes de declarar "pronto", confirme que cumpriu a ordem. Se pulou alguma etapa,
 Sempre PT-BR. Sempre verificável ("rodei o teste, deu OK").
 Sempre commits atômicos. Sempre stage seletivo.
 
+## Contrato canônico
+
+Carregue `AGENTS.md` da raiz do projeto no contexto — é o documento de referência primária do framework. Este arquivo `.mdc` é o adaptador específico do Cursor; a fonte de verdade está em `AGENTS.md` + `REGRAS-INEGOCIAVEIS.md`.
+
 ---
 
 _Framework completo: [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method)._

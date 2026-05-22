@@ -62,6 +62,10 @@ Toda feature (`/feature`) segue esta ordem. **NÃO escreva código de negócio a
 - TST-001..004 (testes)
 - INV-001..006, INV-AGENT-001..006
 
+## Contrato canônico
+
+Carregue `AGENTS.md` da raiz do projeto no contexto. Este arquivo `.roorules` é o adaptador específico do Roo Code; a fonte de verdade está em `AGENTS.md` + `REGRAS-INEGOCIAVEIS.md`.
+
 ---
 
 _Framework: <https://github.com/roldaobatista/roldao-method>_
