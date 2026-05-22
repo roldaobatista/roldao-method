@@ -2,6 +2,41 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.15.1] — 2026-05-22
+
+**Auditoria de usabilidade 10-agentes (não-técnico / técnico / programador / autonomia) — todos os P0 fechados.**
+
+10 agentes em paralelo auditaram o framework sob 10 ângulos (primeira hora do leigo, dia-a-dia do leigo, dev júnior adotando, dev sênior corporativo, autonomia real dos agentes, robustez dos hooks, completude das skills, paridade multi-adapter, documentação, aderência ao mercado BR). Esta release fecha os 10 P0 + 2 P1 estruturais identificados.
+
+### Adicionado
+
+- **`docs/EXTENDENDO.md`** — tutorial "primeiro agente, hook, skill, addon" com esqueleto rodável de cada um, checklist de qualidade, tabela de lifecycle, referência das funções de `_lib.sh`, e ponteiros pros exemplos canônicos. Fecha o gap maior reportado pelo agente dev-júnior (até então o caminho era engenharia reversa em `block-destructive.sh`).
+- **`tools/sincronizar-adapters.js`** — auditor de paridade qualitativa entre os 8 adapters multi-IDE (Cursor, Windsurf, Cline, Roo, Continue, Aider, Gemini CLI, Codex CLI) e os tópicos canônicos do framework. Para cada tópico ausente, gera template de patch pra colar. Modos `--quiet` (só divergências) e `--adapter=<nome>` (filtro). Diagnóstico — gate de bloqueio permanece em `test/adapters.test.js`.
+- **`addons/addon.schema.json`** — JSON Schema formal (draft 2020-12) pro `addon.yaml`. Valida SemVer da `version`, licença SPDX (`license` enum), pattern de ID nas `regras` (`PREFIXO-NNN`), constraint da `requires.roldao-method`, e `non-goals` obrigatórios (INV-003). Resolve P1 reportado pela auditoria sênior — antes era regex linha-a-linha em `validar-templates.js`, aceitava YAML semanticamente inválido.
+- **Skill `gerar-test-fixture-br` agora gera PIS/PASEP/NIS** — `gerar.py pis N` produz PIS válidos por módulo 11 (pesos `[3,2,9,8,7,6,5,4,3,2]`), incluído também no comando `all`. Antes o hook `no-test-data-in-fixtures` rejeitava PIS real mas o gerador não tinha alternativa — dev colava PIS real ou fixture inválida.
+- **Tabela de tradução em `traduzir-jargao` ganhou 11 termos** — `branch`, `merge`, `PR/MR`, `build`, `lint`, `regex`, `hook`, `issue`, `checkout`, `repo` (contexto técnico vs PT "repositório"). Sincroniza com os termos que o hook `block-jargon-pt-br.sh` já detectava.
+- **Teste cruzado gerador↔validador PIS** em `test/skills.test.js` — cada PIS gerado por `gerar-test-fixture-br` precisa passar no `validar-pis-pasep` oficial. Pega regressão de algoritmo entre as duas skills.
+
+### Corrigido
+
+- **`block-jargon-pt-br.sh`** — regex `\brepo(s|sitorio)?\b` causava falso-positivo em "repositório" (palavra portuguesa correta). Agora `\brepo(s)?\b` só detecta forma inglesa isolada + `\brepository\b` adicionado.
+- **`block-destructive.sh`** — passa a aceitar `git push --force-with-lease` (caminho seguro recomendado pelo próprio git pra rebase de feature branch privada — verifica que o ref remoto não mudou desde o último fetch). Continua bloqueando `--force` cru, `-f` isolado, `--delete` e `:branch`.
+- **`/feature` etapas 0 e 1** — agente identifica US sozinho (lendo último `docs/stories/US-*.md` modificado) em vez de perguntar; invoca `/readiness` sozinho se reprovado em vez de pedir pro usuário rodar; substituiu "confirmar US com o usuário" por reporte de 3 linhas + auto-segue pra etapa 2. Alinha workflow ao INV-AGENT-006 — auditoria detectou esses 2 vazamentos onde o framework forçava permissão humana acidentalmente.
+- **Adapters Cursor, Windsurf, Cline, Roo** — adicionada seção "Contrato canônico" apontando pra `AGENTS.md`. Detectado pelo `sincronizar-adapters.js`. Os outros 4 (Continue, Aider, Gemini, Codex) já citavam.
+
+### Sincronizado (correções de doc)
+
+- **README** — bloco "Novidades" v0.14.3 → v0.15.0 com conteúdo real; links pra EXTENDENDO, PLAN-MODE-E-SESSOES, PUBLICAR-NPM, addon.schema.json.
+- **QUICKSTART.md** — `Total: 155` → 161 (valor real do test-runner; corrigido também no ARQUITETURA e COMO-FUNCIONA).
+- **ARQUITETURA.md** — `28 hooks` → 30, `21 commands` → 22, `PUBLICAR.md` (removido) → `PUBLICAR-NPM.md`, adicionado `PLAN-MODE-E-SESSOES.md`.
+- **COMO-FUNCIONA.md** — `21 workflows` → 22; adicionada tabela com os 11 commands que estavam faltando (`/checkpoint`, `/clarificar`, `/consistencia`, `/help`, `/quick-dev`, `/readiness`, `/release`, `/replanejar`, `/shard`, `/sprint`, `/status`).
+- **FAQ.md** — substituído "Cursor e ChatGPT" por explicação dos 9 adapters reais; tabela de comandos passou de 11 → 22.
+
+### Notas
+
+- Contagem real de testes do `_test-runner.sh`: **161** (CHANGELOG v0.15.0 mencionava 167 por engano de leitura — diff real do hardening foi `147 → 161`).
+- Versão de framework declarada em 3 lugares (`package.json`, `templates/.claude-plugin/plugin.json`, `templates/.continue/config.yaml`) — `validar-templates.js` continua travando drift.
+
 ## [0.15.0] — 2026-05-22
 
 **Auditoria 10-agentes vs documentação oficial Claude Code — paridade fechada.**
