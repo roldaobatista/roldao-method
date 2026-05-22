@@ -16,20 +16,20 @@ Invoque o subagente `gerente-produto` e peça:
 - Listar 3-5 user stories essenciais (US-001 a US-005) com critérios de aceitação.
 - **Listar non-goals** — o que NÃO está no escopo da v1.
 
-Apresente o resultado ao usuário e **confirme** antes de seguir.
+Salve as US em `docs/stories/US-NNN-*.md` (arquivo é o estado, INV-001) e prossiga pra Etapa 2. Reporte no final "US-001 a US-NNN criadas; rodando Tech Lead".
 
 ## Etapa 2 — Tech Lead
 
-Após confirmação, invoque `tech-lead` e peça:
+Invoque `tech-lead` e peça:
 - Stack recomendada (backend, banco, frontend, hospedagem).
 - 2-3 ADRs iniciais: ADR-0001 (stack), ADR-0002 (estrutura de dados), ADR-0003 (autenticação se aplicável).
 - Tradeoffs explícitos pra cada decisão.
 
-Apresente os ADRs e **confirme** antes de seguir.
+Salve os ADRs em `docs/decisions/ADR-NNNN-*.md` e prossiga. Reporte "ADRs ADR-0001 a ADR-NNNN salvos; rodando esqueleto".
 
 ## Etapa 3 — Dev Sênior (esqueleto)
 
-Após confirmação, invoque `dev-senior` pra montar:
+Invoque `dev-senior` pra montar:
 - Estrutura mínima de pastas.
 - Configuração de teste, lint, formatador.
 - Setup local funcionando (`docker compose up` ou equivalente).
@@ -65,5 +65,6 @@ Próximo passo: começar US-001 via /feature US-001 (gate de readiness já satis
 ## Importante
 
 - **Sem jargão técnico** se o usuário não é programador.
-- **Confirmar a cada etapa** — não tomar decisões grandes em sequência sem validação.
+- **Reportar a cada etapa** com 1 linha do que foi feito — não pedir confirmação (INV-AGENT-006). O arquivo em disco é a validação (INV-001).
 - **Non-goals explícitos** em cada ADR/user story.
+- **Só pergunte** se houver conflito real (ex: stack incompatível com plataforma alvo, ou US duplicada de iniciativa existente).

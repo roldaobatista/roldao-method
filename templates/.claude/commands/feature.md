@@ -1,5 +1,5 @@
 ---
-description: Implementa uma funcionalidade nova — passa por gate de readiness, gerente-produto, investigador, tech-lead, dev-senior, revisor e auditores obrigatórios.
+description: Implementa funcionalidade nova — gate de prontidao, gerente-produto, investigador, tech-lead, dev-senior, revisor e auditores obrigatorios.
 argument-hint: "[US-NNN | descricao-da-feature]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash(touch:*), Bash(mkdir:*), Bash(git diff:*), Bash(shasum:*), Bash(sha256sum:*), Bash(rm:*), Task
@@ -7,145 +7,179 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash(touch:*), Bash(mkdir:*), Bash
 
 # /feature — funcionalidade nova
 
-Conduz implementação. **Não pule etapas.** `$ARGUMENTS` = `US-NNN` (preferido) ou descrição.
+Voce vai conduzir a implementacao de uma funcionalidade nova. **Nao pule etapas.**
 
-## REGRA #0 — desvio antes de Sofia
+Use `$ARGUMENTS` como `US-NNN` (preferido) ou descricao inicial da feature.
 
-Antes da Etapa 0, pergunte sozinho (não pro usuário):
+## REGRA #0 — decida o caminho antes de chamar Sofia
 
-> **A feature MUDA comportamento existente do produto?** (Ex: muda como o PDF sai, muda cálculo de imposto.)
+Pergunta sozinho (nao pro usuario):
 
-- **Sim** → invoque **Detetive 🔬 PRIMEIRO** (Etapa 2 antes da 1). Razão: mexer em comportamento sem ver o estado real reproduz o erro clássico da REGRA #0.
-- **Não** → ordem padrão Sofia → Detetive → Rafael.
+> **A feature MUDA comportamento existente?** (Ex: muda como o PDF sai, muda calculo de imposto, altera fluxo de cadastro ja em uso.)
 
-Codificado em `templates/CLAUDE.md` e `regra-zero-reminder.sh`. Reporte o caminho em 1 frase.
+- **Sim** → chame o **Detetive (investigador) PRIMEIRO** pra ler banco/log/payload antes de Sofia entrar. Use a Etapa 2 antes da Etapa 1. Razao: mexer em comportamento sem entender por que esta como esta reproduz o erro classico — trocar o sintoma sem ver a causa.
+- **Nao** → feature e greenfield (campo novo, tela nova, regra que nao existia). Siga a ordem padrao Sofia → Detetive → Rafael.
 
-## Hash de sessão (MECÂNICO — uma vez no início)
+Reporte em 1 frase o caminho escolhido. Nao pergunte ao usuario.
 
-Todos os marcadores usam `${SESSION_HASH}` = `CLAUDE_SESSION_ID` reduzido a alfanumérico. Define uma vez:
+## Etapa 0 — Prontidao do epico (mecanico, obrigatorio)
+
+1. Identifique a US-NNN alvo. Se indetectavel em `$ARGUMENTS`, assuma o proximo sequencial olhando `docs/stories/` e reporte "Assumido US-NNN" — nao pergunte.
+2. Abra `docs/stories/US-NNN-*.md` e leia `epico:` do frontmatter (EP-NNN).
+3. Verifique `docs/readiness/EP-NNN-status.md` com `status: PRONTO`.
+4. Se faltar ou nao estiver PRONTO:
+   - **Pare.** Diga ao usuario "O epico EP-NNN nao passou no /readiness. Rode `/readiness EP-NNN` antes."
+   - Nao escreva codigo.
+5. Se PRONTO, crie o marcador da sessao e siga pra Etapa 1.
+
+> O sistema bloqueia mecanicamente: o hook `require-readiness-before-feature.sh` verifica o frontmatter `status: PRONTO` antes de qualquer Edit/Write em codigo de negocio. Detalhes mecanicos no fim deste documento.
+
+## Etapa 1 — Gerente de Produto (Sofia)
+
+Invoque `gerente-produto`:
+- Recebe a descricao informal da feature (ou a US existente).
+- Estrutura como user story (US-NNN) com criterios de aceitacao testaveis.
+- **Lista non-goals** (INV-003).
+- **Assume premissas razoaveis** em vez de perguntar — registra em `premissas:` do frontmatter.
+
+**Nao peca confirmacao ao usuario.** A US salva em disco e o estado compartilhado (INV-001). Reporte "US-NNN criada com N AC e M non-goals; rodando Detetive" e prossiga. So pergunte se o Investigador (Etapa 2) levantar ambiguidade que afete comportamento observavel.
+
+Marcador da etapa: `sofia-done-${SESSION_HASH}`.
+
+## Etapa 2 — Investigador (Detetive)
+
+Invoque `investigador`:
+- Le codigo existente nas areas que a feature toca.
+- Identifica entidades/handlers/integracoes afetados.
+- Reporta dependencias e impactos.
+- Registra ambiguidades em `pendencias[]` no JSON (nao pergunta diretamente).
+
+Esse passo **NAO escreve codigo.** So reporta.
+
+Marcador: `detetive-done-${SESSION_HASH}`.
+
+## Etapa 3 — Tech Lead (Rafael)
+
+Invoque `tech-lead` SOMENTE se:
+- A feature exige decisao arquitetural nova (lib nova, tabela nova, integracao nova).
+- O Investigador identificou impacto em ADR existente.
+
+Se a feature e trivial (campo novo em form, validacao simples), **pule pra Dev Senior** — mas declare explicitamente:
+
+```bash
+touch .claude/.runtime/rafael-skipped-${SESSION_HASH}
+```
+
+Tech Lead escreve ADR. Marcador: `rafael-done-${SESSION_HASH}`.
+
+## Etapa 4 — Dev Senior
+
+Invoque `dev-senior` com:
+- A US-NNN com criterios de aceitacao
+- Relatorio do Investigador (JSON em `.claude/.runtime/investigation-*.json`)
+- ADR (se houver)
+
+Dev Senior implementa + escreve testes.
+
+## Etapa 5 — Revisor
+
+Invoque `revisor`:
+- Audita aderencia a US
+- Verifica regras inegociaveis
+- Caca anti-padroes
+
+Se BLOQUEADO: volta pra Dev Senior. Re-roda Etapa 5.
+
+## Etapa 6 — Auditores (obrigatorios, em paralelo)
+
+Invoque **sempre, em paralelo**:
+- `auditor-seguranca` (Caio) — secrets, LGPD, supply chain, OWASP.
+- `auditor-qualidade` (Julia) — testes, cobertura, anti-mascaramento.
+- `auditor-produto` (Pedro) — aderencia a US, non-goals.
+
+**Nao ha dispensa de auditores** — eles sao rapidos e dispensa esvazia o gate.
+
+Cada auditor gera marcador com hash do diff auditado (impede "touch sem auditar"):
+
+```bash
+AUDIT_SHA=$(git diff HEAD | { shasum -a 256 2>/dev/null || sha256sum; } | awk '{print $1}')
+SESS="${SESSION_HASH}"
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+printf '{"audit_sha":"%s","auditor":"seg","ts":"%s"}\n' "$AUDIT_SHA" "$TS" \
+  > .claude/.runtime/auditor-seg-pass-${SESS}
+# (analogo pra qual e prod)
+```
+
+Se algum bloquear: volta pra Dev Senior, re-roda Etapas 5+6, **remove o marker blocked correspondente**. Apos correcao, o hash do diff muda — auditor precisa novo marker.
+
+## Etapa 7 — Checkpoint (walkthrough antes de mergear)
+
+Gere o walkthrough estruturado seguindo o template em `commands/checkpoint.md`:
+
+- Diff completo (`git diff main...HEAD`)
+- Sumario PT-BR: proposito, impacto pro cliente, arquivos tocados, riscos, migrations, cobertura de testes, decisoes consolidadas
+- Salvar em `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md`
+
+Se algum risco critico escapar da Etapa 6, volte pra Dev Senior.
+
+## Etapa 8 — Limpeza
+
+Apos checkpoint salvo:
+- Remova markers da sessao (`feature-active`, `sofia-done`, `detetive-done`, `rafael-done|skipped`, `auditor-{seg,qual,prod}-{pass,blocked}`, `checkpoint-done`)
+- **Mantenha** `readiness-passed-*` (valido pra proximas stories do mesmo epico nesta sessao)
+
+## Saida final
+
+```
+FEATURE ENTREGUE
+
+US: US-NNN — <titulo>
+EP: EP-NNN (readiness PRONTO em <data>)
+ADR criado: <sim/nao, numero>
+Arquivos tocados: <N>
+Testes adicionados: <N>
+Revisor: APROVADO
+Auditor seguranca: APROVADO | RESSALVAS: <lista>
+Auditor qualidade: APROVADO | RESSALVAS: <lista>
+Auditor produto: APROVADO | RESSALVAS: <lista>
+Checkpoint: docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md
+Proximo passo: <subir pra prod | aguardar release scheduler | proxima story>
+```
+
+## Importante
+
+- **Sem jargao tecnico** com usuario nao-tecnico
+- **Verificar antes de afirmar** — rode testes e mostre resultado
+- **Sem over-engineering** — se a feature e simples, nao invente abstracao
+- **Etapas 0, 1-3 e 6 sao mecanicas** — o sistema bloqueia automatic. Nao tente pular
+
+---
+
+## Apendice — Como o sistema protege seu progresso
+
+Esta secao e referencia. **Voce nao precisa ler na primeira execucao.**
+
+### Hash da sessao (mecanico)
+
+Os hooks procuram marcadores com sufixo `${SESSION_HASH}` (= `CLAUDE_SESSION_ID` reduzido a caracteres alfanumericos). Os marcadores que voce cria PRECISAM usar o mesmo hash, senao nunca casam e o gate trava:
 
 ```bash
 SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
 [ -z "$SESSION_HASH" ] && SESSION_HASH=default
 ```
 
-## Etapa 0 — Gate de readiness (mecânico)
+### Marcador de feature ativa
 
-Hook `require-readiness-before-feature.sh` bloqueia Edit/Write em código de negócio.
-
-1. Identifique `US-NNN` em `$ARGUMENTS`. Se não veio, leia o último `docs/stories/US-*.md` modificado. **Não pergunte ao usuário** (INV-AGENT-006).
-2. Extraia `epico: EP-NNN` do frontmatter da US.
-3. Verifique `docs/readiness/EP-NNN-status.md` com `status: PRONTO`.
-4. Se não estiver `PRONTO`: invoque `/readiness EP-NNN` sozinho. Se reprovar, reporte ao usuário em 1 frase.
-5. Se `PRONTO`: `mkdir -p .claude/.runtime && touch .claude/.runtime/feature-active-${SESSION_HASH}` (conteúdo: `US-NNN`).
-
-**Não** crie `readiness-passed-*` manualmente — o hook cria ao validar o frontmatter.
-
-## Etapa 1 — Sofia 📋 (gerente-produto)
-
-- Recebe descrição ou US existente.
-- Desambigua **só** quando há decisão de escopo/UX/negócio que não dá pra inferir (INV-AGENT-006).
-- Estrutura US-NNN com AC testáveis + **non-goals (INV-003)**.
-
-Reporte em até 3 linhas. Siga sem pedir "ok". Marker: `touch .claude/.runtime/sofia-done-${SESSION_HASH}`.
-
-## Etapa 2 — Detetive 🔬 (investigador)
-
-- Lê código existente nas áreas que a feature toca.
-- Identifica entidades/handlers/integrações afetadas.
-- **NÃO escreve código.** Só reporta.
-
-Marker: `touch .claude/.runtime/detetive-done-${SESSION_HASH}`.
-
-## Etapa 3 — Rafael 🏛️ (tech-lead) — condicional
-
-Invoque **só se**:
-- Exige decisão arquitetural nova (lib, tabela, endpoint complexo); OU
-- Detetive identificou impacto em ADR.
-
-Trivial (campo novo, validação simples): declare `touch .claude/.runtime/rafael-skipped-${SESSION_HASH}`.
-
-Quando invocado, Rafael escreve ADR + `touch .claude/.runtime/rafael-done-${SESSION_HASH}`.
-
-Hook `require-agent-sequence-before-dev.sh` exige Sofia + Detetive + Rafael (done OU skipped) antes de Edit/Write.
-
-## Etapa 4 — Dev Sênior
-
-Recebe US + AC, relatório do Detetive, ADR (se houver). Implementa + testes.
-
-## Etapa 5 — Revisor
-
-Audita aderência à US, regras inegociáveis, anti-padrões. Se BLOQUEADO: volta pro Dev e re-roda 5.
-
-## Etapa 6 — 3 Auditores (paralelo, OBRIGATÓRIO)
-
-Invoque **sempre em paralelo** (1 mensagem com 3 Tasks):
-- `auditor-seguranca` (Caio 🛡️) — secrets, LGPD, OWASP.
-- `auditor-qualidade` (Júlia 🧪) — testes, cobertura, anti-mascaramento.
-- `auditor-produto` (Pedro 🎯) — aderência à US, non-goals.
-
-**Sem "dispensa".** Mudança cosmética também passa — eles são rápidos.
-
-Cada auditor registra veredito com hash do diff auditado (impede "touch sem auditar"):
-
+Crie ao passar na Etapa 0:
 ```bash
-AUDIT_SHA=$(git diff HEAD | { shasum -a 256 2>/dev/null || sha256sum; } | awk '{print $1}')
-TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-
-# Aprovou (substitua auditor=seg pra qual ou prod):
-printf '{"audit_sha":"%s","auditor":"seg","ts":"%s"}\n' "$AUDIT_SHA" "$TS" \
-  > .claude/.runtime/auditor-seg-pass-${SESSION_HASH}
-
-# BLOQUEOU:
-touch .claude/.runtime/auditor-seg-blocked-${SESSION_HASH}
+mkdir -p .claude/.runtime && touch .claude/.runtime/feature-active-${SESSION_HASH}
 ```
+Conteudo: `US-NNN`. **Nao** crie `readiness-passed-*` manualmente — o proprio hook cria ao validar `status: PRONTO`. Criar a mao fura o gate.
 
-Se BLOQUEADO: volta pro Dev, **remova o marker blocked**, re-roda 5 e 6. O hash muda — auditor gera marker novo (o antigo fica STALE).
+### Hooks que aplicam
 
-Hook `require-auditors-pass-before-commit.sh` bloqueia commit/merge/push se: marker `pass` faltar, qualquer `blocked` existir, ou `audit_sha` STALE.
+- `require-readiness-before-feature.sh` — exige `readiness PRONTO` antes de Edit/Write
+- `require-agent-sequence-before-dev.sh` — exige Sofia + Detetive + Rafael (ou rafael-skipped)
+- `require-auditors-pass-before-commit.sh` — exige 3 auditores aprovados com hash do diff atual
 
-## Etapa 7 — Checkpoint
-
-Gere walkthrough em `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` (template em `commands/checkpoint.md`):
-- Propósito + non-goals
-- Arquivos tocados (com motivo)
-- Tabela de riscos (P × I × Mitigação)
-- Migrações + rollback
-- Dependências adicionadas
-- Cobertura de testes
-- Vereditos consolidados
-
-Se risco crítico apareceu agora: volta pra Dev, re-roda 5/6/7.
-
-## Etapa 8 — Limpeza de markers
-
-Após aprovado:
-- Remove `feature-active-*`, `sofia-done-*`, `detetive-done-*`, `rafael-{done,skipped}-*`.
-- Remove `auditor-{seg,qual,prod}-{pass,blocked}-*`.
-- Remove `checkpoint-done-*`.
-- **Mantém** `readiness-passed-*` (válido pra próximas stories do mesmo épico).
-
-## Saída final
-
-```
-FEATURE ENTREGUE
-
-US: US-NNN — <título>
-EP: EP-NNN (readiness PRONTO em <data>)
-ADR criado: <sim/não, número>
-Arquivos tocados: <N>
-Testes adicionados: <N>
-Revisor: APROVADO
-Auditor segurança: APROVADO | RESSALVAS: <lista>
-Auditor qualidade: APROVADO | RESSALVAS: <lista>
-Auditor produto: APROVADO | RESSALVAS: <lista>
-Checkpoint: docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md
-Próximo passo: <subir pra prod | release scheduler | próxima story>
-```
-
-## Importante
-
-- **Sem jargão técnico** com usuário não-técnico.
-- **Verificar antes de afirmar** — rodar testes e mostrar resultado.
-- **Sem over-engineering** — feature simples, sem abstração inventada.
-- **Etapas 0, 1-3 e 6 são MECÂNICAS** — hooks impõem, não pule.
+Tentar pular qualquer um desses resulta em bloqueio com mensagem clara explicando o que falta.

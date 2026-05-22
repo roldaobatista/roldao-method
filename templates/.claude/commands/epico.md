@@ -30,20 +30,20 @@ Reporte ao usuario nao-tecnico em 1 frase o caminho escolhido: "Vou direto pra d
 
 ## Etapa 1 — Analista (brief curto) — opcional
 
-Aplicavel apenas no Caso D acima. Invoque `analista` em **modo 1 (brief)**:
+Aplicavel apenas no Caso D acima. Invoque `analista` em **Modo BRIEF**:
 - Problema, mercado, concorrentes, regulamentacao aplicavel.
 - Vai pra `docs/research/epico-<slug>.md`.
 
-## Etapa 2 — Gerente de Produto (modo B — PRD)
+## Etapa 2 — Gerente de Produto (Modo PRD)
 
-Invoque `gerente-produto` em **modo B**:
+Invoque `gerente-produto` em **Modo PRD**:
 - Le `.specify/templates/prd.md` como base.
 - Preenche tudo, mas SEM listar US ainda na secao 4 (vai vir da decomposicao).
 - Salva em `docs/prd/PRD-NNN-slug.md`.
 
-## Etapa 3 — Gerente de Produto (modo D — decomposicao)
+## Etapa 3 — Gerente de Produto (Modo DECOMP)
 
-Mesmo agente, modo D:
+Mesmo agente, Modo DECOMP:
 - Olha o PRD recem-criado.
 - Quebra em stories filhas (US-NNN, US-NNN+1, ...).
 - Para cada story: titulo, papel, acao, beneficio, **dependencias** (quais US precisam vir antes).

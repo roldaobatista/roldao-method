@@ -19,9 +19,9 @@ Use `$ARGUMENTS` como descricao inicial.
 
 Exemplo: `docs/stories/US-007-cadastro-cliente-pj.md`.
 
-## Etapa 2 — Gerente de Produto (modo C)
+## Etapa 2 — Gerente de Produto (Modo STORY)
 
-Invoque `gerente-produto` em **modo C (story)**:
+Invoque `gerente-produto` em **Modo STORY**:
 - Le `.specify/templates/story.md` como base.
 - Preenche todos os campos do template usando `$ARGUMENTS` + perguntas de desambiguacao.
 - Lista AC testaveis (AC-NNN-1, AC-NNN-2, ...).

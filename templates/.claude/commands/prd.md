@@ -13,25 +13,23 @@ Use `$ARGUMENTS` como descricao inicial da iniciativa.
 
 ## Etapa 1 — Validar tamanho
 
-Antes de tudo, pergunte ou avalie:
-- E uma iniciativa que cabe em 1 story? Use `/historia` em vez disso.
-- E uma feature de 3-5 stories? Use `/feature` ou `/epico`.
-- E uma iniciativa de varias semanas / multiplos modulos? **Entao SIM, PRD.**
+Avalie sozinho (nao pergunte) com base em `$ARGUMENTS`:
+- Cabe em 1 story (1 tela ou 1 regra)? Redirecione pra `/historia` e pare.
+- 3-5 stories relacionadas? Redirecione pra `/feature` ou `/epico` e pare.
+- Varias semanas / multiplos modulos / decisao arquitetural pesada? **SIM, PRD.** Prossiga.
 
-Se for muito pequeno, redirecione.
+## Etapa 2 — Analista (Modo BRIEF)
 
-## Etapa 2 — Analista (modo 1 — brief)
-
-Invoque `analista` em **modo 1**:
+Invoque `analista` em **Modo BRIEF**:
 - Problema, mercado, concorrentes BR, regulamentacao aplicavel.
 - Salva `docs/research/<slug>.md`.
 - **Grava o caminho** em `.claude/.runtime/last-research-path` pra o PM consumir.
 
-Apresentar brief ao usuario, confirmar antes de prosseguir.
+Brief salvo em disco e o estado compartilhado (INV-001). Prossiga pra Etapa 3 sem perguntar. So pergunte se o brief revelar conflito real (ex: mercado nao existe no Brasil, ou regulamentacao bloqueia a iniciativa).
 
-## Etapa 3 — Gerente de Produto (modo B — PRD)
+## Etapa 3 — Gerente de Produto (Modo PRD)
 
-Invoque `gerente-produto` em **modo B**:
+Invoque `gerente-produto` em **Modo PRD**:
 - Le caminho do brief em `.claude/.runtime/last-research-path` e abre `docs/research/<slug>.md`.
 - Le `.specify/templates/prd.md` como base.
 - Numero PRD novo: olhe `docs/prd/` e pegue o proximo `PRD-NNN`.
@@ -58,7 +56,7 @@ Pular se for backend puro / integracao / fiscal.
 
 ## Etapa 6 — Decomposicao em stories
 
-Mesmo PM (modo D):
+Mesmo PM (Modo DECOMP):
 - Olha o PRD.
 - Quebra em stories filhas (US-NNN, US-NNN+1, ...).
 - Atualiza secao 4 do PRD.

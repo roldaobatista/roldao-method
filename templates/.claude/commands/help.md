@@ -12,30 +12,32 @@ Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um có
 
 ## Catálogo
 
-| Código | Comando | Quando usar |
-|---|---|---|
-| IN | `/inicio` | Projeto novo do zero |
-| BF | `/brownfield` | Adotar framework em projeto que já existe |
-| PRD | `/prd` | Iniciativa grande (várias semanas) |
-| EP | `/epico` | Decompor iniciativa em stories |
-| US | `/historia` | Criar 1 user story rastreável |
-| CL | `/clarificar` | Tirar ambiguidade de uma ideia/story ANTES de codar |
-| FT | `/feature` | Implementar funcionalidade nova (ciclo completo) |
-| QD | `/quick-dev` | Mudança trivial (≤3 arquivos, ≤50 linhas, sem banco/fiscal) |
-| BG | `/bug` | Corrigir comportamento errado — REGRA #0 obrigatória |
-| RF | `/refactor` | Reorganizar código sem mudar comportamento |
-| QA | `/qa` | Gerar/auditar testes de uma área |
-| AU | `/auditoria` | Passar pelos 3 auditores (seg + qualidade + produto) |
-| CN | `/consistencia` | Cross-check PRD↔ARQ↔stories↔tasks↔código (acha órfãos) |
-| RT | `/retro` | Retrospectiva 4L pós-marco |
-| RP | `/replanejar` | Escopo mudou no meio — correct-course |
-| SP | `/sprint` | Plano sequencial das próximas N stories |
-| ST | `/status` | "Como tá indo?" em PT-BR sem jargão |
-| CK | `/checkpoint` | Walkthrough de PR/branch antes de merge |
-| RL | `/release` | Fechar marco: versão sincronizada, CHANGELOG, tag, nota PT-BR |
-| RD | `/readiness` | Gate entre épico e dev (PRD/ARQ/stories prontos?) |
-| HP | `/help` | Este comando |
-| SH | `/shard` | Quebra PRD/ARQ longo em chunks navegáveis |
+| Código | Comando | Quando usar | Cadeia de agentes |
+|---|---|---|---|
+| IN | `/inicio` | Projeto novo do zero | Sofia → Rafael → Bruno |
+| BF | `/brownfield` | Adotar framework em projeto que já existe | Detetive → Rafael → Sofia → Caio |
+| PRD | `/prd` | Iniciativa grande (várias semanas) | Mariana → Sofia → Rafael → Carla |
+| EP | `/epico` | Decompor iniciativa em stories | Mariana → Sofia → Rafael |
+| US | `/historia` | Criar 1 user story rastreável | Sofia → Detetive |
+| CL | `/clarificar` | Tirar ambiguidade ANTES de codar | Sofia |
+| FT | `/feature` | Funcionalidade nova (ciclo completo) | Sofia → Detetive → Rafael → Bruno → Revisor → Caio+Julia+Pedro |
+| QD | `/quick-dev` | Mudança trivial (≤3 arquivos, ≤50 linhas) | Bruno → Revisor |
+| BG | `/bug` | Corrigir comportamento — REGRA #0 | **Detetive (obrigatório)** → Bruno → Revisor |
+| RF | `/refactor` | Reorganizar sem mudar comportamento | Rafael → Bruno → Revisor |
+| QA | `/qa` | Gerar/auditar testes de uma área | Detetive → Julia → Bruno → Revisor |
+| AU | `/auditoria` | 3 auditores em paralelo | Caio + Julia + Pedro |
+| CN | `/consistencia` | Cross-check doc↔código | Detetive → Caio + Julia + Pedro |
+| RT | `/retro` | Retrospectiva 4L pós-marco | (sem agente) |
+| RP | `/replanejar` | Escopo mudou no meio | Sofia → Tech-writer |
+| SP | `/sprint` | Plano sequencial das próximas N stories | Sofia |
+| ST | `/status` | "Como tá indo?" em PT-BR sem jargão | Tech-writer |
+| CK | `/checkpoint` | Walkthrough de PR/branch antes de merge | (walkthrough) |
+| RL | `/release` | Fechar marco: versão, CHANGELOG, tag | Tech-writer |
+| RD | `/readiness` | Gate entre épico e dev | Detetive → Rafael |
+| HP | `/help` | Este comando | (catálogo) |
+| SH | `/shard` | Quebra PRD/ARQ longo em chunks | (fatiamento) |
+
+> Detalhe de cada agente: `.claude/agents/MAPA-VISUAL.md` ou `.claude/agents/<nome>.md`.
 
 ## Cenários comuns
 
@@ -82,5 +84,5 @@ Exemplo: `/help BG` mostra detalhe completo de `/bug`.
 
 ## Importante
 
-- **Workflows do projeto ≠ comandos do harness Claude Code.** Este help cobre só os 22 workflows ROLDAO-METHOD.
-- **Códigos curtos** servem pra falar rápido com o agente ("vamos rodar BG agora"), não substituem o comando completo.
+- Este help cobre só os 22 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
+- **Códigos curtos** servem pra falar rápido ("vamos rodar BG agora"), não substituem o comando completo.
