@@ -36,7 +36,8 @@ roldao-method/                        <- raiz do framework
 │   └── install.test.js               <- smoke test do CLI
 ├── docs/                             <- doc PRA USUARIO do framework
 │   ├── QUICKSTART.md
-│   ├── PUBLICAR.md
+│   ├── PUBLICAR-NPM.md
+│   ├── PLAN-MODE-E-SESSOES.md
 │   ├── MCP-GUIA-BR.md
 │   ├── FAQ.md
 │   ├── TROUBLESHOOTING.md
@@ -131,7 +132,7 @@ Compatibilidade do `update`: sempre preserva `AGENTS.md`, `CLAUDE.md`, `REGRAS-I
 
 Antes de publicar:
 1. `node tools/validar-templates.js` — verde.
-2. `bash templates/.claude/hooks/_test-runner.sh` — 155/155.
+2. `bash templates/.claude/hooks/_test-runner.sh` — 161/161.
 3. `node test/install.test.js` — verde.
 4. `npm pack --dry-run` — confirmar que `files` inclui só o necessário.
 5. Atualizar `CHANGELOG.md`.

@@ -11,10 +11,14 @@ status: stable
 ### Preciso saber programar pra usar?
 Não. O ROLDAO-METHOD foi feito por e para gente que não programa. Os agentes traduzem qualquer coisa técnica em PT-BR claro. Você dirige o produto; quem mexe no código é o Claude/Cursor com as regras do framework.
 
-### Funciona no Cursor? E no ChatGPT?
-- **Claude Code:** suporte nativo (hooks, agents, skills, commands).
-- **Cursor:** suporta as regras (AGENTS.md, CLAUDE.md, regras inegociáveis). Hooks não rodam (Cursor não tem PreToolUse). O instalador detecta e copia o que se aplica.
-- **ChatGPT/Codex CLI:** segue AGENTS.md como contrato. Sem hooks executáveis — você ganha disciplina por prompt, não bloqueio automático.
+### Em quais ferramentas funciona?
+
+Os 9 alvos suportados — paridade real declarada na tabela do README:
+
+- **Claude Code:** suporte nativo (12 agentes executáveis, 22 hooks bloqueadores com exit 2, 22 commands, 8 skills com algoritmo Python).
+- **Cursor / Windsurf / Cline / Roo / Continue / Aider / Gemini CLI / Codex CLI:** suporta as **regras** (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, regra própria do adapter). Os outros 8 lêem texto carregado no contexto, **mas não executam hooks** (limitação do harness de cada IDE). O instalador detecta a IDE local e instala o que se aplica; pode forçar todos com `--all-adapters` ou um subconjunto com `--adapters=cursor,windsurf`.
+
+Quem usa Cursor/Windsurf/etc. e quer também os bloqueios mecânicos: rode Claude Code em paralelo nos pontos críticos (commit, release).
 
 ### Roda no Windows?
 Sim. Hooks são bash (rodam no Git Bash que já vem com o Git Windows). O instalador é Node.js puro.
@@ -49,12 +53,23 @@ Sim: `npx roldao-method uninstall`. Remove os arquivos do framework e preserva s
 | `/prd` | Iniciativa grande (vários meses) |
 | `/epico` | Decompor coisa grande em várias histórias |
 | `/historia` | 1 funcionalidade — gerar US-NNN em disco |
+| `/clarificar` | Tira ambiguidade de uma ideia antes de codar |
 | `/feature` | Implementar funcionalidade nova |
+| `/quick-dev` | Mudança trivial (≤ 3 arquivos, ≤ 50 linhas) |
 | `/bug` | Corrigir comportamento errado (investiga antes) |
 | `/refactor` | Reorganizar código sem mudar comportamento |
 | `/qa` | Gerar/auditar testes de uma área |
 | `/auditoria` | Passar pelos 3 auditores |
+| `/consistencia` | Cross-check doc↔código (encontra órfãos) |
+| `/replanejar` | Mudança de escopo no meio do épico |
+| `/sprint` | Plano sequencial das próximas stories |
+| `/status` | Reportar progresso em PT-BR sem jargão |
+| `/checkpoint` | Walkthrough da branch antes de mesclar |
+| `/release` | Fechar marco: versão, CHANGELOG, anúncio |
+| `/readiness` | Gate entre `/epico` e `/feature` |
+| `/shard` | Quebra PRD/ARQ longo em pedaços navegáveis |
 | `/retro` | Retrospectiva pós-marco |
+| `/help` | Catálogo dos 22 comandos |
 
 ### O agente sai escrevendo código sozinho?
 Não. O `/bug` exige investigação antes (REGRA #0). O `/feature` exige user story estruturada. Os hooks bloqueiam se ele tentar mascarar bug, comitar segredo ou rodar comando destrutivo.

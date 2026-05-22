@@ -49,7 +49,7 @@ Esse arquivo é a **fonte da verdade** que todo agente lê primeiro. Bem preench
 bash .claude/hooks/_test-runner.sh
 ```
 
-Deve mostrar `Total: 155  |  OK: 155  |  FAIL: 0`. Se falhar, abra issue.
+Deve mostrar `Total: 161  |  OK: 161  |  FAIL: 0`. Se falhar, abra issue.
 
 ## 4. Output style PT-BR — já ativo
 

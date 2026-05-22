@@ -11,14 +11,13 @@
 
 ---
 
-## 🆕 Novidades na v0.14.3 (varredura final pós auditoria 10-agentes round 9)
+## 🆕 Novidades na v0.15.0 (paridade com doc oficial Claude Code — 10 agentes de auditoria)
 
-Quatro releases de hardening sucessivo (0.14.0 → 0.14.3) saindo de **147 → 161 testes** com 0 falhas. Hooks bloqueadores e cobertura BR continuam o diferencial.
+Saída de v0.14.x: status line PT-BR ativa por padrão, 4 hooks de ciclo de vida novos (`session-snapshot`, `session-restore`, `auto-format-on-write`, `subagent-handoff-audit`), 3 output styles especializados (`pt-br-conciso`, `dpo-lgpd`, `fiscal-br`), presets MCP BR (e-Saúde, SEFAZ, Pix Bacen) e GitHub Actions de auditoria automática em PR.
 
-- **v0.14.3** — varredura final dos 10 relatórios: P1/P2/P3 não retomados (precisão jurídica de Pix/LGPD/eSocial; CNPJ alfanumérico corrigido onde divergia do validador oficial).
-- **v0.14.2** — débito técnico + precisão jurídica round 8 (texto de regulação alinhado a fonte primária).
-- **v0.14.1** — 8 testes de regressão dos furos da round 8 (147 → 155).
-- **v0.14.0** — Paridade sequência obrigatória de agentes nos 7 adapters sem hooks (texto reforça o que o hook bloqueia em Claude Code).
+- **v0.15.0** — paridade com doc oficial Claude Code + auditoria 10-agentes consolidada (161/161 testes, 0 falhas).
+- **Status line + output style PT-BR** distribuídos no `settings.json` — sem configurar nada.
+- **4 hooks lifecycle:** sessão retomável (`session-snapshot` + `session-restore`), formatação automática no Write (`auto-format-on-write`), auditoria de handoff entre agentes (`subagent-handoff-audit`).
 - **Hardening contínuo dos hooks:** `block-confirmation-questions` + `regra-zero-reminder` endurecidos; `_lib.sh` centraliza `secret_token_patterns()` (cobre AWS, OpenAI `sk-proj-*`, Anthropic, GitHub PAT, Slack, JWT, PEM PKCS8, conexão BD).
 - **Path traversal em `remove <addon>` blindado** — re-resolve cada path e recusa fora de `.claude/`, pula symlinks.
 
@@ -293,13 +292,16 @@ Os 9 adapters não são iguais. Hooks bash são executados só pelo Claude Code;
 - [Como funciona](docs/COMO-FUNCIONA.md) — estrutura + fluxo dos comandos
 - [Exemplo de feature completa](docs/EXEMPLO-FEATURE-COMPLETA.md) — transcrição realista
 - [Exemplos materializados](docs/examples/README.md) — story preenchida (US-001) com todos os campos vivos
+- [Estendendo o framework](docs/EXTENDENDO.md) — criar agente, hook, skill ou addon do zero
+- [Plan mode + sessões](docs/PLAN-MODE-E-SESSOES.md) — revisar antes de tocar disco, retomar sessão
 - [FAQ](docs/FAQ.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Casos de uso BR](docs/CASOS-DE-USO-BR.md) — NF-e, telemedicina, Pix, eSocial, e-commerce, EAD, Open Finance
 - [Guia MCP](docs/MCP-GUIA-BR.md)
 - [Arquitetura do framework](docs/ARQUITETURA.md)
+- [Publicar no npm](docs/PUBLICAR-NPM.md) — processo de release pro mantenedor
 - [Roadmap público](ROADMAP.md) — o que vem por aí
-- [Addons](addons/README.md) — 6 addons disponíveis + como criar
+- [Addons](addons/README.md) — 6 addons disponíveis + como criar (schema em `addons/addon.schema.json`)
 
 ## Licença
 

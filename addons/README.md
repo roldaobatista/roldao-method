@@ -25,6 +25,8 @@ addons/<nome-do-addon>/
 
 ## Manifesto `addon.yaml`
 
+Schema formal: [`addon.schema.json`](addon.schema.json) (JSON Schema draft 2020-12). Cada `addon.yaml` deve passar pelo `tools/validar-templates.js` antes de publicar.
+
 Schema real (idêntico nos 6 addons — chaves de estrutura em inglês, conteúdo em PT-BR):
 
 ```yaml

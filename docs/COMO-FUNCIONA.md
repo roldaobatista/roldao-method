@@ -19,8 +19,8 @@ seu-projeto/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
 │   ├── agents/                    <- 12 especialistas
-│   ├── hooks/                     <- 22 bloqueadores + 4 auxiliares + 2 utilitários
-│   ├── commands/                  <- 21 workflows
+│   ├── hooks/                     <- 22 bloqueadores + 6 aux/lifecycle + 2 utilitários
+│   ├── commands/                  <- 22 workflows
 │   ├── skills/                    <- 8 skills BR core (+14 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
@@ -201,6 +201,22 @@ ações com dono
 docs/retros/AAAA-MM-DD.md + atualiza AGENTS.md §10
 ```
 
+### /clarificar, /consistencia, /quick-dev, /readiness, /shard, /sprint, /replanejar, /status, /checkpoint, /release, /help — workflows complementares
+
+| Comando | Quando | Agentes principais |
+|---|---|---|
+| `/clarificar <ideia>` | Tira ambiguidade antes de codar | gerente-produto (faz perguntas) |
+| `/consistencia <escopo>` | Cross-check doc↔código (acha órfãos) | investigador → 3 auditores |
+| `/quick-dev <descrição>` | Mudança trivial ≤ 3 arquivos / ≤ 50 linhas | dev-senior → revisor |
+| `/readiness EP-NNN` | Gate entre `/epico` e `/feature` | investigador → tech-lead |
+| `/shard <doc>` | Quebra PRD/ARQ longo em chunks navegáveis | (fatiamento, sem agente) |
+| `/sprint <N>` | Plano sequencial das próximas N stories | gerente-produto |
+| `/replanejar <escopo>` | Mudança de escopo no épico | gerente-produto → tech-writer |
+| `/status` | Reportar progresso em PT-BR sem jargão | tech-writer |
+| `/checkpoint` | Walkthrough guiado de branch antes do merge | (sem agente) |
+| `/release <versão>` | Fechar marco: versão, CHANGELOG, tag, nota PT-BR | tech-writer |
+| `/help` | Catálogo dos 22 comandos com códigos curtos | (sem agente) |
+
 ## Os 12 agentes
 
 | Agente | Papel | Modelo |
@@ -218,7 +234,7 @@ docs/retros/AAAA-MM-DD.md + atualiza AGENTS.md §10
 | `fiscal-br` | NF-e, certificado, eSocial, reforma tributária | sonnet |
 | `tech-writer` | CHANGELOG, release notes, msg de commit, anúncio | haiku |
 
-Lista canônica de hooks (bloqueadores + auxiliares + utilitários) em [`README.md` seção "22 hooks bloqueadores"](../README.md#22-hooks-bloqueadores--4-auxiliares--2-infra-_lib--test-runner--28-hooks-core-5-em-addons). Test-runner cobre **155 casos**.
+Lista canônica de hooks (bloqueadores + auxiliares + utilitários) em [`README.md` seção "22 hooks bloqueadores"](../README.md#22-hooks-bloqueadores--4-auxiliares--2-infra-_lib--test-runner--28-hooks-core-5-em-addons). Test-runner cobre **161 casos**.
 
 ## Os 8 skills BR core
 
