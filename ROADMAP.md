@@ -11,10 +11,10 @@ status: stable
 ## Versão atual: v0.15.0 (mai/2026)
 
 Pacote pós auditoria **10-agentes vs documentação oficial Claude Code** (`code.claude.com/docs`): 10 dimensões cruzadas (subagents, hooks, slash commands, memory, skills, settings/permissions, MCP, output styles/status line, SDK/headless, plan mode/worktrees), **todos os achados resolvidos** nesta release. Histórico cumulativo (round 10 — v0.14.4 fechou P0; v0.14.5 fechou P2 estruturais; v0.14.6 fechou cobertura de addons e adapters; v0.15.0 fecha paridade com a doc oficial):
-- 12 agentes especialistas (com nome + ícone)
+- 14 agentes especialistas (com nome + ícone)
 - 22 workflows (incluindo `/clarificar`, `/consistencia`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`, `/release`)
-- 22 hooks bloqueadores + 4 auxiliares + 2 infra (`_lib.sh`, `_test-runner.sh`) = **28 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD; v0.13 paridade SDD + Gemini/Codex; v0.14 hardening cumulativo + regex de secrets cobrindo `sk-proj-*`/`github_pat_`/PEM PKCS8 + path traversal blindado em `remove <addon>`.
-- 8 skills BR no core + 14 nos addons = **22 skills**
+- 25 hooks bloqueadores (22 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação + 2 infra (`_lib.sh`, `_test-runner.sh`) = **34 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD; v0.13 paridade SDD + Gemini/Codex; v0.14 hardening cumulativo + regex de secrets cobrindo `sk-proj-*`/`github_pat_`/PEM PKCS8 + path traversal blindado em `remove <addon>`; v0.15 lifecycle hooks (PostToolUse/SubagentStop/PreCompact/SessionEnd) + 3 hooks JSON `decision:block` (jargão, confirmação, pipeline).
+- 12 skills BR no core + 14 nos addons = **26 skills**
 - 8 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance, audit-trail)
 - 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
 - 6 addons (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
@@ -52,36 +52,41 @@ Pacote pós auditoria **10-agentes vs documentação oficial Claude Code** (`cod
 
 ## v0.16.0 — "Setor saúde + setor público" (alvo: set/2026)
 
-- [ ] Addon `telemedicina` — LGPD Art. 11 + CFM + ANS + receita digital + prescrição assinada.
-- [ ] Addon `govtech-br` — APIs do Governo, e-Protocolo, assinatura ICP-Brasil, transparência ativa.
-- [ ] Addon `saude-br-completo` — TISS/EDI, ANS, CFM, dado sensível em escala.
-- [ ] Skill `consultar-cnpj-receita` — wrapper RFB com cache + LGPD-004.
-- [ ] Skill `validar-receita-medica-digital` — ICP-Brasil + CFM.
+- [ ] Addon `telemedicina` — **Definição de pronto:** ≥3 agentes (médico-relator, dpo-saúde, fiscal-saúde), ≥4 hooks (consentimento Art. 11, log de acesso PHI, anonimização export, retention CFM), ≥3 skills (validar-CRM, gerar-receita-digital-assinada, validar-CID-10), ≥12 testes verdes.
+- [ ] Addon `govtech-br` — **Definição de pronto:** ≥2 agentes (proc-public, transparência-ativa), ≥3 hooks (LAI-prazo, assinatura ICP-Brasil obrigatória, e-Protocolo no fluxo), ≥3 skills (validar-CPF-funcionário, gerar-protocolo, consultar-e-CAC), ≥10 testes verdes.
+- [ ] Addon `saude-br-completo` — **Definição de pronto:** suporte TISS 4.x + EDI ANS, ≥3 hooks (TUSS obrigatório, prontuário CFM 1.821 mínimo, dado sensível em escala = RIPD), ≥10 testes verdes.
+- [ ] Skill `consultar-cnpj-receita` — **Definição de pronto:** wrapper RFB com cache 24h, LGPD-004 (auditado), fallback offline com dados sintéticos pra teste, 4 testes verdes.
+- [ ] Skill `validar-receita-medica-digital` — **Definição de pronto:** valida assinatura ICP-Brasil + carimbo de tempo + CRM ativo, 5 testes verdes.
 
 ## v0.17.0 — "Setores produtivos" (alvo: nov/2026)
 
-- [ ] Addon `agro-br` — CAR, nota fiscal de produtor, SISBOV, rastreabilidade.
-- [ ] Addon `logistica-br` — CT-e + MDF-e, RNTRC, rastreamento.
-- [ ] Addon `educacao-br` — ENADE, e-Docente, histórico escolar.
-- [ ] Skill `migration-postgres-segura` — pattern de migration PostgreSQL com lock estudado e backup.
+- [ ] Addon `agro-br` — **Definição de pronto:** ≥2 agentes (rural-fiscal, rastreabilidade), ≥3 hooks (CAR obrigatório em pessoa-rural, SISBOV em bovino, nota fiscal de produtor com IE rural), ≥3 skills (validar-CAR, validar-SISBOV, calcular-funrural), ≥10 testes verdes.
+- [ ] Addon `logistica-br` — **Definição de pronto:** CT-e 4.0 + MDF-e 3.0, ≥4 hooks (RNTRC obrigatório, MDF-e antes do tráfego, CT-e por trecho, CIOT em sub-contratação), ≥10 testes verdes.
+- [ ] Addon `educacao-br` — **Definição de pronto:** ENADE/SISTEC/Censo MEC, ≥3 hooks (matrícula INEP obrigatória, histórico CONAES, e-Docente sincronizado), ≥10 testes verdes.
+- [ ] Skill `migration-postgres-segura` — **Definição de pronto:** detecta lock longo, valida backup ≤24h, gera DDL com `CONCURRENTLY` quando aplicável, 6 testes verdes.
 
 ## v0.18.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
 
-- [ ] Pix Automático completo no addon `fintech-br` (recorrência autorizada).
-- [ ] Addon `open-banking-iniciador` — implementação completa de ITP (Iniciadora de Pagamento).
-- [ ] Skill `gerar-relatorio-bacen` — relatórios obrigatórios pra fintechs.
-- [ ] eSocial S-3000 (exclusão) completo.
+- [ ] Pix Automático no addon `fintech-br` — **Definição de pronto:** suporte a recorrência autorizada (Resolução BCB 80/2021 atualizada), 2 hooks novos (recorrência precisa contrato, cancelamento sob pedido), ≥8 testes verdes.
+- [ ] Addon `open-banking-iniciador` — **Definição de pronto:** fluxo ITP completo (consent → autorização → SCA → pagamento), ≥3 hooks (consent expirado bloqueia, SCA obrigatório, idempotência por ConsentId), ≥10 testes verdes.
+- [ ] Skill `gerar-relatorio-bacen` — **Definição de pronto:** cobre DLO, SCR, IF.DATA, 3 testes verdes com fixture validada.
+- [ ] eSocial S-3000 (exclusão) — **Definição de pronto:** evento gerado + XML válido + assinatura + retransmissão, 4 testes verdes.
 
 ## v1.0.0 — "Estabilidade + comunidade" (alvo: abr/2027)
 
-Pré-requisitos para 1.0:
-- [ ] Pacote publicado no npm e estável (sem breaking change em minor).
+Pré-requisitos técnicos (controláveis pelo time):
+- [ ] Pacote publicado no npm com ≥6 meses sem breaking change em minor.
+- [ ] `bin/install.js` modularizado com ≥80% de cobertura de teste unitário.
+- [ ] Documentação completa em pt-BR + en (com `tools/sincronizar-traducao.js --check`).
+- [ ] RFC process estabelecido (`docs/RFC-PROCESS.md` + template em `.specify/templates/`).
+- [ ] Skill `validar-chave-acesso-nfe` no core.
+- [ ] Test runner com ≥300 casos cobertos.
+
+Sinais de tração (dependem da comunidade — separados pra não bloquear release técnica):
 - [ ] Pelo menos 3 cases de uso público (empresas usando, autorizado a citar).
-- [ ] 10+ contribuidores externos.
+- [ ] 10+ contribuidores externos com PR merged.
 - [ ] Discord ativo (>500 membros).
-- [ ] Documentação completa em pt-BR + en (tradução automática mantida).
-- [ ] 1 conferência apresentando o método (RustConf BR, The Developers Conference, Brasil JS).
-- [ ] RFC process estabelecido.
+- [ ] 1 conferência apresentando o método (The Developers Conference, BrasilJS, RustConf BR).
 
 ## Pendências contínuas (sem versão alvo)
 

@@ -1,0 +1,92 @@
+name: Auditoria LGPD headless (PR)
+
+# Roda Claude em modo headless (claude -p) num PR que toca arquivos relacionados a dados pessoais.
+# Posta veredito como comentário no PR.
+# Usa output JSON pra parsing previsível.
+
+on:
+  pull_request:
+    paths:
+      - '**/*usuario*'
+      - '**/*user*'
+      - '**/*cliente*'
+      - '**/*titular*'
+      - '**/dados-pessoais/**'
+      - '**/lgpd/**'
+      - '**/auth/**'
+      - '**/cadastro/**'
+      - '**/perfil/**'
+      - 'docs/decisions/ADR-**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  audit-lgpd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Rodar auditoria LGPD
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          DIFF=$(git diff "origin/$BASE_REF...HEAD" --stat)
+          # Prefere .claude/ se existir (repo já instalado/dogfood);
+          # senão usa templates/.claude/ (caminho versionado, sempre presente).
+          if [ -f .claude/agents/auditor-seguranca.md ]; then
+            AGENT_FILE=.claude/agents/auditor-seguranca.md
+          else
+            AGENT_FILE=templates/.claude/agents/auditor-seguranca.md
+          fi
+          export DIFF
+          PROMPT="Você é o auditor de segurança do ROLDAO-METHOD. Audite o diff deste PR pelos critérios LGPD-001 a LGPD-010. Diff (estatístico): \$DIFF. Foco: (1) coleta de dado pessoal sem base legal documentada; (2) log de dado sensível sem mascaramento; (3) compartilhamento sem RAT/DPA; (4) transferência internacional sem cláusula ANPD; (5) decisão automatizada sem revisão humana. Saída JSON estrito: {\"veredito\":\"APROVADO|RESSALVAS|BLOQUEADO\",\"violacoes\":[{\"id\":\"LGPD-XXX\",\"arquivo\":\"...\",\"linha\":N,\"motivo\":\"...\"}],\"resumo_pt_br\":\"...\"}. Sem texto fora do JSON."
+          claude -p "$PROMPT" \
+            --model claude-opus-4-7 \
+            --output-format json \
+            --max-turns 5 \
+            --append-system-prompt-file "$AGENT_FILE" \
+            > audit.json
+
+      - name: Postar comentário no PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const raw = fs.readFileSync('audit.json', 'utf8');
+            let payload;
+            try { payload = JSON.parse(raw); } catch (e) { payload = { veredito: 'ERRO', resumo_pt_br: raw }; }
+            const emoji = {
+              APROVADO: ':white_check_mark:',
+              RESSALVAS: ':warning:',
+              BLOQUEADO: ':no_entry:',
+              ERRO: ':grey_question:'
+            }[payload.veredito] || ':grey_question:';
+            const violacoes = (payload.violacoes || []).map(v => `- **${v.id}** \`${v.arquivo}:${v.linha}\` — ${v.motivo}`).join('\n') || '_(nenhuma)_';
+            const body = `## ${emoji} Auditoria LGPD — \`${payload.veredito}\`\n\n${payload.resumo_pt_br || ''}\n\n### Violações\n\n${violacoes}\n\n_Rodado pelo workflow \`claude-headless-lgpd.yml\` do ROLDAO-METHOD._`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body
+            });
+
+      - name: Falhar se BLOQUEADO
+        run: |
+          if grep -q '"veredito":"BLOQUEADO"' audit.json; then
+            echo "Auditoria LGPD bloqueou o PR. Veja comentário no PR."
+            exit 1
+          fi

@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-17
+revisado-em: 2026-05-22
 status: stable
 ---
 
@@ -15,7 +15,7 @@ Não. O ROLDAO-METHOD foi feito por e para gente que não programa. Os agentes t
 
 Os 9 alvos suportados — paridade real declarada na tabela do README:
 
-- **Claude Code:** suporte nativo (12 agentes executáveis, 22 hooks bloqueadores com exit 2, 22 commands, 8 skills com algoritmo Python).
+- **Claude Code:** suporte nativo (14 agentes executáveis, 25 hooks bloqueadores [22 via `exit 2` + 3 via JSON `decision:block`], 22 commands, 11 skills com algoritmo Python).
 - **Cursor / Windsurf / Cline / Roo / Continue / Aider / Gemini CLI / Codex CLI:** suporta as **regras** (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, regra própria do adapter). Os outros 8 lêem texto carregado no contexto, **mas não executam hooks** (limitação do harness de cada IDE). O instalador detecta a IDE local e instala o que se aplica; pode forçar todos com `--all-adapters` ou um subconjunto com `--adapters=cursor,windsurf`.
 
 Quem usa Cursor/Windsurf/etc. e quer também os bloqueios mecânicos: rode Claude Code em paralelo nos pontos críticos (commit, release).

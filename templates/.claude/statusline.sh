@@ -41,7 +41,25 @@ RUNTIME="${CLAUDE_PROJECT_DIR:-.}/.claude/.runtime"
 if [ -d "$RUNTIME" ]; then
   MARKER=$(ls -1t "$RUNTIME"/*-done-* 2>/dev/null | head -1 || true)
   if [ -n "$MARKER" ]; then
-    AGENTE=$(basename "$MARKER" | sed -E 's/-done-.*$//')
+    SLUG=$(basename "$MARKER" | sed -E 's/-done-.*$//')
+    # Mapa slug → nome + ícone (mantém em sincronia com .claude/agents/MAPA-VISUAL.md)
+    case "$SLUG" in
+      maestro)            AGENTE="🎼 Maestro" ;;
+      analista)           AGENTE="🔎 Mariana" ;;
+      gerente-produto)    AGENTE="📋 Sofia" ;;
+      ux-designer)        AGENTE="🎨 Lia" ;;
+      tech-lead)          AGENTE="🏛️ Rafael" ;;
+      investigador)       AGENTE="🔬 Detetive" ;;
+      dev-senior)         AGENTE="💻 Bruno" ;;
+      dba-dados)          AGENTE="🗄️ Helena" ;;
+      revisor)            AGENTE="✅ Inês" ;;
+      auditor-seguranca)  AGENTE="🛡️ Caio" ;;
+      auditor-qualidade)  AGENTE="🧪 Julia" ;;
+      auditor-produto)    AGENTE="🎯 Pedro" ;;
+      fiscal-br)          AGENTE="🧾 Dona Marta" ;;
+      tech-writer)        AGENTE="📝 Camila" ;;
+      *)                  AGENTE="$SLUG" ;;
+    esac
   fi
 fi
 
@@ -49,7 +67,7 @@ fi
 STORY=""
 if [ -d "$RUNTIME" ]; then
   FEAT=$(ls -1t "$RUNTIME"/feature-active-* 2>/dev/null | head -1 || true)
-  [ -n "$FEAT" ] && STORY=" | $(cat "$FEAT" 2>/dev/null | head -c 12)"
+  [ -n "$FEAT" ] && STORY=" · 📌 $(cat "$FEAT" 2>/dev/null | head -c 12)"
 fi
 
-printf 'ROLDAO v%s | %s | %s%s | %s' "$VERSAO_FRAMEWORK" "$MODELO" "$BRANCH" "$STORY" "$AGENTE"
+printf '📍 v%s · 🤖 %s · 🌿 %s%s · 👤 %s' "$VERSAO_FRAMEWORK" "$MODELO" "$BRANCH" "$STORY" "$AGENTE"

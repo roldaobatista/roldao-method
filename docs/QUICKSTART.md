@@ -22,10 +22,10 @@ Confirme com `s`. O comando copia:
 - `.specify/memory/constitution.md` — 6 princípios universais.
 - `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
 - `.agent/CURRENT.md` — estado da sessão.
-- `.claude/agents/` — 13 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados).
-- `.claude/hooks/` — 22 bloqueadores + 4 auxiliares + 2 utilitários (lib + test-runner) = 28 hooks core.
+- `.claude/agents/` — 14 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados).
+- `.claude/hooks/` — 25 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários (lib + test-runner) = 34 hooks core.
 - `.claude/commands/` — 22 workflows.
-- `.claude/skills/` — 8 skills BR core (CPF/CNPJ alfanum, Pix, CEP, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +14.
+- `.claude/skills/` — 12 skills BR core (CPF/CNPJ alfanum, chave NF-e, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +14.
 - `.claude/output-styles/pt-br-conciso.md`.
 - `.claude/settings.json` — permissões + hooks.
 
@@ -121,14 +121,14 @@ Reportei um bug: ao salvar pedido com valor zero, o sistema aceita.
 
 ## 7. Addons (extender pra domínios específicos)
 
-O core entrega 13 agentes + 8 skills BR. Pra domínios profundos, instale addons:
+O core entrega 14 agentes + 11 skills BR. Pra domínios profundos, instale addons:
 
 ```bash
 npx roldao-method search        # listar addons disponíveis
 npx roldao-method add fintech-br # instalar addon (ex: Pix, Open Finance)
 ```
 
-Addons disponíveis hoje: `fintech-br` (Pix + Open Finance), `fiscal-br-emissor` (NF-e, NFC-e, SAT), `electron` (SQLite seguro, balança/impressora), `lgpd-operacional`, `eSocial-folha`, `saude-mental`.
+Addons disponíveis hoje: `fintech-br` (Pix + Open Finance), `fiscal-br-completo` (NF-e, NFC-e, SAT), `electron-br` (SQLite seguro, balança/impressora), `lgpd-compliance`, `esocial-completo`, `varejo-pdv-br`.
 
 ## 8. Próximos passos
 

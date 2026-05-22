@@ -49,6 +49,7 @@ const cep = path.join(S, 'validar-cep', 'scripts', 'validar-cep.py');
 const ie = path.join(S, 'validar-ie', 'scripts', 'validar-ie.py');
 const boleto = path.join(S, 'validar-boleto', 'scripts', 'validar-boleto.py');
 const brCode = path.join(S, 'gerar-br-code', 'scripts', 'gerar-br-code.py');
+const chaveNfe = path.join(S, 'validar-chave-acesso-nfe', 'scripts', 'validar.py');
 const pisS = path.join(PIS, 'scripts', 'validar-pis.py');
 
 // IE precisa de 2 argumentos. Wrapper local pra reusar `run` que assume arg unico.
@@ -82,6 +83,28 @@ runIE('IE de UF sem algoritmo dedicado (CE) — aceito formalmente', 'CE', '1234
 // O codigo gera DV correto na hora do calculo; usamos uma string que sabemos invalida
 run('boleto tamanho invalido (33 digitos)', boleto, '123456789012345678901234567890123', false);
 run('boleto vazio invalido', boleto, '', false);
+
+// validar-chave-acesso-nfe (44 digitos, modulo 11)
+// Geramos uma chave valida calculando o DV programaticamente. Resto sao casos invalidos.
+function calcDvChave(chave43) {
+  const pesos = [2, 3, 4, 5, 6, 7, 8, 9];
+  let soma = 0;
+  const reversed = chave43.split('').reverse();
+  for (let i = 0; i < reversed.length; i++) {
+    soma += parseInt(reversed[i], 10) * pesos[i % 8];
+  }
+  const resto = soma % 11;
+  return resto < 2 ? 0 : 11 - resto;
+}
+const chave43Sp = '3524061122233300018155001000000000111234567'; // UF35 + AAMM2406 + CNPJ + 55 + 001 + 9 + 1 + cNF
+const dvSp = calcDvChave(chave43Sp);
+const chaveValidaSp = chave43Sp + dvSp;
+run('chave NF-e SP valida (DV calculado)', chaveNfe, chaveValidaSp, true);
+run('chave NF-e tamanho invalido (43 digitos)', chaveNfe, chave43Sp, false);
+run('chave NF-e UF invalida (99)', chaveNfe, '9924061122233300018155001000000000111234567' + dvSp, false);
+run('chave NF-e modelo desconhecido (99)', chaveNfe, '3524061122233300018199001000000000111234567' + dvSp, false);
+run('chave NF-e DV errado (forca 0)', chaveNfe, chave43Sp + ((dvSp + 1) % 10), false);
+run('chave NF-e CNPJ zerado', chaveNfe, '35240600000000000000550010000000001112345670', false);
 
 // gerar-br-code: smoke (gera output sem crash). Validacao do EMV completo
 // fica pra suite Python no CI, este teste so confere que o script roda.

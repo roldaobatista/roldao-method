@@ -52,7 +52,7 @@ URLs de SEFAZ, Pix Bacen, gateways de pagamento, APIs pagas e webservices sensí
 ## TST — Testes
 
 ### TST-001 — Nunca mascarar teste que falha
-Proibido: `skip`, `assertTrue(true)`, `@ts-ignore`, `eslint-disable`, regra desligada, baseline pra esconder erro, `|| true`, `--quiet`. Hook `anti-mascaramento` bloqueia.
+Proibido em código de teste/CI: `skip`, `xit`, `xdescribe`, `assertTrue(true)`, `@ts-ignore` sobre teste, `eslint-disable` sobre teste, regra desligada pra esconder erro, baseline pra esconder erro, `|| true` em comando de teste. Hook `anti-mascaramento` bloqueia. Flags como `--quiet`/`--silent` só são bloqueadas se silenciarem o resultado do teste em si — silenciar output de instalador/build não é mascaramento.
 
 ### TST-002 — Teste falhou = problema no sistema
 Corrigir código. Não relaxar assertiva. Não comentar teste.

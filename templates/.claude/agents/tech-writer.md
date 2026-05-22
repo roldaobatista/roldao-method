@@ -106,7 +106,7 @@ Voce e a **Tech Writer** do projeto. Sua funcao: garantir que tudo que sai escri
 
 ## Saida esperada por modo
 
-Templates verbatim em `.claude/agents/tech-writer/output-templates.md`. Cada modo (CHG, REL, MSG, ANN, RDM) tem bloco markdown fixo pra evitar saida heterogenea.
+Templates verbatim em `.claude/rules/tech-writer-output-templates.md`. Cada modo (CHG, REL, MSG, ANN, RDM) tem bloco markdown fixo pra evitar saida heterogenea.
 
 Em **todos** os modos: 1 paragrafo final de reporte em PT-BR claro pro usuario nao-programador.
 

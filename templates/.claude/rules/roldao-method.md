@@ -8,7 +8,7 @@ revisado-em: 2026-05-18
 
 # ROLDAO-METHOD — regras unificadas
 
-> No Claude Code os hooks em `.claude/hooks/` codificam estas regras mecanicamente (exit 2 = bloqueio). Este arquivo é referência rápida para auditar o contrato sem abrir 28 scripts.
+> No Claude Code os hooks em `.claude/hooks/` codificam estas regras mecanicamente. Bloqueio acontece de 2 jeitos: `exit 2` (PreToolUse) ou JSON `{"decision":"block"}` (PostToolUse/Stop). Este arquivo é referência rápida para auditar o contrato sem abrir os 34 scripts.
 
 ## REGRA #0 — Investigar antes de mexer em lógica de negócio
 
@@ -33,13 +33,24 @@ Nunca perguntar "quer que eu...?", "posso fazer X?", "devo continuar?". Decida e
 
 Codificado em: `block-confirmation-questions.sh`.
 
+## Pró-atividade, não permissão (INV-AGENT-003)
+
+Ao identificar gap/bug/débito: **resolver**. INV-AGENT-003 trata do GATILHO (o momento em que você decide se vai agir sobre algo que descobriu); INV-AGENT-006 trata da FORMA (não perguntar). Os 3 auditores aplicam fix trivial — ver seção "Correções que VOCÊ aplica sem pedir" em `auditor-seguranca`, `auditor-qualidade`, `auditor-produto`.
+
+## Pix — chave Pix é dado pessoal (PIX-004 + LGPD-001/004)
+
+Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***@***`, `***.***.***-99`). Acessos a chave Pix logados e auditados. Verificação operacional vive no addon `fintech-br`; aqui no core o lembrete é doutrinário pra qualquer projeto que integrar Pix.
+
 ## Bloqueios duros codificados em hook
 
 | Regra | Hook | Exit |
 |---|---|---|
 | Sem `rm -rf`, `git push --force`, `--no-verify` | `block-destructive.sh` | 2 |
 | Sem secret (AWS/PAT/PEM) em código ou commit | `secrets-scanner.sh`, `block-secrets-in-commit-message.sh` | 2 |
-| Sem mascaramento (`@ts-ignore`, `.skip()`, `assertTrue(true)`, `\|\| true`) | `anti-mascaramento.sh` | 2 |
+| Sem mascaramento em teste (`@ts-ignore`, `.skip()`, `xit`, `assertTrue(true)`, `\|\| true` em comando de teste) | `anti-mascaramento.sh` | 2 |
+| Pergunta de confirmação na resposta ("quer que eu...?") — INV-AGENT-006 | `block-confirmation-questions.sh` | block (JSON) |
+| Jargão técnico sem tradução PT-BR — INV-AGENT-001 | `block-jargon-pt-br.sh` | block (JSON) |
+| `/feature` sem completar pipeline (Sofia → Detetive → Rafael → Bruno → Inês → 3 auditores) | `enforce-pipeline-completion.sh` | block (JSON) |
 | Mock em integration/ ou e2e/ | `block-mock-in-integration.sh` | 2 |
 | TODO sem ID rastreável | `block-todo-without-issue.sh` | 2 |
 | Test fixture com CPF/email/telefone real | `no-test-data-in-fixtures.sh` | 2 |
@@ -58,6 +69,10 @@ Codificado em: `block-confirmation-questions.sh`.
 | Commit sem 3 auditores aprovados | `require-auditors-pass-before-commit.sh` | 2 |
 | Story marcada entregue sem audit trail | `validate-story-approvals.sh` | 2 |
 | Frontmatter de spec sem campos obrigatórios | `paths-frontmatter-validator.sh` | 2 |
+| Código toca dado pessoal sem base legal declarada (LGPD-001/007) | `lgpd-base-legal-reminder.sh` | 0 (soft warning) |
+| Lembrete REGRA #0 antes de bug — UserPromptSubmit | `regra-zero-reminder.sh` | 0 (soft warning) |
+
+**Total:** 25 hooks bloqueadores (22 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação (`auto-format-on-write`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `subagent-handoff-audit`) + 2 utilitários internos (`_lib.sh`, `_test-runner.sh`) = **34 arquivos** em `.claude/hooks/`.
 
 ## Spec-driven (INV-002)
 

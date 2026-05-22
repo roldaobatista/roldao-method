@@ -149,7 +149,7 @@ Stack ativa: _(preencher após decidir)_.
 - **Skills (`.claude/skills/`):** criar quando padrão repetir 3x.
 - **Rules (`.claude/rules/`):** sempre com `paths:` frontmatter (lazy load).
 - **Override sem fork (`.specify/overrides/<area>/<nome>.md`):** adapta template ao seu domínio. Tem precedência sobre `.specify/<area>/<nome>.md` (core). `update` nunca toca `overrides/`.
-- **Addons (`npx roldao-method add <nome>`):** pacotes de domínio (fintech-br, fiscal-br-emissor, electron, eSocial-folha, lgpd-operacional, saude-mental). Liste com `npx roldao-method search`.
+- **Addons (`npx roldao-method add <nome>`):** pacotes de domínio (`fintech-br`, `fiscal-br-completo`, `electron-br`, `esocial-completo`, `lgpd-compliance`, `varejo-pdv-br`). Liste com `npx roldao-method search`.
 
 Para criar agente/hook/skill/addon novo: `docs/EXTENDENDO.md` tem o passo-a-passo com esqueletos prontos.
 

@@ -25,10 +25,10 @@ roldao-method/                        <- raiz do framework
 │   │   └── templates/                <- prd, story, architecture, decision-log
 │   └── .claude/
 │       ├── settings.json
-│       ├── agents/                   <- 12 agentes
-│       ├── hooks/                    <- 28 hooks (22 bloqueadores + 4 aux + 2 utilitários)
-│       ├── commands/                 <- 21 commands
-│       ├── skills/                   <- 8 skills BR core (+14 em addons)
+│       ├── agents/                   <- 14 agentes
+│       ├── hooks/                    <- 34 hooks (25 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários)
+│       ├── commands/                 <- 22 commands
+│       ├── skills/                   <- 12 skills BR core (+14 em addons)
 │       └── output-styles/
 ├── tools/
 │   └── validar-templates.js          <- audita frontmatter, refs, JSON valido

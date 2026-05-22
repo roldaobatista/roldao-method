@@ -209,9 +209,13 @@ try {
       try { return fs.statSync(path.join(sd, x)).isDirectory(); } catch { return false; }
     }).length;
   }, 0);
-  const blockingHooks = listDir(hooksDir).filter((f) =>
-    f.endsWith('.sh') && !/^_/.test(f) &&
-    /\bexit 2(?!\d)/.test(fs.readFileSync(path.join(hooksDir, f), 'utf8'))).length;
+  // Bloqueio acontece via `exit 2` (PreToolUse) OU JSON `{"decision":"block"}` (PostToolUse/Stop).
+  // Contar ambos pra refletir a realidade — ver ADR `.claude/rules/roldao-method.md`.
+  const blockingHooks = listDir(hooksDir).filter((f) => {
+    if (!f.endsWith('.sh') || /^_/.test(f)) return false;
+    const content = fs.readFileSync(path.join(hooksDir, f), 'utf8');
+    return /\bexit 2(?!\d)/.test(content) || /decision\s*=>\s*"block"|"decision"\s*:\s*"block"/.test(content);
+  }).length;
   const addonCount = listDir(ADDONS_DIR).filter((a) =>
     fs.existsSync(path.join(ADDONS_DIR, a, 'addon.yaml'))).length;
   const real = {

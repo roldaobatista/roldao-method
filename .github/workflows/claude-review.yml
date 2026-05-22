@@ -1,0 +1,47 @@
+name: Revisão Claude (PT-BR)
+
+# Aciona o Claude Code Action quando alguém comenta @claude num PR/issue ou em revisão.
+# Prompt em PT-BR, invoca os agentes do ROLDAO-METHOD (auditor-seguranca, fiscal-br, auditor-qualidade).
+#
+# Pré-requisitos:
+#   - `ANTHROPIC_API_KEY` em Settings > Secrets and variables > Actions
+#   - GitHub App "Claude" instalado no repo (https://github.com/apps/claude OU /install-github-app)
+#   - Branch protection permitindo bot escrever
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Rodar Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: |
+            --model claude-opus-4-7
+            --max-turns 10
+            --append-system-prompt "Você atende em PT-BR. Use os agentes do ROLDAO-METHOD em `templates/.claude/agents/` (ou `.claude/agents/` se o projeto já estiver instalado) quando aplicável: auditor-seguranca pra LGPD/secrets/OWASP, fiscal-br pra NF-e/SPED/eSocial, auditor-qualidade pra testes/cobertura, revisor pra aderência à US. Cite IDs (INV-, SEC-, TST-, LGPD-, FISCAL-, PIX-) ao apontar violação. Use linguagem sem jargão quando o autor do PR não for programador."

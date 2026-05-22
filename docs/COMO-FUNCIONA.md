@@ -25,10 +25,10 @@ seu-projeto/
 ├── .claude/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
-│   ├── agents/                    <- 13 especialistas
+│   ├── agents/                    <- 14 especialistas
 │   ├── hooks/                     <- ~30 hooks (bloqueadores + lifecycle + utilitários)
 │   ├── commands/                  <- 22 workflows
-│   ├── skills/                    <- 8 skills BR core (+14 em addons)
+│   ├── skills/                    <- 12 skills BR core (+14 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
 ├── .specify/
@@ -115,7 +115,7 @@ Revisor — confirma que `nao_fazer[]` do investigador não foi violado
 
 Hook `require-investigador-before-fix.sh` bloqueia Edit/Write em código de negócio se o Detetive não rodou. Sem bypass implícito.
 
-## Os 13 agentes
+## Os 14 agentes
 
 | Agente | Papel | Modelo |
 |---|---|---|
@@ -133,7 +133,7 @@ Hook `require-investigador-before-fix.sh` bloqueia Edit/Write em código de neg�
 | `fiscal-br` | NF-e, certificado, eSocial, reforma tributária | sonnet |
 | `tech-writer` | CHANGELOG, release notes, msg de commit | haiku |
 
-## Os 8 skills BR core
+## Os 11 skills BR core
 
 | Skill | Função |
 |---|---|
@@ -142,6 +142,9 @@ Hook `require-investigador-before-fix.sh` bloqueia Edit/Write em código de neg�
 | `validar-cpf-cnpj` | Valida CPF e CNPJ numérico + alfanumérico (jul/2026) |
 | `validar-pix` | Valida chave Pix + EndToEndId + TxId |
 | `validar-cep` | Valida CEP (formato + opcional ViaCEP) |
+| `validar-ie` | Valida Inscrição Estadual por UF (27 algoritmos) |
+| `validar-boleto` | Valida código de barras / linha digitável (FEBRABAN) |
+| `gerar-br-code` | Gera BR Code Pix (EMV) — estático e dinâmico |
 | `checklist-lgpd` | Aplica árvore de decisão de base legal + 10 checks |
 | `brainstormar-ideia` | Menu de 15 técnicas BR (Seis Chapéus, SCAMPER, 5 Porquês...) |
 | `gerar-test-fixture-br` | CPF/CNPJ/CEP/E.164 válidos pra mock |

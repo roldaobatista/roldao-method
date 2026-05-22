@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
   "version": "0.15.2",
-  "description": "Framework agentic em PT-BR. 13 agentes, 22 hooks bloqueadores + 4 auxiliares, 22 workflows, 25 skills BR (11 core + 14 em addons; CNPJ alfanumérico 2026, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
+  "description": "Framework agentic em PT-BR. 14 agentes, 25 hooks bloqueadores + 2 soft warnings + 5 lifecycle, 22 workflows, 26 skills BR (12 core + 14 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
     "claude-code",
@@ -36,13 +36,17 @@
   ],
   "scripts": {
     "validar": "node tools/validar-templates.js",
+    "validar:ids": "node tools/validar-ids-rastreaveis.js",
+    "validar:cobertura-hooks": "node tools/validar-cobertura-hooks.js",
     "test:hooks": "bash templates/.claude/hooks/_test-runner.sh",
     "test:install": "node test/install.test.js",
+    "test:install-lib": "node test/install-lib.test.js",
     "test:skills": "node test/skills.test.js",
     "test:addons": "node test/addons.test.js",
     "test:adapters": "node test/adapters.test.js",
     "test:adapter-drift": "node tools/sincronizar-adapters.js --check --quiet",
-    "test": "npm run validar && npm run test:hooks && npm run test:install && npm run test:skills && npm run test:addons && npm run test:adapters",
+    "test:claude-md-sync": "node tools/sincronizar-claude-md.js",
+    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run test:claude-md-sync && npm run test:hooks && npm run test:install-lib && npm run test:install && npm run test:skills && npm run test:addons && npm run test:adapters",
     "prepublishOnly": "npm test && npm run test:adapter-drift"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",

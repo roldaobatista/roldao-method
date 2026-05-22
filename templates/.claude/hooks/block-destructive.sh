@@ -61,51 +61,55 @@ fi
 # seguro recomendado pelo proprio git pra rebase de feature branch privada. Bloqueamos
 # apenas '--force' cru, '-f' isolado e variantes ':<ref>' / '--delete'. Force-with-lease
 # verifica que o ref remoto nao mudou — opera so se a expectativa local bater.
+# Pares: "regex|||descrição humana". Separador `|||` escolhido por não aparecer em regex de shell.
 PATTERNS=(
-  'rm[[:space:]]+-[A-Za-z]*r[A-Za-z]*f'
-  'rm[[:space:]]+-[A-Za-z]*f[A-Za-z]*r'
-  'rm[[:space:]]+-[A-Za-z]*r([[:space:]]|$)'
-  'rm[[:space:]]+-[fr][A-Za-z]*[[:space:]]*[-./~"'"'"'$*]'
-  'rm[[:space:]]+.*--recursive'
-  'rm[[:space:]]+.*--force'
-  'rm[[:space:]]+.*--no-preserve-root'
-  'find[[:space:]]+.*-delete'
-  'find[[:space:]]+.*-exec[[:space:]]+rm'
-  '[[:space:]]shred[[:space:]]'
-  ':\(\)[[:space:]]*\{[[:space:]]*:[[:space:]]*\|[[:space:]]*:'
-  'git[[:space:]]+push.*--force([[:space:]]|$)'
-  'git[[:space:]]+push.*-f[[:space:]]'
-  'git[[:space:]]+push.*[[:space:]]-f$'
-  'git[[:space:]]+push.*--delete'
-  'git[[:space:]]+push[[:space:]]+[^|]*[[:space:]]:[A-Za-z]'
-  'git[[:space:]]+reset[[:space:]]+--hard'
-  'git[[:space:]]+clean[[:space:]]+-fd'
-  'git[[:space:]]+branch[[:space:]]+-D'
-  'chmod[[:space:]]+777'
-  'mkfs\.'
-  'dd[[:space:]]+if='
-  'curl.*\|[[:space:]]*(bash|sh)'
-  'wget.*\|[[:space:]]*(bash|sh)'
-  'DROP[[:space:]]+TABLE'
-  'TRUNCATE[[:space:]]+TABLE'
-  'DROP[[:space:]]+DATABASE'
-  '--no-verify'
-  '--skip-tests'
-  '--skip-hooks'
+  'rm[[:space:]]+-[A-Za-z]*r[A-Za-z]*f|||apagar pasta inteira recursivamente (rm -rf)'
+  'rm[[:space:]]+-[A-Za-z]*f[A-Za-z]*r|||apagar pasta inteira recursivamente (rm -fr)'
+  'rm[[:space:]]+-[A-Za-z]*r([[:space:]]|$)|||apagar recursivamente (rm -r)'
+  'rm[[:space:]]+-[fr][A-Za-z]*[[:space:]]*[-./~"'"'"'$*]|||rm com alvo perigoso (path absoluto, home, ou wildcard)'
+  'rm[[:space:]]+.*--recursive|||apagar recursivamente (rm --recursive)'
+  'rm[[:space:]]+.*--force|||apagar sem perguntar (rm --force)'
+  'rm[[:space:]]+.*--no-preserve-root|||apagar a raiz do sistema (rm --no-preserve-root)'
+  'find[[:space:]]+.*-delete|||apagar arquivos varridos por find'
+  'find[[:space:]]+.*-exec[[:space:]]+rm|||find + rm em massa'
+  '[[:space:]]shred[[:space:]]|||sobrescrever arquivo pra impedir recuperação (shred)'
+  ':\(\)[[:space:]]*\{[[:space:]]*:[[:space:]]*\|[[:space:]]*:|||fork bomb (trava a máquina)'
+  'git[[:space:]]+push.*--force([[:space:]]|$)|||sobrescrever histórico remoto (git push --force — use --force-with-lease)'
+  'git[[:space:]]+push.*-f[[:space:]]|||sobrescrever histórico remoto (git push -f)'
+  'git[[:space:]]+push.*[[:space:]]-f$|||sobrescrever histórico remoto (git push -f)'
+  'git[[:space:]]+push.*--delete|||apagar branch remota (git push --delete)'
+  'git[[:space:]]+push[[:space:]]+[^|]*[[:space:]]:[A-Za-z]|||apagar branch remota (git push :branch)'
+  'git[[:space:]]+reset[[:space:]]+--hard|||descartar mudanças locais sem aviso (git reset --hard)'
+  'git[[:space:]]+clean[[:space:]]+-fd|||apagar arquivos não rastreados (git clean -fd)'
+  'git[[:space:]]+branch[[:space:]]+-D|||apagar branch local sem confirmar merge (git branch -D)'
+  'chmod[[:space:]]+777|||permissão totalmente aberta (chmod 777)'
+  'mkfs\.|||formatar partição (mkfs)'
+  'dd[[:space:]]+if=|||escrever raw em disco (dd if=)'
+  'curl.*\|[[:space:]]*(bash|sh)|||baixar e executar script da internet (curl | bash)'
+  'wget.*\|[[:space:]]*(bash|sh)|||baixar e executar script da internet (wget | bash)'
+  'DROP[[:space:]]+TABLE|||apagar tabela do banco (DROP TABLE)'
+  'TRUNCATE[[:space:]]+TABLE|||esvaziar tabela do banco (TRUNCATE TABLE)'
+  'DROP[[:space:]]+DATABASE|||apagar banco inteiro (DROP DATABASE)'
+  '--no-verify|||pular hooks de pré-commit (--no-verify)'
+  '--skip-tests|||pular testes (--skip-tests)'
+  '--skip-hooks|||pular hooks (--skip-hooks)'
 )
 
-for pat in "${PATTERNS[@]}"; do
+for entry in "${PATTERNS[@]}"; do
+  pat="${entry%%|||*}"
+  desc="${entry#*|||}"
   if printf '%s\n' "$CMD" | grep -qiE -- "$pat"; then
     cat >&2 <<EOF
-[block-destructive] BLOQUEADO: comando contém padrão destrutivo.
+[block-destructive] BLOQUEADO: comando irreversível detectado.
 
 Comando: $CMD
-Padrão detectado: $pat
+O que detectamos: $desc
 
-Regras aplicadas: SEC-002, INV-AGENT-005.
+Por que bloqueia (SEC-002, INV-AGENT-005): operação destrutiva exige confirmação explícita do dono do projeto.
 
-Operações irreversíveis exigem confirmação explícita do usuário.
-Se este comando é necessário e intencional, pause e peça confirmação.
+Como destravar (se for intencional):
+- Confirme com o usuário o que vai acontecer (em PT-BR claro, sem jargão).
+- Só depois execute o comando, ou peça pro usuário rodar manualmente.
 EOF
     exit 2
   fi
