@@ -1,0 +1,23 @@
+{
+  "_comentario_1": "Este arquivo e um TEMPLATE GENERICO. Renomeie para .mcp.json para ativar.",
+  "_comentario_2": "Para fornecedores BR auditados (Pix, NF-e, ERP, banco), use os presets em .mcp.json.examples/ — sao MCPs validados pro mercado brasileiro com LGPD/fiscal documentados.",
+  "_comentario_3": "Guia completo: docs/MCP-GUIA-BR.md. Allowlist de MCPs: .claude/hooks/mcp-validator.sh.",
+  "_comentario_4": "Use variaveis de ambiente para tokens — nunca colar credencial em texto puro (SEC-001).",
+  "mcpServers": {
+    "_github_descomente_para_usar": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "_playwright_descomente_para_usar": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"]
+    },
+    "_context7_descomente_para_usar": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
