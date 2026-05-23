@@ -101,29 +101,48 @@ function isWindowsWithoutBash() {
 
 function warnWindowsShell() {
   if (!isWindowsWithoutBash()) return;
+  // Banner grande e persistente — pior modo de falha possivel e o cliente
+  // achar que esta protegido quando NAO esta. Repetido no fim do install
+  // pra quem rodou com --force.
   console.log('');
-  console.log(`${c.yellow}${c.bold}AVISO — Windows sem Git Bash detectado.${c.reset}`);
-  console.log(`${c.yellow}Os hooks de protecao (22 bloqueadores) ${c.bold}NAO vao rodar${c.reset}${c.yellow} em PowerShell ou CMD.${c.reset}`);
+  console.log(`${c.red}${c.bold}════════════════════════════════════════════════════════════════${c.reset}`);
+  console.log(`${c.red}${c.bold}  ⚠  HOOKS DESATIVADOS — Windows sem Git Bash detectado${c.reset}`);
+  console.log(`${c.red}${c.bold}════════════════════════════════════════════════════════════════${c.reset}`);
   console.log('');
-  console.log(`Para ativar a protecao do framework:`);
+  console.log(`${c.red}${c.bold}Os 26 hooks bloqueadores NAO vao executar em PowerShell ou CMD.${c.reset}`);
+  console.log(`${c.red}Isso significa que o framework esta ${c.bold}silenciosamente desprotegido${c.reset}${c.red}:${c.reset}`);
+  console.log(`${c.red}  - secret commitado nao e bloqueado${c.reset}`);
+  console.log(`${c.red}  - rm -rf nao e bloqueado${c.reset}`);
+  console.log(`${c.red}  - teste mascarado nao e bloqueado${c.reset}`);
+  console.log(`${c.red}  - chave Pix em log nao e bloqueada${c.reset}`);
+  console.log('');
+  console.log(`${c.bold}Como ativar a protecao:${c.reset}`);
   console.log(`  ${c.cyan}1.${c.reset} Instale Git for Windows: ${c.dim}https://git-scm.com/download/win${c.reset}`);
   console.log(`  ${c.cyan}2.${c.reset} Abra ${c.bold}Git Bash${c.reset} (nao PowerShell, nao CMD)`);
-  console.log(`  ${c.cyan}3.${c.reset} Rode o Claude Code dentro do Git Bash`);
+  console.log(`  ${c.cyan}3.${c.reset} Rode o Claude Code de dentro do Git Bash`);
   console.log('');
-  console.log(`${c.dim}Confira a deteccao com: npx roldao-method doctor${c.reset}`);
+  console.log(`${c.dim}Para forcar instalacao mesmo assim (sem protecao): ${c.bold}--force${c.reset}`);
+  console.log(`${c.dim}Diagnostico: npx roldao-method doctor${c.reset}`);
+  console.log(`${c.red}${c.bold}════════════════════════════════════════════════════════════════${c.reset}`);
   console.log('');
 }
 
-// Em modo interativo (sem --yes/--force/--dry-run) PERGUNTA se quer prosseguir
-// sem proteção. Sem TTY ou em CI, apenas avisa (warnWindowsShell). Em --yes/--force
-// segue sem perguntar. Auditoria 10-agentes (2026-05-22): warnWindowsShell era
-// silencioso demais — cliente lia "instalado" e achava que estava protegido.
+// Windows sem Git Bash: BLOQUEIA por default (era warn-silencioso ate v0.20).
+// TTY interativo: pergunta — pode continuar com "s".
+// CI/wizard (--yes) sem --force: ABORTA. Forca o operador a passar --force
+// explicitamente, sinalizando que sabe que a protecao esta inerte.
+// --force ou --dry-run: prossegue (avisa no final tambem).
 async function confirmWindowsShellOrExit() {
   if (!isWindowsWithoutBash()) return;
   warnWindowsShell();
-  if (YES || FORCE || DRY_RUN) return;
-  if (!process.stdin.isTTY) return;
-  const a = await ask(`${c.yellow}Continuar instalando sem proteção dos hooks?${c.reset} [s/N] `);
+  if (FORCE || DRY_RUN) return;
+  if (YES || !process.stdin.isTTY) {
+    err('Windows sem Git Bash: instalacao abortada por seguranca.');
+    err('Para continuar mesmo assim (sem protecao dos hooks): adicione --force');
+    err('Para ativar protecao: instale Git for Windows e rode dentro do Git Bash.');
+    process.exit(2);
+  }
+  const a = await ask(`${c.red}${c.bold}Continuar instalando ${c.reset}${c.red}SEM PROTECAO dos hooks?${c.reset} [s/N] `);
   if (a.toLowerCase() !== 's') {
     log('cancelado — abra Git Bash e rode de novo.');
     process.exit(2);
