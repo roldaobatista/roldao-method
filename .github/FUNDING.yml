@@ -1,0 +1,23 @@
+# Como apoiar o ROLDAO-METHOD.
+#
+# O framework é MIT puro e seguirá assim. Apoio financeiro garante que o
+# mantenedor (Roldão) consiga seguir respondendo issue, aceitando PR,
+# escrevendo doc, atualizando regras fiscais (Reforma Tributária 2026-2033,
+# CNPJ alfanumérico jul/2026, mudanças LGPD/ANPD).
+#
+# Tiers sugeridos no GitHub Sponsors (configurados no painel, não aqui):
+#   - R$ 50/mês  — dev individual ("☕ um café por mês")
+#   - R$ 200/mês — squad pequena ("🍕 uma pizza pro time")
+#   - R$ 1000/mês — empresa média com logo no README
+#   - R$ 5000/mês — patrocínio corporativo com 1 sessão trimestral de roadmap
+#
+# Sponsors corporativos viram seção "Sponsors" no README — ver docs/CONSULTORIA.md.
+
+github: [roldaobatista]
+
+# Outros caminhos futuros (descomentar quando configurar):
+# patreon: roldaobatista
+# open_collective: roldao-method
+# ko_fi: roldaobatista
+# tidelift: npm/roldao-method
+# custom: ["https://roldao-method.com.br/apoiar"]

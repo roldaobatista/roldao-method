@@ -1,11 +1,18 @@
 ---
 tipo: prd
 id: PRD-002
-versao: 1
-status: draft
-owner: Roldão (decisão estratégica)
+versao: 2
+status: fase-1-em-execucao
+owner: Roldão
 revisado-em: 2026-05-23
 ---
+
+> **Decisão (2026-05-23):** caminho recomendado aceito. **Fase 1 (C+B leve) em execução** —
+> infra técnica entregue: [`.github/FUNDING.yml`](../../.github/FUNDING.yml) +
+> [`docs/CONSULTORIA.md`](../CONSULTORIA.md) + seção "Apoio profissional" no README.
+> Restam ações **humanas** pendentes (não cabe ao agente fazer): preencher e-mail/LinkedIn
+> em CONSULTORIA.md, ativar GitHub Sponsors no painel do GitHub, abordar empresas-âncora,
+> publicar primeiro case no LinkedIn. Decisão sobre Fases 2/3 fica aberta até validar tração.
 
 # PRD-002 — Modelo de sustentabilidade do ROLDAO-METHOD
 

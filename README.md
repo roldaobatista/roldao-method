@@ -148,6 +148,10 @@ MIT. Pull requests bem-vindos (foco em qualidade e clareza > volume — ver [CON
 - Issues: https://github.com/roldaobatista/roldao-method/issues
 - Discussões: https://github.com/roldaobatista/roldao-method/discussions
 
+## 💼 Apoio profissional · Sponsors
+
+Core é MIT puro. Para empresas/PMEs que querem **adoção mais rápida**, **suporte SLA** ou **auditoria reversa** de repo legado: ver [`docs/CONSULTORIA.md`](docs/CONSULTORIA.md). Sponsors individuais e corporativos: [GitHub Sponsors](https://github.com/sponsors/roldaobatista).
+
 ---
 
 **Criado por:** Roldão · **Inspirado por:** experiência real construindo SaaS regulado no Brasil
