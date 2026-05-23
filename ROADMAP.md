@@ -11,10 +11,10 @@ status: stable
 ## Versão atual: v0.15.0 (mai/2026)
 
 Pacote pós auditoria **10-agentes vs documentação oficial Claude Code** (`code.claude.com/docs`): 10 dimensões cruzadas (subagents, hooks, slash commands, memory, skills, settings/permissions, MCP, output styles/status line, SDK/headless, plan mode/worktrees), **todos os achados resolvidos** nesta release. Histórico cumulativo (round 10 — v0.14.4 fechou P0; v0.14.5 fechou P2 estruturais; v0.14.6 fechou cobertura de addons e adapters; v0.15.0 fecha paridade com a doc oficial):
-- 14 agentes especialistas (com nome + ícone)
+- 15 agentes especialistas (com nome + ícone)
 - 22 workflows (incluindo `/clarificar`, `/consistencia`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`, `/release`)
 - 26 hooks bloqueadores (23 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação + 2 infra (`_lib.sh`, `_test-runner.sh`) = **35 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD; v0.13 paridade SDD + Gemini/Codex; v0.14 hardening cumulativo + regex de secrets cobrindo `sk-proj-*`/`github_pat_`/PEM PKCS8 + path traversal blindado em `remove <addon>`; v0.15 lifecycle hooks (PostToolUse/SubagentStop/PreCompact/SessionEnd) + 3 hooks JSON `decision:block` (jargão, confirmação, pipeline).
-- 12 skills BR no core + 16 nos addons = **28 skills** (inclui `calculadora-reforma-paralela`)
+- 13 skills BR no core + 16 nos addons = **29 skills** (inclui `calculadora-reforma-paralela` e `validar-codigo-municipio-ibge`)
 - 8 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance, audit-trail)
 - 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
 - 6 addons (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)

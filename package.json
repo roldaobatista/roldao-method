@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
   "version": "0.19.0",
-  "description": "Framework agentic em PT-BR. 14 agentes, 26 hooks bloqueadores + 2 soft warnings + 5 lifecycle, 24 workflows, 28 skills BR (12 core + 16 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Reforma Tributária 2026-2033, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
+  "description": "Framework agentic em PT-BR. 15 agentes, 26 hooks bloqueadores + 2 soft warnings + 5 lifecycle, 24 workflows, 29 skills BR (13 core + 16 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Reforma Tributária 2026-2033, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
     "claude-code",
