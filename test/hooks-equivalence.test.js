@@ -14,11 +14,15 @@
  * macOS/Windows-with-bash com cobertura completa.
  */
 
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const HOOKS_DIR = path.join(ROOT, 'templates', '.claude', 'hooks');
+const TMPDIR = fs.mkdtempSync(path.join(os.tmpdir(), 'rm-hooks-eq-'));
+process.on('exit', () => { try { fs.rmSync(TMPDIR, { recursive: true, force: true }); } catch {} });
 
 function hasBash() {
   try { execFileSync('bash', ['--version'], { stdio: 'pipe' }); return true; } catch { return false; }
@@ -29,15 +33,9 @@ if (!hasBash()) {
   process.exit(0);
 }
 
-// Windows local dev: spawn de bash com input em sequencia rapida fica flaky
-// (~20% dos casos viram ETIMEDOUT — bug conhecido de Git Bash + Node child_process
-// no Windows). Linux + macOS + CI Windows funcionam. Pulamos Windows local pra
-// evitar falso-FAIL no fluxo do dev — CI cobre os 3 OSes completos.
-if (process.platform === 'win32' && !process.env.CI) {
-  console.log('SKIP hooks-equivalence em Windows local — spawn+bash flaky.');
-  console.log('  CI Linux/macOS/Windows valida cobertura completa (15+ subprocessos em sequência).');
-  process.exit(0);
-}
+// Nota: usamos arquivo temp + redirect (`< file`) em vez de pipe de stdin.
+// Versao anterior pulava Windows local por race de spawn+bash; com arquivo
+// temp esse race some (input nao depende mais do pipe stdin do Node).
 
 let pass = 0;
 let fail = 0;
@@ -47,21 +45,31 @@ function check(label, cond, detalhe) {
 }
 
 // Roda um hook com input JSON. Retorna { exit }.
-// Path RELATIVO ao ROOT (cwd: ROOT). Em Windows, path absoluto com drive
-// letter (C:\) faz bash do Git for Windows pendurar. Em Windows, tambem
-// observamos race intermitente quando spawnSync escreve em stdin do
-// subprocess bash (~10% dos casos viram ETIMEDOUT). Workaround: usar
-// stdin via heredoc no shell wrapper em vez de pipe Node.
+//
+// Estrategia: grava input em arquivo temp e redireciona via shell wrapper
+// (`bash hook.sh < tempfile`). Evita 2 armadilhas conhecidas em Windows:
+//  1. Path absoluto C:\... faz bash do Git for Windows pendurar.
+//  2. spawnSync com `input` direto via pipe race-conditiona no Win
+//     (~20% ETIMEDOUT em sequencia rapida).
+//  3. Heredoc inline (<<'EOF') corrompe $ literal — bash externo
+//     interpreta antes do heredoc rodar, alem do escape JS quebrar paridade.
+//
+// Arquivo temp preserva o JSON exato (sem expansao de variavel) e o `<`
+// fecha stdin assim que o arquivo termina (sem race).
+let inputCounter = 0;
 function runHook(file, input) {
   const isShell = file.endsWith('.sh');
   const hookPath = `templates/.claude/hooks/${file}`;
-  // Heredoc com terminador unico evita conflito com payload. Escape de barra
-  // invertida + backtick + dolar pra preservar JSON cru.
-  const escaped = String(input).replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-  const wrappedCmd = isShell
-    ? `bash '${hookPath}' <<'__ROLDAO_INPUT_END__'\n${escaped}\n__ROLDAO_INPUT_END__`
-    : `node '${hookPath}' <<'__ROLDAO_INPUT_END__'\n${escaped}\n__ROLDAO_INPUT_END__`;
-  const r = spawnSync('bash', ['-c', wrappedCmd], { stdio: ['ignore', 'pipe', 'pipe'], timeout: 10000, cwd: ROOT });
+  const inputFile = path.join(TMPDIR, `input-${++inputCounter}.json`);
+  fs.writeFileSync(inputFile, String(input));
+  // Path do input via path.relative pra evitar drive-letter no shell.
+  // Em Windows o tmpdir geralmente fica em C:\Users\...\AppData\Local\Temp —
+  // converter pra estilo unix posix via .replace de \\ por /.
+  const inputArg = inputFile.replace(/\\/g, '/').replace(/^([A-Za-z]):/, '/$1');
+  const cmd = isShell
+    ? `bash '${hookPath}' < '${inputArg}'`
+    : `node '${hookPath}' < '${inputArg}'`;
+  const r = spawnSync('bash', ['-c', cmd], { stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000, cwd: ROOT });
   return { exit: r.status, stdout: (r.stdout || '').toString(), stderr: (r.stderr || '').toString() };
 }
 
