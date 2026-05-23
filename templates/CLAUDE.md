@@ -6,7 +6,7 @@
 
 > Adendo do harness Claude Code. Conteúdo do produto/arquitetura está em `AGENTS.md`; regras com ID rastreável em `REGRAS-INEGOCIAVEIS.md`; tabela hook→regra em `.claude/rules/roldao-method.md`. Os 3 são carregados automaticamente via `@import`.
 >
-> Pessoal (não versionar): `CLAUDE.local.md` (copiar de `CLAUDE.local.md.example`).
+> Pessoal (não versionar): `CLAUDE.local.md` (copiar de [`templates/CLAUDE.local.md.example`](templates/CLAUDE.local.md.example)).
 
 ---
 
@@ -29,7 +29,7 @@ Comunicar em **Português (Brasil)**. Tabela de tradução PT-BR canônica em `A
 ├── settings.json          ← permissões + hooks + outputStyle + statusLine (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
 ├── statusline.sh          ← status line PT-BR (versão, modelo, branch, agente)
-├── agents/                ← 14 especialistas (com nome + ícone)
+├── agents/                ← 14 especialistas (+ MAPA-VISUAL.md = 15 arquivos)
 ├── hooks/                 ← bloqueadores + auxiliares + lifecycle (PostToolUse, SubagentStop, PreCompact, SessionEnd)
 ├── output-styles/         ← pt-br-conciso, dpo-lgpd, fiscal-br
 ├── commands/              ← 22 slash commands (com `allowed-tools`)

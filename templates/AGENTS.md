@@ -80,8 +80,11 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 5. Workflows
 
+**22 workflows** codificados em `.claude/commands/`. Lista canônica:
+
 | Comando | Quando | Agentes principais |
 |---|---|---|
+| `/help` | Catálogo de todos os workflows | (sem agente — índice) |
 | `/inicio` | Projeto novo | gerente-produto → tech-lead → dev-senior |
 | `/brownfield` | Adotar em projeto que já existe | investigador → tech-lead → gerente-produto → auditor-seguranca |
 | `/prd` | Iniciativa grande (várias semanas) | analista → gerente-produto → tech-lead → (ux) → decomposição |

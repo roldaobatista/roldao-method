@@ -251,6 +251,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-base-legal-reminder.sh\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-log-pix-key.sh\"",
+            "timeout": 5
           }
         ]
       }

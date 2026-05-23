@@ -20,6 +20,7 @@ provoca:
     - gerar-ripd
     - gerar-canal-dpo
     - resposta-titular
+    - responder-incidente-anpd
   templates:
     - ripd-modelo
     - dpa-operador

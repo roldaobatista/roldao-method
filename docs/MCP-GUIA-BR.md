@@ -1,3 +1,9 @@
+---
+owner: framework
+revisado-em: 2026-05-22
+status: stable
+---
+
 # MCP — Guia em PT-BR
 
 Guia rápido pra entender e usar **MCP (Model Context Protocol)** no Claude Code, em linguagem acessível pra quem não é programador.

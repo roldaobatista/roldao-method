@@ -69,10 +69,11 @@ Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***
 | Commit sem 3 auditores aprovados | `require-auditors-pass-before-commit.sh` | 2 |
 | Story marcada entregue sem audit trail | `validate-story-approvals.sh` | 2 |
 | Frontmatter de spec sem campos obrigatórios | `paths-frontmatter-validator.sh` | 2 |
+| Chave Pix logada em texto puro (PIX-004) | `no-log-pix-key.sh` | 2 |
 | Código toca dado pessoal sem base legal declarada (LGPD-001/007) | `lgpd-base-legal-reminder.sh` | 0 (soft warning) |
 | Lembrete REGRA #0 antes de bug — UserPromptSubmit | `regra-zero-reminder.sh` | 0 (soft warning) |
 
-**Total:** 25 hooks bloqueadores (22 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação (`auto-format-on-write`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `subagent-handoff-audit`) + 2 utilitários internos (`_lib.sh`, `_test-runner.sh`) = **34 arquivos** em `.claude/hooks/`.
+**Total:** 26 hooks bloqueadores (23 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação (`auto-format-on-write`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `subagent-handoff-audit`) + 2 utilitários internos (`_lib.sh`, `_test-runner.sh`) = **35 arquivos** em `.claude/hooks/`.
 
 ## Spec-driven (INV-002)
 
@@ -91,9 +92,15 @@ Documento gera código, não o contrário:
 2. **Detetive** (`investigador`) — leu o estado atual?
 3. **Rafael** (`tech-lead`) — precisa ADR?
 4. **Bruno** (`dev-senior`) — implementa com TDD na lógica crítica.
-5. **Revisor** — aderência à US? anti-padrões?
+5. **Inês** (`revisor`) — aderência à US? anti-padrões? defeito no diff?
 6. **Auditores** — Caio (segurança) + Júlia (qualidade) + Pedro (produto).
 7. **Checkpoint** — walkthrough antes do merge.
+
+**Precedência de correção** (quando 2 auditores tocam o mesmo arquivo):
+1. Caio (segurança) tem prioridade sobre todos — SEC vence forma.
+2. Pedro (produto) — UX/business affect cliente.
+3. Júlia (qualidade) — code style, cobertura.
+4. Inês (revisor) — defeito técnico do diff específico.
 
 ## Comunicação
 

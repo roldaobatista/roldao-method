@@ -2,6 +2,52 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.16.0] — 2026-05-22
+
+**Auditoria 10-agentes (4ª rodada) — compliance LGPD/Pix operacional + cobertura cruzada.**
+
+Quarta varredura paralela com 10 agentes focou nos **gaps de compliance prometidos pelo framework mas não codificados**. Identificou ~95 achados, dos quais 46 reais (49 falsos positivos descartados após verificação). Esta release fecha os 2 críticos de LGPD/Pix, adiciona 1 hook bloqueador novo, 1 skill nova, runbook operacional de incidente 72h, e ajustes de consistência cross-doc.
+
+### Adicionado
+
+- **Hook `no-log-pix-key.sh`** — bloqueia chave Pix (CPF, CNPJ, email, telefone E.164, EndToEndId, TxId) em texto puro dentro de `console.log`, `logger.*`, `print` em código de produção. Codifica PIX-004 + LGPD-001/004 que eram doutrinários. Inclui exceção `// PIX-004-exception:` pra casos legítimos. Total: **26 hooks bloqueadores** (era 25) / **35 arquivos** em `.claude/hooks/`.
+- **Skill `responder-incidente-anpd`** no addon `lgpd-compliance` — gera draft de comunicado oficial à ANPD em até 72h após detecção de incidente (LGPD Art. 48 + Resolução CD/ANPD 15/2024). Template versionável com 9 seções obrigatórias + checklist pré-envio. Total: **27 skills BR** (era 26).
+- **Runbook `docs/runbooks/incident-response-lgpd.md`** — procedimento operacional 5 etapas (T+0 detecção, T+24h investigação, T+72h notificação ANPD + titulares, pós-incidente RCA, treinamento). Fecha LGPD-006 que era promessa sem operação.
+- **Helper `mascararChavePix()`** documentado em `validar-pix/SKILL.md` (JS + Python) — função canônica pra mascaramento de chave Pix em logs. Trata email, telefone E.164, CPF/CNPJ, UUID.
+- **Seção LGPD obrigatória no template ADR** — `gerar-adr-pt-br/templates/adr.md` ganhou seção "## LGPD e Regulação (se aplicável)" com checklist de base legal Art. 7/11, operadores, transferência internacional, RIPD.
+- **Schema JSON `investigation.json`** em `.specify/schemas/` — contrato máquina-verificável da saída do investigador (Detetive), lido por dev-senior e revisor. Era contrato verbal.
+- **`.claude/skills/README.md`** — catálogo das 12 skills core com tipo (Python/prompt) + trigger principal + link pro SKILL.md.
+- **Badge CI** no README — `validar.yml` GitHub Actions visível.
+- **Precedência de correção entre auditores** documentada em `.claude/rules/roldao-method.md` (sec > produto > qualidade > revisor).
+- **6 run_cases** para `no-log-pix-key.sh` no `_test-runner.sh` (cobertura: bloqueio, exceção, doc ignorado, teste ignorado).
+
+### Corrigido
+
+- **LGPD-A5** — `validar-pix` e `gerar-br-code` não tinham helper de mascaramento de chave Pix em logs (PIX-004). Skill `validar-pix` agora documenta `mascararChavePix()` em JS e Python, hook bloqueia uso sem mascarar.
+- **LGPD-A9** — runbook de incidente 72h ANPD ausente. Criado em `docs/runbooks/` + skill no addon.
+- **LGPD-A7** — template ADR genérico não forçava declaração de base legal em features que tocam dado pessoal. Adicionada seção obrigatória.
+- **cons-002** — CLAUDE.md afirmava "14 especialistas" mas pasta tem 15 arquivos (+ MAPA-VISUAL.md). Texto ajustado: "14 especialistas (+ MAPA-VISUAL.md = 15 arquivos)".
+- **cons-003** — Tabela "Bloqueios duros" em `rules/roldao-method.md` listava 22 hooks mas total dizia 25. Adicionado `no-log-pix-key.sh` (linha 26) + ajuste totais para 26 bloqueadores + 35 arquivos.
+- **cons-004** — Pipeline mental não nomeava Inês no item 5 (Revisor numerado, nome humano só no enforce-pipeline-completion.sh). Agora "5. **Inês** (`revisor`) — aderência à US? anti-padrões? defeito no diff?".
+- **cons-006** — AGENTS.md §5 não citava "22 workflows" explicitamente, e tabela tinha 21 linhas (faltava /help). Adicionado `/help` à tabela + total declarado.
+- **doc-008** — `CLAUDE.local.md.example` duplicado na raiz + `templates/`. Removido da raiz (mantido em templates/, referenciado em CLAUDE.md).
+- **doc-005** — README sem contagem clara das regras. Agora cita "43 regras operacionais em 7 categorias" com breakdown.
+- **prod-007** — `docs/MCP-GUIA-BR.md` e `docs/PLAN-MODE-E-SESSOES.md` sem frontmatter `owner`/`revisado-em`/`status`. Adicionado.
+
+### Mudado
+
+- **`.claude/skills/validar-pix/SKILL.md`** ganhou seção "Mascaramento obrigatório em log" com helpers em JS + Python.
+- **`addons/lgpd-compliance/addon.yaml`** lista nova skill `responder-incidente-anpd` em `provoca.skills`.
+- **`.claude/agents/investigador.md`** princípio novo: saída em JSON validável contra `.specify/schemas/investigation.json`.
+- **`templates/CLAUDE.md`** e raiz **sincronizados** via `tools/sincronizar-claude-md.js` após mudanças em duas pontas.
+- **`package.json` description** atualizada: 26 hooks bloqueadores, 27 skills BR (12 core + 15 addons).
+
+### Preservado
+
+- Zero breaking change. Hook novo é aditivo. Skill nova vive em addon (opcional). Runbook é doc operacional, não muda fluxo de código. Schema JSON é referência — investigador ainda funciona sem validação estrita.
+- 179/179 testes de hook verdes; npm test inteiro passa; CI gates intactos.
+- Todos os 22 workflows existentes seguem idênticos.
+
 ## [0.15.3] — 2026-05-22
 
 **Auditoria 10-agentes (3ª rodada) — 26 achados consolidados em 7 commits atômicos.**

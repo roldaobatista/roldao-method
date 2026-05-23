@@ -1,3 +1,9 @@
+---
+owner: framework
+revisado-em: 2026-05-22
+status: stable
+---
+
 # Plan mode, sessões e worktrees no Claude Code
 
 Guia em PT-BR pra recursos nativos do Claude Code que multiplicam produtividade — especialmente útil para quem **não programa** e precisa entender antes de aprovar.

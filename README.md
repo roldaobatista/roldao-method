@@ -2,6 +2,7 @@
 
 > Framework de desenvolvimento ágil assistido por IA, **em português brasileiro**, com especialistas virtuais, regras automáticas e fluxos guiados para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI e Codex CLI.
 
+[![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
@@ -69,7 +70,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 ## Cobertura BR — IDs rastreáveis em commit
 
-`REGRAS-INEGOCIAVEIS.md` tem a lista completa. Resumo: LGPD-001 a 010 (bases legais, esquecimento, RIPD, DPO, decisão automatizada); FISCAL-001 a 007 (NF-e imutável, certificado por tenant, homologação, contingência, CNPJ alfanumérico, Reforma Tributária, obrigação acessória); SEC-001 a 005; TST-001 a 004; INV-001 a 006; INV-AGENT-001 a 006; PIX-001 a 005.
+`REGRAS-INEGOCIAVEIS.md` tem a lista completa: **43 regras operacionais em 7 categorias** — INV-001..006 (6 invariantes gerais), SEC-001..005 (5 segurança), TST-001..004 (4 testes), LGPD-001..010 (10 proteção de dados), FISCAL-001..007 (7 fiscal BR), PIX-001..005 (5 Pix/Open Finance), INV-AGENT-001..006 (6 regras pra agentes IA). Cada regra cita-se em commit/ADR/PR (ex: `fix: ajusta validação CPF (LGPD-001)`).
 
 ## 6 addons verticais
 

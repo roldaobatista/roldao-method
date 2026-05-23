@@ -778,6 +778,25 @@ fi
 
 rm -rf "$NAR_REMOTE" "$NAR_LOCAL"
 
+# ------- no-log-pix-key (PIX-004 + LGPD-001/004) --------
+run_case "bloqueia console.log com cpf sem mascarar" "no-log-pix-key.sh" \
+  '{"tool_input":{"file_path":"./src/pix.js","content":"console.log(\"cpf:\", cpf);"}}' 2
+
+run_case "bloqueia logger.info com pix_key" "no-log-pix-key.sh" \
+  '{"tool_input":{"file_path":"./src/pix.py","content":"logger.info(f\"pix_key={chave}\")"}}' 2
+
+run_case "permite log com mascararChavePix" "no-log-pix-key.sh" \
+  '{"tool_input":{"file_path":"./src/pix.js","content":"console.log(\"pix:\", mascararChavePix(chave));"}}' 0
+
+run_case "permite log com PIX-004-exception" "no-log-pix-key.sh" \
+  '{"tool_input":{"file_path":"./src/pix.js","content":"console.log(\"pix:\", chave); // PIX-004-exception: log interno crypto"}}' 0
+
+run_case "ignora doc markdown" "no-log-pix-key.sh" \
+  '{"tool_input":{"file_path":"./docs/pix.md","content":"console.log(cpf)"}}' 0
+
+run_case "ignora teste com cpf" "no-log-pix-key.sh" \
+  '{"tool_input":{"file_path":"./src/pix.test.js","content":"console.log(\"cpf:\", cpf);"}}' 0
+
 # ------- anti-mascaramento (cobertura ampliada round 6) --------
 run_case "bloqueia || true em sh" "anti-mascaramento.sh" \
   '{"tool_input":{"file_path":"./x.sh","content":"rm -rf bla || true"}}' 2
@@ -981,7 +1000,7 @@ echo "Total: $((PASS + FAIL))  |  OK: $PASS  |  FAIL: $FAIL"
 
 # Invariante: se um bloco de setup pular (perl/git/mktemp ausente), o total cai
 # e a suite ainda daria verde. Checar o numero esperado impede esse falso-verde.
-EXPECTED_TOTAL=173
+EXPECTED_TOTAL=179
 if [ "$((PASS + FAIL))" -ne "$EXPECTED_TOTAL" ]; then
   echo "ERRO: rodaram $((PASS + FAIL)) testes, esperado $EXPECTED_TOTAL (setup pulado? dependencia ausente?)" >&2
   exit 1
