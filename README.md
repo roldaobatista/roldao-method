@@ -1,6 +1,6 @@
 # ROLDAO-METHOD
 
-> Framework de desenvolvimento ágil assistido por IA, **em português brasileiro**, com especialistas virtuais, regras automáticas e fluxos guiados para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI e Codex CLI.
+> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores e 29 skills BR (LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033). Roda no Claude Code e em 8 outras IDEs.
 
 [![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
@@ -8,30 +8,26 @@
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
 
 ```bash
-npx roldao-method install      # 1. instala (~2 min)
-# 2. preencha AGENTS.md (campos _(preencher)_)  OU  rode /brownfield se já tem código
-# 3. no Claude Code:
-#    /historia "Sua primeira feature em uma frase"
-#    /feature US-001
+npx roldao-method install
 ```
 
-`/help` lista os 24 workflows. `.claude/agents/MAPA-VISUAL.md` mostra quem chamar. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
+Depois, no Claude Code: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 24 workflows. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
-## O problema
+## O diferencial em uma linha
 
-Ferramentas de IA pra desenvolvimento (Cursor rules, agentes Claude Code, frameworks de prompt) são **todas em inglês**. Devs brasileiros perdem nuance e ainda têm que adaptar exemplos gringos pra realidade BR (LGPD, NF-e, Pix, Receita Federal). E pior: a maioria pula direto pra escrever código. Sem investigar. Sem ler o estado real do banco, dos logs, do payload.
+**Outros frameworks orientam o agente. ROLDAO impede o erro** — hooks travam `rm -rf`, secret commitado, teste mascarado, jargão técnico com cliente, bug "consertado" sem investigar o banco/log.
 
-## Por que ROLDAO
+### Por que importa pra dev BR
 
-Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
+Ferramentas de IA pra desenvolvimento são quase todas em inglês e otimizadas pra realidade gringa. Dev brasileiro perde nuance e ainda adapta exemplos pra LGPD/NF-e/Pix/Receita Federal. O ROLDAO entrega:
 
-- 🇧🇷 **PT-BR nativo** — não é tradução. Tabela de jargão integrada pra usuário não-programador.
-- 🛡️ **35 hooks (26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários)** — bloqueadores barram a ação na hora (via `exit 2` ou JSON `decision:block`); soft warnings avisam sem bloquear; lifecycle automatiza ciclo (format, snapshot, audit).
+- 🇧🇷 **PT-BR nativo** — não tradução. Tabela de jargão pra usuário não-programador.
+- 🛡️ **35 hooks** (26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários) — bloqueadores barram a ação na hora (`exit 2` ou JSON `decision:block`); lifecycle automatiza format/snapshot/audit.
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
-- 🧾 **Cobertura BR real** — LGPD, NF-e, NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
-- 🧪 **3 auditores especializados** — segurança, qualidade, produto rodando em paralelo, bloqueando commit se reprovado.
+- 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
+- 🧪 **3 auditores especializados** — segurança, qualidade, produto em paralelo, bloqueando commit se reprovado.
 
 ## Instalação
 
@@ -59,10 +55,10 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 ## O que vem instalado
 
-- **14 especialistas virtuais com personalidade** — Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Inês (revisor), Caio/Julia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). Catálogo em [`.claude/agents/MAPA-VISUAL.md`](templates/.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
+- **15 especialistas virtuais com personalidade** — Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Lucas (DevOps/infra), Inês (revisor), Caio/Julia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). Catálogo em [`.claude/agents/MAPA-VISUAL.md`](templates/.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
 - **24 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/consistencia`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
 - **26 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 2 infra (`_lib.sh`, `_test-runner.sh`) = 35 hooks** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
-- **12 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +16 nos addons = **28 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025).
+- **13 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-codigo-municipio-ibge (DV modulo 10), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +16 nos addons = **29 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025).
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).
 - **8 checklists auditáveis** + **7 knowledge bases** + **6 addons verticais BR**.
 

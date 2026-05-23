@@ -22,10 +22,10 @@ Confirme com `s`. O comando copia:
 - `.specify/memory/constitution.md` — 6 princípios universais.
 - `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
 - `.agent/CURRENT.md` — estado da sessão.
-- `.claude/agents/` — 14 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados).
+- `.claude/agents/` — 15 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados, devops-infra).
 - `.claude/hooks/` — 26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários (lib + test-runner) = 35 hooks core.
 - `.claude/commands/` — 24 workflows.
-- `.claude/skills/` — 12 skills BR core (CPF/CNPJ alfanum, chave NF-e, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +16.
+- `.claude/skills/` — 13 skills BR core (CPF/CNPJ alfanum, chave NF-e, codigo IBGE de municipio, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +16.
 - `.claude/output-styles/pt-br-conciso.md`.
 - `.claude/settings.json` — permissões + hooks.
 
@@ -121,7 +121,7 @@ Reportei um bug: ao salvar pedido com valor zero, o sistema aceita.
 
 ## 7. Addons (extender pra domínios específicos)
 
-O core entrega 14 agentes + 12 skills BR. Pra domínios profundos, instale addons:
+O core entrega 15 agentes + 13 skills BR. Pra domínios profundos, instale addons:
 
 ```bash
 npx roldao-method search        # listar addons disponíveis
@@ -130,7 +130,15 @@ npx roldao-method add fintech-br # instalar addon (ex: Pix, Open Finance)
 
 Addons disponíveis hoje: `fintech-br` (Pix + Open Finance), `fiscal-br-completo` (NF-e, NFC-e, SAT), `electron-br` (SQLite seguro, balança/impressora), `lgpd-compliance`, `esocial-completo`, `varejo-pdv-br`.
 
-## 8. Próximos passos
+## 8. Opcionais
+
+Três extras que o `install` não copia automaticamente — só ative se for usar:
+
+- **Preferências pessoais (não versionar):** copie `templates/CLAUDE.local.md.example` → `CLAUDE.local.md` na raiz. Use para apelido, modelo preferido, atalhos pessoais. O `.gitignore` já ignora.
+- **MCP preset BR (servidores externos):** copie um dos arquivos em `.mcp.json.examples/` → `.mcp.json`. Os presets cobrem cenários típicos (fiscal, pagamento, dados públicos BR). Reinicie o Claude Code depois.
+- **GitHub Action de code review:** copie `templates/.github/workflows/claude-review.yml` → `.github/workflows/claude-review.yml` e configure o secret `ANTHROPIC_API_KEY` no repositório. Roda Claude em cada PR.
+
+## 9. Próximos passos
 
 - Leia `REGRAS-INEGOCIAVEIS.md` e ajuste regras específicas do seu projeto.
 - Mantenha `.agent/CURRENT.md` atualizado entre sessões.

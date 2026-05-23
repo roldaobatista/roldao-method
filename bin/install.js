@@ -565,15 +565,11 @@ async function install() {
   warnWindowsShell();
   console.log('');
   console.log(`${c.bold}Proximos passos:${c.reset}`);
-  console.log(`  ${c.cyan}1.${c.reset} ler ${c.bold}AGENTS.md${c.reset} — seu documento-contrato`);
-  console.log(`  ${c.cyan}2.${c.reset} ajustar ${c.bold}REGRAS-INEGOCIAVEIS.md${c.reset} ao seu projeto`);
-  console.log(`  ${c.cyan}3.${c.reset} estilo PT-BR ja ativo no settings.json (${c.dim}pt-br-conciso${c.reset}). Trocar com ${c.dim}/config${c.reset} se quiser.`);
-  console.log(`  ${c.cyan}4.${c.reset} listar comandos: ${c.green}/help${c.reset} (catalogo dos 24 workflows)`);
-  console.log(`  ${c.cyan}5.${c.reset} adicionar addon: ${c.cyan}npx roldao-method add <addon>${c.reset}`);
-  console.log(`  ${c.cyan}6.${c.reset} ${c.dim}(opcional)${c.reset} copiar ${c.dim}CLAUDE.local.md.example -> CLAUDE.local.md${c.reset} pra suas preferencias pessoais.`);
-  console.log(`  ${c.cyan}7.${c.reset} ${c.dim}(opcional)${c.reset} GitHub Action: copiar ${c.dim}templates/.github/workflows/claude-review.yml${c.reset} pro seu ${c.dim}.github/workflows/${c.reset} e setar ${c.dim}ANTHROPIC_API_KEY${c.reset}.`);
-  console.log(`  ${c.cyan}8.${c.reset} ${c.dim}(opcional)${c.reset} MCP preset BR: copiar de ${c.dim}.mcp.json.examples/${c.reset} pra ${c.dim}.mcp.json${c.reset}.`);
+  console.log(`  ${c.cyan}1.${c.reset} abra ${c.bold}AGENTS.md${c.reset} e preencha os campos ${c.dim}_(preencher)_${c.reset}  ${c.dim}(ou rode /brownfield se ja tem codigo)${c.reset}`);
+  console.log(`  ${c.cyan}2.${c.reset} no Claude Code: ${c.green}/help${c.reset} lista os 24 workflows`);
+  console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(opcional)${c.reset} addons BR: ${c.cyan}npx roldao-method search${c.reset}`);
   console.log('');
+  console.log(`${c.dim}Personalizar (CLAUDE.local.md), MCP preset, GitHub Action: docs/QUICKSTART.md${c.reset}`);
   console.log(`${c.dim}docs: https://github.com/roldaobatista/roldao-method${c.reset}`);
   console.log('');
   // Aguarda a checagem de versao terminar (com timeout interno) pra o banner
