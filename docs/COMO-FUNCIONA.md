@@ -27,7 +27,7 @@ seu-projeto/
 │   ├── settings.local.json        <- pessoal (não versionar)
 │   ├── agents/                    <- 15 especialistas
 │   ├── hooks/                     <- 35 hooks (26 bloqueadores + 2 soft + 5 lifecycle + 2 utilitários)
-│   ├── commands/                  <- 24 workflows
+│   ├── commands/                  <- 26 workflows
 │   ├── skills/                    <- 13 skills BR core (+16 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
@@ -48,7 +48,7 @@ seu-projeto/
     └── retros/                    <- AAAA-MM-DD-marco.md
 ```
 
-## Os 24 workflows
+## Os 26 workflows
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
@@ -75,7 +75,7 @@ seu-projeto/
 | `/checkpoint` | Walkthrough de branch antes do merge | (sem agente) |
 | `/release` | Fechar marco: versão, CHANGELOG, tag, nota | tech-writer |
 | `/retro` | Retrospectiva pós-marco (4L) | (sem agente) |
-| `/help` | Catálogo dos 24 comandos | (sem agente) |
+| `/help` | Catálogo dos 26 comandos | (sem agente) |
 
 ### Fluxo principal — `/feature US-NNN`
 

@@ -11,7 +11,7 @@
 npx roldao-method install
 ```
 
-Depois, no Claude Code: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 24 workflows. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
+Depois, no Claude Code: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 26 workflows. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
@@ -56,7 +56,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 ## O que vem instalado
 
 - **15 especialistas virtuais com personalidade** — Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Lucas (DevOps/infra), Inês (revisor), Caio/Julia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). Catálogo em [`.claude/agents/MAPA-VISUAL.md`](templates/.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
-- **24 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/consistencia`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
+- **26 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
 - **26 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 2 infra (`_lib.sh`, `_test-runner.sh`) = 35 hooks** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
 - **13 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-codigo-municipio-ibge (DV modulo 10), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +16 nos addons = **29 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025).
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).

@@ -1,12 +1,12 @@
 ---
 description: Catálogo dos workflows do ROLDAO-METHOD com códigos curtos e quando usar cada um.
-argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | HF | IPM | RF | QA | AU | CN | RT | RP | SP | ST | CK | RL | RD | HP | SH]"
+argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | HF | IPM | RF | QA | AU | AR | CN | EC | RT | RP | SP | ST | CK | RL | RD | HP | SH]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep
 model: haiku
 ---
 
-# /help — catálogo dos 24 workflows
+# /help — catálogo dos 26 workflows
 
 Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre detalhes do workflow correspondente.
 
@@ -28,7 +28,9 @@ Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um có
 | RF | `/refactor` | Reorganizar sem mudar comportamento | Rafael → Bruno → Revisor |
 | QA | `/qa` | Gerar/auditar testes de uma área | Detetive → Julia → Bruno → Revisor |
 | AU | `/auditoria` | 3 auditores em paralelo | Caio + Julia + Pedro |
+| AR | `/auditoria-reversa` | Diagnóstico de repo legado (discovery) | Detetive → 3 auditores → Tech-writer |
 | CN | `/consistencia` | Cross-check doc↔código | Detetive → Caio + Julia + Pedro |
+| EC | `/explicar-para-cliente` | Traduz último output técnico pra linguagem de cliente não-técnico | Tech-writer + skill traduzir-jargao |
 | RT | `/retro` | Retrospectiva 4L pós-marco | (sem agente) |
 | RP | `/replanejar` | Escopo mudou no meio | Sofia → Tech-writer |
 | SP | `/sprint` | Plano sequencial das próximas N stories | Sofia |
@@ -86,5 +88,5 @@ Exemplo: `/help BG` mostra detalhe completo de `/bug`.
 
 ## Importante
 
-- Este help cobre só os 24 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
+- Este help cobre só os 26 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
 - **Códigos curtos** servem pra falar rápido ("vamos rodar BG agora"), não substituem o comando completo.

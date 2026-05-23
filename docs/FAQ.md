@@ -98,7 +98,7 @@ Mesmo procedimento pra hook (seção 2), skill (seção 3) e addon (seção 4).
 | `/readiness` | Gate entre `/epico` e `/feature` |
 | `/shard` | Quebra PRD/ARQ longo em pedaços navegáveis |
 | `/retro` | Retrospectiva pós-marco |
-| `/help` | Catálogo dos 24 comandos |
+| `/help` | Catálogo dos 26 comandos |
 
 ### O agente sai escrevendo código sozinho?
 Não. O `/bug` exige investigação antes (REGRA #0). O `/feature` exige user story estruturada. Os hooks bloqueiam se ele tentar mascarar bug, comitar segredo ou rodar comando destrutivo.

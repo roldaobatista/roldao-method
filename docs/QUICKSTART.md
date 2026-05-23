@@ -24,7 +24,7 @@ Confirme com `s`. O comando copia:
 - `.agent/CURRENT.md` — estado da sessão.
 - `.claude/agents/` — 15 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados, devops-infra).
 - `.claude/hooks/` — 26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários (lib + test-runner) = 35 hooks core.
-- `.claude/commands/` — 24 workflows.
+- `.claude/commands/` — 26 workflows.
 - `.claude/skills/` — 13 skills BR core (CPF/CNPJ alfanum, chave NF-e, codigo IBGE de municipio, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +16.
 - `.claude/output-styles/pt-br-conciso.md`.
 - `.claude/settings.json` — permissões + hooks.
@@ -77,7 +77,7 @@ Abra o Claude Code na raiz do projeto. Antes de comandar:
 
 ### Não sabe por onde começar? Use `/help`.
 
-`/help` lista os 24 comandos com códigos curtos e cenários comuns. Digite `/help FT` pra ver detalhes do `/feature`, `/help BG` pra `/bug`.
+`/help` lista os 26 comandos com códigos curtos e cenários comuns. Digite `/help FT` pra ver detalhes do `/feature`, `/help BG` pra `/bug`.
 
 ### Seu primeiro comando
 

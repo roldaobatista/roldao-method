@@ -88,7 +88,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 5. Workflows
 
-**24 workflows** codificados em `.claude/commands/`. Lista canônica:
+**26 workflows** codificados em `.claude/commands/`. Lista canônica:
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
@@ -106,7 +106,9 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/refactor` | Reorganizar código | tech-lead → dev-senior → revisor |
 | `/qa` | Testes de uma área | investigador → auditor-qualidade → dev-senior → revisor |
 | `/auditoria` | Passar auditores | auditor-seguranca + auditor-qualidade + auditor-produto |
+| `/auditoria-reversa` | Diagnóstico de repo legado (discovery puro, não modifica) | investigador → 3 auditores → tech-writer |
 | `/consistencia` | Cross-check doc↔código | investigador → 3 auditores (em paralelo) |
+| `/explicar-para-cliente` | Traduz último output técnico pra linguagem de cliente não-técnico | tech-writer + skill traduzir-jargao |
 | `/quick-dev` | Mudança trivial (≤3 arquivos) | dev-senior → revisor |
 | `/readiness` | Gate `/epico` → `/feature` | investigador → tech-lead |
 | `/shard` | Quebrar PRD/ARQ longo em chunks | (sem agente — fatiamento) |
