@@ -51,6 +51,7 @@ const boleto = path.join(S, 'validar-boleto', 'scripts', 'validar-boleto.py');
 const brCode = path.join(S, 'gerar-br-code', 'scripts', 'gerar-br-code.py');
 const chaveNfe = path.join(S, 'validar-chave-acesso-nfe', 'scripts', 'validar.py');
 const pisS = path.join(PIS, 'scripts', 'validar-pis.py');
+const munIbge = path.join(S, 'validar-codigo-municipio-ibge', 'scripts', 'validar-codigo-municipio-ibge.py');
 
 // IE precisa de 2 argumentos. Wrapper local pra reusar `run` que assume arg unico.
 function runIE(label, uf, valor, expectOk) {
@@ -105,6 +106,16 @@ run('chave NF-e UF invalida (99)', chaveNfe, '9924061122233300018155001000000000
 run('chave NF-e modelo desconhecido (99)', chaveNfe, '3524061122233300018199001000000000111234567' + dvSp, false);
 run('chave NF-e DV errado (forca 0)', chaveNfe, chave43Sp + ((dvSp + 1) % 10), false);
 run('chave NF-e CNPJ zerado', chaveNfe, '35240600000000000000550010000000001112345670', false);
+
+// validar-codigo-municipio-ibge: 7 digitos = UF + sequencial + DV modulo 10
+run('codigo IBGE Sao Paulo (3550308)', munIbge, '3550308', true);
+run('codigo IBGE Rio (3304557)', munIbge, '3304557', true);
+run('codigo IBGE Brasilia (5300108)', munIbge, '5300108', true);
+run('codigo IBGE Manaus (1302603)', munIbge, '1302603', true);
+run('codigo IBGE UF invalida (99)', munIbge, '9999999', false);
+run('codigo IBGE DV errado', munIbge, '3550300', false);
+run('codigo IBGE tamanho invalido (6 digitos)', munIbge, '355030', false);
+run('codigo IBGE tamanho invalido (8 digitos)', munIbge, '35503080', false);
 
 // gerar-br-code: smoke (gera output sem crash). Validacao do EMV completo
 // fica pra suite Python no CI, este teste so confere que o script roda.
