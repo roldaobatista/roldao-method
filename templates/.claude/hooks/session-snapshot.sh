@@ -7,6 +7,10 @@
 #      markers ativos na proxima sessao (--continue/--resume).
 #
 # Sem o .json, --continue perdia markers de Sofia/Detetive/Rafael e obrigava refazer.
+#
+# Paths com espaco (Windows: C:\Meus Projetos\app): coleta via `find -print0` +
+# array bash. `ls` + word-splitting quebrava qualquer marker dentro de pasta
+# com espaco no caminho — auditoria 10-agentes (round 7).
 
 set -uo pipefail
 
@@ -22,15 +26,42 @@ TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 # Hash atual (le persistido se houver)
 HASH=$(sanitize_session_hash "" "$PROJDIR")
 
+# ----- Coleta de markers (resiste a path com espaco) -----
+# find -print0 + array bash 3.2-safe. Antes: `ls` + word-splitting quebrava
+# qualquer pasta com espaco no caminho (Windows: C:\Meus Projetos\app).
+FEATURES=()
+while IFS= read -r -d '' f; do FEATURES+=("$f"); done < <(find "$RUNTIME" -maxdepth 1 -type f -name 'feature-active-*' -print0 2>/dev/null)
+
+BUGS=()
+while IFS= read -r -d '' f; do BUGS+=("$f"); done < <(find "$RUNTIME" -maxdepth 1 -type f -name 'bug-active-*' -print0 2>/dev/null)
+
+# Markers de agentes — todos *-done-* e *-skipped-*, depois ordena por mtime
+# (find -printf nao existe em Git Bash/BSD) e pega os 10 mais recentes.
+MARKERS_ALL=()
+while IFS= read -r -d '' f; do MARKERS_ALL+=("$f"); done < <(find "$RUNTIME" -maxdepth 1 -type f \( -name '*-done-*' -o -name '*-skipped-*' \) -print0 2>/dev/null)
+
+MARKERS=()
+if [ ${#MARKERS_ALL[@]} -gt 0 ]; then
+  MARKERS_SORTED=$(printf '%s\0' "${MARKERS_ALL[@]}" | perl -0ne '
+    chomp; push @f, $_;
+    END {
+      @f = sort { (stat $b)[9] <=> (stat $a)[9] } @f;
+      print join("\0", @f[0..($#f < 9 ? $#f : 9)]), "\0";
+    }
+  ')
+  while IFS= read -r -d '' f; do MARKERS+=("$f"); done < <(printf '%s' "$MARKERS_SORTED")
+fi
+
 # ----- 1. Snapshot textual -----
+# Redirect com 2>/dev/null + sem `set -e`: erro de gravacao (disco cheio,
+# permissao) nao derruba o hook lifecycle — snapshot e best-effort.
 {
   printf '# Snapshot de sessão — %s\n\n' "$TS"
 
   printf '## Stories ativas\n\n'
-  FEATURES=$(ls -1 "$RUNTIME"/feature-active-* 2>/dev/null || true)
-  if [ -n "$FEATURES" ]; then
-    for f in $FEATURES; do
-      US=$(cat "$f" 2>/dev/null | head -1)
+  if [ ${#FEATURES[@]} -gt 0 ]; then
+    for f in "${FEATURES[@]}"; do
+      US=$(head -1 "$f" 2>/dev/null)
       printf -- '- %s (marker: `%s`)\n' "$US" "$(basename "$f")"
     done
   else
@@ -38,9 +69,8 @@ HASH=$(sanitize_session_hash "" "$PROJDIR")
   fi
 
   printf '\n## Bugs ativos\n\n'
-  BUGS=$(ls -1 "$RUNTIME"/bug-active-* 2>/dev/null || true)
-  if [ -n "$BUGS" ]; then
-    for b in $BUGS; do
+  if [ ${#BUGS[@]} -gt 0 ]; then
+    for b in "${BUGS[@]}"; do
       printf -- '- `%s`\n' "$(basename "$b")"
     done
   else
@@ -48,9 +78,8 @@ HASH=$(sanitize_session_hash "" "$PROJDIR")
   fi
 
   printf '\n## Markers de agentes (últimos 10)\n\n'
-  MARKERS=$(ls -1t "$RUNTIME"/*-done-* "$RUNTIME"/*-skipped-* 2>/dev/null | head -10 || true)
-  if [ -n "$MARKERS" ]; then
-    for m in $MARKERS; do
+  if [ ${#MARKERS[@]} -gt 0 ]; then
+    for m in "${MARKERS[@]}"; do
       printf -- '- `%s`\n' "$(basename "$m")"
     done
   else
@@ -66,20 +95,23 @@ HASH=$(sanitize_session_hash "" "$PROJDIR")
   else
     printf -- '- Working tree: limpo\n'
   fi
-} > "$SNAPSHOT" 2>/dev/null || true
+} > "$SNAPSHOT" 2>/dev/null
 
 # ----- 2. State machine-readable -----
-# Lista todos os markers ativos relevantes pra restaurar: feature-active-*,
-# bug-active-*, *-done-*, *-skipped-*, readiness-passed-*, audit-*-pass-*.
-# Cada um vira { "name": ..., "content": <head -1> } no JSON.
-
-ALL_MARKERS=""
-for pat in 'feature-active-*' 'bug-active-*' '*-done-*' '*-skipped-*' 'readiness-passed-*' 'auditor-*-pass-*' 'investigator-invoked-*' 'sofia-invoked-*' 'rafael-invoked-*' 'rafael-skipped-*' 'checkpoint-done-*'; do
-  for f in "$RUNTIME"/$pat; do
-    [ -e "$f" ] || continue
-    ALL_MARKERS="$ALL_MARKERS$f"$'\n'
-  done
-done
+ALL_MARKERS=()
+while IFS= read -r -d '' f; do ALL_MARKERS+=("$f"); done < <(find "$RUNTIME" -maxdepth 1 -type f \( \
+  -name 'feature-active-*' -o \
+  -name 'bug-active-*' -o \
+  -name '*-done-*' -o \
+  -name '*-skipped-*' -o \
+  -name 'readiness-passed-*' -o \
+  -name 'auditor-*-pass-*' -o \
+  -name 'investigator-invoked-*' -o \
+  -name 'sofia-invoked-*' -o \
+  -name 'rafael-invoked-*' -o \
+  -name 'rafael-skipped-*' -o \
+  -name 'checkpoint-done-*' \
+\) -print0 2>/dev/null)
 
 {
   printf '{\n'
@@ -88,8 +120,8 @@ done
   printf '  "active_markers": [\n'
 
   FIRST=1
-  if [ -n "$ALL_MARKERS" ]; then
-    while IFS= read -r marker; do
+  if [ ${#ALL_MARKERS[@]} -gt 0 ]; then
+    for marker in "${ALL_MARKERS[@]}"; do
       [ -z "$marker" ] && continue
       name=$(basename "$marker")
       # Le conteudo da 1a linha, escapa pra JSON (aspas + barra invertida)
@@ -100,12 +132,12 @@ done
         printf ',\n'
       fi
       printf '    {"name": "%s", "content": "%s"}' "$name" "$content"
-    done <<< "$ALL_MARKERS"
-    printf '\n'
+    done
+    [ $FIRST -eq 0 ] && printf '\n'
   fi
 
   printf '  ]\n'
   printf '}\n'
-} > "$STATE" 2>/dev/null || true
+} > "$STATE" 2>/dev/null
 
 exit 0
