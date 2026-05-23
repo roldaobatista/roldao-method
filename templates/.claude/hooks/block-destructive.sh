@@ -41,7 +41,10 @@ RM_TARGET=$(printf '%s' "$CMD" | perl -ne '
   }
 ' 2>/dev/null)
 if [ -n "$RM_TARGET" ]; then
-  # Recusa se tem espaço (multi-alvo), traversal, ou path absoluto/home perigoso
+  # Recusa se tem espaço (multi-alvo), traversal, ou path absoluto/home perigoso.
+  # O til (~) aqui e match LITERAL do caractere — RM_TARGET vem do comando do
+  # usuario sem expansao, entao "~/algo" passa como string ate aqui.
+  # shellcheck disable=SC2088  # match literal de ~ intencional
   case "$RM_TARGET" in
     *' '*|*'..'*|'/'|'~'|'~/'*|'$HOME'*|'/etc'*|'/usr'*|'/var'*|'/home'*) ;;
     *)

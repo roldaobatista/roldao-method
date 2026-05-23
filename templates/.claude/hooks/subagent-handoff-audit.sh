@@ -12,7 +12,6 @@ set -uo pipefail
 . "$(dirname "$0")/_lib.sh"
 
 if ! PROJDIR=$(sanitize_projdir); then exit 0; fi
-SESSION_HASH=$(sanitize_session_hash)
 RUNTIME=$(safe_runtime_dir "$PROJDIR")
 
 INPUT="$(cat 2>/dev/null || echo '{}')"

@@ -18,18 +18,20 @@ FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
 
 [ -z "$FILE_PATH" ] && exit 0
 
-# Detecta se e teste E2E
+# Detecta se e teste E2E. *e2e/* ja cobre *cypress/e2e/*, removido pra evitar
+# redundancia (SC2221).
 IS_E2E=""
 case "$FILE_PATH" in
-  *e2e/*|*e2e-tests/*|*end-to-end/*|*.e2e.*|*playwright/*|*cypress/integration/*|*cypress/e2e/*) IS_E2E=1 ;;
+  *e2e/*|*e2e-tests/*|*end-to-end/*|*.e2e.*|*playwright/*|*cypress/integration/*) IS_E2E=1 ;;
 esac
 [ -z "$IS_E2E" ] && exit 0
 
 # Identifica modulo / area (ex: src/auth/login.e2e.ts -> src/auth)
 MODULE_DIR=$(dirname "$FILE_PATH")
-# Sobe um nivel se estamos dentro de e2e/
+# Sobe um nivel se estamos dentro de e2e/.
+# */e2e ja cobre */cypress/e2e (qualquer path terminando em /e2e), removido.
 case "$MODULE_DIR" in
-  */e2e|*/e2e-tests|*/end-to-end|*/playwright|*/cypress|*/cypress/e2e|*/cypress/integration)
+  */e2e|*/e2e-tests|*/end-to-end|*/playwright|*/cypress|*/cypress/integration)
     MODULE_DIR=$(dirname "$MODULE_DIR")
     ;;
 esac

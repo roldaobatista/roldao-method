@@ -21,18 +21,13 @@ case "$CMD" in
   *) exit 0 ;;
 esac
 
-# Aplica: commits com -m/--message OU amend. Commit via editor (sem -m) tambem e validado
-# atraves de COMMIT_EDITMSG quando possivel.
-HAS_INLINE_MSG=""
+# Aplica: commits com -m/--message OU amend. Commit via editor (sem -m) sai
+# cedo — PreToolUse roda ANTES do commit, entao COMMIT_EDITMSG ainda nao
+# existe pra ser validado.
 case "$CMD" in
-  *-m[[:space:]]*|*--message=*|*--message[[:space:]]*) HAS_INLINE_MSG=1 ;;
+  *-m[[:space:]]*|*--message=*|*--message[[:space:]]*) ;;
   *--amend*) ;;
-  *)
-    # commit via editor — tentar ler COMMIT_EDITMSG depois do hook (best effort)
-    # Como PreToolUse roda ANTES do commit, COMMIT_EDITMSG ainda nao existe.
-    # Se houver template configurado (commit.template), avisa que sera validado pelo proprio editor.
-    exit 0
-    ;;
+  *) exit 0 ;;
 esac
 
 # Extrai TODAS as mensagens (-m, --message, --message=) + heredoc, na ordem

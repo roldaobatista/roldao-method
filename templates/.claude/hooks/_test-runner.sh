@@ -740,7 +740,7 @@ NAR_LOCAL="$BASE/roldao-test-nar-local"
 git init --bare --initial-branch=main "$NAR_REMOTE" >/dev/null 2>&1
 git -c init.defaultBranch=main init "$NAR_LOCAL" >/dev/null 2>&1
 (
-  cd "$NAR_LOCAL"
+  cd "$NAR_LOCAL" || exit 1
   git -c user.email=t@t -c user.name=t commit --allow-empty -m "init" >/dev/null 2>&1
   git remote add origin "$NAR_REMOTE" >/dev/null 2>&1
   git branch -M main >/dev/null 2>&1
@@ -760,7 +760,7 @@ fi
 
 # Cria novo commit local nao-pushado — pode amendar
 (
-  cd "$NAR_LOCAL"
+  cd "$NAR_LOCAL" || exit 1
   echo "novo" > a.txt
   git add a.txt
   git -c user.email=t@t -c user.name=t commit -m "wip" >/dev/null 2>&1

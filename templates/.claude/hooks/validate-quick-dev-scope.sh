@@ -86,7 +86,6 @@ COUNTS=$(NORM="$NORM_PATH" perl -e '
   print "$unique_before $unique_after $exists\n";
 ' "$FILES_LOG" 2>/dev/null)
 
-UNIQUE_BEFORE=$(printf '%s' "$COUNTS" | awk '{print $1+0}')
 UNIQUE_AFTER=$(printf '%s' "$COUNTS" | awk '{print $2+0}')
 ALREADY_IN_LOG=$(printf '%s' "$COUNTS" | awk '{print $3+0}')
 

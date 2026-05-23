@@ -15,9 +15,11 @@ FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   print $json->{tool_input}->{file_path} // "";
 ' 2>/dev/null)
 
-# Aplica apenas se path indica integration/e2e
+# Aplica apenas se path indica integration/e2e. *integration* ja cobre
+# spec/integration, test/integration, tests/integration — entao deixadas
+# fora pra evitar redundancia (SC2221).
 case "$FILE_PATH" in
-  *integration*|*e2e*|*end-to-end*|*spec/integration*|*test/integration*|*tests/integration*) ;;
+  *integration*|*e2e*|*end-to-end*) ;;
   *) exit 0 ;;
 esac
 

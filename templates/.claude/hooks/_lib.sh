@@ -21,6 +21,7 @@
 # e `exit` so mataria o subshell, deixando o script principal seguir com
 # PROJDIR vazio (bypass do hook). Caller deve fazer:
 #   if ! PROJDIR=$(sanitize_projdir); then exit 2; fi
+# shellcheck disable=SC2120  # $1 e opcional (testes passam, hooks normais nao)
 sanitize_projdir() {
   local candidate="${1:-${CLAUDE_PROJECT_DIR:-$PWD}}"
 
@@ -29,9 +30,10 @@ sanitize_projdir() {
     return 2
   fi
 
-  # Bloqueia traversal explicito (.. em qualquer segmento)
+  # Bloqueia traversal explicito (.. em qualquer segmento).
+  # *"/.."* ja cobre *"/.." (qualquer path terminando em /..), entao removido.
   case "$candidate" in
-    *"/.."*|*"/.."|".."/*|"..")
+    *"/.."*|".."/*|"..")
       printf '[_lib.sh] PROJDIR contem ".." (path traversal). Recusado: %s\n' "$candidate" >&2
       return 2
       ;;

@@ -17,9 +17,11 @@ FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   print $json->{tool_input}->{file_path} // "";
 ' 2>/dev/null)
 
-# Aplica apenas se path indica fixture/seed/test/mock data
+# Aplica apenas se path indica fixture/seed/test/mock data.
+# *fixture* ja cobre *fixtures*; *seed* cobre *seeds*; *sample* cobre *samples*.
+# Removidos os plurais redundantes pra silenciar SC2221.
 case "$FILE_PATH" in
-  *fixture*|*fixtures*|*seed*|*seeds*|*mock-data*|*mockdata*|*test-data*|*testdata*|*sample*|*samples*) ;;
+  *fixture*|*seed*|*mock-data*|*mockdata*|*test-data*|*testdata*|*sample*) ;;
   *.test.*|*.spec.*|*test/*|*tests/*|*spec/*|*specs/*) ;;
   *) exit 0 ;;
 esac
