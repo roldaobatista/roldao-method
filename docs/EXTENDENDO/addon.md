@@ -53,6 +53,10 @@ non-goals:
 - Prefixo de regras único (não colidir com `LGPD-*`, `FISCAL-*`, `PIX-*`, `SEC-*`, `TST-*`, `INV-*`)
 - `non-goals` declarados
 - README do addon com 1 exemplo de uso fim-a-fim
+- **Entrada em `addons/profiles.json`** — sem isso o addon não aparece em `npx roldao-method search` nem `add`.
+- **Teste em `test/addons.test.js`** — smoke test que instala o addon num projeto temporário e valida que agentes/hooks/skills declarados em `provoca:` existem mesmo. Sem teste, o addon pode quebrar entre releases.
+- **Catálogo `docs/addons.md`** atualizado — adicionar linha com nome/cenário/agente/hook/skills.
+- **Bumpar contagens** — addon novo significa atualizar "6 addons" e "+16 skills em addons" em README, AGENTS, CHANGELOG, `package.json`. Use `node tools/validar-templates.js` pra ver contadores reais.
 
 ## Quando NÃO criar
 

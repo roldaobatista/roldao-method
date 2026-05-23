@@ -42,6 +42,12 @@ Os arquivos da raiz em `.claude/` e `.specify/` ficam **não-versionados** (`.gi
 - **Symlink `.claude/` → `templates/.claude/`:** descartado. Windows tem problemas com symlink + git.
 - **Hardlink:** mesma issue.
 
+## Non-goals
+
+- **Não exige que addons sejam dogfooded no próprio repo** — addons são código de domínio, não precisam aplicar regras de si mesmos.
+- **Não suporta uninstall do dogfood** — sempre reinstala via `npm run install`. Estado intermediário não é coberto.
+- **Não cobre Windows sem Git Bash** (igual ADR-002 — hooks ficam silenciosos no PowerShell puro).
+
 ## Como aplicar
 
 `npm run install` (ou `node bin/install.js` na raiz) copia `templates/.claude/` → `.claude/` e `templates/.specify/` → `.specify/`. `.gitignore` cobre os destinos. Workflows GH usam `templates/.claude/agents/` como fallback quando `.claude/` não existe (fork/CI fresh).

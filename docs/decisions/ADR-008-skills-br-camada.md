@@ -45,6 +45,12 @@ Skills adicionais em addons (15): pix-arch, validar-webhook-pix, emitir-nfe-55, 
 - **So em hooks:** descartado (hook bloqueia escrita mas nao **gera** dado quando o agente precisa).
 - **Biblioteca npm separada:** descartado por enquanto (ADR-001: zero deps runtime).
 
+## Non-goals
+
+- **Não cobre validações de outros países** — escopo deliberado é Brasil (CPF/CNPJ/NFe/Pix/CEP/IE/boleto). Internacional sai escopo.
+- **Não substitui validação no backend de produção** — skill é check pra dev/agente, não enforcement runtime.
+- **Não trata schemas de dados em runtime** — skills são algoritmos determinísticos, não framework ORM/validator.
+
 ## Como aplicar
 
 - Skill nova: criar `templates/.claude/skills/<nome>/` com `SKILL.md` (descricao + trigger), `validar.py` ou similar, `README.md` no addon README.

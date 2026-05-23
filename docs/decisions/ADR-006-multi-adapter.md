@@ -43,6 +43,12 @@ Cliente que usa Cursor + quer bloqueios mecânicos roda Claude Code em paralelo 
 - **Fork por IDE:** descartado por custo de manutenção (× 9).
 - **Texto markdown puro sem hook:** destrói vantagem competitiva. O cliente pode até preferir, mas a venda é "regra bloqueia, não orienta".
 
+## Non-goals
+
+- **Não promete hooks em IDEs que não suportam** — Cursor, Windsurf, Cline, Roo, Continue, Aider, Gemini CLI e Codex CLI recebem só regras em texto. Limitação documentada no README.
+- **Não cria runtime próprio** — depende do harness de cada IDE. Se a IDE morre, o adapter morre junto.
+- **Não traduz prompts entre formatos LLM** — cada IDE escolhe seu modelo (Claude/GPT/Gemini); ROLDAO entrega regra, não prompt-engineering.
+
 ## Como aplicar
 
 `bin/install.js` detecta IDE local e instala adapters aplicáveis. Flag `--all-adapters` força todos; `--adapters=cursor,windsurf` força subset. `test/install.test.js` valida cada adapter cita as 4 pontas: REGRA #0, sequência Sofia/Detetive/Rafael, anti-mascaramento, PT-BR. `tools/sincronizar-adapters.js --check` no `prepublishOnly` impede release com drift.

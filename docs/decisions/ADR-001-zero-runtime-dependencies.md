@@ -36,6 +36,12 @@ Não usar: `chalk`, `commander`, `yargs`, `inquirer`, `chokidar`, `fs-extra`, `g
 - **Usar `chalk` pra cores:** descartado. ANSI escapes diretos cobrem o caso (16 cores), e cor opcional já é tratada via `--no-color`.
 - **Usar `commander` pro CLI:** descartado. O parser de 50 linhas em `bin/install.js` cobre o uso atual (`init`, `update`, `add`, `remove`, `search`, `list`, `doctor`, `tasks-to-issues`, `uninstall` + flags `--yes`, `--force`, `--dry-run`, `--no-color`).
 
+## Non-goals
+
+- **Não bane `devDependencies`** (tooling de teste/CI que roda só localmente é aceitável).
+- **Não restringe deps em projetos cliente** — a regra se aplica ao CLI do framework, não ao código do usuário.
+- **Não bloqueia addons de declararem deps próprias** — addons herdam o princípio por convenção, não por gate mecânico.
+
 ## Como aplicar
 
 Próximo PR que adicionar `dependencies` precisa: (1) abrir ADR-XXX explicando por que a API nativa do Node não cobre; (2) demonstrar que o ganho compensa os 3 custos.

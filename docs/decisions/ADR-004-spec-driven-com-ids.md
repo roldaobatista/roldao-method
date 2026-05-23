@@ -45,6 +45,12 @@ O framework é **spec-driven**:
 - **Issues do GitHub como spec:** descartado. Issues somem com migração de repo. Spec em markdown versionada sobrevive.
 - **JIRA como fonte de verdade:** descartado. Spec precisa estar próxima do código (mesmo PR).
 
+## Non-goals
+
+- **Não exige sync com JIRA/Linear** — IDs vivem no markdown versionado próximo do código.
+- **Não cobre tracking de tempo ou velocity de sprint** nativamente — métrica é responsabilidade de outra ferramenta.
+- **Não auto-numera IDs** — cliente decide a sequência (US-001, US-002...) e o validador checa duplicata.
+
 ## Como aplicar
 
 Workflows `/inicio`, `/prd`, `/epico`, `/historia`, `/feature` geram os artefatos no formato esperado. Hook `commit-message-validator.sh` exige `T-NNN` em commits `feat:`/`fix:`. Validator `tools/validar-ids-rastreaveis.js` checa que todo ID `INV-*`, `SEC-*`, `TST-*`, `LGPD-*`, `FISCAL-*`, `PIX-*`, `INV-AGENT-*` declarado em `REGRAS-INEGOCIAVEIS.md` tem ponto operacional (hook, agente, regra ou checklist).

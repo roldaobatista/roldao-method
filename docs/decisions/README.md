@@ -20,6 +20,7 @@ Decisões arquiteturais que fundaram o framework. Cada ADR explica **contexto**,
 | [ADR-008](ADR-008-skills-br-camada.md) | Skills BR como camada de algoritmo | aceito |
 | [ADR-009](ADR-009-lifecycle-hooks.md) | Hooks de ciclo de vida (PreCompact, SessionEnd) | aceito |
 | [ADR-010](ADR-010-templates-vs-specify.md) | `templates/` vs `.specify/` — separação | aceito |
+| [ADR-011](ADR-011-maestro-fonte-unica-pipeline.md) | Maestro como fonte única do pipeline (`feature.md` vira shim) | aceito |
 
 ## Convenção
 

@@ -2,6 +2,38 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.19.0] — 2026-05-23
+
+**Auditoria 10-agentes (6ª rodada — continuação): adiados resolvidos.**
+
+Mesma rodada de auditoria da v0.18.0, agora fechando os 5 achados grandes que foram adiados (refator maestro/feature, Non-goals nos ADRs, doc órfãs, EXTENDENDO sem checklist, addons sem catálogo).
+
+### Adicionado
+
+- **`docs/addons.md`** — catálogo completo dos 6 addons verticais com tabela (nome, cenário, agente, hooks, skills principais), quando instalar cada um, comandos `add/remove/search/list`. Doc faltante crítico identificado pelo auditor de docs.
+- **`ADR-011-maestro-fonte-unica-pipeline.md`** — documenta o refator: `feature.md` vira shim de 44 linhas; `maestro.md` é a fonte única do pipeline mecânico (7 etapas, SESSION_HASH, audit_sha, paralelismo dos auditores). Elimina duplicação de ~150 linhas que violava INV-001.
+- **Seção `## Non-goals` em todos os 10 ADRs** — ADR-001..010 agora declaram explicitamente o que está fora do escopo (cumprem INV-003 que o próprio ADR-004 codifica). O ADR-011 já nasceu com Non-goals.
+- **Seções novas em `docs/README.md`** — "Addons verticais", "Decisões arquiteturais" (índice ADRs), e link pro runbook LGPD-006 (incident-response-lgpd) que estava órfão.
+
+### Corrigido
+
+- **Duplicação `/feature` ↔ `maestro`** (~80% de conteúdo idêntico, 197 + 200 linhas). `feature.md` reduzido pra 44 linhas (delegação ao Maestro + REGRA #0 + lista de hooks). `maestro.md` mantido como fonte canônica do pipeline.
+- **Drift no índice de ADRs** — `docs/decisions/README.md` listava ADR-001..006; agora lista ADR-001..011 corretamente.
+- **3 docs órfãs linkadas** em `docs/README.md`: `addons.md` (criada), `decisions/README.md` (índice ADRs), `runbooks/incident-response-lgpd.md`, `EXTENDENDO/README.md`.
+
+### Mudado
+
+- **`docs/EXTENDENDO/skill.md` checklist expandido** — exige teste cruzado em `test/skills.test.js` e bump de contagem no `package.json`/docs. Antes o passo-a-passo permitia criar skill sem teste, drift silencioso no `EXPECTED_TOTAL`.
+- **`docs/EXTENDENDO/addon.md` checklist expandido** — exige entrada em `addons/profiles.json`, teste em `test/addons.test.js`, linha em `docs/addons.md`, bump de contagem. Mesmo problema, agora codificado.
+
+### Preservado
+
+- Nenhuma quebra de compatibilidade. Pipeline `/feature` segue idêntico (Maestro orquestra do mesmo jeito; markers, audit_sha, paralelismo dos auditores inalterados).
+- Outros workflows (`/bug`, `/hotfix`, `/qa`, `/quick-dev`) continuam descrevendo o fluxo no próprio command — refator se aplica só ao `/feature` que tinha duplicação.
+- Suíte verde: 4 validadores + 179 testes hooks + 12 skills + 99 cobertura + 53 frontmatter.
+
+---
+
 ## [0.18.0] — 2026-05-23
 
 **Auditoria 10-agentes (6ª rodada) — polimento de drift + bugs reais em skills + autonomia.**

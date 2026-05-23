@@ -37,6 +37,12 @@ Hooks são **scripts shell (`*.sh`)** que delegam parsing de JSON ao **perl** vi
 - **`jq` em vez de perl:** descartado porque `jq` não vem nativo no Git Bash (Windows seria quebrado).
 - **PowerShell + shell:** descartado por dobrar manutenção e quebrar paridade.
 
+## Non-goals
+
+- **Não suporta Windows PowerShell puro** — quem está no Windows precisa do Git Bash. Decisão de design pra não duplicar manutenção.
+- **Não substitui CI tradicional** (Actions/CircleCI/etc.) — hooks são guarda-corpos locais, não pipeline de release.
+- **Não valida conteúdo semântico** (LLM-as-judge) — hooks fazem checks mecânicos (regex, exit code), não julgam intenção.
+
 ## Como aplicar
 
 Novo hook segue o esqueleto em `templates/.claude/hooks/_lib.sh` (load helpers + `set -u`). Parsing de JSON usa `perl -MJSON::PP -e`. Testes em `_test-runner.sh` via `run_case`. Cobertura validada por `tools/validar-cobertura-hooks.js`.

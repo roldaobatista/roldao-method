@@ -43,6 +43,12 @@ Nao tem instalacao remota dinamica. Nao tem versao por addon (vivem junto da ver
 - **Registry externo dinamico (npm scope `@roldao-method/`):** descartado por enquanto. Aumentaria superficie de supply chain attack sem ganho proporcional ao tamanho atual da comunidade.
 - **Resolucao em runtime via cascata de templates:** ADR-003 ja cobre override estatico sem fork. Cascata dinamica e item futuro (gatilho: comunidade ativa).
 
+## Non-goals
+
+- **Sem registry remoto/dinâmico** (npm scope, github org) — decisão consciente enquanto comunidade não escala.
+- **Sem addons de terceiros sem PR** — quem quer publicar abre PR no repo principal. Forks privados são suportados.
+- **Sem versionamento independente** — addons herdam a versão do framework, evita drift.
+
 ## Como aplicar
 
 - Addon novo: criar pasta `addons/<nome>/` com `addon.yaml` (validado contra `addons/addon.schema.json`), `README.md`, e estrutura espelhando `.claude/` + `templates/`.

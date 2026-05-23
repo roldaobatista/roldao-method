@@ -43,6 +43,8 @@ Script em `scripts/<nome>.py` — Python 3 stdlib pura, sem `pip install`.
 - Algoritmo embutido (sem dependência runtime)
 - Offline por padrão (rede só com flag explícita)
 - Dados de teste sintéticos (TST-004, LGPD-001) — nunca CPF/email/telefone real
+- **Teste cruzado em `test/skills.test.js`** — par gerador↔validador (quando aplicável), ou pelo menos smoke test com input válido/inválido. Sem teste, a regressão passa silenciosa.
+- **Bumpar contagem em `package.json` description e docs** — skill nova significa atualizar "12 skills core" pra "13" em README, AGENTS, docs/. Use `node tools/validar-templates.js` pra ver contadores reais.
 
 ## Quando NÃO criar
 

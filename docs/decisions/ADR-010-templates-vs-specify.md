@@ -67,6 +67,12 @@ Override sem fork: **aplica aqui** (ADR-003). `update` nunca toca `overrides/`.
 - **Unificar em `templates/` so:** descartado. Spec-as-source precisa de override sem fork; bootstrap nao.
 - **Mover `.specify/templates/` pra fora de `templates/`:** descartado. `templates/` e o que o install copia — `.specify/` precisa viver dentro.
 
+## Non-goals
+
+- **Não unifica os 2 diretórios** — divisão é deliberada (bootstrap vs spec-as-source).
+- **Não move `.specify/templates/` pra fora de `templates/`** — templates raiz é o que `install` copia; `.specify/` precisa estar dentro pra ir junto.
+- **Não suporta override de `templates/` raiz** — override sem fork (ADR-003) cobre só `.specify/templates/`, não bootstrap.
+
 ## Como aplicar
 
 - Template novo de bootstrap: adicionar em `templates/<area>/<nome>`.

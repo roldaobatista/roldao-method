@@ -38,6 +38,12 @@ Skills, agentes, hooks, comandos e templates do core consultam override **primei
 - **Editar templates do core direto:** descartado. `update` sobrescreve.
 - **Patches via JSON config:** descartado por opacidade. Override em markdown é legível.
 
+## Non-goals
+
+- **Override NÃO burla `REGRAS-INEGOCIAVEIS.md`** — hooks não leem override. Adapta artefato (template/checklist/KB), não regra de segurança.
+- **Não cobre código** — apenas documentação/templates. Override de código seria fork.
+- **Não suporta cascata multi-nível** (`overrides/overrides/`) — uma camada só, simples e previsível.
+
 ## Como aplicar
 
 `bin/install.js` em `isUserOwned()` retorna `true` para qualquer caminho `.specify/overrides/**`, impedindo sobrescrita em `update`. `.specify/overrides/README.md` no core documenta o contrato pra cliente. Skills e templates consultam override via convenção (não há resolver central — cada artefato declara).

@@ -66,6 +66,12 @@ Nao sao hooks ativos — sao sourcedos por outros hooks. `_lib.sh` (sanitizacao,
 - **So bloqueio duro:** descartado. Soft warning cobre casos legitimos de decisao humana (LGPD base legal nao e auto-decidivel por hook).
 - **JSON em todo bloqueio:** descartado. PreToolUse com `exit 2` e mais simples e o harness ja lida.
 
+## Non-goals
+
+- **Não cria mecanismo próprio de hook** — depende dos lifecycle events do Claude Code (se a API mudar, hooks mudam).
+- **Não cobre IDEs sem suporte de hook** (Cursor/Windsurf/etc.) — ver ADR-006.
+- **Não tenta validar saída do LLM em tempo real** — LLM-as-judge é outro escopo, hooks são checks mecânicos.
+
 ## Como aplicar
 
 - Hook novo declara no comentario superior: `# Hook <tipo>, matcher: <X>`.

@@ -26,11 +26,21 @@ status: stable
 - [CASOS-DE-USO-BR](CASOS-DE-USO-BR.md) — exemplos reais (NF-e, eSocial, Pix, LGPD).
 - [Regras inegociáveis](../REGRAS-INEGOCIAVEIS.md) — IDs `INV-`, `SEC-`, `TST-`, `LGPD-`, `FISCAL-`, `PIX-`.
 
+## 📦 Addons verticais
+
+- [Catálogo de addons](addons.md) — os 6 addons (fintech-br, fiscal-br-completo, electron-br, esocial-completo, lgpd-compliance, varejo-pdv-br).
+- [Estender o framework](EXTENDENDO/README.md) — índice dos guias de extensão (agente, hook, skill, addon).
+
+## 🏛️ Decisões arquiteturais
+
+- [Catálogo de ADRs](decisions/README.md) — 10 ADRs fundadores (zero deps, hooks bash, override sem fork, spec-driven, dogfooding, multi-adapter, addons, skills BR, lifecycle hooks, templates vs .specify).
+
 ## 🆘 Quando algo dá errado
 
 - [TROUBLESHOOTING](TROUBLESHOOTING.md) — hook bloqueou indevidamente, Windows sem Git Bash, settings corrompido, downgrade.
 - [FAQ](FAQ.md) — perguntas frequentes (instalar, criar agente, voltar versão).
 - [REGRESSIONS](REGRESSIONS.md) — falhas conhecidas + workaround.
+- [Runbook LGPD — incidente 72h](runbooks/incident-response-lgpd.md) — passo-a-passo operacional de resposta a vazamento de dado pessoal (LGPD-006/ANPD).
 
 ## 📦 Publicar (mantenedores)
 
