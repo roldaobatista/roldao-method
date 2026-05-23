@@ -20,7 +20,7 @@ Forkar o framework por IDE multiplica manutenção. Migrar pra "menor denominado
 Modelo de **adapters**: o core é Claude Code (única IDE que suporta hooks nativamente). Outras 8 IDEs recebem **adapter** que gera o arquivo de instrução no formato esperado pelo IDE, lendo do mesmo fonte canônico (`AGENTS.md`, `REGRAS-INEGOCIAVEIS.md`, `.claude/rules/`).
 
 **Paridade declarada:**
-- **Claude Code:** suporte nativo — 14 agentes executáveis, 25 hooks bloqueadores com exit 2 ou JSON `decision:block`, 22 commands, 11 skills com algoritmo Python.
+- **Claude Code:** suporte nativo — 14 agentes executáveis, 26 hooks bloqueadores com exit 2 ou JSON `decision:block`, 22 commands, 12 skills com algoritmo Python.
 - **Cursor / Windsurf / Cline / Roo / Continue / Aider / Gemini CLI / Codex CLI:** suportam as **regras** (texto carregado no contexto) mas **não executam hooks** — limitação do harness de cada IDE.
 
 Cliente que usa Cursor + quer bloqueios mecânicos roda Claude Code em paralelo no commit/release.

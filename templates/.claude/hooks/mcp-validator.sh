@@ -3,8 +3,7 @@
 # Hook SessionStart.
 # Reduz risco de MCP malicioso aderir credenciais sem o usuario perceber.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

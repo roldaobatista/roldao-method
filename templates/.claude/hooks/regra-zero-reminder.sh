@@ -5,8 +5,7 @@
 #
 # Output via stdout vira contexto adicional pro Claude (não bloqueia).
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

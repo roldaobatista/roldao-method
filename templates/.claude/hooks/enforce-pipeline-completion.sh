@@ -18,8 +18,7 @@
 # a comecar), nao bloqueia. Bloqueio so quando pipeline COMECOU mas nao
 # terminou — caso classico de "agente parou no meio".
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 
@@ -55,9 +54,12 @@ FALTAM=()
 [ -f "$MARK_CHECKPOINT" ] || FALTAM+=("checkpoint (walkthrough do diff)")
 
 REASON_LIST=""
-for item in "${FALTAM[@]}"; do
-  REASON_LIST+="  - ${item}"$'\n'
-done
+# Bash 3.2 (macOS default) com set -u dispara unbound em array vazio sem :- (Revisor B8).
+if [ "${#FALTAM[@]}" -gt 0 ]; then
+  for item in "${FALTAM[@]}"; do
+    REASON_LIST+="  - ${item}"$'\n'
+  done
+fi
 
 REASON="[enforce-pipeline-completion] Pipeline /feature aberto sem checkpoint.
 

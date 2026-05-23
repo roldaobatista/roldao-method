@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # TST-001, INV-006.
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/anti-mask.$$"

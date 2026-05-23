@@ -25,9 +25,12 @@ jobs:
           node-version: '20'
       - name: Sanity (node --check) em todos os .js do projeto
         run: |
-          set -e
+          set -euo pipefail
           node --check bin/install.js
           node --check tools/validar-templates.js
+          node --check tools/validar-ids-rastreaveis.js
+          node --check tools/validar-cobertura-hooks.js
+          node --check tools/sincronizar-claude-md.js
           node --check test/install.test.js
           node --check evals/run.js
       - name: Validar estrutura
@@ -46,14 +49,20 @@ jobs:
         run: sudo apt-get install -y shellcheck
       - name: Rodar shellcheck (severity=warning)
         run: |
-          set -e
-          # Inclui hooks publicados nos templates + hooks ativos no projeto.
+          set -euo pipefail
+          # Inclui hooks publicados nos templates + hooks de addons.
           # SC1091 (não consegue seguir source dinâmico) é esperado em hooks que
           # sourceiam _lib.sh via "$(dirname "$0")/_lib.sh" — usamos shellcheck
           # source=_lib.sh no header pra resolução estática.
           shellcheck --severity=warning --shell=bash \
             --exclude=SC1091 \
             templates/.claude/hooks/*.sh
+          # Hooks de addons quando existirem (alguns addons trazem .sh).
+          ADDON_HOOKS=$(find addons -path '*/.claude/hooks/*.sh' 2>/dev/null || true)
+          if [ -n "$ADDON_HOOKS" ]; then
+            # shellcheck disable=SC2086
+            shellcheck --severity=warning --shell=bash --exclude=SC1091 $ADDON_HOOKS
+          fi
 
   rodar-hooks:
     name: Test-runner dos hooks (matriz)
@@ -103,10 +112,11 @@ jobs:
       - name: Detectar binario Python (python3 no Unix, python no Windows)
         shell: bash
         run: |
+          set -euo pipefail
           if command -v python3 >/dev/null 2>&1; then
-            echo "PY=python3" >> $GITHUB_ENV
+            echo "PY=python3" >> "$GITHUB_ENV"
           else
-            echo "PY=python" >> $GITHUB_ENV
+            echo "PY=python" >> "$GITHUB_ENV"
           fi
       - name: validar-cpf-cnpj
         shell: bash
@@ -174,13 +184,21 @@ jobs:
       - name: Hooks instalados têm bit de execução (P0 — diferencial inerte sem isto)
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
           TMP=$(mktemp -d)
-          node bin/install.js install --yes --tool=claude-code "$TMP" >/dev/null 2>&1 || node bin/install.js install --yes >/dev/null 2>&1 || true
-          HK=$(find "$TMP" -path '*/.claude/hooks/*.sh' 2>/dev/null | head -1)
-          [ -z "$HK" ] && HK=$(find . -maxdepth 4 -path '*/.claude/hooks/block-destructive.sh' | head -1)
-          if [ -n "$HK" ] && [ ! -x "$HK" ]; then
-            echo "FAIL: hook instalado sem +x: $HK"; exit 1
+          # Tenta install com tool explícito; se falhar, tenta wizard genérico.
+          # Sem "|| true" mascarador — se ambos falharem, o step falha e o CI bloqueia.
+          if ! node bin/install.js install --yes --tool=claude-code "$TMP" >/dev/null 2>&1; then
+            node bin/install.js install --yes "$TMP" >/dev/null 2>&1
+          fi
+          HK=$(find "$TMP" -path '*/.claude/hooks/*.sh' 2>/dev/null | head -1 || true)
+          if [ -z "$HK" ]; then
+            echo "FAIL: install não criou nenhum hook em $TMP"
+            exit 1
+          fi
+          if [ ! -x "$HK" ]; then
+            echo "FAIL: hook instalado sem +x: $HK"
+            exit 1
           fi
           echo "OK: hook executável ($HK)"
 

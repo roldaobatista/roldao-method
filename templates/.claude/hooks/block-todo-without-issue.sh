@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # INV-004 — IDs rastreaveis.
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/todo-id.$$"

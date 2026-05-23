@@ -10,8 +10,7 @@
 #   apontado pelo marker feature-active (formato: "US-NNN" no conteudo) e
 #   valida que `status: PRONTO`.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

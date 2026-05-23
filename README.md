@@ -15,7 +15,7 @@ npx roldao-method install      # 1. instala (~2 min)
 #    /feature US-001
 ```
 
-`/help` lista os 22 workflows. `.claude/agents/MAPA-VISUAL.md` mostra quem chamar. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
+`/help` lista os 24 workflows. `.claude/agents/MAPA-VISUAL.md` mostra quem chamar. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
@@ -28,7 +28,7 @@ Ferramentas de IA pra desenvolvimento (Cursor rules, agentes Claude Code, framew
 Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 
 - 🇧🇷 **PT-BR nativo** — não é tradução. Tabela de jargão integrada pra usuário não-programador.
-- 🛡️ **25 hooks bloqueadores + 7 auxiliares** — bloqueadores barram a ação na hora (via `exit 2` ou JSON `decision:block`); auxiliares avisam ou automatizam ciclo (format, snapshot, audit).
+- 🛡️ **26 hooks bloqueadores + 7 auxiliares** — bloqueadores barram a ação na hora (via `exit 2` ou JSON `decision:block`); auxiliares avisam ou automatizam ciclo (format, snapshot, audit).
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
 - 🧾 **Cobertura BR real** — LGPD, NF-e, NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto rodando em paralelo, bloqueando commit se reprovado.
@@ -60,9 +60,9 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 ## O que vem instalado
 
 - **14 especialistas virtuais com personalidade** — Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Inês (revisor), Caio/Julia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). Catálogo em [`.claude/agents/MAPA-VISUAL.md`](templates/.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
-- **22 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/refactor`, `/qa`, `/auditoria`, `/consistencia`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
-- **25 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 2 infra (`_lib.sh`, `_test-runner.sh`) = 34 hooks** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
-- **12 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +14 nos addons = **26 skills**.
+- **24 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/consistencia`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
+- **26 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 2 infra (`_lib.sh`, `_test-runner.sh`) = 35 hooks** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
+- **12 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +16 nos addons = **28 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025).
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).
 - **8 checklists auditáveis** + **7 knowledge bases** + **6 addons verticais BR**.
 
@@ -114,9 +114,9 @@ Hooks bash rodam **só no Claude Code**. Nos outros 8 IDEs a disciplina vem por 
 | Feature | Claude Code | Cursor | Windsurf | Continue | Cline | Roo | Aider | Gemini | Codex |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | Agentes (14) | ✅ exec | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto |
-| Hooks bloqueadores (22) | ✅ exit 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Comandos (22) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Skills (11 core) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Hooks bloqueadores (26) | ✅ exit 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Comandos (24) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Skills (12 core) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Spec-driven + PT-BR | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Usa Cursor/Windsurf/etc. e quer hooks mecânicos? Rode o Claude Code em paralelo nos pontos críticos (commit, release).

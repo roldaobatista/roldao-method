@@ -5,16 +5,17 @@
 #
 # v0.5.0: compara HEAD com @{u} (upstream tracking branch) em vez de exigir `git fetch` recente.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 
 # Hook roda no PWD do harness Claude. Aceita PROJDIR via env (sanitizado) ou
 # cai pra PWD se o usuario invocou direto. Sem isso, em sub-pasta o hook lia
 # repo errado.
-PROJDIR=$(sanitize_projdir "${CLAUDE_PROJECT_DIR:-$PWD}") || exit 0
-cd "$PROJDIR" 2>/dev/null || exit 0
+# Fail-closed: se sanitize_projdir recusar (env malicioso, traversal), bloqueia
+# o --amend em vez de liberar — hook bloqueador (Revisor B4).
+PROJDIR=$(sanitize_projdir "${CLAUDE_PROJECT_DIR:-$PWD}") || exit 2
+cd "$PROJDIR" 2>/dev/null || exit 2
 
 INPUT=$(cat)
 

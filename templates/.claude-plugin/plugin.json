@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "roldao-method",
-  "version": "0.16.0",
-  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 14 agentes, 26 hooks bloqueadores (gates mecânicos pra readiness/sequência de agentes/dependências/escopo de quick-dev/REGRA #0/jargão PT-BR/pergunta de confirmação/pipeline incompleto/chave Pix em log), 22 workflows, 12 skills BR core + 15 em addons, 8 checklists, 7 KBs, 6 addons BR. Para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
+  "version": "0.17.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 14 agentes, 26 hooks bloqueadores (gates mecânicos pra readiness/sequência de agentes/dependências/escopo de quick-dev/REGRA #0/jargão PT-BR/pergunta de confirmação/pipeline incompleto/chave Pix em log), 24 workflows, 12 skills BR core + 16 em addons (inclui Reforma Tributária 2026-2033), 8 checklists, 7 KBs, 6 addons BR. Para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
   "author": "Roldão Batista",
   "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",
@@ -56,7 +56,9 @@
     "commands/help.md",
     "commands/shard.md",
     "commands/clarificar.md",
-    "commands/consistencia.md"
+    "commands/consistencia.md",
+    "commands/hotfix.md",
+    "commands/incident-postmortem.md"
   ],
   "skills": [
     "skills/gerar-adr-pt-br",
@@ -65,6 +67,7 @@
     "skills/gerar-test-fixture-br",
     "skills/gerar-br-code",
     "skills/validar-cpf-cnpj",
+    "skills/validar-chave-acesso-nfe",
     "skills/validar-pix",
     "skills/validar-cep",
     "skills/validar-ie",

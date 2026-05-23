@@ -84,7 +84,7 @@ Cursor não tem `PreToolUse`. Os hooks rodam apenas no Claude Code. Em Cursor, a
 
 ### Hooks não rodam no Windows (silencioso)
 **Sintoma:** o framework parece instalado, mas hooks nunca bloqueiam nada.
-**Causa principal:** os 22 hooks bloqueadores são scripts `bash` que usam `perl -MJSON::PP` pra parsear o JSON de input do Claude Code. PowerShell e CMD não têm bash nem perl no PATH.
+**Causa principal:** os 26 hooks bloqueadores são scripts `bash` que usam `perl -MJSON::PP` pra parsear o JSON de input do Claude Code. PowerShell e CMD não têm bash nem perl no PATH.
 **Fix obrigatório:**
 1. Instale o **Git for Windows** (https://git-scm.com/download/win) — ele vem com Git Bash, bash e perl.
 2. Abra o **Git Bash** (não PowerShell, não CMD).

@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # SEC-005 — URLs/hosts de producao sempre via variavel de ambiente, nunca hardcoded.
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/no-hardcoded.$$"
@@ -19,7 +18,14 @@ FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
 # Nao se aplica a configs declarativas (variaveis de ambiente vivem aqui)
 case "$FILE_PATH" in
   *.env*|*config*.example*|*.example*|*README*|*.md|*docs/*) exit 0 ;;
-  *test*|*spec*|*fixture*|*mock*) exit 0 ;;
+esac
+# Exclusao de testes ancorada em SEGMENTO do path — antes "*test*" pegava
+# `src/integrations/test_sefaz_client.ts` (codigo de producao com "test" no nome)
+# e desativava o bloqueio. Agora so vale pra arquivo claramente em pasta de teste.
+case "$FILE_PATH" in
+  */test/*|*/tests/*|*/__tests__/*|*/spec/*|*/specs/*|*/e2e/*|*/cypress/*|*/playwright/*) exit 0 ;;
+  *.test.*|*.spec.*|*.e2e.*) exit 0 ;;
+  */fixtures/*|*/mocks/*|*/__mocks__/*) exit 0 ;;
 esac
 
 # So aplica a codigo
@@ -41,16 +47,24 @@ fi
 
 # Dominios sensiveis BR + globais que NUNCA devem ser hardcoded
 SENSITIVE_DOMAINS=(
+  # SEFAZ federal + regex generica pra SEFAZ regional (SP, RS, MG, PR, BA, etc) — Fiscal/Pix A3
   'api\.sefaz\.[a-z]+\.gov\.br'
+  'nfe\.fazenda\.[a-z]+\.gov\.br'
   'nfe\.fazenda\.gov\.br'
   'homologacao\.nfe\.fazenda\.gov\.br'
   'producao\.nfe\.fazenda\.gov\.br'
+  'webservices\.nfe\.[a-z]+\.gov\.br'
+  # Contingencia SVC-AN / SVC-RS (FISCAL-004)
+  'svc-an\.[a-z]+\.gov\.br'
+  'svc-rs\.[a-z]+\.gov\.br'
+  # Bacen / Pix / Open Finance
   'pix\.bcb\.gov\.br'
   'matls-api\.bcb\.gov\.br'
   'api\.openfinancebrasil\.org\.br'
+  # eSocial / Receita
   'esocial\.gov\.br'
-  'webservices\.nfe\.[a-z]+\.gov\.br'
   'gov\.br/receita'
+  # Gateways + APIs pagas
   'api\.stripe\.com'
   'api\.openai\.com'
   'api\.anthropic\.com'
@@ -59,6 +73,8 @@ SENSITIVE_DOMAINS=(
   'api\.mercadopago\.com'
   'api\.pagseguro\.uol\.com\.br'
   'gerencianet\.com\.br'
+  # Sandboxes de BaaS — chamar sandbox de teste em codigo de producao tambem e bug
+  'sandbox\.(asaas|pagarme|stripe|mercadopago|gerencianet|stark|efi)\.com'
 )
 
 VIOLATIONS=()

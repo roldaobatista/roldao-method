@@ -8,8 +8,7 @@
 # Estrategia: enquanto /quick-dev ativo (marker quick-dev-active-<sess>), conta
 # arquivos UNICOS de codigo de negocio tocados. Se passar de 3, bloqueia e sugere /feature.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

@@ -3,8 +3,7 @@
 # Uso: bash .claude/hooks/_test-runner.sh
 # Não é registrado em settings.json — é ferramenta de validação manual.
 
-set -u
-
+set -uo pipefail
 HOOKS_DIR="$(cd "$(dirname "$0")" && pwd)"
 PASS=0
 FAIL=0

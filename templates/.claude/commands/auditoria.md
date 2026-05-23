@@ -1,7 +1,8 @@
 ---
 description: Roda os 3 auditores especializados (segurança, qualidade, produto) no código atual. Use antes de release/marco ou periodicamente.
 argument-hint: "[escopo: \"modulo X\" | \"tudo desde release Y\" | vazio = tudo]"
-allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*), Task
+disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*), Bash(npm test:*), Bash(npm run:*), Task
 model: opus
 ---
 

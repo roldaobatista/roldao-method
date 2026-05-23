@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Bash.
 # Politica: 1 linha curta (<=72) + corpo opcional, sem misturar fix+feat+refactor.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 
@@ -47,8 +46,11 @@ MSG=$(printf '%s' "$CMD" | perl -e '
   print join("\n", @parts);
 ')
 
-# Se nao achou, deixa passar (git pode ter forma exotica)
-[ -z "$MSG" ] && exit 0
+# Fail-closed: se o parser nao extraiu mensagem (commit via -F arquivo, heredoc
+# exotico, etc.) usa o CMD inteiro pra evitar bypass silencioso (Revisor B2).
+if [ -z "$MSG" ]; then
+  MSG="$CMD"
+fi
 
 PRIMEIRA_LINHA=$(printf '%s\n' "$MSG" | head -n1)
 LEN=${#PRIMEIRA_LINHA}

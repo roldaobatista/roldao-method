@@ -17,6 +17,13 @@ FILE=$(printf '%s' "$INPUT" | perl -ne 'print $1 if /"file_path"\s*:\s*"([^"]+)"
 [ -z "$FILE" ] && exit 0
 [ ! -f "$FILE" ] && exit 0
 
+# Defensa: so formata arquivo dentro do PROJDIR (Revisor B3).
+# JSON manipulado nao pode forcar formatar /etc/foo ou C:/Windows/...
+case "$FILE" in
+  "$PROJDIR"/*) ;;
+  *) exit 0 ;;
+esac
+
 EXT="${FILE##*.}"
 
 format_if() {

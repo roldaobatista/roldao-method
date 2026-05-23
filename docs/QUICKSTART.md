@@ -23,9 +23,9 @@ Confirme com `s`. O comando copia:
 - `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
 - `.agent/CURRENT.md` — estado da sessão.
 - `.claude/agents/` — 14 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados).
-- `.claude/hooks/` — 25 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários (lib + test-runner) = 34 hooks core.
+- `.claude/hooks/` — 26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários (lib + test-runner) = 35 hooks core.
 - `.claude/commands/` — 22 workflows.
-- `.claude/skills/` — 12 skills BR core (CPF/CNPJ alfanum, chave NF-e, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +14.
+- `.claude/skills/` — 12 skills BR core (CPF/CNPJ alfanum, chave NF-e, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +15.
 - `.claude/output-styles/pt-br-conciso.md`.
 - `.claude/settings.json` — permissões + hooks.
 
@@ -121,7 +121,7 @@ Reportei um bug: ao salvar pedido com valor zero, o sistema aceita.
 
 ## 7. Addons (extender pra domínios específicos)
 
-O core entrega 14 agentes + 11 skills BR. Pra domínios profundos, instale addons:
+O core entrega 14 agentes + 12 skills BR. Pra domínios profundos, instale addons:
 
 ```bash
 npx roldao-method search        # listar addons disponíveis

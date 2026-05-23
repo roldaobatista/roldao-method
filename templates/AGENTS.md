@@ -48,6 +48,10 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 4. Modelo de agentes
 
+**Orquestração:**
+
+- `maestro` — orquestrador do pipeline `/feature` (Sofia → Detetive → Rafael → Bruno → Inês → 3 auditores). Acionado automaticamente; não chamar direto.
+
 **Essenciais em `.claude/agents/`:**
 
 - `analista` — pesquisa de mercado, brief, PRFAQ, regulamentação BR.
@@ -80,7 +84,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 5. Workflows
 
-**22 workflows** codificados em `.claude/commands/`. Lista canônica:
+**24 workflows** codificados em `.claude/commands/`. Lista canônica:
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
@@ -93,6 +97,8 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/clarificar` | Ideia/story vaga antes de codar | gerente-produto (+ usuário via perguntas) |
 | `/feature` | Funcionalidade nova | gerente-produto → investigador → tech-lead → dev-senior → revisor → auditores |
 | `/bug` | Corrigir comportamento | **investigador (obrigatório)** → dev-senior → revisor |
+| `/hotfix` | Correção urgente em produção (cliente parado, SEFAZ off, Pix duplicado) | investigador (modo rápido) → dev-senior → revisor → `/incident-postmortem` obrigatório em 48h |
+| `/incident-postmortem` | Pós-incidente: timeline, LGPD-006/ANPD, ação corretiva | investigador → 3 auditores em paralelo → tech-writer |
 | `/refactor` | Reorganizar código | tech-lead → dev-senior → revisor |
 | `/qa` | Testes de uma área | investigador → auditor-qualidade → dev-senior → revisor |
 | `/auditoria` | Passar auditores | auditor-seguranca + auditor-qualidade + auditor-produto |

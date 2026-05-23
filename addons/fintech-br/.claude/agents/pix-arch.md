@@ -15,7 +15,7 @@ Arquiteto de pagamentos Pix e Open Finance no Brasil.
 
 ## Quando entra
 
-- Decisão de PSP (banco direto vs BaaS — EFI, Asaas, Stark Bank, etc.).
+- Decisão de PSP (banco direto vs BaaS — múltiplos provedores no mercado BR; ver `README.md` do addon).
 - Modelo de idempotência (TxId determinístico, lock distribuído).
 - Conciliação financeira (matching webhook ↔ pedido pelo EndToEndId).
 - Fila de processamento (BullMQ/SQS pra webhooks).

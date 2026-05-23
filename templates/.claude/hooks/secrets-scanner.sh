@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # SEC-001.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 
@@ -85,6 +84,9 @@ while IFS= read -r _p; do
   [ -n "$_p" ] && CONTENT_PATTERNS+=("$_p")
 done < <(secret_token_patterns)
 CONTENT_PATTERNS+=('(password|passwd|senha)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"' ]{6,}')
+# Variante sem aspas (Python, YAML, .env, conf): `password = abc123def` (Segurança A3).
+# Exige >=6 chars no valor pra evitar pegar `password = a` em testes de string.
+CONTENT_PATTERNS+=('(^|[[:space:]])(password|passwd|senha)[[:space:]]*[:=][[:space:]]*[A-Za-z0-9_+/=!@#$%^&*-]{8,}([[:space:]]|$)')
 
 for pat in "${CONTENT_PATTERNS[@]}"; do
   if grep -qE -- "$pat" "$TMPF"; then

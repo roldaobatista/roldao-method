@@ -24,7 +24,7 @@ Hooks são **scripts shell (`*.sh`)** que delegam parsing de JSON ao **perl** vi
 **Positivas:**
 - Latência de hook em ~5-15ms (bash + perl) vs 100ms+ (Node).
 - Nenhum hook quebra se o projeto cliente não usa Node.
-- Wrapper único (`_lib.sh`) reaproveitado por 34 hooks.
+- Wrapper único (`_lib.sh`) reaproveitado por 35 hooks.
 
 **Negativas:**
 - Sintaxe shell tem armadilhas (aspas, expansão de variáveis). Mitigado por `set -u` + shellcheck no CI + helpers em `_lib.sh`.

@@ -19,6 +19,7 @@ provoca:
   skills:
     - emitir-nfe-55
     - migrar-cnpj-alfanumerico
+    - calculadora-reforma-paralela
   templates: []
 
 regras:
@@ -31,6 +32,9 @@ regras:
   - id: NFE-003
     titulo: "Contingência SVC obrigatória"
     descricao: "Se SEFAZ da UF cair, fallback para SVC-RS ou SVC-AN."
+  - id: NFE-004
+    titulo: "Reforma Tributária (LC 214/2025) — cálculo paralelo 2026-2033"
+    descricao: "Durante o período de transição, cálculo paralelo de ICMS/ISS/PIS/COFINS (regime atual) e CBS/IBS/IS (regime novo). ADR da feature tributária declara qual período cobre. Split payment pode entrar em vigor antes do regime pleno. Skill `calculadora-reforma-paralela` cobre o cálculo dual."
 
 requisitos:
   - "backend com runtime que assina XML (Node/Python/Go/.NET)"

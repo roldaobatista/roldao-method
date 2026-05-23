@@ -22,8 +22,7 @@
 # - docs/decisions/ADR-*.md contendo "LGPD-001" ou "LGPD-007"
 # - docs/stories/US-*.md ATIVA contendo `base-legal:` no frontmatter
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 
@@ -98,7 +97,7 @@ fi
 
 # (b) qualquer ADR mencionando LGPD-001 ou LGPD-007
 if [ "$DOCUMENTADO" -eq 0 ] && [ -d "$PROJDIR/docs/decisions" ]; then
-  if grep -rlE 'LGPD-00[17]' "$PROJDIR/docs/decisions" 2>/dev/null | grep -q . ; then
+  if grep -rlE 'LGPD-[0-9]+' "$PROJDIR/docs/decisions" 2>/dev/null | grep -q . ; then
     DOCUMENTADO=1
   fi
 fi

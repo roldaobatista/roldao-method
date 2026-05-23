@@ -3,8 +3,7 @@
 # Hook SessionStart.
 # INV-005 — conciso vence completo.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

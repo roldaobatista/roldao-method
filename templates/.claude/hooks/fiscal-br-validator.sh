@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # FISCAL-001 (imutabilidade NF-e), FISCAL-002 (certificado), FISCAL-003 (ambiente).
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/fiscal-validator.$$"
@@ -16,10 +15,12 @@ FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
   print $json->{tool_input}->{file_path} // "";
 ' 2>/dev/null)
 
-# Nao se aplica a docs/testes
+# Nao se aplica a docs/testes (exclusao ancorada em segmento, como no-hardcoded-env-urls)
 case "$FILE_PATH" in
   *.md|*docs/*|*README*|*CHANGELOG*) exit 0 ;;
-  *test*|*spec*|*fixture*) exit 0 ;;
+  */test/*|*/tests/*|*/__tests__/*|*/spec/*|*/specs/*|*/e2e/*) exit 0 ;;
+  *.test.*|*.spec.*|*.e2e.*) exit 0 ;;
+  */fixtures/*|*/mocks/*|*/__mocks__/*) exit 0 ;;
 esac
 
 # So aplica a codigo
@@ -81,7 +82,9 @@ while IFS= read -r line || [ -n "$line" ]; do
   # FISCAL-003: ambiente=1 (producao) hardcoded em codigo
   # v0.5.0: nao dispara se ha comentario na mesma linha mencionando homolog/dev/teste
   # OR se a linha aparenta ser constante de documentacao (`const tpAmb_PROD = 1`)
-  if printf '%s\n' "$line" | grep -qE '(tpAmb|ambiente|environment).{0,10}=.{0,5}["\047]?1["\047]?'; then
+  # v0.17 (Fiscal A4): tambem casa string "producao"/"production"/"prod" e snake_case `tp_amb`
+  if printf '%s\n' "$line" | grep -qE '(tpAmb|tp_amb|ambiente|environment).{0,10}=.{0,5}["\047]?1["\047]?' \
+   || printf '%s\n' "$line" | grep -qiE '(tpAmb|tp_amb|ambiente|environment).{0,10}=.{0,10}["\047]?(producao|production|prod)["\047]?'; then
     if ! printf '%s\n' "$line" | grep -qiE 'env\.|process\.env|os\.environ|getenv|ENV\[|config\.|settings\.'; then
       # ignora se linha tem comentario explicativo de homolog/dev/desenvolvimento/teste
       if printf '%s\n' "$line" | grep -qiE '(//|#|/\*).{0,80}(homolog|sandbox|desenvolvimento|dev|teste|test|exemplo|example|comentario|documenta)'; then

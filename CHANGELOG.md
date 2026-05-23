@@ -2,6 +2,56 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.17.0] — 2026-05-23
+
+**Auditoria 10-agentes (5ª rodada) — 67 achados resolvidos em 10 blocos.**
+
+Quinta varredura paralela com 10 agentes cobriu ângulos não tocados pelas rodadas anteriores: bugs reais em scripts shell (revisor), rastreabilidade dos IDs (INV-*, SEC-*, LGPD-*, etc.), aderência arquitetural (tech-lead) e ergonomia dos workflows. Identificou ~67 achados (0 críticos, 14 alta, 27 média, 26 baixa). Esta release fecha todos os 67 em 10 blocos sequenciais com suite verde no final (4 validadores + 179 hooks + 12 skills).
+
+### Adicionado
+
+- **Workflows novos:** `/hotfix` (correção urgente em produção — investigador rápido obrigatório, `/incident-postmortem` obrigatório em 48h) e `/incident-postmortem` (timeline, LGPD-006/ANPD, ação corretiva rastreável). Total: **24 workflows** (era 22).
+- **Skill `calculadora-reforma-paralela`** no addon `fiscal-br-completo` — guia de implementação do cálculo dual ICMS/ISS/PIS/COFINS vs CBS/IBS/IS (LC 214/2025) durante a transição 2026-2033. Regra `NFE-004` no `addon.yaml`. Total: **28 skills BR** (12 core + 16 addons).
+- **4 ADRs fundadores:** ADR-007 (addons + registry estático), ADR-008 (skills BR como camada operacional), ADR-009 (lifecycle de hooks Claude Code), ADR-010 (templates/ vs .specify/ — duas camadas). Decisões que viviam só no histórico de commits agora citáveis.
+- **Bloco "Orquestração: maestro"** em `AGENTS.md §4` — agente que existia mas não estava declarado.
+- **Testes pros validadores do CI** em `test/validar-tools.test.js` — smoke test pros 4 validadores em `tools/*.js` (regressão neles passava silenciosa antes).
+- **Release notes `docs/releases/v0.15.3.md`** — formato REL, antes só tinha v0.16.0.
+
+### Corrigido
+
+- **Bug `commit-message-validator.sh`** — `[ -z "$MSG" ] && exit 0` virou fail-closed (`MSG=$CMD` quando o parser não extrai). Commit via `-F arquivo` ou heredoc exótico não burla mais a validação. Revisor B2.
+- **Bug `auto-format-on-write.sh`** — agora valida que `file_path` está dentro do `PROJDIR` antes de chamar formatter. JSON manipulado não consegue mais forçar prettier/eslint em `/etc/foo` ou `C:/Windows/...`. Revisor B3.
+- **Bug `no-amend-after-push.sh`** — `sanitize_projdir || exit 0` virou `|| exit 2`. Falha de sanitização agora bloqueia o `--amend`, não libera. Revisor B4.
+- **Bug `validate-test-pyramid.sh`** — normaliza paths absolutos Windows (`C:/...` e `C:\...`) pra relativos antes de checar. Antes, o `case` desligava o hook silenciosamente quando o Claude Code em Windows enviava `file_path` absoluto com forward slash. Revisor B5.
+- **Bug `block-confirmation-questions.sh`** — `printf '%s'` virou `printf '%s\n'`, garante que última linha sem `\n` final é processada pelo perl em modo linha. Revisor B6.
+- **Bug `enforce-pipeline-completion.sh`** — `for item in "${FALTAM[@]}"` protegido contra array vazio com `set -u` no bash 3.2 (macOS default). Revisor B8.
+- **Bug `no-test-data-in-fixtures.sh`** — `for cand in $(...)` virou `while read -r cand; do ... done < <(...)` pra evitar word-splitting em linhas com espaços/metacaracteres. Revisor B9.
+- **Bug `block-jargon-pt-br.sh`** — regex `isso[[:space:]]+[eé]|isto[[:space:]]+[eé]` aceita formas com e sem acento em PT-BR (antes só `isso e` sem acento). Revisor B10.
+- **`paths-frontmatter-validator.sh`** — mensagens "AVISO" trocadas por "BLOQUEADO" (eram confusas — hook é exit 2, bloqueio duro). Qualidade A7.
+- **`no-hardcoded-env-urls.sh`** — exclusão de paths ancorada em segmento (`*/test/*`, `*.test.*`, `*/fixtures/*`) em vez de substring solta. Antes, `src/integrations/test_sefaz_client.ts` (código de produção) passava sem checagem. Lista de domínios sensíveis ganhou SEFAZ regional (`nfe.fazenda.[a-z]+.gov.br`), contingência SVC-AN/SVC-RS e sandboxes BaaS. Segurança A1 + Fiscal A3 + Pix A5.
+- **`secrets-scanner.sh`** — variante sem aspas pra senha inline (`password = abc123def` em `.py`/`.yaml`/`.env`) agora detectada. Antes exigia aspas. Segurança A3.
+- **`fiscal-br-validator.sh`** — também casa string `"producao"|"production"|"prod"` e snake_case `tp_amb` (antes só `tpAmb=1` numérico). Fiscal A4. Exclusão de paths ancorada.
+- **`lgpd-base-legal-reminder.sh`** — regex ampliada de `LGPD-00[17]` pra `LGPD-[0-9]+` (reconhece todas as 10 LGPD-NNN declaradas em ADR). IDs A4.
+- **CI `validar.yml`** — `set -euo pipefail` em todos os steps multi-linha. `node --check` agora cobre 5 ferramentas (não só 2). Step "Hooks instalados têm bit de execução" perdeu o `|| true` mascarador final; agora falha duro se o install não criar hook (Qualidade A4). Shellcheck cobre hooks de addons além dos templates.
+- **Memória global `project-paridade-speckit.md`** — reescrita sem comparativo nominal a outros frameworks (coerente com posicionamento autônomo).
+
+### Mudado
+
+- **`set -uo pipefail` padronizado** em 32 hooks (todos os bloqueadores + soft warnings + lifecycle). Antes só `set -u`. Falha silenciosa em pipe (`perl ... 2>/dev/null` retornando erro) não passa mais despercebida.
+- **`.claude/rules/roldao-method.md`** sincronizado com `templates/.claude/rules/roldao-method.md` — totais 26 bloqueadores / 35 arquivos + linha `no-log-pix-key.sh / PIX-004` na tabela de bloqueios.
+- **Contagens propagadas** em 12 arquivos públicos: README, AGENTS, CONTRIBUTORS, ARQUITETURA, QUICKSTART, COMO-FUNCIONA, FAQ, ROADMAP, TROUBLESHOOTING, ADR-002, ADR-006, templates/.windsurf/rules. **24 workflows + 35 hooks + 28 skills + 6 addons** é a referência única agora.
+- **`/auditoria.md`** ganhou `disable-model-invocation: true` (estava sem) + `allowed-tools` expandidos pra incluir `npm test/run`.
+- **`/quick-dev.md`** critério reforçado: "**não toca cálculo, validação, regra de negócio existente**" — mudança em lógica de produto vira `/feature` mesmo se for trivial. Auditor de workflows A6.
+- **Agente `pix-arch` (addon `fintech-br`)** — recomendação default sem citar BaaS por nome (Asaas/EFI/Stark Bank); descreve por características (SDK Node maduro, SLA de webhook, custo por volume). Coerente com `feedback-posicionamento-autonomo`. Fiscal/Pix A8.
+
+### Preservado
+
+- Nenhuma quebra de compatibilidade. Todos os fluxos anteriores seguem iguais.
+- Hooks bloqueadores existentes mantêm semântica (exit 2). Mudanças foram em robustez interna, não em comportamento exposto ao usuário.
+- Exceções via comentário (`PIX-004-exception:`, `FISCAL-NNN-exception:`, `SEC-005-exception:`, `TST-004-exception:`) continuam funcionando.
+
+---
+
 ## [0.16.0] — 2026-05-22
 
 **Auditoria 10-agentes (4ª rodada) — compliance LGPD/Pix operacional + cobertura cruzada.**

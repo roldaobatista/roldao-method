@@ -9,8 +9,7 @@
 # audit trail PERSISTENTE de "Sofia aprovou em X data". Agora vive no proprio
 # arquivo da story.
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '

@@ -6,8 +6,7 @@
 # Estrategia: olha a resposta gerada pelo Claude (campo response no input do hook).
 # Se houver termos tecnicos sem traducao adjacente, bloqueia (PostToolUse pode retornar decision: block).
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 # Tenta extrair texto da resposta. Pode vir em campos diferentes dependendo
@@ -79,7 +78,8 @@ for pat in "${JARGON_TERMS[@]}"; do
     if printf '%s\n' "$CTX" | grep -qiE '"[^"]{3,40}"'; then
       continue  # ja tem aspas, provavel explicacao
     fi
-    if printf '%s\n' "$CTX" | grep -qiE '\bou seja\b|\bsignific|isso e|isto e|i\.e\.|ex:'; then
+    # Aceita "isso e", "isso é", "isto e", "isto é" e variações com múltiplos espaços (Revisor B10).
+    if printf '%s\n' "$CTX" | grep -qiE '\bou seja\b|\bsignific|isso[[:space:]]+[eé]|isto[[:space:]]+[eé]|i\.e\.|ex:'; then
       continue
     fi
     VIOLATIONS+=("jargao sem traducao: '$m' em -> $CTX")

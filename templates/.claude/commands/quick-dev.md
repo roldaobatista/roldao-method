@@ -14,7 +14,8 @@ Use `$ARGUMENTS` como descricao da mudanca em **1 frase**.
 
 So se TODAS forem verdadeiras:
 
-- Mudanca cosmetica (cor, texto, label) **ou** regra simples isolada
+- Mudanca cosmetica (cor, texto, label) **ou** ajuste simples sem regra de negocio nova
+- **Nao toca calculo, validacao, regra de negocio existente** — qualquer mudanca em logica de produto vira `/feature` (mesmo que pareca pequena)
 - Nao toca banco, migration, contrato de API, integracao externa
 - Nao toca dado pessoal nem fluxo fiscal
 - Cabe em ate **3 arquivos** e **50 linhas**

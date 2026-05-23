@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Bash.
 # SEC-001 (estende secrets-scanner que so olha Write/Edit).
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

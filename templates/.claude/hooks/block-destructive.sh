@@ -5,8 +5,7 @@
 #
 # Parser perl -MJSON::PP pra suportar Windows Git Bash (sem jq).
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 CMD=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '

@@ -4,8 +4,7 @@
 # PIX-004 + LGPD-001/004 — chave Pix e dado pessoal. Log nunca deve vazar chave em
 # texto puro. Mascarar (***@***, ***.***.***-99, +55***********).
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/no-log-pix.$$"
@@ -19,7 +18,11 @@ FILE_PATH=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
 
 # Nao se aplica a configs, docs, fixtures de teste (la chave fake e ok)
 case "$FILE_PATH" in
-  *.env*|*.example*|*README*|*.md|*docs/*|*test*|*spec*|*fixture*|*mock*|*.json|*.yml|*.yaml) exit 0 ;;
+  *.env*|*.example*|*README*|*.md|*docs/*) exit 0 ;;
+  */test/*|*/tests/*|*/__tests__/*|*/spec/*|*/specs/*|*/e2e/*) exit 0 ;;
+  *.test.*|*.spec.*|*.e2e.*) exit 0 ;;
+  */fixtures/*|*/mocks/*|*/__mocks__/*) exit 0 ;;
+  *.json|*.yml|*.yaml) exit 0 ;;  # configs declarativas — auditor manual revisa
 esac
 
 # So aplica a codigo

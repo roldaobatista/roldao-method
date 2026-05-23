@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # INV-004 — IDs rastreáveis + convenção de docs.
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/frontmatter.$$"
@@ -54,7 +53,7 @@ FIRST_LINE=$(perl -e '
 
 if [ "$FIRST_LINE" != "---" ]; then
   cat >&2 <<EOF
-[paths-frontmatter-validator] AVISO: doc em docs/ deve começar com frontmatter.
+[paths-frontmatter-validator] BLOQUEADO: doc em docs/ deve começar com frontmatter.
 
 Arquivo: $FILE_PATH
 
@@ -82,7 +81,7 @@ FM_BLOCK=$(perl -0777 -ne '
 # Validar campos mínimos no bloco de frontmatter
 for field in owner revisado-em status; do
   if ! printf '%s\n' "$FM_BLOCK" | grep -qE "^${field}:"; then
-    echo "[paths-frontmatter-validator] AVISO: frontmatter sem campo obrigatório '$field' em $FILE_PATH" >&2
+    echo "[paths-frontmatter-validator] BLOQUEADO: frontmatter sem campo obrigatório '$field' em $FILE_PATH" >&2
     exit 2
   fi
 done

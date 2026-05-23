@@ -5,8 +5,7 @@
 #
 # v0.5.0: reescrito sem ${var:i:1} / for ((i...)) — compativel com bash 3.2 (macOS default).
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/no-real-data.$$"
@@ -88,7 +87,9 @@ cpf_dv_ok() {
   '
 }
 while IFS= read -r line || [ -n "$line" ]; do
-  for cand in $(printf '%s\n' "$line" | grep -oE '[0-9]{11}' || true); do
+  # Usa while em vez de for $(...) pra evitar word-splitting com paths/linhas
+  # que contêm espaços ou metacaracteres (Revisor B9).
+  while IFS= read -r cand; do
     [ -z "$cand" ] && continue
     all_same_digits "$cand" && continue
     [ "$cand" = "12345678909" ] && continue
@@ -98,7 +99,7 @@ while IFS= read -r line || [ -n "$line" ]; do
       continue
     fi
     VIOLATIONS+=("CPF nao-formatado aparente em fixture: $cand  ->  $line")
-  done
+  done < <(printf '%s\n' "$line" | grep -oE '[0-9]{11}' || true)
 done < "$TMPF"
 
 # Emails com domínio real de provedor pessoal

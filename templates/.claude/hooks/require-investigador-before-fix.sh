@@ -7,8 +7,7 @@
 # quando o prompt inicial dispara gatilho de bug. Se marcador existe E ainda nao houve
 # invocacao do subagente 'investigador' (registrado em outro marcador), bloqueia.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

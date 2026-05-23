@@ -3,8 +3,7 @@
 # Hook PostToolUse / Stop — analisa texto de resposta.
 # INV-AGENT-006 — executar, nao passar pro usuario nao-programador.
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 RESP=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -72,7 +71,9 @@ while IFS= read -r vline || [ -n "$vline" ]; do
   [ -z "$vline" ] && continue
   VIOLATIONS+=("$vline")
 done < <(
-  printf '%s' "$RESP" | PAT="$PERL_PATS" LEGIT="$PERL_LEGIT" perl -e '
+  # Garante \n no final pra perl <STDIN> em modo linha nao perder a ultima
+  # linha quando $RESP nao termina com newline (Revisor B6).
+  printf '%s\n' "$RESP" | PAT="$PERL_PATS" LEGIT="$PERL_LEGIT" perl -e '
     my $pat   = $ENV{PAT};
     my $legit = $ENV{LEGIT};
     my @buf;

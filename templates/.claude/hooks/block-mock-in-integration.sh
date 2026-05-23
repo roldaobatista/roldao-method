@@ -3,8 +3,7 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # TST-003 — nao testar com mock o que vai pra producao real.
 
-set -u
-
+set -uo pipefail
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/no-mock.$$"

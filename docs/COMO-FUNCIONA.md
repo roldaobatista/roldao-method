@@ -133,7 +133,7 @@ Hook `require-investigador-before-fix.sh` bloqueia Edit/Write em código de neg�
 | `fiscal-br` | NF-e, certificado, eSocial, reforma tributária | sonnet |
 | `tech-writer` | CHANGELOG, release notes, msg de commit | haiku |
 
-## Os 11 skills BR core
+## Os 12 skills BR core
 
 | Skill | Função |
 |---|---|

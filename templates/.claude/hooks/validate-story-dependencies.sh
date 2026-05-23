@@ -10,8 +10,7 @@
 # - Se alguma dependencia nao entregue, bloqueia com exit 2.
 # - So roda em arquivos de codigo de negocio.
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

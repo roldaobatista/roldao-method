@@ -9,8 +9,7 @@
 # Marcador criado pelo /checkpoint etapa 4 ao final do walkthrough:
 #   .claude/.runtime/checkpoint-done-<sess>
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 

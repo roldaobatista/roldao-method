@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
-  "version": "0.16.0",
-  "description": "Framework agentic em PT-BR. 14 agentes, 26 hooks bloqueadores + 2 soft warnings + 5 lifecycle, 22 workflows, 27 skills BR (12 core + 15 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
+  "version": "0.17.0",
+  "description": "Framework agentic em PT-BR. 14 agentes, 26 hooks bloqueadores + 2 soft warnings + 5 lifecycle, 24 workflows, 28 skills BR (12 core + 16 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Reforma Tributária 2026-2033, Pix, LGPD, fiscal, eSocial), 6 addons especializados. Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
     "claude-code",
@@ -46,7 +46,8 @@
     "test:adapters": "node test/adapters.test.js",
     "test:adapter-drift": "node tools/sincronizar-adapters.js --check --quiet",
     "test:claude-md-sync": "node tools/sincronizar-claude-md.js",
-    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run test:claude-md-sync && npm run test:hooks && npm run test:install-lib && npm run test:install && npm run test:skills && npm run test:addons && npm run test:adapters",
+    "test:tools": "node test/validar-tools.test.js",
+    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run test:tools && npm run test:claude-md-sync && npm run test:hooks && npm run test:install-lib && npm run test:install && npm run test:skills && npm run test:addons && npm run test:adapters",
     "prepublishOnly": "npm test && npm run test:adapter-drift"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",

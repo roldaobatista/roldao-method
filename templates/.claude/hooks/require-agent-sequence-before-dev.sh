@@ -17,8 +17,7 @@
 #   .claude/.runtime/rafael-done-<sess>     — tech-lead rodou
 #   .claude/.runtime/rafael-skipped-<sess>  — tech-lead dispensado (feature trivial — INV-AGENT-005)
 
-set -u
-
+set -uo pipefail
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 
