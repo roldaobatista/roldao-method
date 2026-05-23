@@ -568,7 +568,7 @@ async function install() {
   console.log(`  ${c.cyan}1.${c.reset} ler ${c.bold}AGENTS.md${c.reset} — seu documento-contrato`);
   console.log(`  ${c.cyan}2.${c.reset} ajustar ${c.bold}REGRAS-INEGOCIAVEIS.md${c.reset} ao seu projeto`);
   console.log(`  ${c.cyan}3.${c.reset} estilo PT-BR ja ativo no settings.json (${c.dim}pt-br-conciso${c.reset}). Trocar com ${c.dim}/config${c.reset} se quiser.`);
-  console.log(`  ${c.cyan}4.${c.reset} listar comandos: ${c.green}/help${c.reset} (catalogo dos 22 workflows)`);
+  console.log(`  ${c.cyan}4.${c.reset} listar comandos: ${c.green}/help${c.reset} (catalogo dos 24 workflows)`);
   console.log(`  ${c.cyan}5.${c.reset} adicionar addon: ${c.cyan}npx roldao-method add <addon>${c.reset}`);
   console.log(`  ${c.cyan}6.${c.reset} ${c.dim}(opcional)${c.reset} copiar ${c.dim}CLAUDE.local.md.example -> CLAUDE.local.md${c.reset} pra suas preferencias pessoais.`);
   console.log(`  ${c.cyan}7.${c.reset} ${c.dim}(opcional)${c.reset} GitHub Action: copiar ${c.dim}templates/.github/workflows/claude-review.yml${c.reset} pro seu ${c.dim}.github/workflows/${c.reset} e setar ${c.dim}ANTHROPIC_API_KEY${c.reset}.`);

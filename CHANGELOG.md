@@ -2,6 +2,55 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.18.0] — 2026-05-23
+
+**Auditoria 10-agentes (6ª rodada) — polimento de drift + bugs reais em skills + autonomia.**
+
+Sexta varredura paralela com 10 agentes mirou os ângulos finos: usabilidade (primeiros 30s do usuário novo), maestro alto-nível vs micro-gerência, drift de contagens entre docs canônicas, vazamentos do INV-AGENT-006 (perguntar quando podia executar), tools agentes sem allowlist, polimentos de hooks, bugs reais em skills BR, e consistência cross-doc. Esta release fecha ~30 achados de polimento + 2 bugs reais (fator FEBRABAN pós-reset 2025-02-22 e heurística incorreta de CEP).
+
+### Adicionado
+
+- **Atalhos `HF` e `IPM`** no `/help` — workflows `/hotfix` e `/incident-postmortem` agora têm código curto no catálogo. Adicionado também atalho `RL` que faltava no `argument-hint`.
+- **Função `_venc_from_fator()`** na skill `validar-boleto` — cobre o **reset FEBRABAN de 22/02/2025** (fator vencimento volta pra 1000 nesse dia). Boleto novo emitido após 2025-02-22 com fator >= 1000 agora calcula a data correta. Skills A1 do auditor.
+- **ADRs 007-010 no índice `docs/decisions/README.md`** — ADR-007 (addons registry), ADR-008 (skills BR camada), ADR-009 (lifecycle hooks), ADR-010 (templates vs .specify). Estavam em disco desde v0.17.0 mas o índice citava só ADR-001..006. Docs do auditor.
+- **Allowlist BR explícita** em `block-jargon-pt-br.sh` (comentário) — Pix, NF-e, NFC-e, NFS-e, CT-e, MDF-e, LGPD, CPF, CNPJ, SEFAZ, RFB, Bacen, ANPD, eSocial, REINF, SPED, CC-e, SAT, MFE, TEF, ECF documentados como termos do domínio fiscal/legal BR que não devem entrar em `JARGON_TERMS`.
+
+### Corrigido
+
+- **Bug `validar-cep`** — heurística "todos iguais rejeita CEP" estava incorreta (CEPs reais começam com qualquer dígito; o que invalida é faixa IBGE, não repetição). Agora rejeita apenas `00000000` (zerado) e documenta que validação de existência exige `--remoto`. Skills A2.
+- **Bug `validar-boleto`** — `BASE_DATE = 1997-10-07` (FEBRABAN original) extrapolava datas erradas pra boletos pós-reset 2025-02-22. Agora a função `_venc_from_fator` detecta cenário (regra nova vs antiga) pela combinação fator + data de hoje. Skills A1.
+- **Drift de contagens** propagado em 6 arquivos canônicos: `CLAUDE.md`, `templates/CLAUDE.md`, `docs/ARQUITETURA.md`, `docs/COMO-FUNCIONA.md`, `docs/FAQ.md`, `docs/QUICKSTART.md`, `bin/install.js`, `README.md`. **24 workflows + 35 hooks + 12 skills core (+16 addons = 28)** é a contagem única em todo lugar agora. Consistência A1-A3.
+- **Drift root↔templates** dos commands — `.claude/commands/` raiz tinha 22 arquivos enquanto `templates/.claude/commands/` tinha 24 (faltavam `hotfix.md` e `incident-postmortem.md` no dogfood do framework). Resincronizado. Consistência A4.
+- **Frontmatter `templates/.claude/rules/roldao-method.md`** — dizia "22 hooks bloqueadores" e o corpo dizia "34 scripts"; ambos atualizados pra "26 bloqueadores" e "35 scripts". Internamente contraditório virou coerente.
+- **`auto-format-on-write.sh`** — `md` removido do case de extensões formatadas (prettier reescrevia frontmatter e quebras de linha sensíveis ao `paths-frontmatter-validator`). Hook A1.
+- **Typo `validate-test-pyramid.sh`** — mensagem "Pira mide saudavel" virou "Piramide saudavel". Hook A3.
+- **`/help` e `templates/CLAUDE.md`** — "22 slash commands" e "22 workflows" virou "24". Tabela do `/help` ganhou linhas `HF` (hotfix) e `IPM` (incident-postmortem). Usabilidade A2.
+
+### Mudado
+
+- **Tools dos agentes `investigador`, `dev-senior`, `tech-lead` restritas com allowlist Bash** — antes `Bash` irrestrito permitia qualquer comando (incluindo `rm`, `psql DROP`). Agora:
+  - `investigador`: `Bash(sqlite3:*), Bash(psql:*), Bash(mysql:*), Bash(jq:*), Bash(git log:*), Bash(rg:*), ...` — só leitura.
+  - `dev-senior`: `Bash(npm:*), Bash(vitest:*), Bash(jest:*), Bash(pytest:*), Bash(git:*), ...` — TDD + git, sem destrutivo.
+  - `tech-lead`: `Bash(git log:*), Bash(git diff:*), Bash(ls:*), Bash(cat:*)` — só investigação histórica.
+  Agentes A1-A3.
+- **INV-AGENT-006 reforçada em 6 lugares** que ainda pediam confirmação ao usuário pra operações reversíveis/aditivas:
+  - `/replanejar` — "Confirmar com usuário qual caminho" virou "Decida o caminho de menor risco e execute".
+  - `/shard` — "Confirmar com usuário antes de executar" virou "Execute o sharding direto — é refactor de doc aditivo".
+  - `/sprint` — "Após confirmação, marcar primeira story" virou "Marque a primeira story e reporte".
+  - `/brownfield` Etapa 5 — "Confirmar com usuário" virou "Reportar onboarding feito".
+  - `tech-writer` — "Identifique o modo (pergunte se não for óbvio)" virou inferência pelo gatilho do comando.
+  - `dba-dados` — mesma mudança (inferir modo pelo gatilho da conversa).
+  Autonomia A1-A6.
+
+### Preservado
+
+- Nenhuma quebra de compatibilidade. Hooks bloqueadores mantêm semântica.
+- Skills validar-cep e validar-boleto continuam aceitando os mesmos inputs; só a saída de boletos pós-2025-02-22 mudou (era incorreta, agora correta).
+- Tools dos agentes restritas não removem capacidades reais — apenas explicitam o conjunto mínimo necessário (defesa em profundidade).
+- Suíte verde: 4 validadores + 179 testes de hooks + 12 skills + 99 adapter checks + 53 frontmatter checks.
+
+---
+
 ## [0.17.0] — 2026-05-23
 
 **Auditoria 10-agentes (5ª rodada) — 67 achados resolvidos em 10 blocos.**

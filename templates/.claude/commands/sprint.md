@@ -67,11 +67,12 @@ status: planejada
 - Nenhuma story carry-over (se houver, motivo na retro).
 ```
 
-## Etapa 3 — Confirmar e abrir trabalho
+## Etapa 3 — Abrir trabalho
 
-- Mostrar plano pro usuário em PT-BR claro (sem story points crus — usar "pequena/média/grande").
-- Após confirmação, marcar primeira story como "em andamento".
-- Recomendar: rodar `/feature` na primeira story.
+- Mostre o plano em PT-BR claro (sem story points crus — use "pequena/média/grande").
+- Marque a primeira story como "em andamento" e reporte o plano executado.
+- Recomende: rodar `/feature` na primeira story.
+- Se o usuário discordar do sequenciamento, ele reverte (INV-AGENT-006).
 
 > **Sequenciamento mecânico:** o hook `validate-story-dependencies.sh` valida o campo `depende-de:` no frontmatter da story-alvo. Se US-002 declara `depende-de: [US-001]` e US-001 não está com `status: entregue`, o hook recusa Edit/Write em código quando `/feature US-002` está ativo. Não é convenção — é gate.
 

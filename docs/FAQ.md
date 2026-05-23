@@ -15,7 +15,7 @@ Não. O ROLDAO-METHOD foi feito por e para gente que não programa. Os agentes t
 
 Os 9 alvos suportados — paridade real declarada na tabela do README:
 
-- **Claude Code:** suporte nativo (14 agentes executáveis, 26 hooks bloqueadores [23 via `exit 2` + 3 via JSON `decision:block`], 22 commands, 12 skills com algoritmo Python).
+- **Claude Code:** suporte nativo (14 agentes executáveis, 26 hooks bloqueadores [23 via `exit 2` + 3 via JSON `decision:block`], 24 commands, 12 skills com algoritmo Python).
 - **Cursor / Windsurf / Cline / Roo / Continue / Aider / Gemini CLI / Codex CLI:** suporta as **regras** (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, regra própria do adapter). Os outros 8 lêem texto carregado no contexto, **mas não executam hooks** (limitação do harness de cada IDE). O instalador detecta a IDE local e instala o que se aplica; pode forçar todos com `--all-adapters` ou um subconjunto com `--adapters=cursor,windsurf`.
 
 Quem usa Cursor/Windsurf/etc. e quer também os bloqueios mecânicos: rode Claude Code em paralelo nos pontos críticos (commit, release).
@@ -98,7 +98,7 @@ Mesmo procedimento pra hook (seção 2), skill (seção 3) e addon (seção 4).
 | `/readiness` | Gate entre `/epico` e `/feature` |
 | `/shard` | Quebra PRD/ARQ longo em pedaços navegáveis |
 | `/retro` | Retrospectiva pós-marco |
-| `/help` | Catálogo dos 22 comandos |
+| `/help` | Catálogo dos 24 comandos |
 
 ### O agente sai escrevendo código sozinho?
 Não. O `/bug` exige investigação antes (REGRA #0). O `/feature` exige user story estruturada. Os hooks bloqueiam se ele tentar mascarar bug, comitar segredo ou rodar comando destrutivo.

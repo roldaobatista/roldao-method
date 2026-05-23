@@ -51,7 +51,7 @@ Referências que apontam pro PRD-007.md original (15):
 Vão ser atualizadas pra apontar pro novo index.md.
 ```
 
-Confirmar com usuário antes de executar.
+Execute o sharding direto — é refactor de doc, aditivo e reversível (INV-AGENT-006). Reporte: pasta criada, fatias geradas, referências atualizadas. Se o usuário discordar, ele reverte.
 
 ## Etapa 3 — Execução
 

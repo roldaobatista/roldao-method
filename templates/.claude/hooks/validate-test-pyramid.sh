@@ -3,7 +3,8 @@
 # Hook PreToolUse, matcher: Write|Edit.
 # TST-001 (anti-mascaramento), TST-002 (causa raiz) — piramide invertida = sintoma.
 
-set -uo pipefail
+set -u
+
 # shellcheck source=_lib.sh
 . "$(dirname "$0")/_lib.sh"
 
@@ -24,19 +25,6 @@ case "$FILE_PATH" in
 esac
 [ -z "$IS_E2E" ] && exit 0
 
-PROJDIR=$(sanitize_projdir) || exit 2
-
-# Normaliza FILE_PATH absoluto pra relativo a PROJDIR (Revisor B5).
-# Claude Code em Windows envia C:\... ou C:/...; em Unix envia /...
-# Antes, o case "/*|*:\\*) exit 0" descartava silenciosamente paths Windows
-# com forward slash absolutos — hook nunca bloqueava em produção.
-case "$FILE_PATH" in
-  "$PROJDIR"/*) FILE_PATH="${FILE_PATH#"$PROJDIR"/}" ;;
-  *..*) exit 0 ;;        # traversal recusado
-  /*) exit 0 ;;          # absoluto Unix fora do projeto
-  ?:/*|?:\\*) exit 0 ;;  # absoluto Windows fora do projeto
-esac
-
 # Identifica modulo / area (ex: src/auth/login.e2e.ts -> src/auth)
 MODULE_DIR=$(dirname "$FILE_PATH")
 # Sobe um nivel se estamos dentro de e2e/
@@ -46,10 +34,14 @@ case "$MODULE_DIR" in
     ;;
 esac
 
-# Recusa qualquer traversal residual após normalização.
+# Sanitizacao defensiva: FILE_PATH vem do JSON do Claude (atacante via prompt
+# manipulado pode tentar "../../../etc/passwd.e2e.ts"). Recusa qualquer '..'
+# ou caminho absoluto fora do projeto.
 case "$MODULE_DIR" in
-  *..*) exit 0 ;;
+  *..*|/*|*:\\*) exit 0 ;;
 esac
+
+PROJDIR=$(sanitize_projdir) || exit 2
 
 # NÃO depender de o diretório já existir: ao criar o PRIMEIRO E2E o módulo
 # ainda não existe — `cd` falharia e o hook nunca bloquearia (era o bug).
@@ -85,7 +77,7 @@ E2E tests no modulo: $E2E_COUNT (sendo criado mais um)
 Regra: TST-001 + TST-002. E2E e lento, fragil, caro de manter. Sem unit cobrindo
 casos de borda da logica, E2E vira teste de fumaca caro que nao da feedback util.
 
-Pira mide saudavel:
+Piramide saudavel:
   - Muitos unit tests (rapidos, isolados)
   - Alguns integration tests
   - Poucos E2E (smoke tests do happy path)

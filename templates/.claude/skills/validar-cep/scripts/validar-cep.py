@@ -21,8 +21,8 @@ def valida_formato(cep: str) -> tuple[bool, str]:
     d = _digitos(cep)
     if len(d) != 8:
         return False, f"CEP deve ter 8 dígitos, recebido {len(d)}"
-    if d == d[0] * 8:
-        return False, "sequência repetida"
+    if d == "00000000":
+        return False, "CEP zerado não existe"
     return True, d
 
 

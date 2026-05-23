@@ -1,5 +1,5 @@
 ---
-description: ROLDAO-METHOD — regras unificadas. No Claude Code, os 22 hooks bloqueadores codificam tudo isto. Este arquivo é referência rápida para revisar contrato sem abrir cada hook.
+description: ROLDAO-METHOD — regras unificadas. No Claude Code, os 26 hooks bloqueadores codificam tudo isto. Este arquivo é referência rápida para revisar contrato sem abrir cada hook.
 paths: ["**/*"]
 status: stable
 owner: framework
@@ -8,7 +8,7 @@ revisado-em: 2026-05-18
 
 # ROLDAO-METHOD — regras unificadas
 
-> No Claude Code os hooks em `.claude/hooks/` codificam estas regras mecanicamente. Bloqueio acontece de 2 jeitos: `exit 2` (PreToolUse) ou JSON `{"decision":"block"}` (PostToolUse/Stop). Este arquivo é referência rápida para auditar o contrato sem abrir os 34 scripts.
+> No Claude Code os hooks em `.claude/hooks/` codificam estas regras mecanicamente. Bloqueio acontece de 2 jeitos: `exit 2` (PreToolUse) ou JSON `{"decision":"block"}` (PostToolUse/Stop). Este arquivo é referência rápida para auditar o contrato sem abrir os 35 scripts.
 
 ## REGRA #0 — Investigar antes de mexer em lógica de negócio
 

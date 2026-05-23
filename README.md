@@ -28,7 +28,7 @@ Ferramentas de IA pra desenvolvimento (Cursor rules, agentes Claude Code, framew
 Em uma linha: **outros frameworks orientam o agente. ROLDAO impede o erro.**
 
 - 🇧🇷 **PT-BR nativo** — não é tradução. Tabela de jargão integrada pra usuário não-programador.
-- 🛡️ **26 hooks bloqueadores + 7 auxiliares** — bloqueadores barram a ação na hora (via `exit 2` ou JSON `decision:block`); auxiliares avisam ou automatizam ciclo (format, snapshot, audit).
+- 🛡️ **35 hooks (26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários)** — bloqueadores barram a ação na hora (via `exit 2` ou JSON `decision:block`); soft warnings avisam sem bloquear; lifecycle automatiza ciclo (format, snapshot, audit).
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
 - 🧾 **Cobertura BR real** — LGPD, NF-e, NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto rodando em paralelo, bloqueando commit se reprovado.

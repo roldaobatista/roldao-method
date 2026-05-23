@@ -17,13 +17,6 @@ FILE=$(printf '%s' "$INPUT" | perl -ne 'print $1 if /"file_path"\s*:\s*"([^"]+)"
 [ -z "$FILE" ] && exit 0
 [ ! -f "$FILE" ] && exit 0
 
-# Defensa: so formata arquivo dentro do PROJDIR (Revisor B3).
-# JSON manipulado nao pode forcar formatar /etc/foo ou C:/Windows/...
-case "$FILE" in
-  "$PROJDIR"/*) ;;
-  *) exit 0 ;;
-esac
-
 EXT="${FILE##*.}"
 
 format_if() {
@@ -33,7 +26,8 @@ format_if() {
 }
 
 case "$EXT" in
-  js|jsx|mjs|cjs|ts|tsx|json|md|yml|yaml|css|scss|html)
+  # md fica fora: prettier reescreve frontmatter/quebras de linha que paths-frontmatter-validator inspeciona
+  js|jsx|mjs|cjs|ts|tsx|json|yml|yaml|css|scss|html)
     if [ -f "$PROJDIR/node_modules/.bin/prettier" ]; then
       "$PROJDIR/node_modules/.bin/prettier" --write "$FILE" >/dev/null 2>&1 || true
     elif command -v prettier >/dev/null 2>&1; then

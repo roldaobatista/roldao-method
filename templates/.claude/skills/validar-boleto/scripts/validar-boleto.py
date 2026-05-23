@@ -22,7 +22,34 @@ import sys
 from datetime import date, timedelta
 
 
-BASE_DATE = date(1997, 10, 7)  # Fator vencimento original FEBRABAN
+# Fator de vencimento FEBRABAN — boletos pre-2025-02-22 usam base original;
+# a partir de 22/02/2025 a FEBRABAN reiniciou o ciclo (fator volta pra 1000)
+# para evitar overflow do contador. Boletos emitidos depois usam NOVA_BASE.
+BASE_DATE = date(1997, 10, 7)
+NOVA_BASE_DATE = date(2025, 2, 22)
+
+
+def _venc_from_fator(fator: int, hoje: date | None = None) -> str | None:
+    """Converte fator de vencimento FEBRABAN em data ISO.
+
+    A partir de 22/02/2025 a FEBRABAN reiniciou o ciclo: fator 1000 = 22/02/2025
+    e cresce daí. Boletos pre-reset usam a base original (1997-10-07).
+    Fatores 1000-9999 sao ambiguos — usamos a janela mais provavel dado hoje:
+    se hoje >= 2025-02-22 e fator >= 1000, assume regra nova (boleto antigo com
+    esse fator ja venceu).
+    """
+    if fator <= 0:
+        return None
+    hoje = hoje or date.today()
+    if fator >= 1000 and hoje >= NOVA_BASE_DATE:
+        try:
+            return (NOVA_BASE_DATE + timedelta(days=fator - 1000)).isoformat()
+        except OverflowError:
+            return None
+    try:
+        return (BASE_DATE + timedelta(days=fator)).isoformat()
+    except OverflowError:
+        return None
 
 
 def _so_digitos(s: str) -> str:
@@ -84,12 +111,7 @@ def _valida_bancario(barras44: str) -> dict:
         return {"valido": False, "motivo": f"dv-geral-invalido (esperado={dv_calc}, recebido={dv_geral})"}
 
     valor = int(valor_raw) / 100 if valor_raw.isdigit() else 0.0
-    venc = None
-    if fator.isdigit() and int(fator) > 0:
-        try:
-            venc = (BASE_DATE + timedelta(days=int(fator))).isoformat()
-        except OverflowError:
-            venc = None
+    venc = _venc_from_fator(int(fator)) if fator.isdigit() else None
 
     return {
         "tipo": "bancario",

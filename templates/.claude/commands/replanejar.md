@@ -39,7 +39,7 @@ Cada caminho deve trazer:
 - O que vai pro lixo (e por quê)
 - Próximo entregável previsto
 
-**Confirmar com usuário** qual caminho.
+Decida o caminho de menor risco (preserva mais trabalho + esforço menor) e execute. Reporte qual caminho seguiu e por quê — o usuário reverte se discordar (INV-AGENT-006).
 
 ## Etapa 3 — Execução (depende do caminho)
 

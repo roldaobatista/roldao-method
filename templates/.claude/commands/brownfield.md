@@ -67,7 +67,7 @@ Invoque `auditor-seguranca`:
    - logs com CPF/email em texto puro
 2. Reporta tudo, marca prioridade (alto/medio/baixo).
 
-## Etapa 5 — Confirmar com usuario
+## Etapa 5 — Reportar onboarding feito
 
 Mostre resumo:
 ```

@@ -32,7 +32,7 @@ Comunicar em **Português (Brasil)**. Tabela de tradução PT-BR canônica em `A
 ├── agents/                ← 14 especialistas (+ MAPA-VISUAL.md = 15 arquivos)
 ├── hooks/                 ← bloqueadores + auxiliares + lifecycle (PostToolUse, SubagentStop, PreCompact, SessionEnd)
 ├── output-styles/         ← pt-br-conciso, dpo-lgpd, fiscal-br
-├── commands/              ← 22 slash commands (com `allowed-tools`)
+├── commands/              ← 24 slash commands (com `allowed-tools`)
 ├── skills/                ← 12 skills BR no core (criar quando padrão repetir 3x)
 └── rules/                 ← com `paths:` frontmatter (lazy load)
 ```

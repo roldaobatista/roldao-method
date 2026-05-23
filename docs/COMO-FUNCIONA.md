@@ -26,9 +26,9 @@ seu-projeto/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
 │   ├── agents/                    <- 14 especialistas
-│   ├── hooks/                     <- ~30 hooks (bloqueadores + lifecycle + utilitários)
-│   ├── commands/                  <- 22 workflows
-│   ├── skills/                    <- 12 skills BR core (+14 em addons)
+│   ├── hooks/                     <- 35 hooks (26 bloqueadores + 2 soft + 5 lifecycle + 2 utilitários)
+│   ├── commands/                  <- 24 workflows
+│   ├── skills/                    <- 12 skills BR core (+16 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
 ├── .specify/
@@ -48,7 +48,7 @@ seu-projeto/
     └── retros/                    <- AAAA-MM-DD-marco.md
 ```
 
-## Os 22 workflows
+## Os 24 workflows
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
@@ -60,6 +60,8 @@ seu-projeto/
 | `/clarificar` | Tirar ambiguidade antes de codar | gerente-produto |
 | `/feature` | Implementar funcionalidade | Sofia → Detetive → Rafael → Bruno → Revisor → 3 auditores |
 | `/bug` | Corrigir comportamento (REGRA #0) | **investigador (obrigatório)** → dev-senior → revisor |
+| `/hotfix` | Incidente urgente em produção (cliente parado, SEFAZ off, Pix duplicado) | investigador (rápido) → dev-senior → revisor → `/incident-postmortem` em 48h |
+| `/incident-postmortem` | Pós-incidente: timeline, LGPD-006/ANPD, ação corretiva | investigador → 3 auditores em paralelo → tech-writer |
 | `/refactor` | Reorganizar sem mudar comportamento | tech-lead → dev-senior → revisor |
 | `/qa` | Testes de uma área | investigador → auditor-qualidade → dev-senior → revisor |
 | `/auditoria` | 3 auditores em paralelo | auditor-segurança + auditor-qualidade + auditor-produto |
@@ -73,7 +75,7 @@ seu-projeto/
 | `/checkpoint` | Walkthrough de branch antes do merge | (sem agente) |
 | `/release` | Fechar marco: versão, CHANGELOG, tag, nota | tech-writer |
 | `/retro` | Retrospectiva pós-marco (4L) | (sem agente) |
-| `/help` | Catálogo dos 22 comandos | (sem agente) |
+| `/help` | Catálogo dos 24 comandos | (sem agente) |
 
 ### Fluxo principal — `/feature US-NNN`
 

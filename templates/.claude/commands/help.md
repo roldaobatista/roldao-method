@@ -1,12 +1,12 @@
 ---
 description: Catálogo dos workflows do ROLDAO-METHOD com códigos curtos e quando usar cada um.
-argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | RF | QA | AU | CN | RT | RP | SP | ST | CK | RD | HP | SH]"
+argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | HF | IPM | RF | QA | AU | CN | RT | RP | SP | ST | CK | RL | RD | HP | SH]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep
 model: haiku
 ---
 
-# /help — catálogo dos 22 workflows
+# /help — catálogo dos 24 workflows
 
 Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre detalhes do workflow correspondente.
 
@@ -23,6 +23,8 @@ Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um có
 | FT | `/feature` | Funcionalidade nova (ciclo completo) | Sofia → Detetive → Rafael → Bruno → Revisor → Caio+Julia+Pedro |
 | QD | `/quick-dev` | Mudança trivial (≤3 arquivos, ≤50 linhas) | Bruno → Revisor |
 | BG | `/bug` | Corrigir comportamento — REGRA #0 | **Detetive (obrigatório)** → Bruno → Revisor |
+| HF | `/hotfix` | Incidente urgente em produção (cliente parado, SEFAZ off, Pix duplicado) | Detetive (rápido) → Bruno → Revisor → `/incident-postmortem` em 48h |
+| IPM | `/incident-postmortem` | Pós-incidente: timeline, LGPD-006/ANPD, ação corretiva | Detetive → 3 auditores em paralelo → Tech-writer |
 | RF | `/refactor` | Reorganizar sem mudar comportamento | Rafael → Bruno → Revisor |
 | QA | `/qa` | Gerar/auditar testes de uma área | Detetive → Julia → Bruno → Revisor |
 | AU | `/auditoria` | 3 auditores em paralelo | Caio + Julia + Pedro |
@@ -84,5 +86,5 @@ Exemplo: `/help BG` mostra detalhe completo de `/bug`.
 
 ## Importante
 
-- Este help cobre só os 22 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
+- Este help cobre só os 24 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
 - **Códigos curtos** servem pra falar rápido ("vamos rodar BG agora"), não substituem o comando completo.

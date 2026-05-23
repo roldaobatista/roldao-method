@@ -6,7 +6,8 @@
 # Estrategia: olha a resposta gerada pelo Claude (campo response no input do hook).
 # Se houver termos tecnicos sem traducao adjacente, bloqueia (PostToolUse pode retornar decision: block).
 
-set -uo pipefail
+set -u
+
 INPUT=$(cat)
 
 # Tenta extrair texto da resposta. Pode vir em campos diferentes dependendo
@@ -54,6 +55,10 @@ JARGON_TERMS=(
   '\bbisect(s|ar|ado)?\b'
   # 'hook' NAO entra na lista — e termo central do framework e da configuracao
   # do Claude Code; usuarios precisam falar de hooks normalmente.
+  # Termos BR sempre OK (NAO adicionar a JARGON_TERMS): Pix, NF-e, NFC-e, NFS-e,
+  # CT-e, MDF-e, LGPD, CPF, CNPJ, SEFAZ, RFB, Bacen, ANPD, eSocial, REINF, SPED,
+  # ECF, ECD, CC-e, SAT, MFE, TEF, ECF — sao termos do dominio fiscal/legal BR
+  # que nao tem traducao e o usuario nao-programador conhece.
 )
 
 # Termos OK quando vem traduzidos OU dentro de bloco de codigo, OU acompanhados de explicacao
@@ -78,8 +83,7 @@ for pat in "${JARGON_TERMS[@]}"; do
     if printf '%s\n' "$CTX" | grep -qiE '"[^"]{3,40}"'; then
       continue  # ja tem aspas, provavel explicacao
     fi
-    # Aceita "isso e", "isso é", "isto e", "isto é" e variações com múltiplos espaços (Revisor B10).
-    if printf '%s\n' "$CTX" | grep -qiE '\bou seja\b|\bsignific|isso[[:space:]]+[eé]|isto[[:space:]]+[eé]|i\.e\.|ex:'; then
+    if printf '%s\n' "$CTX" | grep -qiE '\bou seja\b|\bsignific|isso e|isto e|i\.e\.|ex:'; then
       continue
     fi
     VIOLATIONS+=("jargao sem traducao: '$m' em -> $CTX")

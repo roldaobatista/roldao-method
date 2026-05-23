@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-22
+revisado-em: 2026-05-23
 status: stable
 ---
 
@@ -16,6 +16,10 @@ Decisões arquiteturais que fundaram o framework. Cada ADR explica **contexto**,
 | [ADR-004](ADR-004-spec-driven-com-ids.md) | Spec-driven com IDs rastreáveis | aceito |
 | [ADR-005](ADR-005-dogfooding.md) | Dogfooding — o próprio repo aplica suas regras | aceito |
 | [ADR-006](ADR-006-multi-adapter.md) | Suporte multi-IDE (adapters em vez de fork) | aceito |
+| [ADR-007](ADR-007-addons-registry.md) | Registry estático de addons | aceito |
+| [ADR-008](ADR-008-skills-br-camada.md) | Skills BR como camada de algoritmo | aceito |
+| [ADR-009](ADR-009-lifecycle-hooks.md) | Hooks de ciclo de vida (PreCompact, SessionEnd) | aceito |
+| [ADR-010](ADR-010-templates-vs-specify.md) | `templates/` vs `.specify/` — separação | aceito |
 
 ## Convenção
 
