@@ -121,7 +121,10 @@ run('codigo IBGE tamanho invalido (8 digitos)', munIbge, '35503080', false);
 // fica pra suite Python no CI, este teste so confere que o script roda.
 try {
   const emv = execFileSync(PY, [brCode, 'estatico', '--chave', 'teste@exemplo.com.br', '--nome', 'TESTE', '--cidade', 'SAO PAULO'], { encoding: 'utf8' }).trim();
-  if (emv.startsWith('00020126') && emv.length > 40 && /6304[0-9A-F]{4}$/.test(emv)) {
+  // Prefixo EMV pra Pix estatico: tag 00 (Payload Format = 01) + tag 01
+  // (POI Method = 11 estatico / 12 dinamico) + tag 26 (Merchant Account
+  // Info — comeca com sub-tag 00 "br.gov.bcb.pix").
+  if (emv.startsWith('00020101021126') && emv.length > 40 && /6304[0-9A-F]{4}$/.test(emv)) {
     pass++; console.log('  OK   gerar-br-code estatico gera EMV valido (prefixo + CRC)');
   } else {
     fail++; console.log(`  FAIL gerar-br-code formato inesperado: ${emv}`);
