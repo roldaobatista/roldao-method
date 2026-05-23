@@ -76,6 +76,10 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 - `dba-dados` — modelagem, índices, performance, migration revisada, LGPD em repouso. Use ao criar tabela nova, diagnosticar query lenta ou validar migration antes do dev aplicar.
 
+**Infra / entrega:**
+
+- `devops-infra` — CI/CD, deploy (rolling/blue-green/canário), IaC (Terraform/Pulumi), observabilidade (golden signals + SLI/SLO), gestão de secrets (KMS/Vault), cloud BR (sa-east-1, southamerica-east1, brazilsouth). Use ao desenhar pipeline, escolher estratégia de rollout, revisar Terraform antes de apply, ou estruturar observabilidade.
+
 **Documentação:**
 
 - `tech-writer` — CHANGELOG, README, release notes, tradução de mensagem técnica pra PT-BR claro. Usado por `/status`, `/replanejar`, releases.

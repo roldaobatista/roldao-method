@@ -1,10 +1,10 @@
 ---
 owner: framework
-revisado-em: 2026-05-22
+revisado-em: 2026-05-23
 status: stable
 ---
 
-# Mapa visual dos 14 agentes
+# Mapa visual dos 15 agentes
 
 Quem chamar pra cada tipo de tarefa. **Você não invoca os agentes diretamente** — os workflows (`/feature`, `/bug`, etc.) cuidam disso. Este mapa é referência rápida.
 
@@ -30,6 +30,9 @@ DESENVOLVIMENTO
 ├─ Bruno (dev-senior)            → implementa com TDD onde aplicável
 ├─ Helena (dba-dados)            → modelagem, índices, migration, LGPD em repouso
 └─ Rafael (tech-lead)            → escolha de stack, decisão arquitetural
+
+INFRA / ENTREGA
+└─ Lucas (devops-infra)          → CI/CD, deploy, IaC, observabilidade, secrets, cloud BR
 
 REVISÃO E AUDITORIA
 ├─ Inês (revisor)                → aderência à US + anti-padrões no diff
@@ -61,7 +64,7 @@ COMUNICAÇÃO
 | `/release` | Camila |
 | `/status` | Camila |
 
-## Identidade dos 14
+## Identidade dos 15
 
 | Ícone | Nome | Papel | Modelo |
 |---|---|---|---|
@@ -73,6 +76,7 @@ COMUNICAÇÃO
 | 🔬 | Detetive | Investigador | sonnet |
 | 💻 | Bruno | Dev Sênior | sonnet |
 | 🗄️ | Helena | DBA / Dados | sonnet |
+| 🚀 | Lucas | DevOps / Infra | sonnet |
 | ✅ | Inês | Revisor | sonnet |
 | 🛡️ | Caio | Auditor Segurança | sonnet |
 | 🧪 | Julia | Auditor Qualidade | sonnet |
