@@ -2,6 +2,44 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [0.20.0] — 2026-05-23
+
+**5 itens adiados resolvidos + CI 100% verde após meses de débito acumulado.**
+
+A 6ª rodada deixou 5 pendências e o CI vinha vermelho havia ≥9 push seguidos. Esta release fecha as duas frentes.
+
+### Adicionado
+
+- **Agente `devops-infra` (Lucas 🚀, sonnet)** — CI/CD, deploy (rolling/blue-green/canário), IaC (Terraform/Pulumi), observabilidade (golden signals + SLI/SLO), gestão de secrets (KMS/Vault/SOPS), cloud BR (sa-east-1, southamerica-east1, brazilsouth) pra LGPD-005. 6 modos: CI / DEP / IAC / OBS / SEC / INC. Recusa apply destrutivo em prod (SEC-002). 15º agente.
+- **Skill `validar-codigo-municipio-ibge`** — valida código IBGE de município (7 dígitos: UF + sequencial + DV módulo 10 Luhn). Offline (UF + DV em 27 UFs) ou `--remoto` (API IBGE). Usada em NF-e (campo cMun), eSocial e cadastro de endereço. 13ª skill core. DV verificado em 6 capitais.
+- **3 evals novos** — `dba-dados.eval.md`, `devops-infra.eval.md`, `maestro.eval.md`, cada um com ≥3 cenários. Cobertura: 15/15 agentes têm eval (era 12/15).
+- **QUICKSTART §8 "Opcionais"** — CLAUDE.local.md, MCP preset BR e GitHub Action de code review documentados; antes ficavam órfãos no install.
+
+### Corrigido
+
+- **CI vermelho havia 9+ push (débito acumulado).** Resolvido em 7 commits cirúrgicos:
+  - `tools/sincronizar-claude-md.js` aceita raiz ausente (gitignored em CI).
+  - `test/skills.test.js` espera prefixo EMV `00020101021126…` (tag 01 POI Method foi adicionada ao gerar-br-code há vários releases sem o test acompanhar).
+  - Empacotamento npm: `head -100 <<<` no lugar de `echo | head` (broken pipe em pipefail).
+  - Hook bit de execução: `(cd "$TMP" && node "$ROOT/bin/install.js" install --yes)` — antes o `"$TMP"` virava arg ignorado e o install copiava sobre o repo.
+  - Skills encoding UTF-8: regex grep `"sequência"` nunca batia (não existe na saída do validar-cep); agora bate `"não"` (acento real preservado em LC_ALL=C).
+  - Smoke install Windows: `shell: bash` força SHELL=bash no env do step (sem isso o doctor marca FALTA em runner default PowerShell).
+  - 12 warnings shellcheck (SC2120/2221/2164/2088/2034) em 9 hooks core.
+- **`session-snapshot.sh` tolera paths com espaço** — `ls + for f in $VAR` quebrava em pastas como `C:\Meus Projetos\app`. Reescrito com `find -print0` + arrays bash 3.2-safe.
+- **`evals/run.js` filtra catálogos** — antes reclamava de `MAPA-VISUAL` como "agente sem eval"; agora skipa SCREAMING-CASE e prefixo `_` igual `tools/validar-templates.js`.
+
+### Mudado
+
+- **Saída do `install` enxugada de 8 para 3 passos diretos** — abrir AGENTS.md → /help → addons. Opcionais (CLAUDE.local.md, MCP, GitHub Action) movidos para QUICKSTART §8 com link claro.
+- **Pitch do README reescrito (primeiros 30s)** — tagline com números concretos (15 agentes + 26 hooks + 29 skills), bloco install reduzido a 1 comando, diferencial em 1 frase logo após o título.
+- **Contagens propagadas** — 13 skills core (era 12) + 29 totais (era 28); 15 agentes (era 14). Bumpado em: package.json, plugin.json, README, ROADMAP, ARQUITETURA, COMO-FUNCIONA, FAQ, CONTRIBUTORS, QUICKSTART, CLAUDE.md, AGENTS.md, MAPA-VISUAL.md.
+
+### Preservado
+
+- Comportamento de todos os hooks bloqueadores: 179/179 testes verdes.
+- Mensagens, IDs rastreáveis e cobertura de regras inalterados.
+- Compatibilidade com Claude Code / Cursor / Windsurf / Cline / Roo / Aider / Continue / Gemini CLI / Codex CLI.
+
 ## [0.19.0] — 2026-05-23
 
 **Auditoria 10-agentes (6ª rodada — continuação): adiados resolvidos.**

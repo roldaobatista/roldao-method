@@ -2,7 +2,7 @@
 # https://docs.continue.dev
 
 name: roldao-method
-version: "0.19.0"
+version: "0.20.0"
 schema: v1
 
 rules:
