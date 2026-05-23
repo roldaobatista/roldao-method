@@ -159,8 +159,13 @@ async function main() {
   // Cross-check: todo agente em templates/.claude/agents precisa de eval.
   // Antes a ausência era silenciosa ("Todos OK" enganoso com 5/12 cobertos).
   if (!wantAgent && fs.existsSync(AGENTS_DIR)) {
+    // Convencao igual a tools/validar-templates.js: nome de agente e kebab-case
+    // minusculo (dev-senior.md). Arquivos comecando com `_` ou em SCREAMING-CASE
+    // (MAPA-VISUAL.md) sao catalogos/docs, nao agentes invocaveis.
     const agentNames = fs.readdirSync(AGENTS_DIR)
       .filter((f) => f.endsWith('.md'))
+      .filter((f) => !f.startsWith('_'))
+      .filter((f) => !/[A-Z]/.test(f.replace(/\.md$/, '')))
       .map((f) => f.replace('.md', ''));
     const evalNames = new Set(listEvals().map((e) => e.agent));
     const semEval = agentNames.filter((a) => !evalNames.has(a));
