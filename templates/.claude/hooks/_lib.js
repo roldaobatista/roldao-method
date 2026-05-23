@@ -145,6 +145,33 @@ function secretTokenPatterns() {
 }
 
 // ---------------------------------------------------------------------------
+// posixToJsRegex — converte pattern POSIX ERE (do _lib.sh) pra RegExp JS.
+// Cobertura: [[:space:]], [[:alpha:]], [[:alnum:]], [[:digit:]], [[:upper:]],
+// [[:lower:]], [[:punct:]], [[:xdigit:]]. Outros tokens passam direto.
+// Usado por consumers de secretTokenPatterns() pra obter RegExp executavel.
+// ---------------------------------------------------------------------------
+function posixToJsRegex(pattern, flags = '') {
+  const converted = pattern
+    .replace(/\[\[:space:\]\]/g, '\\s')
+    .replace(/\[\[:alpha:\]\]/g, '[a-zA-Z]')
+    .replace(/\[\[:alnum:\]\]/g, '[a-zA-Z0-9]')
+    .replace(/\[\[:digit:\]\]/g, '\\d')
+    .replace(/\[\[:upper:\]\]/g, 'A-Z')
+    .replace(/\[\[:lower:\]\]/g, 'a-z')
+    .replace(/\[\[:punct:\]\]/g, '[!-/:-@\\[-`{-~]')
+    .replace(/\[\[:xdigit:\]\]/g, '[0-9a-fA-F]');
+  return new RegExp(converted, flags);
+}
+
+// ---------------------------------------------------------------------------
+// secretTokenRegexes — versao executavel de secretTokenPatterns(). Retorna
+// array de RegExp ja convertidos POSIX → JS, prontos pra .test(content).
+// ---------------------------------------------------------------------------
+function secretTokenRegexes() {
+  return secretTokenPatterns().map((p) => posixToJsRegex(p));
+}
+
+// ---------------------------------------------------------------------------
 // hookBlockHeader — cabecalho padronizado de bloqueio em stderr.
 // Tambem dispara recordMetric pra contagem no statusline.
 // ---------------------------------------------------------------------------
@@ -200,6 +227,8 @@ module.exports = {
   safeRuntimeDir,
   safeTmpfile,
   secretTokenPatterns,
+  secretTokenRegexes,
+  posixToJsRegex,
   hookBlockHeader,
   recordMetric,
   readStdinJson,

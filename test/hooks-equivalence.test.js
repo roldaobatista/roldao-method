@@ -166,5 +166,88 @@ pair('JSON sem tool_input sai 0', 'no-amend-after-push', '{}');
 // garantir que .js retorna mesmo exit do .sh em cenarios triviais. US-108
 // fara a equivalencia em repos sinteticos.
 
+// ============================================================================
+// secrets-scanner
+// ============================================================================
+
+// Bloqueios por path
+const SECRETS_PATH_BLOCK = [
+  ['.env literal',           { file_path: '/proj/.env',                   content: 'X=1' }],
+  ['.env.production',        { file_path: '/proj/.env.production',        content: 'X=1' }],
+  ['.env.local',             { file_path: '/proj/.env.local',             content: 'X=1' }],
+  ['/secrets/',              { file_path: '/proj/secrets/cred.json',      content: '{}' }],
+  ['credentials.json',       { file_path: '/proj/credentials.json',       content: '{}' }],
+  ['.pem',                   { file_path: '/proj/cert.pem',               content: 'x' }],
+  ['.key',                   { file_path: '/proj/server.key',             content: 'x' }],
+  ['id_rsa',                 { file_path: '/proj/.ssh/id_rsa',            content: 'x' }],
+  ['id_ed25519',             { file_path: '/proj/.ssh/id_ed25519',        content: 'x' }],
+  ['.p12',                   { file_path: '/proj/cert.p12',               content: 'x' }],
+  ['.pfx',                   { file_path: '/proj/cert.pfx',               content: 'x' }],
+];
+
+for (const [label, ti] of SECRETS_PATH_BLOCK) {
+  const input = JSON.stringify({ tool_input: ti });
+  pair(`bloqueia path "${label}"`, 'secrets-scanner', input);
+}
+
+// Bloqueios por conteudo
+const SECRETS_CONTENT_BLOCK = [
+  ['AKIA aws key',           { file_path: '/proj/config.js',  content: 'const k = "AKIAIOSFODNN7EXAMPLE";' }],
+  ['ghp_ github token',      { file_path: '/proj/ci.sh',      content: 'TOK=ghp_abcdefghijklmnopqrstuvwxyzABCDEFGHIJ' }],
+  ['sk-ant chave Claude',    { file_path: '/proj/.npmrc',     content: 'token=sk-ant-api01-' + 'a'.repeat(40) }],
+  ['BEGIN PRIVATE KEY',      { file_path: '/proj/foo.txt',    content: '-----BEGIN RSA PRIVATE KEY-----\n' }],
+  ['Bearer token',           { file_path: '/proj/cfg.yaml',   content: 'Authorization: Bearer ' + 'x'.repeat(50) }],
+];
+
+for (const [label, ti] of SECRETS_CONTENT_BLOCK) {
+  const input = JSON.stringify({ tool_input: ti });
+  pair(`bloqueia conteudo "${label}"`, 'secrets-scanner', input);
+}
+
+// Liberacoes esperadas
+const SECRETS_ALLOW = [
+  ['.env.example (sufixo permitido)',   { file_path: '/proj/.env.example',  content: 'API_KEY=your-key-here' }],
+  ['.env.sample (sufixo permitido)',    { file_path: '/proj/.env.sample',   content: 'API_KEY=placeholder' }],
+  ['arquivo normal sem secret',         { file_path: '/proj/index.js',      content: 'console.log("ola");' }],
+  ['JSON config sem secret',            { file_path: '/proj/package.json',  content: '{"name":"foo"}' }],
+];
+
+for (const [label, ti] of SECRETS_ALLOW) {
+  const input = JSON.stringify({ tool_input: ti });
+  pair(`libera "${label}"`, 'secrets-scanner', input);
+}
+
+pair('secrets-scanner: input vazio sai 0', 'secrets-scanner', '');
+
+// ============================================================================
+// block-secrets-in-commit-message
+// ============================================================================
+
+// Bloqueios
+const COMMIT_MSG_BLOCK = [
+  ['AKIA na mensagem',     'git commit -m "feat: usar AKIAIOSFODNN7EXAMPLE como demo"'],
+  ['ghp_ na mensagem',     'git commit -m "fix: token ghp_abcdefghijklmnopqrstuvwxyzABCDEFGHIJ rotacionado"'],
+  ['Bearer na mensagem',   'git commit -m "Bearer ' + 'x'.repeat(50) + '"'],
+];
+
+for (const [label, command] of COMMIT_MSG_BLOCK) {
+  const input = JSON.stringify({ tool_input: { command } });
+  pair(`bloqueia "${label}"`, 'block-secrets-in-commit-message', input);
+}
+
+// Liberacoes
+const COMMIT_MSG_ALLOW = [
+  ['nao e git commit',          'git status'],
+  ['msg limpa',                 'git commit -m "fix: ajusta validacao de CPF"'],
+  ['msg fala de rotacao',       'git commit -m "fix: rotaciona chave AWS por exposicao em log"'],
+];
+
+for (const [label, command] of COMMIT_MSG_ALLOW) {
+  const input = JSON.stringify({ tool_input: { command } });
+  pair(`libera "${label}"`, 'block-secrets-in-commit-message', input);
+}
+
+pair('block-secrets-in-commit-message: input vazio sai 0', 'block-secrets-in-commit-message', '');
+
 console.log(`\nhooks-equivalence: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);
