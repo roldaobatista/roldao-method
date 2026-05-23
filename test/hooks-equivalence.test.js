@@ -249,5 +249,89 @@ for (const [label, command] of COMMIT_MSG_ALLOW) {
 
 pair('block-secrets-in-commit-message: input vazio sai 0', 'block-secrets-in-commit-message', '');
 
+// ============================================================================
+// anti-mascaramento
+// ============================================================================
+
+const ANTI_MASK_BLOCK = [
+  ['@ts-ignore',      { file_path: '/proj/a.ts',   content: '// @ts-ignore\nfoo();' }],
+  ['.skip(',          { file_path: '/proj/a.test.js', content: 'it.skip("x", () => {});' }],
+  ['xit(',            { file_path: '/proj/a.test.js', content: 'xit("x", () => {});' }],
+  ['assertTrue(true)',{ file_path: '/proj/a.java', content: 'assertTrue(true);' }],
+  ['expect(true).toBe(true)', { file_path: '/proj/a.test.ts', content: 'expect(true).toBe(true);' }],
+  ['pytest.mark.skip',{ file_path: '/proj/a_test.py', content: '@pytest.mark.skip\ndef test_x(): pass' }],
+];
+for (const [label, ti] of ANTI_MASK_BLOCK) {
+  pair(`bloqueia "${label}"`, 'anti-mascaramento', JSON.stringify({ tool_input: ti }));
+}
+
+const ANTI_MASK_ALLOW = [
+  ['codigo limpo',          { file_path: '/proj/a.ts',     content: 'export const x = 1;' }],
+  ['TST-001-exception inline', { file_path: '/proj/a.ts', content: '// @ts-ignore TST-001-exception: lib externa sem types ate 2026-12' }],
+  ['silent flag livre',     { file_path: '/proj/ci.sh',    content: 'npm install --silent' }],
+];
+for (const [label, ti] of ANTI_MASK_ALLOW) {
+  pair(`libera "${label}"`, 'anti-mascaramento', JSON.stringify({ tool_input: ti }));
+}
+
+// ============================================================================
+// block-mock-in-integration
+// ============================================================================
+
+const MOCK_INTEG_BLOCK = [
+  ['jest.mock em /integration/', { file_path: '/proj/tests/integration/auth.test.js', content: 'jest.mock("./db");' }],
+  ['vi.mock em /e2e/',           { file_path: '/proj/tests/e2e/login.spec.ts',        content: 'vi.mock("./api");' }],
+  ['Mockito.when em end-to-end', { file_path: '/proj/end-to-end/Auth.java',           content: 'Mockito.when(repo.find(any())).thenReturn(...);' }],
+];
+for (const [label, ti] of MOCK_INTEG_BLOCK) {
+  pair(`bloqueia "${label}"`, 'block-mock-in-integration', JSON.stringify({ tool_input: ti }));
+}
+
+const MOCK_INTEG_ALLOW = [
+  ['mock fora de integration', { file_path: '/proj/tests/unit/foo.test.js',   content: 'jest.mock("./db");' }],
+  ['integration sem mock',      { file_path: '/proj/tests/integration/x.js', content: 'const db = require("./real-db");' }],
+  ['excecao inline',            { file_path: '/proj/tests/integration/x.js', content: 'jest.mock("aws-sdk"); // TST-003-exception: AWS sandbox quebrado' }],
+];
+for (const [label, ti] of MOCK_INTEG_ALLOW) {
+  pair(`libera "${label}"`, 'block-mock-in-integration', JSON.stringify({ tool_input: ti }));
+}
+
+// ============================================================================
+// no-test-data-in-fixtures
+// ============================================================================
+
+const FIXTURE_BLOCK = [
+  ['gmail.com em fixture',    { file_path: '/proj/fixtures/users.json', content: '"email": "joao.silva@gmail.com"' }],
+  ['hotmail em seed',         { file_path: '/proj/seeds/users.json',    content: '"email": "maria@hotmail.com"' }],
+];
+for (const [label, ti] of FIXTURE_BLOCK) {
+  pair(`bloqueia "${label}"`, 'no-test-data-in-fixtures', JSON.stringify({ tool_input: ti }));
+}
+
+const FIXTURE_ALLOW = [
+  ['CPF sintetico 12345678909',  { file_path: '/proj/fixtures/users.json', content: '"cpf": "123.456.789-09"' }],
+  ['email example.com',           { file_path: '/proj/fixtures/users.json', content: '"email": "user@example.com"' }],
+  ['telefone fake',               { file_path: '/proj/fixtures/users.json', content: '"telefone": "(11) 99999-9999"' }],
+  ['path fora de fixture',        { file_path: '/proj/src/index.js',       content: '"email": "joao@gmail.com"' }],
+  ['CPF todos iguais',            { file_path: '/proj/fixtures/users.json', content: '"cpf": "111.111.111-11"' }],
+  ['CPF com excecao',             { file_path: '/proj/fixtures/users.json', content: '"cpf": "123.456.789-09" // synthetic' }],
+];
+for (const [label, ti] of FIXTURE_ALLOW) {
+  pair(`libera "${label}"`, 'no-test-data-in-fixtures', JSON.stringify({ tool_input: ti }));
+}
+
+// ============================================================================
+// validate-test-pyramid (so casos liberados — bloqueio exige filesystem real)
+// ============================================================================
+
+const PYRAMID_ALLOW = [
+  ['file path vazio',           { file_path: '',                         content: 'x' }],
+  ['arquivo nao-E2E',           { file_path: '/proj/src/index.js',       content: 'x' }],
+  ['arquivo com .. perigoso',   { file_path: '../../../etc/passwd.e2e.ts', content: 'x' }],
+];
+for (const [label, ti] of PYRAMID_ALLOW) {
+  pair(`libera "${label}"`, 'validate-test-pyramid', JSON.stringify({ tool_input: ti }));
+}
+
 console.log(`\nhooks-equivalence: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);
