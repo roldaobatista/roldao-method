@@ -333,5 +333,85 @@ for (const [label, ti] of PYRAMID_ALLOW) {
   pair(`libera "${label}"`, 'validate-test-pyramid', JSON.stringify({ tool_input: ti }));
 }
 
+// ============================================================================
+// no-hardcoded-env-urls
+// ============================================================================
+
+const URLS_BLOCK = [
+  ['SEFAZ hardcoded em código',     { file_path: '/proj/src/sefaz.ts',  content: 'const URL = "https://nfe.fazenda.sp.gov.br";' }],
+  ['Pix Bacen hardcoded',           { file_path: '/proj/src/pix.js',    content: 'fetch("https://pix.bcb.gov.br/api/v1")' }],
+  ['Stripe API hardcoded',          { file_path: '/proj/src/pay.ts',    content: 'axios.post("https://api.stripe.com/v1/charges")' }],
+];
+for (const [label, ti] of URLS_BLOCK) {
+  pair(`bloqueia "${label}"`, 'no-hardcoded-env-urls', JSON.stringify({ tool_input: ti }));
+}
+
+const URLS_ALLOW = [
+  ['URL em comentario',     { file_path: '/proj/src/x.ts',  content: '// veja https://nfe.fazenda.sp.gov.br' }],
+  ['URL em test',           { file_path: '/proj/tests/x.test.ts', content: 'fetch("https://nfe.fazenda.sp.gov.br")' }],
+  ['URL em .env',           { file_path: '/proj/.env.production', content: 'SEFAZ_URL=https://nfe.fazenda.sp.gov.br' }],
+  ['URL com process.env',   { file_path: '/proj/src/x.ts',  content: 'const URL = process.env.SEFAZ_URL || "https://nfe.fazenda.sp.gov.br";' }],
+  ['arquivo md ignorado',   { file_path: '/proj/README.md', content: 'use https://api.stripe.com' }],
+];
+for (const [label, ti] of URLS_ALLOW) {
+  pair(`libera "${label}"`, 'no-hardcoded-env-urls', JSON.stringify({ tool_input: ti }));
+}
+
+// ============================================================================
+// fiscal-br-validator
+// ============================================================================
+
+const FISCAL_BLOCK = [
+  ['CNPJ regex só digit', { file_path: '/proj/src/cnpj.ts',  content: 'const cnpjRegex = /^[0-9]{14}$/;' }],
+  ['ambiente=1 hardcoded',{ file_path: '/proj/src/nfe.ts',   content: 'const tpAmb = 1;' }],
+];
+for (const [label, ti] of FISCAL_BLOCK) {
+  pair(`bloqueia "${label}"`, 'fiscal-br-validator', JSON.stringify({ tool_input: ti }));
+}
+
+const FISCAL_ALLOW = [
+  ['CNPJ alfanum regex',           { file_path: '/proj/src/cnpj.ts', content: 'const cnpjRegex = /^[0-9A-Z]{14}$/;' }],
+  ['tpAmb via env',                 { file_path: '/proj/src/nfe.ts',  content: 'const tpAmb = process.env.SEFAZ_TPAMB;' }],
+  ['tpAmb com comentario homolog',  { file_path: '/proj/src/nfe.ts',  content: 'const tpAmb = 1; // homolog exemplo na doc' }],
+  ['arquivo de teste ignorado',     { file_path: '/proj/tests/nfe.spec.ts', content: 'const tpAmb = 1;' }],
+];
+for (const [label, ti] of FISCAL_ALLOW) {
+  pair(`libera "${label}"`, 'fiscal-br-validator', JSON.stringify({ tool_input: ti }));
+}
+
+// ============================================================================
+// no-log-pix-key
+// ============================================================================
+
+const PIX_LOG_BLOCK = [
+  ['console.log chave_pix',  { file_path: '/proj/src/pix.ts',  content: 'console.log("Pix:", chave_pix);' }],
+  ['logger.info cpf',         { file_path: '/proj/src/audit.py', content: 'logger.info("recebi cpf=" + cpf)' }],
+];
+for (const [label, ti] of PIX_LOG_BLOCK) {
+  pair(`bloqueia "${label}"`, 'no-log-pix-key', JSON.stringify({ tool_input: ti }));
+}
+
+const PIX_LOG_ALLOW = [
+  ['log com mask',            { file_path: '/proj/src/pix.ts',  content: 'console.log("Pix:", mascararChavePix(chave));' }],
+  ['log sem PIX var',          { file_path: '/proj/src/pix.ts', content: 'console.log("processado");' }],
+  ['arquivo de teste',         { file_path: '/proj/tests/pix.test.ts', content: 'console.log("Pix:", chave_pix);' }],
+];
+for (const [label, ti] of PIX_LOG_ALLOW) {
+  pair(`libera "${label}"`, 'no-log-pix-key', JSON.stringify({ tool_input: ti }));
+}
+
+// ============================================================================
+// lgpd-base-legal-reminder (soft warning — sempre exit 0)
+// ============================================================================
+
+const LGPD_CASES = [
+  ['código com cpf sem ADR',       { file_path: '/proj/src/users.ts', content: 'function cpf(u) { return u.cpf; }' }],
+  ['código sem PII',                { file_path: '/proj/src/util.ts',  content: 'export const sum = (a, b) => a + b;' }],
+  ['arquivo de teste ignorado',     { file_path: '/proj/tests/x.test.ts', content: 'const cpf = "111";' }],
+];
+for (const [label, ti] of LGPD_CASES) {
+  pair(`soft warning ou silent "${label}"`, 'lgpd-base-legal-reminder', JSON.stringify({ tool_input: ti }));
+}
+
 console.log(`\nhooks-equivalence: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);
