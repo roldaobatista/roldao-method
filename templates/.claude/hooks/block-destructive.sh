@@ -6,6 +6,8 @@
 # Parser perl -MJSON::PP pra suportar Windows Git Bash (sem jq).
 
 set -uo pipefail
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
 INPUT=$(cat)
 
 CMD=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -113,6 +115,7 @@ Como destravar (se for intencional):
 - Confirme com o usuário o que vai acontecer (em PT-BR claro, sem jargão).
 - Só depois execute o comando, ou peça pro usuário rodar manualmente.
 EOF
+    record_metric block block-destructive "$desc"
     exit 2
   fi
 done

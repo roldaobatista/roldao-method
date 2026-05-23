@@ -173,4 +173,30 @@ PATTERNS
 # ---------------------------------------------------------------------------
 hook_block_header() {
   printf '[%s] BLOQUEADO: %s\n\n' "${1:-hook}" "${2:-violacao de politica}" >&2
+  record_metric block "${1:-hook}" "${2:-}"
+}
+
+# ---------------------------------------------------------------------------
+# record_metric — appenda 1 evento na .claude/.runtime/metrics.jsonl.
+# Formato JSONL (1 obj/linha): {"ts","kind","label","reason"}.
+# kind: "block" (hook bloqueou), "jargao" (jargao traduzido pra cliente),
+#       "tool" (tool executada), "skill" (skill invocada).
+# Statusline le e mostra contagem do dia. Sem isso, valor do framework
+# fica invisivel — cliente nao sabe quantas vezes foi protegido.
+# Best-effort: silencia erros (disco cheio, permissao) pra nao quebrar hook.
+# ---------------------------------------------------------------------------
+record_metric() {
+  local kind="${1:-?}"
+  local label="${2:-?}"
+  local reason="${3:-}"
+  local projdir
+  projdir=$(sanitize_projdir 2>/dev/null) || return 0
+  local runtime="$projdir/.claude/.runtime"
+  mkdir -p "$runtime" 2>/dev/null || return 0
+  local ts
+  ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  # Escapa aspas e barra na razão pra JSON valido.
+  reason=$(printf '%s' "$reason" | perl -pe 's/\\/\\\\/g; s/"/\\"/g; tr/\n\t/  /')
+  printf '{"ts":"%s","kind":"%s","label":"%s","reason":"%s"}\n' \
+    "$ts" "$kind" "$label" "$reason" >> "$runtime/metrics.jsonl" 2>/dev/null
 }

@@ -72,6 +72,7 @@ Padrão: $pat
 Regra: SEC-001 — nunca versionar segredos.
 Use variável de ambiente ou cofre (vault). Se for arquivo de EXEMPLO, use sufixo .example (ex: .env.example).
 EOF
+      record_metric block secrets-scanner "filename: $pat"
       exit 2
     fi
   done
@@ -98,6 +99,7 @@ Padrão detectado: $pat
 
 Regra: SEC-001. Se este valor é exemplo/placeholder, substitua por valor obviamente fake (ex: "AKIA-EXAMPLE-DO-NOT-USE").
 EOF
+    record_metric block secrets-scanner "content: $pat"
     exit 2
   fi
 done

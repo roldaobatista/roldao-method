@@ -8,6 +8,9 @@
 
 set -u
 
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 # Tenta extrair texto da resposta. Pode vir em campos diferentes dependendo
@@ -112,6 +115,7 @@ Tabela de traducao:
   - mock/fixture -> 'dados falsos pros testes'
 
 Excecao: se o usuario E programador (declarado em AGENTS.md), peca pra ajustar a regra."
+  record_metric jargao block-jargon-pt-br "${VIOLATIONS[0]:-?}"
   printf '%s' "$REASON_TEXT" | perl -MJSON::PP -e '
     local $/;
     my $reason = <STDIN>;

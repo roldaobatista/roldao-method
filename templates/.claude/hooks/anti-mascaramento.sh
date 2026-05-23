@@ -4,6 +4,10 @@
 # TST-001, INV-006.
 
 set -uo pipefail
+
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 TMPF=$(mktemp 2>/dev/null) || TMPF="${TMPDIR:-/tmp}/anti-mask.$$"
@@ -99,6 +103,7 @@ Excecao com prazo (use so se for inevitavel):
 
 Regra: TST-001.
 EOF
+  record_metric block anti-mascaramento "${VIOLATIONS[0]:-?}"
   exit 2
 fi
 

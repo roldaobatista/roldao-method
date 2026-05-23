@@ -70,4 +70,17 @@ if [ -d "$RUNTIME" ]; then
   [ -n "$FEAT" ] && STORY=" · 📌 $(cat "$FEAT" 2>/dev/null | head -c 12)"
 fi
 
-printf '📍 v%s · 🤖 %s · 🌿 %s%s · 👤 %s' "$VERSAO_FRAMEWORK" "$MODELO" "$BRANCH" "$STORY" "$AGENTE"
+# --- Metricas do dia (hooks que bloquearam) ----------------------------------
+# Le metrics.jsonl e conta linhas {"kind":"block"} cujo ts comeca com hoje.
+# Sem o file ou em sessao nova, mostra 0 — prova de valor passa a ser visivel
+# ("ROLDAO me protegeu 3 vezes hoje") sem precisar abrir log.
+HOJE_BLOCKS=0
+METRICS="$RUNTIME/metrics.jsonl"
+if [ -f "$METRICS" ]; then
+  HOJE=$(date -u +%Y-%m-%d)
+  HOJE_BLOCKS=$(grep -c "\"ts\":\"$HOJE" "$METRICS" 2>/dev/null || echo 0)
+fi
+SHIELD=""
+[ "$HOJE_BLOCKS" -gt 0 ] && SHIELD=" · 🛡️ ${HOJE_BLOCKS}"
+
+printf '📍 v%s · 🤖 %s · 🌿 %s%s%s · 👤 %s' "$VERSAO_FRAMEWORK" "$MODELO" "$BRANCH" "$STORY" "$SHIELD" "$AGENTE"

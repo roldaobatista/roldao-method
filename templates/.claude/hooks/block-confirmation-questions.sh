@@ -4,6 +4,10 @@
 # INV-AGENT-006 — executar, nao passar pro usuario nao-programador.
 
 set -uo pipefail
+
+# shellcheck source=_lib.sh
+. "$(dirname "$0")/_lib.sh"
+
 INPUT=$(cat)
 
 RESP=$(printf '%s' "$INPUT" | perl -MJSON::PP -e '
@@ -117,6 +121,7 @@ Como corrigir: refaca a resposta executando direto. Se for operacao destrutiva
 cite isso EXPLICITAMENTE na mesma linha da pergunta.
 EOF
 
+  record_metric block block-confirmation-questions "${VIOLATIONS[0]:-?}"
   REASON_TEXT="Resposta contem pergunta de confirmacao que poderia ser executada direto (INV-AGENT-006). Execute e reporte depois."
   printf '%s' "$REASON_TEXT" | perl -MJSON::PP -e '
     local $/;
