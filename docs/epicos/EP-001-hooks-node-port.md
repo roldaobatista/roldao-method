@@ -44,9 +44,9 @@ Todo dev BR roda os 26 hooks bloqueadores **sem precisar instalar Git Bash, perl
 
 ## ADRs bloqueantes
 
-- [ ] **ADR-012** — Estratégia de port Node: substituir `.sh` ou conviver com duas implementações por hook em transição? Quanto tempo de coexistência? (Recomendação preliminar: substituir direto, sem transição — semver bump pra v1.0.)
-- [ ] **ADR-013** — Convenção do hook Node: arquivo `.hook.js` ou `.js` puro? Como o `settings.json` aponta? Como o Claude Code descobre o executável (shebang `#!/usr/bin/env node` + chmod +x)?
-- [ ] **ADR-014** — Compatibilidade dos addons: addons `fintech-br`/`electron-br`/etc. trazem `.sh` próprios — port acontece em quê janela? (Recomendação preliminar: addons herdam contrato; primeiro release pós-port marca addons como "v2 obrigatória pra Node hooks".)
+- [x] **[ADR-012](../decisions/ADR-012-hooks-node-port.md)** — Port pra Node aprovado, revoga ADR-002.
+- [x] **[ADR-013](../decisions/ADR-013-convencao-hook-node.md)** — Convenção: `.js` puro + shebang `#!/usr/bin/env node` + `settings.json` chama `node <arquivo>` explicitamente.
+- [x] **[ADR-014](../decisions/ADR-014-addons-hooks-node.md)** — Addons portam junto, sem coexistência longa, semver bump v1.0.
 
 ---
 

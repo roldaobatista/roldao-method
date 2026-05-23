@@ -11,7 +11,7 @@ Decisões arquiteturais que fundaram o framework. Cada ADR explica **contexto**,
 | ADR | Título | Status |
 |---|---|---|
 | [ADR-001](ADR-001-zero-runtime-dependencies.md) | Zero dependências runtime | aceito |
-| [ADR-002](ADR-002-hooks-bash-perl.md) | Hooks em bash + perl, não Node | aceito |
+| [ADR-002](ADR-002-hooks-bash-perl.md) | Hooks em bash + perl, não Node | **revogado por ADR-012** |
 | [ADR-003](ADR-003-override-sem-fork.md) | Override sem fork via `.specify/overrides/` | aceito |
 | [ADR-004](ADR-004-spec-driven-com-ids.md) | Spec-driven com IDs rastreáveis | aceito |
 | [ADR-005](ADR-005-dogfooding.md) | Dogfooding — o próprio repo aplica suas regras | aceito |
@@ -21,6 +21,9 @@ Decisões arquiteturais que fundaram o framework. Cada ADR explica **contexto**,
 | [ADR-009](ADR-009-lifecycle-hooks.md) | Hooks de ciclo de vida (PreCompact, SessionEnd) | aceito |
 | [ADR-010](ADR-010-templates-vs-specify.md) | `templates/` vs `.specify/` — separação | aceito |
 | [ADR-011](ADR-011-maestro-fonte-unica-pipeline.md) | Maestro como fonte única do pipeline (`feature.md` vira shim) | aceito |
+| [ADR-012](ADR-012-hooks-node-port.md) | Port dos 26 hooks de bash/perl pra Node.js (revoga ADR-002) | aceito |
+| [ADR-013](ADR-013-convencao-hook-node.md) | Convenção de hook Node — shebang, +x, settings.json | aceito |
+| [ADR-014](ADR-014-addons-hooks-node.md) | Addons herdam contrato Node — sem coexistência longa | aceito |
 
 ## Convenção
 

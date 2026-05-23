@@ -1,13 +1,18 @@
 ---
 id: ADR-002
 titulo: Hooks em bash + perl, não Node
-status: aceito
+status: revogado
+revogado-por: ADR-012
 data: 2026-05-22
 owner: framework
-revisado-em: 2026-05-22
+revisado-em: 2026-05-23
 ---
 
 # ADR-002 — Hooks em bash + perl (não Node)
+
+> **REVOGADO em 2026-05-23 por [ADR-012](ADR-012-hooks-node-port.md).** A decisão de latência (5-15ms bash vs 100ms Node) provou-se irrelevante na prática (LLM domina o relógio), e o non-goal aceito ("Windows sem Git Bash não roda hooks") virou o pior modo de falha do framework. Histórico abaixo preservado pra contexto.
+
+---
 
 ## Contexto
 
