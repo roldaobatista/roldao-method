@@ -155,7 +155,15 @@ jobs:
         shell: bash
         run: |
           # Forca locale ASCII pra simular Windows sem UTF-8 e ver se acentos sobrevivem.
-          LC_ALL=C $PY templates/.claude/skills/validar-cep/scripts/validar-cep.py "00000-000" | grep -q "sequência" || (echo "FAIL acento perdido em validar-cep"; exit 1)
+          # validar-cep com "00000-000" emite "CEP zerado não existe" — `não` (com
+          # til) e o canario UTF-8. Antes esperava "sequência" que nao existia em
+          # nenhuma mensagem do script (test sempre falhava).
+          set -euo pipefail
+          OUT=$(LC_ALL=C $PY templates/.claude/skills/validar-cep/scripts/validar-cep.py "00000-000")
+          if ! grep -q "não" <<< "$OUT"; then
+            echo "FAIL acento perdido em validar-cep — saida: $OUT"
+            exit 1
+          fi
 
   lint-evals:
     name: Lint estrutural dos evals (cobertura 12/12)
@@ -186,12 +194,13 @@ jobs:
         run: |
           set -euo pipefail
           TMP=$(mktemp -d)
-          # Tenta install com tool explícito; se falhar, tenta wizard genérico.
-          # Sem "|| true" mascarador — se ambos falharem, o step falha e o CI bloqueia.
-          if ! node bin/install.js install --yes --tool=claude-code "$TMP" >/dev/null 2>&1; then
-            node bin/install.js install --yes "$TMP" >/dev/null 2>&1
-          fi
-          HK=$(find "$TMP" -path '*/.claude/hooks/*.sh' 2>/dev/null | head -1 || true)
+          ROOT=$(pwd)
+          # bin/install.js instala em CWD (não aceita arg posicional pra destino),
+          # então o jeito correto de simular instalação isolada é entrar no $TMP
+          # e chamar o instalador via path absoluto. Antes o "$TMP" virava arg
+          # ignorado e o install copiava por cima do repo, deixando HK vazio.
+          (cd "$TMP" && node "$ROOT/bin/install.js" install --yes >/dev/null 2>&1)
+          HK=$(find "$TMP" -path '*/.claude/hooks/*.sh' 2>/dev/null | head -1)
           if [ -z "$HK" ]; then
             echo "FAIL: install não criou nenhum hook em $TMP"
             exit 1
@@ -215,9 +224,11 @@ jobs:
         run: |
           set -euo pipefail
           OUT=$(npm pack --dry-run --json)
-          echo "$OUT" | head -100
+          # `echo | head -100` falha com pipefail quando o JSON > buffer de pipe
+          # (SIGPIPE no echo). Heredoc string evita o pipe entirely.
+          head -100 <<< "$OUT"
           # Tamanho descompactado nao pode disparar (regressao silenciosa em files)
-          SIZE=$(echo "$OUT" | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const a=JSON.parse(s);console.log(a[0].unpackedSize)})")
+          SIZE=$(node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const a=JSON.parse(s);console.log(a[0].unpackedSize)})" <<< "$OUT")
           MAX=$((2*1024*1024))  # 2 MB descompactado — alerta de regressao
           if [ "$SIZE" -gt "$MAX" ]; then
             echo "FAIL: pacote descompactado $SIZE bytes (>2MB). Algum arquivo grande vazou no files?"
@@ -225,7 +236,7 @@ jobs:
           fi
           echo "OK: pacote descompactado $SIZE bytes (<2MB)"
           # Guias internos NAO podem vazar pro tarball
-          if echo "$OUT" | grep -q "docs/PUBLICAR-NPM.md"; then
+          if grep -q "docs/PUBLICAR-NPM.md" <<< "$OUT"; then
             echo "FAIL: docs/PUBLICAR-NPM.md vazou pro tarball — corrigir .npmignore/files"
             exit 1
           fi
