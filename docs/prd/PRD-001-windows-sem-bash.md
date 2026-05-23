@@ -1,10 +1,12 @@
 ---
 tipo: prd
 id: PRD-001
-versao: 1
-status: draft
-owner: Roldão (decisão estratégica)
+versao: 2
+status: aprovado
+caminho-escolhido: A (port Node)
+owner: Roldão
 revisado-em: 2026-05-23
+epico: EP-001-hooks-node-port
 ---
 
 # PRD-001 — Suporte real a Windows sem Git Bash
@@ -131,9 +133,14 @@ Manter banner + bloqueio. Investir em documentação ("como instalar Git for Win
 
 ---
 
-## 8. Próximo passo
+## 8. Decisão (2026-05-23)
 
-Sua decisão entre A / B / C. Se A: criar `/epico` decompondo em 5-7 stories (1 por agrupamento de hooks: destrutivos, secrets, mascaramento, fiscal, LGPD, lifecycle, agentes-pipeline). Se B: criar `/epico` com 2 frentes paralelas (port + suite de equivalência). Se C: fechar este PRD como "wontfix por enquanto" e investir em vídeo + doc.
+**Caminho A aprovado.** Decomposição em [`EP-001`](../epicos/EP-001-hooks-node-port.md) com 10 stories (US-101 a US-110), 3 ADRs bloqueantes (ADR-012/013/014), tamanho XG, prazo estimado 6-10 semanas.
+
+Próximos passos operacionais:
+1. Escrever ADR-012/013/014 antes da US-101 começar.
+2. Rodar `/readiness EP-001` quando ADRs estiverem aceitos.
+3. US-101 (infra de hook Node) abre o épico.
 
 ---
 
