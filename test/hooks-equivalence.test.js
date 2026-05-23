@@ -413,5 +413,55 @@ for (const [label, ti] of LGPD_CASES) {
   pair(`soft warning ou silent "${label}"`, 'lgpd-base-legal-reminder', JSON.stringify({ tool_input: ti }));
 }
 
+// ============================================================================
+// US-106 — Hooks de pipeline (sem feature-active marker = exit 0)
+// Bloqueios reais exigem repo com marker — cobertos em US-108.
+// Aqui validamos caminhos triviais de paridade.
+// ============================================================================
+
+const PIPELINE_HOOKS_TRIVIAL = [
+  'require-investigador-before-fix',
+  'require-readiness-before-feature',
+  'require-agent-sequence-before-dev',
+  'validate-story-dependencies',
+  'validate-quick-dev-scope',
+];
+for (const hook of PIPELINE_HOOKS_TRIVIAL) {
+  pair(`${hook}: file_path vazio sai 0`, hook, JSON.stringify({ tool_input: { file_path: '' } }));
+  pair(`${hook}: arquivo .md ignorado`, hook, JSON.stringify({ tool_input: { file_path: '/proj/docs/x.md', content: 'x' } }));
+  pair(`${hook}: arquivo de teste ignorado`, hook, JSON.stringify({ tool_input: { file_path: '/proj/tests/x.test.ts', content: 'x' } }));
+}
+
+const PIPELINE_BASH_HOOKS = [
+  'require-checkpoint-before-merge',
+  'require-auditors-pass-before-commit',
+];
+for (const hook of PIPELINE_BASH_HOOKS) {
+  pair(`${hook}: comando nao-git sai 0`, hook, JSON.stringify({ tool_input: { command: 'ls -la' } }));
+  pair(`${hook}: docs: prefix sai 0`, hook, JSON.stringify({ tool_input: { command: 'git commit -m "docs: ajusta README"' } }));
+  pair(`${hook}: input vazio sai 0`, hook, '');
+}
+
+pair('validate-story-approvals: nao e story sai 0', 'validate-story-approvals',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/index.js', content: 'x' } }));
+pair('validate-story-approvals: story sem entregue sai 0', 'validate-story-approvals',
+  JSON.stringify({ tool_input: { file_path: '/proj/docs/stories/US-001-x.md', content: 'status: draft' } }));
+pair('validate-story-approvals: bloqueia entregue sem aprovacoes', 'validate-story-approvals',
+  JSON.stringify({ tool_input: { file_path: '/proj/docs/stories/US-001-x.md', content: 'id: US-001\nstatus: entregue' } }));
+
+pair('commit-msg: nao e commit sai 0', 'commit-message-validator',
+  JSON.stringify({ tool_input: { command: 'git status' } }));
+pair('commit-msg: commit sem -m sai 0', 'commit-message-validator',
+  JSON.stringify({ tool_input: { command: 'git commit' } }));
+pair('commit-msg: bloqueia tipo invalido', 'commit-message-validator',
+  JSON.stringify({ tool_input: { command: 'git commit -m "wip: trabalho em progresso"' } }));
+pair('commit-msg: libera mensagem ok', 'commit-message-validator',
+  JSON.stringify({ tool_input: { command: 'git commit -m "fix: ajusta validacao"' } }));
+pair('commit-msg: bloqueia primeira linha > 72', 'commit-message-validator',
+  JSON.stringify({ tool_input: { command: 'git commit -m "fix: ' + 'a'.repeat(80) + '"' } }));
+
+pair('enforce-pipeline: sem markers sai 0', 'enforce-pipeline-completion', '{}');
+pair('enforce-pipeline: input vazio sai 0', 'enforce-pipeline-completion', '');
+
 console.log(`\nhooks-equivalence: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);
