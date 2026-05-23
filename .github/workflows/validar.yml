@@ -95,6 +95,11 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Rodar test/install.test.js
+        # shell: bash força SHELL=bash no env do step. Sem isso, em Windows
+        # o doctor marca isWindowsWithoutBash()=true (MSYSTEM/SHELL ausentes
+        # em runner default = PowerShell) e exit 1, derrubando o teste mesmo
+        # com Git Bash disponivel no PATH.
+        shell: bash
         run: node test/install.test.js
 
   validar-skills-python:
@@ -155,11 +160,12 @@ jobs:
         shell: bash
         run: |
           # Forca locale ASCII pra simular Windows sem UTF-8 e ver se acentos sobrevivem.
-          # validar-cep com "00000-000" emite "CEP zerado não existe" — `não` (com
-          # til) e o canario UTF-8. Antes esperava "sequência" que nao existia em
-          # nenhuma mensagem do script (test sempre falhava).
+          # validar-cep com "00000-000" emite "INVALIDO CEP zerado não existe"
+          # (exit 1 esperado, pois CEP zerado e invalido). `não` (com til) e o
+          # canario UTF-8. Capturamos stdout + stderr ignorando o exit code do
+          # validador — interessa o conteudo da mensagem, nao o status.
           set -euo pipefail
-          OUT=$(LC_ALL=C $PY templates/.claude/skills/validar-cep/scripts/validar-cep.py "00000-000")
+          OUT=$(LC_ALL=C $PY templates/.claude/skills/validar-cep/scripts/validar-cep.py "00000-000" 2>&1 || :)
           if ! grep -q "não" <<< "$OUT"; then
             echo "FAIL acento perdido em validar-cep — saida: $OUT"
             exit 1
