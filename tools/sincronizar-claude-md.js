@@ -23,6 +23,16 @@ function read(file) {
 }
 
 const template = read(TEMPLATE_PATH);
+
+// CLAUDE.md raiz é dogfood opcional (gitignored: o repo nasce sem ele,
+// só aparece após `npx roldao-method install` local). CI faz checkout
+// limpo e nunca tem CLAUDE.md raiz — sem este short-circuit o gate
+// quebrava em todo push.
+if (!fs.existsSync(ROOT_PATH)) {
+  console.log('[sincronizar-claude-md] OK — CLAUDE.md raiz ausente (gitignored); só template avaliado.');
+  process.exit(0);
+}
+
 const root = read(ROOT_PATH);
 
 if (template === root) {
