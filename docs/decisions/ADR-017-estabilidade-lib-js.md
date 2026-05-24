@@ -26,7 +26,7 @@ Auditoria 10-agentes (2026-05-24) marcou esta lacuna como débito arquitetural.
 | `sanitizeProjdir(p)` | `(string) => string` | Normaliza path absoluto do projeto, remove trailing slash. |
 | `sanitizeSessionHash(h)` | `(string) => string` | Aceita `[a-zA-Z0-9_-]{1,64}`, rejeita resto. |
 | `safeRuntimeDir(projdir, session)` | `(string, string) => string` | Path `.runtime/<session>/` validado contra path traversal. |
-| `safeTmpfile(projdir, name)` | `(string, string) => string` | Path em `.runtime/tmp/` validado. |
+| `safeTmpfile(prefix?)` | `(string?) => string` | Cria arquivo temp em `os.tmpdir()` com fallback isolado por UID em `/tmp/roldao-<uid>` mode 700. Default `prefix='hook'`. |
 | `secretTokenPatterns()` | `() => string[]` | Lista de regex pattern strings reconhecidos como secret. |
 | `secretTokenRegexes()` | `() => RegExp[]` | Mesma lista compilada. |
 | `posixToJsRegex(posixPattern)` | `(string) => RegExp` | Converte POSIX ERE pra JS RegExp (legacy do port bash). |
@@ -66,12 +66,12 @@ Não. Nunca mude assinatura — adicione função nova com nome diferente, depre
 
 ## Testes de contrato
 
-`test/lib-contract.test.js` (a criar antes de v1.1 — issue aberta) vai validar:
+`test/lib-contract.test.js` (entregue na v1.0.0 — adiantado vs plano original v1.1) valida:
 1. Cada função da tabela existe e é função.
-2. Cada função aceita os tipos documentados sem throw.
-3. Funções removidas em deprecated ainda existem e logam warning.
+2. Cada função aceita os tipos documentados sem throw inesperado.
+3. Comportamento mínimo (smoke) — não testa equivalência byte-a-byte (isso fica em `hooks-node-only`).
 
-Sem esse teste em CI, qualquer refactor interno pode acidentalmente quebrar a API. Issue de implementação: criar quando começar v1.1.
+46 verificações rodando em CI no script `npm run test:lib-contract` (parte do `npm test`). Falha aqui = contrato quebrado = candidato a MAJOR (ADR-016).
 
 ## Non-goals (INV-003)
 
