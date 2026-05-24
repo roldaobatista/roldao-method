@@ -2,6 +2,39 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.0.0] — 2026-05-24
+
+**Release estável da v1.0.** Fecha o ciclo iniciado nas rc1/rc2 — hooks 100% Node + auditoria 10-agentes aplicada + 3 ADRs novos formalizando débitos arquiteturais.
+
+### Adicionado
+
+- **3 regras fiscais novas**: `FISCAL-008` (NFS-e padrão nacional), `FISCAL-009` (MDF-e/CT-e para transporte), `FISCAL-010` (split payment da Reforma Tributária). Total agora: **46 regras inegociáveis** (era 43).
+- **ADR-016** — Política de SemVer formalizada (o que é breaking change). 7 superfícies públicas listadas. Antes era ad-hoc.
+- **ADR-017** — Estabilidade da API de `_lib.js` (10 funções públicas estáveis pra addons). Antes era contrato implícito.
+- **ADR-018** — Python 3.10+ como requisito declarado pra 9 skills BR (validação CPF/CNPJ, Pix, boleto, NF-e, etc.). Antes era "opcional" silencioso.
+- **Addon `healthtech-br` em DRAFT (v0.1.0)** — esqueleto pra healthtech BR: ANS RN 305, CFM 1.821/2.314, TISS/TUSS, LGPD Art. 11. 6 regras `HEALTH-EXT-001..006`, agente `healthtech-arch`, 2 skills (`checklist-cfm-telemedicina` stable, `validar-cns-cartao-sus` stub). Não usar em produção sem validação jurídica.
+- **Parágrafo "Confiança em addons" no `SECURITY.md`** — explicita que addons rodam código executável sob mesma confiança do core; addon de terceiro exige auditoria do usuário.
+- **Bloco `aprovacoes:` retroativo nas 10 stories US-101..US-110** — audit trail honesto (marcado `aprovado-retroativo`) formalizando entrega do EP-001 (port Node).
+
+### Corrigido
+
+- **Hook `fiscal-br-validator.js`** — agora cobre 3 notações de `tpAmb=1` hardcoded: atribuição (`tpAmb=1`), objeto/YAML (`tpAmb: 1`), tag XML (`<tpAmb>1</tpAmb>`). Antes só pegava atribuição com `=`.
+- **FISCAL-004** — texto atualizado: SVC + EPEC como padrão moderno de contingência; FS-DA marcado como legado (desuso desde 2023, Manual NF-e 7.00).
+- **`docs/EXTENDENDO.md`** — "14 agentes" → "15 agentes" (Lucas/devops-infra entrou na v0.20).
+- **`bin/install.js`** — mensagem de boas-vindas agora diz "26 workflows" (era "24").
+- **`templates/.claude/output-styles/fiscal-br.md`** — referência a `fiscal-br-validator.sh` corrigida pra `.js`.
+
+### Mudado
+
+- **EP-001 e US-101..US-110** — status reconciliado: todas as 10 stories agora declaradas `entregue` no frontmatter + tabela do épico (estava `draft` defasado, apesar do código já ter ido pra produção).
+- **README** — requisito Python 3.10+ declarado explicitamente em "Requisitos" (era "opcional" silencioso). Contagem de regras: 43 → 46.
+
+### Preservado
+
+- Comportamento dos hooks existentes — `fiscal-br-validator.js` ganhou cobertura, não mudou veredito em casos antes detectados.
+- Compatibilidade com projetos rodando v1.0.0-rc1/rc2 — nada removido, só somado.
+- Promessa "zero deps Node" intacta; Python entra como requisito declarado de skills (ADR-018), não dependência runtime do framework.
+
 ## [1.0.0-rc2] — 2026-05-23
 
 **Migração dos 5 hooks `.sh` dos 6 addons oficiais pra Node.js puro.** Completa o port iniciado na rc1 — agora **TODO o framework + addons oficiais** rodam sem dependência de bash/perl/Git Bash.
