@@ -1352,6 +1352,80 @@ async function uninstall() {
 // menu — chamado por `npx roldao-method` sem argumento em TTY interativo.
 // Mostra menu amigavel ao Roldao (nao-programador) com as 4 opcoes mais usadas
 // em vez de cair em `install` cego.
+// undo — desfaz o ULTIMO commit do projeto via git revert (cria commit reverso,
+// nao reescreve historia). Rede de seguranca pro Roldao quando o agente fez
+// algo que ele nao queria. Requer confirmacao explicita (INV-AGENT-005 — destrutivo).
+// T-503 (L3) / PRD-003 US-116.
+async function undo() {
+  banner();
+  // Acha ultimo commit
+  let ultimoHash = '';
+  let ultimoMsg = '';
+  let coAuthored = false;
+  try {
+    const { execFileSync } = require('child_process');
+    ultimoHash = execFileSync('git', ['-C', CWD, 'rev-parse', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    ultimoMsg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s%n%b'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    coAuthored = /Co-Authored-By: Claude/i.test(ultimoMsg);
+  } catch {
+    err('nao consegui ler git log. Voce esta numa pasta com repositorio git?');
+    process.exit(1);
+  }
+
+  if (!ultimoHash) {
+    err('repositorio sem commits.');
+    process.exit(1);
+  }
+
+  console.log(`${c.bold}Ultima gravacao do projeto:${c.reset}`);
+  console.log(`  ${c.cyan}${ultimoHash.slice(0, 12)}${c.reset} — ${ultimoMsg.split('\n')[0].slice(0, 80)}`);
+  console.log('');
+
+  if (!coAuthored) {
+    console.log(`${c.yellow}AVISO:${c.reset} a ultima gravacao NAO foi feita pelo assistente Claude (sem 'Co-Authored-By: Claude').`);
+    console.log('Pode ter sido voce ou outra pessoa.');
+    console.log('');
+  }
+
+  console.log(`${c.bold}O que 'undo' faz:${c.reset}`);
+  console.log('  - Cria uma NOVA gravacao que DESFAZ a anterior (sem apagar historico).');
+  console.log('  - Equivale a `git revert HEAD --no-edit`.');
+  console.log('  - Seguro: nao reescreve historico, voce pode desfazer o undo depois.');
+  console.log('');
+  console.log(`${c.bold}O que voce DEVE conferir antes:${c.reset}`);
+  console.log('  - Se a mudanca ja foi enviada pro servidor (`git log origin/main..HEAD`), o undo tambem vai pro servidor depois.');
+  console.log('  - Se outros desenvolvedores ja baixaram a mudanca, eles vao ver o undo.');
+  console.log('');
+
+  if (!YES) {
+    process.stdout.write(`Confirma o undo? Digite 'sim' pra continuar: `);
+    const resposta = await new Promise((resolve) => {
+      const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+      rl.question('', (ans) => { rl.close(); resolve(String(ans || '').trim().toLowerCase()); });
+    });
+    if (!['sim', 's', 'yes', 'y'].includes(resposta)) {
+      log('cancelado.');
+      process.exit(0);
+    }
+  }
+
+  if (DRY_RUN) {
+    log('[dry-run] git revert HEAD --no-edit');
+    return;
+  }
+
+  try {
+    const { execFileSync } = require('child_process');
+    execFileSync('git', ['-C', CWD, 'revert', '--no-edit', 'HEAD'], { stdio: 'inherit' });
+    ok('undo concluido. Nova gravacao criada desfazendo a anterior.');
+    console.log(`${c.dim}Pra ver: git log -2 --oneline${c.reset}`);
+  } catch (e) {
+    err(`git revert falhou: ${e.message}`);
+    err('Causa provavel: mudanca pendente (uncommitted). Salve ou descarte antes de tentar de novo.');
+    process.exit(1);
+  }
+}
+
 function menu() {
   banner();
   console.log(`${c.bold}O que voce quer fazer?${c.reset}\n`);
@@ -1373,6 +1447,7 @@ function help() {
   ${c.cyan}npx roldao-method tutorial${c.reset}       [--force]                        ${c.green}preenche AGENTS.md por 5 perguntas guiadas${c.reset}
   ${c.cyan}npx roldao-method update${c.reset}         [--yes] [--force] [--dry-run] [--all]   atualiza arquivos do framework
   ${c.cyan}npx roldao-method rollback${c.reset}       [<id>] [--list]                desfaz o ultimo update (volta o snapshot)
+  ${c.cyan}npx roldao-method undo${c.reset}           [--yes] [--dry-run]            desfaz ultimo commit via git revert (rede de seguranca pro Roldao)
   ${c.cyan}npx roldao-method add <addon>${c.reset}    [--yes]                          instala addon especifico
   ${c.cyan}npx roldao-method remove <addon>${c.reset} [--yes] [--dry-run]              remove um addon (core preservado)
   ${c.cyan}npx roldao-method search [termo]${c.reset}                                   lista/filtra addons disponiveis
@@ -1445,6 +1520,7 @@ function version() {
       break;
     }
     case 'rollback': await rollback(); break;
+    case 'undo': await undo(); break;
     case 'menu': menu(); break;
     case 'help': case '--help': case '-h': help(); break;
     case 'version': case '--version': case '-v': version(); break;

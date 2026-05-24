@@ -6,7 +6,7 @@ allowed-tools: Read, Glob, Grep
 model: haiku
 ---
 
-# /help — catálogo dos 26 workflows
+# /help — catálogo dos 28 workflows
 
 Se `$ARGUMENTS` é vazio, mostre PRIMEIRO a árvore de decisão abaixo, DEPOIS o catálogo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre só detalhes do workflow correspondente (pule a árvore).
 
@@ -162,5 +162,5 @@ Exemplo: `/help BG` mostra detalhe completo de `/bug`.
 
 ## Importante
 
-- Este help cobre só os 26 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
+- Este help cobre só os 28 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
 - **Códigos curtos** servem pra falar rápido ("vamos rodar BG agora"), não substituem o comando completo.

@@ -74,7 +74,7 @@ for (const f of auxFiles) {
 
 console.log('\n[commands — frontmatter + allowed-tools]');
 const cmdFiles = fs.readdirSync(COMMANDS_DIR).filter((f) => f.endsWith('.md'));
-check('26 commands em templates/.claude/commands/', cmdFiles.length === 26, `achou ${cmdFiles.length}`);
+check('28 commands em templates/.claude/commands/', cmdFiles.length === 28, `achou ${cmdFiles.length}`);
 
 for (const file of cmdFiles) {
   const fm = readFrontmatter(path.join(COMMANDS_DIR, file));

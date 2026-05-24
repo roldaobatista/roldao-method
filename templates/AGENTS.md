@@ -92,7 +92,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 5. Workflows
 
-**26 workflows** codificados em `.claude/commands/`. Lista canônica:
+**28 workflows** codificados em `.claude/commands/`. Lista canônica:
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
