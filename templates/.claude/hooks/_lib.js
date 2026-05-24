@@ -186,6 +186,11 @@ function hookBlockHeader(name, reason) {
 // Best-effort: silencia erros (disco cheio, permissao).
 // ---------------------------------------------------------------------------
 function recordMetric(kind, label, reason) {
+  // Skip durante suite de teste — evita poluir metrics.jsonl com bloqueios
+  // provocados de proposito pelos testes (block-destructive testa `rm -rf`,
+  // secrets-scanner testa AKIA..., etc.). Cada `npm test` adicionaria
+  // dezenas de eventos que nao refletem uso real.
+  if (process.env.ROLDAO_SKIP_METRICS === '1') return;
   let projdir;
   try { projdir = sanitizeProjdir(); } catch { return; }
   const runtime = path.join(projdir, '.claude', '.runtime');

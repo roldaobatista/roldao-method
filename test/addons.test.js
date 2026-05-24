@@ -13,6 +13,10 @@
  * (exit 1, segfault, "command not found", etc.). Pula em ambiente sem bash.
  */
 
+// Hooks chamam recordMetric quando bloqueiam — esta env var evita poluir
+// metrics.jsonl com bloqueios provocados de proposito pelos testes.
+process.env.ROLDAO_SKIP_METRICS = '1';
+
 const fs = require('fs');
 const path = require('path');
 const { execSync, spawnSync } = require('child_process');

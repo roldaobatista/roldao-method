@@ -16,6 +16,10 @@
  * Roda em Node puro. Sem dependencia externa.
  */
 
+// Antes de require — testes chamam recordMetric/hookBlockHeader e nao devem
+// poluir metrics.jsonl. _lib.js consulta esta env var pra dar skip.
+process.env.ROLDAO_SKIP_METRICS = '1';
+
 const path = require('path');
 const fs = require('fs');
 const os = require('os');

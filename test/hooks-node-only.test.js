@@ -11,6 +11,10 @@
  * com/sem bash). Job CI windows-no-bash usa este teste exclusivamente.
  */
 
+// Hooks chamam recordMetric quando bloqueiam — esta env var evita poluir
+// metrics.jsonl com bloqueios provocados de proposito pelos testes.
+process.env.ROLDAO_SKIP_METRICS = '1';
+
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
