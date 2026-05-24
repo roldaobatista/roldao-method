@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|ROADMAP|test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.json$|\.ya?ml$|\.toml$|\.ini$|\.env|\.sh$|\.ps1$|\.bat$/;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
@@ -34,6 +34,7 @@ const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
   process.stderr.write(`Como destravar: rode /investigar ou /bug primeiro — o Detetive le banco/log/\n`);
   process.stderr.write(`payload, identifica causa raiz e libera a edicao.\n\n`);
   process.stderr.write(`Bypass (so se o usuario autorizar): touch ${markInv}\n`);
+  recordMetric('block', 'require-investigador-before-fix', `edit em ${filePath} sem investigador`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[require-investigador-before-fix] erro interno: ${err.message}\n`);

@@ -132,17 +132,52 @@ run('codigo IBGE DV errado', munIbge, '3550300', false);
 run('codigo IBGE tamanho invalido (6 digitos)', munIbge, '355030', false);
 run('codigo IBGE tamanho invalido (8 digitos)', munIbge, '35503080', false);
 
-// gerar-br-code: smoke (gera output sem crash). Validacao do EMV completo
-// fica pra suite Python no CI, este teste so confere que o script roda.
+// gerar-br-code: smoke (gera output sem crash) + verificacao do CRC em JS.
+// Auditoria 10-agentes 2026-05-24: antes so checava prefixo + presenca de
+// 6304XXXX. Agora recalcula CRC16-CCITT em JS e confirma que bate com o do
+// script Python — bug silencioso em algum TLV ou offset do CRC quebraria
+// o QR sem o teste pegar.
+function crc16Ccitt(payload) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
 try {
   const emv = execFileSync(PY, [brCode, 'estatico', '--chave', 'teste@exemplo.com.br', '--nome', 'TESTE', '--cidade', 'SAO PAULO'], { encoding: 'utf8' }).trim();
   // Prefixo EMV pra Pix estatico: tag 00 (Payload Format = 01) + tag 01
   // (POI Method = 11 estatico / 12 dinamico) + tag 26 (Merchant Account
   // Info — comeca com sub-tag 00 "br.gov.bcb.pix").
   if (emv.startsWith('00020101021126') && emv.length > 40 && /6304[0-9A-F]{4}$/.test(emv)) {
-    pass++; console.log('  OK   gerar-br-code estatico gera EMV valido (prefixo + CRC)');
+    pass++; console.log('  OK   gerar-br-code estatico gera EMV valido (prefixo + CRC presente)');
   } else {
     fail++; console.log(`  FAIL gerar-br-code formato inesperado: ${emv}`);
+  }
+  // CRC do EMV gerado: pega tudo MENOS os 4 ultimos chars + recalcula
+  const payloadComTagCrc = emv.slice(0, -4);
+  const crcEmv = emv.slice(-4);
+  const crcEsperado = crc16Ccitt(payloadComTagCrc);
+  if (crcEmv === crcEsperado) {
+    pass++; console.log(`  OK   gerar-br-code CRC16-CCITT bate (${crcEmv}) — implementacao Python validada contra recalculo JS independente`);
+  } else {
+    fail++; console.log(`  FAIL gerar-br-code CRC divergente: script=${crcEmv} JS=${crcEsperado}`);
+  }
+  // Decodifica os principais TLV pra confirmar estrutura
+  const temPayloadFormat = emv.includes('000201');         // Tag 00 = "01"
+  const temPoiEstatico   = emv.includes('010211');         // Tag 01 = "11" (estatico)
+  const temMerchantPix   = emv.includes('0014br.gov.bcb.pix');  // sub-tag 00 do Tag 26
+  const temCurrency      = emv.includes('5303986');        // Tag 53 = "986" (BRL)
+  const temCountry       = emv.includes('5802BR');         // Tag 58 = "BR"
+  const todosOk = temPayloadFormat && temPoiEstatico && temMerchantPix && temCurrency && temCountry;
+  if (todosOk) {
+    pass++; console.log('  OK   gerar-br-code estrutura TLV (00,01,26,53,58) presente');
+  } else {
+    fail++; console.log(`  FAIL gerar-br-code TLV faltando: pf=${temPayloadFormat} poi=${temPoiEstatico} pix=${temMerchantPix} curr=${temCurrency} br=${temCountry}`);
   }
 } catch (err) {
   fail++; console.log(`  FAIL gerar-br-code crashou: ${err.message}`);

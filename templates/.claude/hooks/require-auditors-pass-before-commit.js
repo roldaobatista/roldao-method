@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const SKIP_PREFIXES_RE = /(docs|chore|ci|build|style):/;
 
@@ -110,6 +110,7 @@ const LABELS = {
   process.stderr.write(`  touch "${path.join(runtime, `auditor-qual-pass-${sess}`)}"\n`);
   process.stderr.write(`  touch "${path.join(runtime, `auditor-prod-pass-${sess}`)}"\n\n`);
   process.stderr.write(`Aplica regras: INV-AGENT-006, SEC-* (seguranca obrigatoria), TST-* (qualidade obrigatoria).\n`);
+  recordMetric('block', 'require-auditors-pass-before-commit', `${usHint || 'US-?'} blocked=${blocked.length} missing=${missing.length} stale=${stale.length}`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[require-auditors-pass-before-commit] erro interno: ${err.message}\n`);

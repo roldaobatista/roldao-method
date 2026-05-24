@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|ROADMAP|test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.json$|\.ya?ml$|\.toml$|\.ini$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
@@ -121,6 +121,7 @@ function extractDepsFromFrontmatter(text) {
   process.stderr.write(`\nFinalize as US dependentes (status: entregue) antes de iniciar ${usId}.\n`);
   process.stderr.write(`Ou ajuste o campo \`depende-de:\` no frontmatter se a dependencia mudou.\n\n`);
   process.stderr.write(`Aplica regra: INV-004 (cadeia rastreavel) + sequenciamento de sprint.\n`);
+  recordMetric('block', 'validate-story-dependencies', `${usId}: ${blockers.length} dependencias nao entregues`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[validate-story-dependencies] erro interno: ${err.message}\n`);

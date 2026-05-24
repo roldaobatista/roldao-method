@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|ROADMAP|test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.json$|\.ya?ml$|\.toml$|\.ini$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
@@ -87,6 +87,7 @@ function firstMatchFile(dir, predicate) {
   process.stderr.write(`nao foi criado. Force liberacao manual (sob sua responsabilidade):\n`);
   process.stderr.write(`  mkdir -p "${runtime}" && touch "${markReadiness}"\n\n`);
   process.stderr.write(`Aplica regras: INV-001, INV-002 (spec gera codigo — sem spec readiness, sem codigo).\n`);
+  recordMetric('block', 'require-readiness-before-feature', `${usId || 'US-?'} sem readiness (status=${statusHint || 'sem arquivo'})`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[require-readiness-before-feature] erro interno: ${err.message}\n`);

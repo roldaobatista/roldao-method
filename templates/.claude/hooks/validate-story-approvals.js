@@ -3,7 +3,7 @@
 // sem audit trail completo no bloco `aprovacoes:` do frontmatter.
 // Hook PreToolUse, matcher: Write|Edit.
 
-const { readStdinJson } = require('./_lib.js');
+const { readStdinJson, recordMetric } = require('./_lib.js');
 
 const STORY_PATH_RE = /docs\/stories\/US-.*\.md$/;
 const REQUIRED = [
@@ -96,6 +96,7 @@ const REQUIRED = [
   process.stderr.write(`Sem audit trail completo, nao ha como auditar 6 meses depois quem decidiu\n`);
   process.stderr.write(`o que. Marcador efemero em .runtime/ nao serve — limpo ao fim da sessao.\n\n`);
   process.stderr.write(`Aplica regras: INV-001 (documento e estado compartilhado), INV-AGENT-006.\n`);
+  recordMetric('block', 'validate-story-approvals', `${usId}: missing=${missing.length} blocked=${hasBlock}`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[validate-story-approvals] erro interno: ${err.message}\n`);

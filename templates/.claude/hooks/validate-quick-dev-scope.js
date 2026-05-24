@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir, recordMetric } = require('./_lib.js');
 
 const SKIP_PATH_RE = /test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.claude\/\.runtime\/|\/docs\/|CHANGELOG|ROADMAP/;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|vue|svelte|py|go|rb|java|kt|cs|php|rs|swift|dart|css|scss|sass|less|html|hbs|ejs|pug)$/;
@@ -35,6 +35,7 @@ const LIMIT = 3;
     process.stderr.write(`  1. Encerre /quick-dev: rm "$CLAUDE_PROJECT_DIR/.claude/.runtime/quick-dev-active-*"\n`);
     process.stderr.write(`  2. Rode: /feature <descricao>\n\n`);
     process.stderr.write(`Aplica: validate-quick-dev-scope (palavra-gatilho), INV-AGENT-005.\n`);
+    recordMetric('block', 'validate-quick-dev-scope', `dominio sensivel: ${filePath}`);
     process.exit(2);
   }
 
@@ -76,6 +77,7 @@ const LIMIT = 3;
   process.stderr.write(`arquivo de constante), force libercao explicita:\n  rm "${filesLog}"\n\n`);
   process.stderr.write(`Mas isso e o caminho que o framework chama de "erosao silenciosa".\n\n`);
   process.stderr.write(`Aplica: /quick-dev.md (cheklist obrigatorio), INV-AGENT-005.\n`);
+  recordMetric('block', 'validate-quick-dev-scope', `escopo estourou: ${uniqueAfter} arquivos`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[validate-quick-dev-scope] erro interno: ${err.message}\n`);

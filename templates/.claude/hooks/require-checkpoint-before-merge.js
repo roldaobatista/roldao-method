@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const SKIP_PREFIXES_RE = /(docs|chore|ci|build|style):/;
 
@@ -53,6 +53,7 @@ const SKIP_PREFIXES_RE = /(docs|chore|ci|build|style):/;
   process.stderr.write(`Para liberar manualmente (sob sua responsabilidade):\n`);
   process.stderr.write(`  mkdir -p "${runtime}" && touch "${markCheckpoint}"\n\n`);
   process.stderr.write(`Aplica regras: INV-AGENT-006 (walkthrough antes de subir), INV-006 (verificar antes de afirmar).\n`);
+  recordMetric('block', 'require-checkpoint-before-merge', `${usHint || 'US-?'}: commit sem checkpoint`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[require-checkpoint-before-merge] erro interno: ${err.message}\n`);

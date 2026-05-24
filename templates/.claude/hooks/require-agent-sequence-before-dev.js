@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|ROADMAP|test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.json$|\.ya?ml$|\.toml$|\.ini$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
@@ -40,6 +40,7 @@ const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
   for (const item of missing) process.stderr.write(`  - ${item}\n`);
   process.stderr.write(`\nComo destravar: volte ao /feature em ordem. Sem isso o codigo sai sem AC testavel\n`);
   process.stderr.write(`ou trata sintoma em vez de causa raiz (REGRA #0). Regras: INV-AGENT-005/006.\n`);
+  recordMetric('block', 'require-agent-sequence-before-dev', `etapas faltando: ${missing.length}`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[require-agent-sequence-before-dev] erro interno: ${err.message}\n`);
