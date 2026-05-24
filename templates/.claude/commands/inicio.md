@@ -35,41 +35,36 @@ Invoque `dev-senior` pra montar:
 - Setup local funcionando (`docker compose up` ou equivalente).
 - 1 endpoint/tela de exemplo pra validar que o ambiente funciona.
 
-## Etapa 4 — Atualizar documentos contratuais (auto-fill primeiro)
+## Etapa 4 — Preencher documentos do projeto
 
-**T-105 (C6) — antes de pedir qualquer coisa pro usuário, auto-detectar.** Reusar a mesma varredura mecânica do `/brownfield` (lê `package.json`, `requirements.txt`, `pom.xml`, `go.mod`, `Cargo.toml`, `composer.json`, prisma/, alembic/, Dockerfile, workflows/, vercel.json, deno.json):
+Vários arquivos do projeto têm campos marcados com `_(preencher)_`. Preencha:
 
-1. **Nome do projeto** — `package.json#name` || `basename($PWD)`.
-2. **Stack (§2 do AGENTS.md)** — detectada na Etapa 2 + lida dos arquivos acima.
-3. **Comandos (§6 do AGENTS.md)** — copiar de `package.json#scripts` (`dev`, `build`, `test`, `lint`, `format`) + heurística por framework.
-4. **Modelo** — default "app interno" (se SaaS/CLI/lib for evidente, sobrescreve).
-5. **Cliente/usuário** — default "definir depois" + marcar `premissa-modelagem: cliente-pendente`.
+- **`AGENTS.md`** — quem usa, o que o projeto faz, com qual tecnologia.
+- **`REGRAS-INEGOCIAVEIS.md`** — adicionar regras próprias do projeto (se houver alguma específica do seu negócio).
+- **`AGENTS.md` seção 10 ("O que está pendente")** — registrar onde paramos (é o mesmo lugar que o `/retro` atualiza no final do dia).
 
-**T-106 (C7) — só dispara `AskUserQuestion` se houver empate real.** Ex: detecção identificou tanto `package.json` (Node) quanto `requirements.txt` (Python) na raiz — então `AskUserQuestion` com `[Node+TS]` `[Python+FastAPI]` `[Ambos (monorepo)]`. Sem empate, escolhe e reporta a decisão.
+Reporte "documentos do projeto preenchidos" e siga.
 
-Preencher campos restantes `_(preencher)_` (os que não foram auto-detectados) em:
-- `AGENTS.md` — identidade, stack, comandos.
-- `REGRAS-INEGOCIAVEIS.md` — adicionar regras específicas do projeto se houver.
-- `AGENTS.md` seção 10 ("O que está pendente") — registrar onde paramos (mesmo lugar que o `/retro` atualiza).
+## Etapa 5 — Primeiro pacote de trabalho + sinal verde pra começar
 
-## Etapa 5 — Épico inicial + readiness (destrava o /feature)
+O `/feature` (comando que pega uma user story e implementa) só roda se enxergar um sinal verde dizendo "esse pacote tá pronto pra começar". Sem esse sinal, ele para com mensagem chata. Como você acabou de definir a stack e montar o esqueleto, dá pra emitir o sinal verde agora — é honesto.
 
-`/feature` tem gate mecânico (`require-readiness-before-feature.js`): exige `docs/readiness/EP-NNN-status.md` com `status: PRONTO`. `/inicio` já fez o trabalho de prontidão (stack, ADRs, esqueleto na Etapa 2-3), então registre-o — senão o usuário roda `/feature US-001` e bate em bloqueio sem explicação.
+1. **Criar o pacote inicial:** novo arquivo `docs/epicos/EP-000-bootstrap.md` agrupando as user stories `US-001..US-NNN` que você criou na Etapa 1. Use `.specify/templates/epico.md` como base.
+2. **Conectar cada US ao pacote:** em cada arquivo `docs/stories/US-NNN-*.md`, garantir que a referência ao pacote (`epico: EP-000`) está no cabeçalho.
+3. **Emitir o sinal verde:** criar `docs/readiness/EP-000-status.md` com `status: PRONTO` e listar o que já está pronto (stack escolhida, esqueleto rodando, testes configurados).
 
-1. Criar `docs/epicos/EP-000-bootstrap.md` (use `.specify/templates/epico.md` como base) agrupando US-001..US-NNN como stories filhas. `prd:` pode ser `null` (greenfield direto). Frontmatter: `tipo: epico`, `id: EP-000`, `status: aprovado`, `owner`, `revisado-em`.
-2. Em cada `docs/stories/US-NNN-*.md`, garantir `epico: EP-000` no frontmatter (o hook resolve o readiness via esse campo).
-3. Criar `docs/readiness/EP-000-status.md` com frontmatter `owner`, `revisado-em`, `status: PRONTO` e corpo listando o que já está pronto (stack decidida via ADR-0001, esqueleto rodando, ambiente de teste configurado). Isto é honesto: a prontidão foi efetivamente avaliada nas Etapas 2-3.
+Pronto. Agora o `/feature US-001` vai funcionar sem reclamar.
 
 ## Saída final
 
 ```
 PROJETO INICIADO
 
-User stories: US-001 a US-NNN definidas (épico EP-000).
-ADRs: ADR-0001 a ADR-NNN aceitos.
-Readiness: EP-000 PRONTO.
+User stories criadas: US-001 a US-NNN (agrupadas no pacote inicial EP-000).
+Decisões técnicas registradas: ADR-0001 a ADR-NNN.
+Pacote inicial: liberado pra começar (sinal verde emitido).
 Esqueleto: rodando em <comando>.
-Próximo passo: começar US-001 via /feature US-001 (gate de readiness já satisfeito).
+Próximo passo: rodar /feature US-001 pra começar a primeira história.
 ```
 
 ## Importante

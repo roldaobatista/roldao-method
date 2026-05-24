@@ -6,7 +6,7 @@ allowed-tools: Read, Glob, Grep
 model: haiku
 ---
 
-# /help — catálogo dos 28 workflows
+# /help — catálogo dos 26 workflows
 
 Se `$ARGUMENTS` é vazio, mostre PRIMEIRO a árvore de decisão abaixo, DEPOIS o catálogo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre só detalhes do workflow correspondente (pule a árvore).
 
@@ -54,68 +54,72 @@ Você tem um pedido. Que tipo de pedido é?
 
 ## Catálogo
 
-| Código | Comando | Quando usar | Cadeia de agentes |
-|---|---|---|---|
-| IN | `/inicio` | Projeto novo do zero | Sofia → Rafael → Bruno |
-| BF | `/brownfield` | Adotar framework em projeto que já existe | Detetive → Rafael → Sofia → Caio |
-| PRD | `/prd` | Iniciativa grande (várias semanas / muitas stories) | Mariana → Sofia → Rafael → Carla |
-| EP | `/epico` | Decompor iniciativa em stories (coleção de stories) | Mariana → Sofia → Rafael |
-| US | `/historia` | Criar 1 user story rastreável (1 story) | Sofia → Detetive |
-| CL | `/clarificar` | Tirar ambiguidade ANTES de codar (ideia vaga) | Sofia |
-| FT | `/feature` | Funcionalidade nova ciclo completo (1 story implementada) | Sofia → Detetive → Rafael → Bruno → Revisor → Caio+Julia+Pedro |
-| QD | `/quick-dev` | Mudança trivial (≤3 arquivos, ≤50 linhas) | Bruno → Revisor |
-| BG | `/bug` | Corrigir comportamento — REGRA #0 | **Detetive (obrigatório)** → Bruno → Revisor |
-| HF | `/hotfix` | Incidente urgente em produção (cliente parado, SEFAZ off, Pix duplicado) | Detetive (rápido) → Bruno → Revisor → `/incident-postmortem` em 48h |
-| IPM | `/incident-postmortem` | Pós-incidente: timeline, LGPD-006/ANPD, ação corretiva | Detetive → 3 auditores em paralelo → Tech-writer |
-| RF | `/refactor` | Reorganizar sem mudar comportamento | Rafael → Bruno → Revisor |
-| QA | `/qa` | Gerar/auditar testes de uma área | Detetive → Julia → Bruno → Revisor |
-| AU | `/auditoria` | 3 auditores em paralelo | Caio + Julia + Pedro |
-| AR | `/auditoria-reversa` | Diagnóstico de repo legado (discovery) | Detetive → 3 auditores → Tech-writer |
-| CN | `/consistencia` | Cross-check doc↔código | Detetive → Caio + Julia + Pedro |
-| EC | `/explicar-para-cliente` | Traduz último output técnico pra linguagem de cliente não-técnico | Tech-writer + skill traduzir-jargao |
-| RT | `/retro` | Retrospectiva 4L pós-marco | (sem agente) |
-| RP | `/replanejar` | Escopo mudou no meio | Sofia → Tech-writer |
-| SP | `/sprint` | Plano sequencial das próximas N stories | Sofia |
-| ST | `/status` | "Como tá indo?" em PT-BR sem jargão | Tech-writer |
-| CK | `/checkpoint` | Walkthrough de PR/branch antes de merge | (walkthrough) |
-| RL | `/release` | Fechar marco: versão, CHANGELOG, tag | Tech-writer |
-| RD | `/readiness` | Gate entre épico e dev | Detetive → Rafael |
-| HP | `/help` | Este comando | (catálogo) |
-| SH | `/shard` | Quebra PRD/ARQ longo em chunks | (fatiamento) |
+| Comando | Pra quê (resultado) | Quando usar (gatilho) |
+|---|---|---|
+| `/inicio` | Define escopo + escolhe tecnologia + monta esqueleto rodando | Projeto novo do zero |
+| `/brownfield` | Adapta o framework ao código que já existe | Adotar em projeto legado |
+| `/prd` | Gera documento de produto completo (PRD) | Iniciativa grande (várias semanas) |
+| `/epico` | Quebra a iniciativa em user stories filhas | Decompor PRD em pedaços executáveis |
+| `/historia` | Cria 1 user story em arquivo rastreável | Criar 1 história isolada |
+| `/clarificar` | Fixa critérios de aceitação e o que NÃO entra | Ideia ainda vaga antes de codar |
+| `/feature` | Implementa 1 user story com revisão + 3 auditores | Funcionalidade nova (ciclo completo) |
+| `/quick-dev` | Aplica mudança trivial sem investigador nem auditores | Trocar 1 label, ≤3 arquivos, ≤50 linhas |
+| `/bug` | Investiga estado real (banco, log, payload) antes de corrigir | Algo não funciona como deveria — REGRA #0 |
+| `/hotfix` | Caminho rápido pra apagar incêndio em produção | Cliente parado, SEFAZ fora do ar, Pix duplicado |
+| `/incident-postmortem` | Gera timeline, ANPD/LGPD-006 se houver vazamento, ação corretiva | Após hotfix, em até 48h |
+| `/refactor` | Reorganiza código sem mudar o que o cliente vê | Limpar dívida técnica |
+| `/qa` | Gera ou audita testes de uma área | Reforçar cobertura de testes |
+| `/auditoria` | Roda 3 auditores em paralelo (segurança, qualidade, produto) | Antes de fechar release |
+| `/auditoria-reversa` | Diagnóstico read-only de um repo legado | Entender código que herdou |
+| `/consistencia` | Compara documento com código pra achar órfãos | Doc bate com o código? |
+| `/explicar-para-cliente` | Traduz último output técnico pra linguagem leiga | Não entendi a resposta anterior |
+| `/retro` | Retrospectiva 4L (Liked, Learned, Lacked, Longed for) | Final de marco/sprint |
+| `/replanejar` | Atualiza o escopo registrado quando muda no meio | Cliente mudou de ideia, mudança de prioridade |
+| `/sprint` | Sequencia as próximas N user stories em ordem | Planejar a semana |
+| `/status` | "Como tá indo?" em PT-BR sem jargão | Saber estado do projeto |
+| `/checkpoint` | Walkthrough antes de mergear branch | Antes de subir pra produção |
+| `/release` | Fecha marco: versão, CHANGELOG, tag | Quando tá pronto pra publicar |
+| `/readiness` | Confere se o pacote tá pronto pra começar (sinal verde) | Antes do `/feature` no épico |
+| `/help` | Este comando — catálogo dos workflows | Não sei o que rodar |
+| `/shard` | Fatia PRD/ARQ longo em pedaços menores | Documento ficou grande demais |
 
-## Validações prontas pro Brasil (13 skills core)
+> Detalhe de cada agente envolvido: `.claude/agents/MAPA-VISUAL.md` ou `.claude/agents/<nome>.md`.
 
-O assistente invoca automaticamente quando detecta o gatilho. Você não precisa lembrar o nome.
+## Skills disponíveis (atalhos práticos)
 
-| Skill | Pra que serve |
+Skills são utilidades curtas que validam ou geram dado brasileiro. Use chamando `Skill <nome>` ou via comando que invoca automaticamente.
+
+| Skill | Pra quê |
 |---|---|
-| `validar-cpf-cnpj` | Valida CPF/CNPJ (numérico + alfanumérico jul/2026) |
-| `validar-chave-acesso-nfe` | Valida chave 44 dígitos de NF-e/NFC-e/CT-e/MDF-e |
-| `validar-codigo-municipio-ibge` | Valida código IBGE (7 dígitos + DV módulo 10) |
-| `validar-pix` | Valida chave Pix (CPF/CNPJ/email/celular/aleatória) + TxId + EndToEndId |
-| `validar-cep` | Valida CEP + consulta ViaCEP opcional |
-| `validar-ie` | Valida Inscrição Estadual por UF (27 algoritmos diferentes) |
-| `validar-boleto` | Valida código de barras/linha digitável FEBRABAN |
+| `validar-cpf-cnpj` | Confere se CPF/CNPJ tá matematicamente válido (suporta CNPJ alfanumérico jul/2026) |
+| `validar-cep` | Confere CEP + opcionalmente consulta ViaCEP |
+| `validar-ie` | Confere Inscrição Estadual por UF |
+| `validar-pix` | Confere chave Pix (CPF, CNPJ, email, telefone, aleatória) |
+| `validar-boleto` | Confere linha digitável de boleto (módulo 10/11) |
+| `validar-chave-acesso-nfe` | Confere chave de acesso de NF-e/NFC-e/CT-e (44 dígitos) |
+| `validar-codigo-municipio-ibge` | Confere código IBGE de município |
 | `gerar-br-code` | Gera QR Code Pix padrão EMV (estático ou dinâmico) |
-| `gerar-test-fixture-br` | Gera CPF/CNPJ/CEP/telefone válidos por algoritmo (pra fixture) |
-| `gerar-adr-pt-br` | Cria ADR no template oficial |
-| `traduzir-jargao` | Reescreve texto técnico pra PT-BR sem jargão |
-| `brainstormar-ideia` | Menu de 15 técnicas de brainstorming BR |
-| `checklist-lgpd` | Checklist LGPD + árvore de decisão de base legal |
+| `gerar-test-fixture-br` | Gera CPF/CNPJ/CEP/telefone sintéticos válidos pra fixtures de teste |
+| `gerar-adr-pt-br` | Cria ADR (decisão arquitetural) no template PT-BR |
+| `traduzir-jargao` | Traduz texto técnico pra linguagem de não-programador |
+| `checklist-lgpd` | Aplica checklist LGPD a uma feature ou fluxo |
+| `brainstormar-ideia` | Menu de 15 técnicas de brainstorming (Seis Chapéus, SCAMPER, etc.) |
 
-## Addons disponíveis (`npx roldao-method search`)
+## Addons disponíveis (pacotes de domínio)
 
-| Addon | Pra quem é |
+Addons adicionam agentes/hooks/skills específicos de um setor. Instala com `npx roldao-method add <nome>`.
+
+| Addon | Pra quê |
 |---|---|
-| `fiscal-br-completo` | Quem emite NF-e/NFC-e/NFS-e/CT-e/MDF-e ou está na Reforma Tributária 2026-2033 |
-| `fintech-br` | Quem integra Pix (BR Code, webhook HMAC, devolução) ou Open Finance |
-| `lgpd-compliance` | Quem precisa de DPO, RIPD, canal do titular, plano de incidente 72h |
-| `esocial-completo` | Quem manda eventos S-1000 a S-3000 pro eSocial |
-| `electron-br` | Quem faz app de desktop pra Windows/Mac/Linux com SQLite local |
-| `varejo-pdv-br` | Quem opera PDV/caixa com SAT-CF-e, NFC-e, TEF, integração balança |
-| `healthtech-br` (beta) | Telemedicina CFM 2.314, prontuário ANS RN 305, CNS/SUS, TISS/TUSS |
+| `fintech-br` | Pix, Open Finance, idempotência de cobrança, EndToEndId |
+| `fiscal-br-completo` | NF-e/NFS-e completo, SEFAZ, contingência SVC/EPEC, Reforma Tributária |
+| `esocial-completo` | eSocial S-1000 a S-3000, REINF |
+| `electron-br` | Apps Electron com migrations SQLite e IPC handler |
+| `lgpd-compliance` | RIPD, base legal Art. 7/11, DPO, canal do titular |
+| `varejo-pdv-br` | PDV físico (SAT-CF-e, cupom, terminal) |
+| `healthtech-br` *(beta)* | Prontuário eletrônico, CFM, LGPD dado sensível saúde |
 
-> Detalhe de cada agente: `.claude/agents/MAPA-VISUAL.md` ou `.claude/agents/<nome>.md`.
+Lista atualizada: `npx roldao-method search`.
 
 ## Cenários comuns
 
@@ -160,7 +164,22 @@ Mostre detalhe do comando correspondente:
 
 Exemplo: `/help BG` mostra detalhe completo de `/bug`.
 
+## Se `$ARGUMENTS` é uma frase em PT-BR (busca)
+
+Quando o usuário digita uma frase ("preciso reportar bug", "quero criar nota fiscal"), invoque o subcomando CLI de busca fuzzy:
+
+```bash
+npx roldao-method search "<frase>"
+```
+
+A busca cobre **comandos slash + skills + addons** em paralelo. Casa por palavras-chave (ignora artigos e verbos genéricos como "preciso", "quero", "como"). Reporte os 3 melhores resultados em PT-BR e sugira o comando que mais se aproxima.
+
+Exemplos:
+- `"preciso reportar bug"` → `/bug` (REGRA #0)
+- `"valida cpf"` → skill `validar-cpf-cnpj`
+- `"emissão de Pix"` → addon `fintech-br`
+
 ## Importante
 
-- Este help cobre só os 28 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
+- Este help cobre só os 26 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
 - **Códigos curtos** servem pra falar rápido ("vamos rodar BG agora"), não substituem o comando completo.
