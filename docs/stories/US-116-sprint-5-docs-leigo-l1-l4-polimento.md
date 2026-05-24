@@ -124,10 +124,10 @@ _(Investigador preenche antes de Bruno codar.)_
 ## Status
 
 - [x] draft
-- [ ] aprovada
-- [ ] em implementação
-- [ ] revisão
-- [ ] entregue
+- [x] aprovada
+- [x] em implementação
+- [x] revisão
+- [x] entregue (com débito anotado: T-008/T-012 baixa prioridade; T-018 aguardando Roldão executar ao vivo)
 
 ---
 
