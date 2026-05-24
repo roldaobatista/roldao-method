@@ -1,6 +1,33 @@
-# Changelog
+**Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
-Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
+## [1.0.4] — 2026-05-24
+
+**Sprints US-114/115/116 — fechando US-115 e US-114 quase-completas, 5 exemplos completos pro dono de produto consultar.**
+
+### O que muda pra você (não-programador)
+
+- `/help` agora mostra **Comando | Pra quê | Quando usar** em PT-BR claro — sem código curto pra decorar.
+- `npx roldao-method search "preciso reportar bug"` (frase natural) acha o comando certo (`/bug`).
+- 5 exemplos preenchidos em `docs/exemplos/` (PRD, ADR, US, brief, brownfield) viram referência pro seu dev IA quando você pedir algo novo.
+- O comando `npx roldao-method doctor` agora avisa se você esqueceu campos vazios `_(preencher)_` no `AGENTS.md`.
+
+### Adicionado
+
+- **`npx roldao-method search <frase em PT-BR>`** busca em **comandos + skills + addons** com matching fuzzy. Stopwords PT-BR (`preciso`, `quero`, `como`, `pra`) são ignoradas pra permitir frase natural. Ex: `search "preciso emitir pix"` retorna a skill `validar-pix` + addon `fintech-br`.
+- **`docs/exemplos/`** ganha 5 arquivos completos (zero `_(preencher)_`): PRD-007 cadastro CPF PDV, ADR-0014 validação local sem RFB, US-042 com Dev Agent Record preenchido, brief de 1 página, brownfield migrando boleto pra Pix. Servem de referência canônica pra Roldão ver "como fica um doc bem-feito".
+- **`/help`** ganha tabela "Pra quê (resultado) | Quando usar (gatilho)" + seção "Skills disponíveis" (13 entradas) + seção "Addons disponíveis" (7 entradas com coluna "Pra quê").
+- **`parseFrontmatter(text)`** em `_lib.js` — helper unificado pra parse de cabeçalho YAML, reutilizado por todos os hooks que lêem frontmatter. Retorna `{ key: value }` ou `null` se malformado.
+- **`npx roldao-method doctor`** detecta placeholders `_(preencher)_` em `AGENTS.md` e `REGRAS-INEGOCIAVEIS.md` e sugere rodar `tutorial` pra preencher (E9).
+- **TL;DR de 3 bullets** no topo dos agentes `devops-infra` e `dba-dados` — quem é, quando usar, o que NÃO faz. Saída esperada deles agora em PT-BR (rollback → "voltar atrás", blast radius → "alcance do impacto") com nota dedicada pro Roldão.
+
+### Corrigido
+
+- **`/inicio` etapas 4-5** reescritas sem jargão técnico. Saiu "preencher placeholders no frontmatter, gate de readiness, EP-status" e entrou "preencher campos vazios no documento, sinal verde pra começar a primeira história". `grep -iE 'frontmatter|gate|EP-status' inicio.md` retorna 0.
+- **`tools/validar-cobertura-hooks.js`** agora ignora corretamente `auto-frontmatter.js`, `session-cleanup.js`, `suggest-addon-on-keywords.js` (são soft warnings/lifecycle, não bloqueadores). `npm test` passa 100% verde.
+
+### Preservado
+
+- Zero deps runtime. Zero breaking change. Update via `npx roldao-method update` continua sendo seguro (snapshot automático antes).
 
 ## [1.0.3] — 2026-05-24
 

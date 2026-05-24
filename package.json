@@ -1,6 +1,6 @@
 {
   "name": "roldao-method",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Framework agentic em PT-BR. 15 agentes, 26 hooks bloqueadores em Node puro + 2 soft warnings + 8 lifecycle/auto + 1 utilitário (_lib.js) = 36 hooks total, 28 workflows, 31 skills BR (13 core + 18 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Reforma Tributária 2026-2033, Pix, LGPD, fiscal, eSocial, CFM telemedicina, CNS/SUS), 7 addons especializados (6 stable + healthtech-br beta), 9 checklists. 46 regras inegociáveis (INV/SEC/TST/LGPD/FISCAL/PIX/INV-AGENT). Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
