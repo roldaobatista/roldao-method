@@ -1718,6 +1718,48 @@ function version() {
   console.log(pkg.version);
 }
 
+// Distancia de Levenshtein simples (sem dependencia). Custo O(m*n) basta
+// pros nomes curtos de subcomando que comparamos (max ~12 chars).
+function levenshtein(a, b) {
+  if (!a) return b.length;
+  if (!b) return a.length;
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost,
+      );
+    }
+  }
+  return dp[m][n];
+}
+
+// Lista canonica de subcomandos pra sugerir quando usuario digita errado.
+// Em sincronia manual com o switch principal. Atualizar quando adicionar comando.
+const KNOWN_COMMANDS = [
+  'install', 'update', 'add', 'remove', 'search', 'find',
+  'tasks-to-issues', 'list', 'doctor', 'uninstall', 'demo',
+  'tutorial', 'rollback', 'undo', 'status', 'menu', 'help', 'version',
+];
+
+function suggestCommand(typed) {
+  if (!typed) return null;
+  const candidates = KNOWN_COMMANDS
+    .map((cmd) => ({ cmd, dist: levenshtein(typed.toLowerCase(), cmd) }))
+    .sort((a, b) => a.dist - b.dist);
+  const best = candidates[0];
+  // Tolera ate 2 erros pra evitar sugestao absurda (typed='xyz' nao deve
+  // sugerir 'install' so porque eh o mais curto).
+  if (best && best.dist <= 2) return best.cmd;
+  return null;
+}
+
 (async () => {
   switch (command) {
     case 'install': await install(); break;
@@ -1753,9 +1795,15 @@ function version() {
     case 'menu': menu(); break;
     case 'help': case '--help': case '-h': help(); break;
     case 'version': case '--version': case '-v': version(); break;
-    default:
+    default: {
       err(`comando desconhecido: ${command}`);
+      const sugestao = suggestCommand(command);
+      if (sugestao) {
+        console.error(`${c.yellow}Voce quis dizer:${c.reset} ${c.cyan}npx roldao-method ${sugestao}${c.reset} ?`);
+        console.error('');
+      }
       help();
       process.exit(1);
+    }
   }
 })();
