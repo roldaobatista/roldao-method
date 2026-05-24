@@ -5,7 +5,7 @@ versao: 1
 status: aprovado
 prd: PRD-001
 owner: Roldão
-revisado-em: 2026-05-23
+revisado-em: 2026-05-24
 tamanho: XG
 ---
 
@@ -25,18 +25,18 @@ Todo dev BR roda os 26 hooks bloqueadores **sem precisar instalar Git Bash, perl
 
 > Ordem é importante: US-101 entrega a infra que as demais consomem. US-107 é o gate final.
 
-| US      | Título                                                                  | Depende de | Tamanho | Status |
-|---------|--------------------------------------------------------------------------|------------|---------|--------|
-| US-101  | Infra de hook Node — loader, JSON parser, helpers (_lib.js)              | -          | G       | draft  |
-| US-102  | Port grupo destrutivo (block-destructive, no-amend-after-push)           | US-101     | M       | draft  |
-| US-103  | Port grupo segredos (secrets-scanner, block-secrets-in-commit-message)   | US-101     | M       | draft  |
-| US-104  | Port grupo testes (anti-mascaramento, block-mock-in-integration, no-test-data-in-fixtures, validate-test-pyramid) | US-101 | M | draft |
-| US-105  | Port grupo fiscal/Pix (no-hardcoded-env-urls, fiscal-br-validator, no-log-pix-key, lgpd-base-legal-reminder) | US-101 | M | draft |
-| US-106  | Port grupo pipeline (enforce-pipeline-completion, require-investigador-before-fix, require-readiness-before-feature, require-agent-sequence-before-dev, require-checkpoint-before-merge, require-auditors-pass-before-commit, validate-quick-dev-scope, validate-story-dependencies, validate-story-approvals, commit-message-validator) | US-101 | G | draft |
-| US-107  | Port grupo lifecycle/util (auto-format-on-write, context-budget, session-snapshot, session-snapshot-restore, subagent-handoff-audit, paths-frontmatter-validator, block-todo-without-issue, block-jargon-pt-br, block-confirmation-questions, mcp-validator, regra-zero-reminder) | US-101 | G | draft |
-| US-108  | Migration da suite de testes — _test-runner.sh → run-tests.js (Node test runner nativo) | US-102..US-107 | M | draft |
-| US-109  | CI cross-OS — adicionar matriz `windows-latest sem bash` ao validar.yml + remover `shell: bash` dos steps | US-108 | P | draft |
-| US-110  | Deprecação dos .sh — README/CHANGELOG sinalizam .sh como legado, doctor warn quando .sh ainda presente | US-109 | P | draft |
+| US      | Título                                                                  | Depende de | Tamanho | Status   |
+|---------|--------------------------------------------------------------------------|------------|---------|----------|
+| US-101  | Infra de hook Node — loader, JSON parser, helpers (_lib.js)              | -          | G       | entregue |
+| US-102  | Port grupo destrutivo (block-destructive, no-amend-after-push)           | US-101     | M       | entregue |
+| US-103  | Port grupo segredos (secrets-scanner, block-secrets-in-commit-message)   | US-101     | M       | entregue |
+| US-104  | Port grupo testes (anti-mascaramento, block-mock-in-integration, no-test-data-in-fixtures, validate-test-pyramid) | US-101 | M | entregue |
+| US-105  | Port grupo fiscal/Pix (no-hardcoded-env-urls, fiscal-br-validator, no-log-pix-key, lgpd-base-legal-reminder) | US-101 | M | entregue |
+| US-106  | Port grupo pipeline (enforce-pipeline-completion, require-investigador-before-fix, require-readiness-before-feature, require-agent-sequence-before-dev, require-checkpoint-before-merge, require-auditors-pass-before-commit, validate-quick-dev-scope, validate-story-dependencies, validate-story-approvals, commit-message-validator) | US-101 | G | entregue |
+| US-107  | Port grupo lifecycle/util (auto-format-on-write, context-budget, session-snapshot, session-snapshot-restore, subagent-handoff-audit, paths-frontmatter-validator, block-todo-without-issue, block-jargon-pt-br, block-confirmation-questions, mcp-validator, regra-zero-reminder) | US-101 | G | entregue |
+| US-108  | Migration da suite de testes — _test-runner.sh → run-tests.js (Node test runner nativo) | US-102..US-107 | M | entregue |
+| US-109  | CI cross-OS — adicionar matriz `windows-latest sem bash` ao validar.yml + remover `shell: bash` dos steps | US-108 | P | entregue |
+| US-110  | Deprecação dos .sh — README/CHANGELOG sinalizam .sh como legado, doctor warn quando .sh ainda presente | US-109 | P | entregue |
 
 **Total esperado:** 6-10 semanas calendário (1 dev senior em meio período).
 
@@ -101,3 +101,4 @@ Todo dev BR roda os 26 hooks bloqueadores **sem precisar instalar Git Bash, perl
 | Data       | Quem    | Mudança                                              |
 |------------|---------|------------------------------------------------------|
 | 2026-05-23 | Roldão  | criação a partir de PRD-001 caminho A aprovado       |
+| 2026-05-24 | Roldão  | tabela de stories reconciliada — todas entregues (v1.0.0-rc1/rc2 saiu) |

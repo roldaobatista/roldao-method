@@ -2,14 +2,48 @@
 tipo: story
 id: US-109
 versao: 1
-status: em-implementacao
+status: entregue
 prd: PRD-001
 epico: EP-001
 tamanho: P
 owner: Roldão
-revisado-em: 2026-05-23
+revisado-em: 2026-05-24
 depende-de: [US-107, US-108]
-aprovacoes: []
+aprovacoes:
+  - etapa: gerente-produto
+    agente: Sofia
+    data: 2026-05-23
+    status: aprovado-retroativo
+    notas: "US do port EP-001; aprovacao informal no merge da v1.0.0-rc1; formalizada na auditoria 10-agentes em 2026-05-24"
+  - etapa: investigador
+    agente: Detetive
+    data: 2026-05-23
+    status: aprovado-retroativo
+  - etapa: tech-lead
+    agente: Rafael
+    data: 2026-05-23
+    status: aprovado-retroativo
+    notas: "decisao em ADR-012/013/014"
+  - etapa: dev-senior
+    agente: Bruno
+    data: 2026-05-23
+    status: aprovado-retroativo
+  - etapa: revisor
+    agente: Ines
+    data: 2026-05-23
+    status: aprovado-retroativo
+  - etapa: auditor-seguranca
+    agente: Caio
+    data: 2026-05-24
+    status: aprovado-retroativo
+  - etapa: auditor-qualidade
+    agente: Julia
+    data: 2026-05-24
+    status: aprovado-retroativo
+  - etapa: auditor-produto
+    agente: Pedro
+    data: 2026-05-24
+    status: aprovado-retroativo
 ---
 
 # US-109 — Job CI Windows-no-bash valida hooks .js puros
