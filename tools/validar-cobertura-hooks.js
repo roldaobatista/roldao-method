@@ -28,9 +28,12 @@ const SUITES = [
 const IGNORE = new Set([
   '_lib.js',
   'auto-format-on-write.js',
+  'auto-frontmatter.js',           // PreToolUse soft warning (sempre exit 0)
   'session-snapshot.js',
   'session-snapshot-restore.js',
+  'session-cleanup.js',             // SessionEnd lifecycle
   'subagent-handoff-audit.js',
+  'suggest-addon-on-keywords.js',   // SessionStart best-effort
   'regra-zero-reminder.js',
 ]);
 
