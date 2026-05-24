@@ -19,8 +19,10 @@ const FISCAL_002_CERT_PATH = /(certificate|certificado|pfx|p12|cert_path).{0,30}
 const FISCAL_002_CERT_PASS = /(cert_pass|cert_password|certificado_senha|pfx_pass|p12_pass).{0,5}=.{0,5}["'][^"']{3,}["']/i;
 
 // FISCAL-003: ambiente=1 (producao) hardcoded
-const FISCAL_003_NUMERIC = /(tpAmb|tp_amb|ambiente|environment).{0,10}=.{0,5}["']?1["']?/;
-const FISCAL_003_STRING = /(tpAmb|tp_amb|ambiente|environment).{0,10}=.{0,10}["']?(producao|production|prod)["']?/i;
+// Cobre 3 notacoes: atribuicao (=), objeto/YAML (:) e tag XML (<tpAmb>1</tpAmb>)
+const FISCAL_003_NUMERIC = /(tpAmb|tp_amb|ambiente|environment)\s*[=:]\s*["']?1["']?/;
+const FISCAL_003_STRING = /(tpAmb|tp_amb|ambiente|environment)\s*[=:]\s*["']?(producao|production|prod)["']?/i;
+const FISCAL_003_XML = /<\s*tpAmb\s*>\s*1\s*<\s*\/\s*tpAmb\s*>/i;
 const F3_ENV_RE = /env\.|process\.env|os\.environ|getenv|ENV\[|config\.|settings\./i;
 const F3_COMMENT_HOMOLOG_RE = /(\/\/|#|\/\*).{0,80}(homolog|sandbox|desenvolvimento|dev|teste|test|exemplo|example|comentario|documenta)/i;
 const F3_CONST_REFERENCIAL_RE = /^\s*(const|let|var|final|static)\s+(tpAmb_PROD|TP_AMB_PROD|AMBIENTE_PRODUCAO|SEFAZ_PRODUCAO|PROD_ENV)/i;
@@ -55,10 +57,10 @@ const FISCAL_005_BACKSLASH = /cnpj.{0,30}=.{0,30}\/\^?\\d\{14\}\$?\//i;
       violations.push(`linha ${ln} [FISCAL-002]: senha de certificado em texto puro: ${line}`);
     }
 
-    if ((FISCAL_003_NUMERIC.test(line) || FISCAL_003_STRING.test(line)) && !F3_ENV_RE.test(line)) {
+    if ((FISCAL_003_NUMERIC.test(line) || FISCAL_003_STRING.test(line) || FISCAL_003_XML.test(line)) && !F3_ENV_RE.test(line)) {
       if (F3_COMMENT_HOMOLOG_RE.test(line)) return;
       if (F3_CONST_REFERENCIAL_RE.test(line)) return;
-      violations.push(`linha ${ln} [FISCAL-003]: ambiente SEFAZ=1 (producao) hardcoded: ${line}`);
+      violations.push(`linha ${ln} [FISCAL-003]: ambiente de producao codificado direto: ${line}`);
     }
 
     if (FISCAL_005_DIGIT.test(line)) {
