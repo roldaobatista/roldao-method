@@ -111,7 +111,7 @@ Multi-tenant que emite NF-e armazena 1 certificado por CNPJ emissor, criptografa
 Toda integração fiscal (NF-e, NFS-e, eSocial, REINF) começa em ambiente de homologação da SEFAZ/RFB. Subir pra produção exige checklist explícito (CNPJ certo, ambiente=1, certificado de produção, série configurada).
 
 ### FISCAL-004 — Contingência prevista
-SEFAZ cai. Operação não pode parar. Implementar pelo menos um modo de contingência (EPEC, FS-DA, SVC-AN, SVC-RS conforme UF). Documentar no ADR. Testar trimestralmente.
+SEFAZ cai. Operação não pode parar. Implementar pelo menos um modo de contingência. Padrão moderno: **SVC** (SVC-AN para a maioria das UFs, SVC-RS para AM/PR/RS) e **EPEC** (Evento Prévio de Emissão em Contingência, mod. 55). FS-DA está em desuso desde 2023 (Manual NF-e 7.00) — não desenhar feature nova em cima dele. Documentar a estratégia no ADR. Testar trimestralmente.
 
 ### FISCAL-005 — CNPJ alfanumérico (vigor jul/2026)
 Toda persistência, validação, regex, índice e integração que toca CNPJ precisa aceitar `[0-9A-Z]{14}` a partir de 2026-07. Skill `validar-cpf-cnpj` já suporta. Auditar coluna do banco (`VARCHAR(14)`, não `BIGINT`).
@@ -121,6 +121,15 @@ Período de transição 2026-2033 exige cálculo paralelo de ICMS/ISS/PIS/COFINS
 
 ### FISCAL-007 — Obrigação acessória mensal
 Cliente PJ tem obrigação acessória mensal (SPED Fiscal, SPED Contribuições, ECF, ECD, eSocial S-1000 a S-3000, REINF). Feature que gera dado fiscal precisa pensar no formato de exportação esperado pelo contador antes de modelar a tabela.
+
+### FISCAL-008 — NFS-e padrão nacional (LC 116/2003 + LC 214/2025)
+Emissão de NFS-e adere ao padrão nacional unificado (ABRASF/RFB) progressivamente vigente desde 2023. Município com padrão próprio (Ginfes, Tinus, IPM, DSF, etc.) continua válido na transição, mas feature nova deve modelar pelo padrão nacional como alvo. Persistir o município emissor e a versão do schema explicitamente — não assumir um único padrão.
+
+### FISCAL-009 — MDF-e e CT-e para transporte
+Operação de transportadora, operador logístico, marketplace com entrega própria ou e-commerce com frota emite CT-e (modelo 57) e/ou MDF-e (modelo 58). MDF-e é obrigatório para qualquer carga que cruza fronteira de UF com mais de uma NF-e no veículo. Tratar como cidadão de primeira classe — não como caso especial de NF-e modelo 55.
+
+### FISCAL-010 — Split payment (Reforma Tributária)
+Split payment (recolhimento do CBS/IBS direto pelo adquirente/PSP no momento do pagamento) entra em vigor em fases a partir de 2027 conforme regulamentação da LC 214/2025. Feature que integra Pix/cartão/boleto deve **prever ponto de extensão para split**, mesmo antes de obrigatório. Hardcoded "valor cheio entra na conta" vai virar débito técnico fiscal grande.
 
 ---
 

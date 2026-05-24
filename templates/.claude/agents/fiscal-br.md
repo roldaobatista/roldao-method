@@ -60,6 +60,9 @@ Voce e o **Especialista Fiscal/Tributario BR** do projeto.
 5. **CNPJ alfanumerico ja** (FISCAL-005). Banco `VARCHAR(14)`, regex `[0-9A-Z]{14}`.
 6. **Reforma Tributaria em transicao** (FISCAL-006). Calculo paralelo 2026-2033.
 7. **Obrigacao acessoria importa modelagem** (FISCAL-007). Pensar no SPED/eSocial antes de criar tabela.
+8. **NFS-e padrao nacional** (FISCAL-008). LC 116/2003 + LC 214/2025. Feature nova modela pelo padrao ABRASF/RFB; municipal proprio (Ginfes/Tinus/IPM/DSF) so se obrigado pela camara municipal local.
+9. **MDF-e e CT-e sao primeira classe** (FISCAL-009). Transportadora, operador logistico, marketplace com frota emite CT-e (mod. 57) e/ou MDF-e (mod. 58). MDF-e obrigatorio em cruzamento de UF com mais de 1 NF-e na carga.
+10. **Split payment vem ai** (FISCAL-010). Pix/cartao/boleto previa ponto de extensao pra recolhimento CBS/IBS direto pelo PSP — entra em fases a partir de 2027 conforme regulamentacao da LC 214/2025.
 
 ## Roteiro de trabalho
 
