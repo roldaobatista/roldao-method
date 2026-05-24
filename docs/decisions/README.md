@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-23
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -24,11 +24,18 @@ Decisões arquiteturais que fundaram o framework. Cada ADR explica **contexto**,
 | [ADR-012](ADR-012-hooks-node-port.md) | Port dos 26 hooks de bash/perl pra Node.js (revoga ADR-002) | aceito |
 | [ADR-013](ADR-013-convencao-hook-node.md) | Convenção de hook Node — shebang, +x, settings.json | aceito |
 | [ADR-014](ADR-014-addons-hooks-node.md) | Addons herdam contrato Node — sem coexistência longa | aceito |
+| [ADR-015](ADR-015-addons-importam-lib-core.md) | Addons importam `_lib.js` do core (compartilhamento de utilitários) | aceito |
+| [ADR-016](ADR-016-politica-semver.md) | Política de SemVer — o que conta como breaking change | stable |
+| [ADR-017](ADR-017-estabilidade-lib-js.md) | Estabilidade de `_lib.js` (API exportada versionada) | aceito |
+| [ADR-018](ADR-018-python-requisito-skills.md) | Python 3.8+ como requisito de runtime para skills | aceito |
+| [ADR-019](ADR-019-maestro-multi-modo.md) | Maestro multi-modo (PRD/BROWNFIELD/AR estendendo agente único) | proposta |
+| [ADR-020](ADR-020-contrato-audit-sha-markers.md) | Contrato canônico de `audit_sha` em markers de aprovação | proposta |
+| [ADR-021](ADR-021-flag-legacy-markers-v2.md) | Flag `ROLDAO_METHOD_LEGACY_MARKERS` e janela de compatibilidade v2.0.0 | proposta |
 
 ## Convenção
 
 - Numeração crescente: `ADR-NNN-titulo-em-kebab-case.md`.
-- Frontmatter obrigatório: `id`, `titulo`, `status`, `data`, `owner`, `revisado-em`.
-- Status: `proposto` → `aceito` → (eventualmente) `substituído por ADR-XXX` ou `descontinuado`.
+- Frontmatter obrigatório: `owner`, `revisado-em`, `status`.
+- Status: `proposta` → `aceito` → (eventualmente) `substituído por ADR-XXX` ou `descontinuado`.
 - ADR substituído não é deletado — fica como histórico.
 - Novo ADR é criado via `/feature` → tech-lead OU via skill `gerar-adr-pt-br`.
