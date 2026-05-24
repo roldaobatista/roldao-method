@@ -2,12 +2,12 @@
 tipo: story
 id: US-106
 versao: 1
-status: em-implementacao
+status: entregue
 prd: PRD-001
 epico: EP-001
 tamanho: G
 owner: Roldão
-revisado-em: 2026-05-23
+revisado-em: 2026-05-24
 depende-de: [US-101]
 aprovacoes: []
 ---

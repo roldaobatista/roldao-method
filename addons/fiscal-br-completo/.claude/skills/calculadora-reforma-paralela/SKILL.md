@@ -2,8 +2,8 @@
 name: calculadora-reforma-paralela
 description: Guia + estrutura de implementacao do calculo paralelo da Reforma Tributaria (LC 214/2025) — regime atual (ICMS/ISS/PIS/COFINS) vs regime novo (CBS/IBS/IS) durante a transicao 2026-2033. Use ao implementar feature tributaria nova, atualizar calculadora existente, ou auditar feature fiscal apos 2026-01.
 owner: fiscal-br-completo
-revisado-em: 2026-05-22
-status: draft
+revisado-em: 2026-05-24
+status: stable
 ---
 
 # calculadora-reforma-paralela
