@@ -662,7 +662,8 @@ async function install() {
   if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
   // Registra projeto no registry global pra `update --all` poder achar depois.
   try { registry.addProject(CWD); } catch { /* best effort */ }
-  ok('instalacao concluida.');
+  ok('instalei o framework no seu projeto.');
+  console.log(`  ${c.dim}— o que mudou: ${counters.criados} arquivos novos do framework, seus arquivos foram preservados${c.reset}`);
   console.log('');
   console.log(`${c.bold}Proximos passos (do mais simples pro mais avancado):${c.reset}`);
   console.log(`  ${c.cyan}1.${c.reset} ${c.green}npx roldao-method tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce (2 minutos)${c.reset}`);
@@ -1716,6 +1717,10 @@ ${c.dim}Docs: https://github.com/roldaobatista/roldao-method${c.reset}
 function version() {
   const pkg = require(path.join(FRAMEWORK_ROOT, 'package.json'));
   console.log(pkg.version);
+  // Descricao PT-BR de 1 linha do release (J15) — quem digitou --version
+  // geralmente quer saber o que mudou desde a ultima sessao, nao so o numero.
+  console.log('roldao-method — manual de operacao em PT-BR pro seu assistente de IA');
+  console.log(`Novidades desta versao: ${c.dim}CHANGELOG.md${c.reset}`);
 }
 
 // Distancia de Levenshtein simples (sem dependencia). Custo O(m*n) basta

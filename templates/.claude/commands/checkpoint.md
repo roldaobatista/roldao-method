@@ -154,3 +154,16 @@ Marker vazio (criado por `touch` puro) é rejeitado — exit 2. **Sem bypass mec
 - **Apresentar sumário em PT-BR** — sem stack trace, sem stack de testes inteiro.
 - Salvar como `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md`.
 - **Hook mecânico:** `require-checkpoint-before-merge.js` bloqueia commit/merge/push em sessão `/feature` ativa enquanto o marker não existir.
+
+---
+
+## PARA-DONO (não-programador)
+
+`/checkpoint` é o **conferimento antes de subir pra produção**. Pense como o ato de revisar a entrega antes do entregador sair com o pedido.
+
+- **O que entra:** o resumo da mudança que vai ser gravada em definitivo (commit/merge/push).
+- **O que sai:** uma página em PT-BR claro mostrando o que mudou, o que pode quebrar, e se os 3 auditores aprovaram.
+- **Quando rodar:** depois do `/feature` terminar e antes do `/release`. Pense como "ok, vou subir?".
+- **Se algo der errado:** o sistema bloqueia commit/merge/push até o problema apontado pelos auditores ser resolvido. Nada vai pro cliente sem checagem.
+
+Quem quer entender o detalhe técnico (como o marker e o `audit_sha` funcionam) lê o resto deste arquivo.
