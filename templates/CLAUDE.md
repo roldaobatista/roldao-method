@@ -17,7 +17,7 @@ Comunicar em **Português (Brasil)**. Tabela de tradução PT-BR canônica em `A
 ## Regras de conduta
 
 - Perfil do usuário, pró-atividade, "executar não passar pro usuário" (INV-AGENT-006): canônicos em `REGRAS-INEGOCIAVEIS.md` (seção INV-AGENT) e `AGENTS.md`.
-- **REGRA #0** — investigar antes de mexer em lógica de negócio: canônica em `REGRAS-INEGOCIAVEIS.md` (INV-006). Codificada nos hooks `require-investigador-before-fix.sh` e `regra-zero-reminder.sh`.
+- **REGRA #0** — investigar antes de mexer em lógica de negócio: canônica em `REGRAS-INEGOCIAVEIS.md` (INV-006). Codificada nos hooks `require-investigador-before-fix.js` e `regra-zero-reminder.js`.
 - Causa raiz, commits atômicos, perguntar antes de destruir: ver REGRAS (INV-006, SEC-002, TST-001/002).
 
 ---
@@ -28,7 +28,7 @@ Comunicar em **Português (Brasil)**. Tabela de tradução PT-BR canônica em `A
 .claude/
 ├── settings.json          ← permissões + hooks + outputStyle + statusLine (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
-├── statusline.sh          ← status line PT-BR (versão, modelo, branch, agente)
+├── statusline.js          ← status line PT-BR (versão, modelo, branch, agente)
 ├── agents/                ← 15 especialistas (+ MAPA-VISUAL.md = 16 arquivos)
 ├── hooks/                 ← bloqueadores + auxiliares + lifecycle (PostToolUse, SubagentStop, PreCompact, SessionEnd)
 ├── output-styles/         ← pt-br-conciso, dpo-lgpd, fiscal-br

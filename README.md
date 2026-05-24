@@ -1,6 +1,6 @@
 # ROLDAO-METHOD
 
-> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores e 29 skills BR (LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033). Roda no Claude Code e em 8 outras IDEs.
+> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores em Node puro e 29 skills BR (LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033). Roda no Claude Code e em 8 outras IDEs.
 
 [![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
@@ -24,7 +24,7 @@ Depois, no Claude Code: `/inicio` (projeto novo) ou `/brownfield` (já tem códi
 Ferramentas de IA pra desenvolvimento são quase todas em inglês e otimizadas pra realidade gringa. Dev brasileiro perde nuance e ainda adapta exemplos pra LGPD/NF-e/Pix/Receita Federal. O ROLDAO entrega:
 
 - 🇧🇷 **PT-BR nativo** — não tradução. Tabela de jargão pra usuário não-programador.
-- 🛡️ **35 hooks** (26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários) — bloqueadores barram a ação na hora (`exit 2` ou JSON `decision:block`); lifecycle automatiza format/snapshot/audit.
+- 🛡️ **34 hooks Node puros** (26 bloqueadores + 2 soft warnings + 5 lifecycle + 1 utilitário `_lib.js`) — bloqueadores barram a ação na hora (`exit 2` ou JSON `decision:block`); lifecycle automatiza format/snapshot/audit. Rodam em Windows sem Git Bash desde a v1.0.
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
 - 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto em paralelo, bloqueando commit se reprovado.
@@ -47,22 +47,20 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 ### Requisitos
 
-- **Node.js 18+** (CI: 20+).
-- **bash 3.2+** (macOS/Linux nativo; Windows via **Git Bash**).
-- **Perl 5.12+** — usado pelos hooks para parsing seguro de JSON (já vem com Git for Windows, macOS e quase toda distro Linux).
-- **Python 3.8+** (opcional) — usado pelas skills de validação. Sem Python local, executam em CI; testes marcam SKIP claro.
-- **Windows:** rode o Claude Code a partir do **Git Bash**. PowerShell puro **não roda os hooks** — ficam silenciosos. Ver [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md#hooks).
+- **Node.js 18+** (CI: 20+) — único requisito do framework desde a v1.0.
+- **Python 3.8+** (opcional) — usado pelas skills de validação fiscal (CPF/CNPJ, CEP, Pix). Sem Python local, executam em CI; testes marcam SKIP claro.
+- **bash/perl/Git Bash:** **não são mais requisito.** A v1.0 portou todos os hooks pra Node puro, então rodam em Windows puro (PowerShell/CMD) sem Git for Windows instalado. Quem ainda usa bash auxiliar fora do framework continua livre pra usar.
 
 ## O que vem instalado
 
 - **15 especialistas virtuais com personalidade** — Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Lucas (DevOps/infra), Inês (revisor), Caio/Julia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). Catálogo em [`.claude/agents/MAPA-VISUAL.md`](templates/.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
 - **26 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
-- **26 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 2 infra (`_lib.sh`, `_test-runner.sh`) = 35 hooks** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
+- **26 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 1 infra (`_lib.js`) = 34 hooks Node** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
 - **13 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-codigo-municipio-ibge (DV modulo 10), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +16 nos addons = **29 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025).
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).
 - **8 checklists auditáveis** + **7 knowledge bases** + **6 addons verticais BR**.
 
-> **Escopo honesto dos hooks:** são guarda-corpos para um agente **cooperativo e desatento** (o caso comum). Barram o erro óbvio na hora. **Não são sandbox contra agente malicioso**: quem tem `Write` pode reescrever `settings.json`. Em Windows sem Git Bash não rodam. Defesa em profundidade, não garantia criptográfica.
+> **Escopo honesto dos hooks:** são guarda-corpos para um agente **cooperativo e desatento** (o caso comum). Barram o erro óbvio na hora. **Não são sandbox contra agente malicioso**: quem tem `Write` pode reescrever `settings.json`. Defesa em profundidade, não garantia criptográfica. Hooks Node rodam em qualquer plataforma com Node 18+ (Windows puro inclusive, desde a v1.0).
 
 ## Cobertura BR — IDs rastreáveis em commit
 
@@ -105,14 +103,14 @@ Mudança trivial (≤ 3 arquivos, ≤ 50 linhas)? Use `/quick-dev`. Bug reportad
 
 ## Suporte por IDE — paridade real
 
-Hooks bash rodam **só no Claude Code**. Nos outros 8 IDEs a disciplina vem por **prompt textual** (regra carregada via `.cursorrules`/`.windsurf/rules`/etc.).
+Hooks Node puros rodam **só no Claude Code** (único IDE que expõe o ciclo PreToolUse/PostToolUse/Stop). Nos outros 8 IDEs a disciplina vem por **prompt textual** (regra carregada via `.cursorrules`/`.windsurf/rules`/etc.).
 
 | Feature | Claude Code | Cursor | Windsurf | Continue | Cline | Roo | Aider | Gemini | Codex |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| Agentes (14) | ✅ exec | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto |
+| Agentes (15) | ✅ exec | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto |
 | Hooks bloqueadores (26) | ✅ exit 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Comandos (24) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Skills (12 core) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Comandos (26) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Skills (13 core) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Spec-driven + PT-BR | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Usa Cursor/Windsurf/etc. e quer hooks mecânicos? Rode o Claude Code em paralelo nos pontos críticos (commit, release).

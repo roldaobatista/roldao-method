@@ -144,7 +144,7 @@ Stack ativa: _(preencher após decidir)_.
 - **Stage seletivo:** `git add <arquivo>` por arquivo. Nunca `git add .` com outras frentes sujas.
 - **Co-Authored-By Claude** nas mensagens de commit feitas pelo agente.
 - **Nunca usar sem autorização explícita:** `--no-verify`, `--skip-*`, `--ignore-*`, `git reset --hard`, `git push --force`, `git branch -D`, `rm -rf`, `drop table`.
-- **Hooks ativos:** ver `.claude/hooks/block-destructive.sh` e `secrets-scanner.sh`.
+- **Hooks ativos:** ver `.claude/hooks/block-destructive.js` e `secrets-scanner.js`.
 
 ---
 

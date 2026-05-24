@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-18
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -23,7 +23,7 @@ Confirme com `s`. O comando copia:
 - `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
 - `.agent/CURRENT.md` — estado da sessão.
 - `.claude/agents/` — 15 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados, devops-infra).
-- `.claude/hooks/` — 26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários (lib + test-runner) = 35 hooks core.
+- `.claude/hooks/` — 26 bloqueadores + 2 soft warnings + 5 lifecycle + 1 utilitário (`_lib.js`) = **34 hooks core** em Node.js puro.
 - `.claude/commands/` — 26 workflows.
 - `.claude/skills/` — 13 skills BR core (CPF/CNPJ alfanum, chave NF-e, codigo IBGE de municipio, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +16.
 - `.claude/output-styles/pt-br-conciso.md`.
@@ -46,10 +46,10 @@ Esse arquivo é a **fonte da verdade** que todo agente lê primeiro. Bem preench
 ## 3. Valide os hooks
 
 ```bash
-bash .claude/hooks/_test-runner.sh
+npm run test:hooks-node-only   # 59 cenários cobrindo os 26 bloqueadores em Node puro
 ```
 
-Deve mostrar `Total: 167  |  OK: 167  |  FAIL: 0`. Se falhar, abra issue.
+Deve terminar com `EXIT:0`. Em alternativa, `npx roldao-method doctor` confere que os 34 hooks estão instalados com permissão de execução. Se falhar, abra issue.
 
 ## 4. Output style PT-BR — já ativo
 
@@ -59,7 +59,7 @@ Quer trocar (`dpo-lgpd` ou `fiscal-br` pra contexto especializado, ou `default` 
 
 ## 4.1. Status line PT-BR — também ativa
 
-O `settings.json` aponta pra `.claude/statusline.sh`. No rodapé do Claude Code você verá:
+O `settings.json` aponta pra `.claude/statusline.js` (Node puro desde a v1.0). No rodapé do Claude Code você verá:
 
 ```
 ROLDAO v0.15.0 | Sonnet 4.6 | main | US-042 | dev-senior
@@ -72,7 +72,7 @@ ROLDAO v0.15.0 | Sonnet 4.6 | main | US-042 | dev-senior
 Abra o Claude Code na raiz do projeto. Antes de comandar:
 
 - **Plan mode (`Shift+Tab`)** — revise o plano antes do Claude tocar disco. Detalhes em [`docs/PLAN-MODE-E-SESSOES.md`](PLAN-MODE-E-SESSOES.md).
-- **Continuar sessão** — `claude --continue` retoma de onde parou. Snapshot é salvo automaticamente pelo hook `session-snapshot.sh`.
+- **Continuar sessão** — `claude --continue` retoma de onde parou. Snapshot é salvo automaticamente pelo hook `session-snapshot.js`.
 - **Várias stories em paralelo** — use `git worktree`, um por story.
 
 ### Não sabe por onde começar? Use `/help`.

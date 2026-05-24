@@ -1119,7 +1119,8 @@ async function uninstall() {
   }
   const candidatos = [
     '.claude/settings.json',
-    '.claude/statusline.sh',
+    '.claude/statusline.sh',    // resquício de instalações pré-v1.0 — removido pelo uninstall
+    '.claude/statusline.js',    // v1.0+ (port Node — ADR-012)
     '.claude/agents',
     '.claude/hooks',
     '.claude/commands',
