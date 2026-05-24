@@ -1,5 +1,5 @@
 ---
-description: Pos-mortem obrigatorio apos incidente em producao ou hotfix. Documenta, aciona LGPD-006/ANPD se aplicavel, gera acao corretiva rastreavel.
+description: Pos-mortem obrigatorio apos incidente em produção ou hotfix. Documenta, aciona LGPD-006/ANPD se aplicavel, gera acao corretiva rastreavel.
 argument-hint: "[INC-NNN ou descricao]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Bash(touch:*), Bash(mkdir:*), Bash(ls:*), Bash(git log:*), Bash(git diff:*), Edit, Write, Task

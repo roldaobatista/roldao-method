@@ -1,5 +1,5 @@
 ---
-description: Correcao urgente em producao (cliente parado, SEFAZ caiu, Pix duplicado). Pipeline reduzido mas auditavel — nunca pular investigador.
+description: Correcao urgente em produção (cliente parado, SEFAZ caiu, Pix duplicado). Pipeline reduzido mas auditavel — nunca pular investigador.
 argument-hint: "[descricao-do-incidente]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Bash(touch:*), Bash(mkdir:*), Bash(grep:*), Bash(git diff:*), Bash(git log:*), Edit, Write, Task

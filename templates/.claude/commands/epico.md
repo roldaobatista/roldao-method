@@ -1,5 +1,5 @@
 ---
-description: Decompoe iniciativa grande em multiplas stories (US-NNN) com dependencias. Use quando o pedido e "modulo financeiro completo", "refacar checkout", "adicionar painel administrativo" — coisa que nao cabe em 1 story.
+description: Decompoe iniciativa grande em multiplas stories (US-NNN) com dependencias. Use quando o pedido e "modulo financeiro completo", "refacar checkout", "adicionar painel administrativo" — coisa que não cabe em 1 story.
 argument-hint: "[descricao-do-epico]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash(mkdir:*), Task

@@ -1,6 +1,6 @@
 ---
-description: Fecha o ciclo entre checkpoint aprovado e retro — bump de versao sincronizado, CHANGELOG, tag e nota de release em PT-BR pro cliente. Nao publica em servico pago sem confirmacao.
-argument-hint: "[patch|minor|major ou versao explicita ex: 1.4.0]"
+description: Fecha o ciclo entre checkpoint aprovado e retro — bump de versão sincronizado, CHANGELOG, tag e nota de release em PT-BR pro cliente. Nao publica em servico pago sem confirmacao.
+argument-hint: "[patch|minor|major ou versão explicita ex: 1.4.0]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash(npm:*), Bash(git:*), Bash(gh release:*), Bash(gh issue:*)
 ---

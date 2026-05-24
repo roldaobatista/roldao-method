@@ -1,5 +1,5 @@
 ---
-description: Faz retrospectiva curta apos release/marco. Captura o que funcionou, o que nao funcionou, o que aprender. Grava em docs/retros/AAAA-MM-DD.md.
+description: Faz retrospectiva curta apos release/marco. Captura o que funcionou, o que não funcionou, o que aprender. Grava em docs/retros/AAAA-MM-DD.md.
 argument-hint: "[marco-ou-release]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Edit, Write

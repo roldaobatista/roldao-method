@@ -1,5 +1,5 @@
 ---
-description: Atalho pra mudancas triviais (cosmetica, label, regra simples). Pula investigador e auditores. So use se a mudanca cabe em ate 3 arquivos.
+description: Atalho pra mudancas triviais (cosmetica, label, regra simples). Pula investigador e auditores. So use se a mudanca cabe em até 3 arquivos.
 argument-hint: "[descricao-curta]"
 disable-model-invocation: true
 allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash(npm test:*), Bash(npm run:*), Bash(mkdir:*), Bash(touch:*), Bash(rm:*), Bash(printf:*), Bash(tr:*), Bash(git log:*)

@@ -1,5 +1,5 @@
 ---
-description: Gera/audita testes de uma area existente. Use quando a feature ja existe mas nao tem teste suficiente, ou quando voce quer cobertura E2E de um fluxo critico. Foco: lacunas, casos de borda BR, testes regulatorios.
+description: Gera/audita testes de uma area existente. Use quando a feature já existe mas não tem teste suficiente, ou quando você quer cobertura E2E de um fluxo critico. Foco: lacunas, casos de borda BR, testes regulatorios.
 argument-hint: "[area-ou-fluxo]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Bash(npm test:*), Bash(npm run:*), Edit, Write, Task
