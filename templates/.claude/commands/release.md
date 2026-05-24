@@ -13,12 +13,20 @@ Use **depois** de `/checkpoint` aprovado e **antes** de `/retro`. Fecha o ciclo:
 
 `$ARGUMENTS` = tipo de incremento (`patch`/`minor`/`major`) ou versao explicita. Default: `patch`.
 
-## Etapa 0 — Pre-condicoes (NAO pular)
+## Etapa 0 — Pre-condicoes (NAO pular) — T-518 (J18)
 
 Verifique antes de qualquer mudanca:
+
 - Existe checkpoint aprovado recente em `docs/checkpoints/` (veredito `aprovado` ou `ressalvas`). Sem checkpoint, pare e mande rodar `/checkpoint`.
 - Working tree limpa (sem mudanca solta nao commitada de outra frente).
-- Gates verdes: rode os testes/lint do projeto (no proprio framework: `npm test`). Se falhar, **pare** — release nao sai com teste vermelho.
+- **Gates verdes — OBRIGATORIO colar saida REAL.** Nao basta dizer "rodei e passou". A release exige evidencia mecanica: rode `npm test` (ou comando equivalente do projeto: `pytest`, `go test ./...`, `cargo test`, etc.) e cole a ULTIMA LINHA da saida no relatorio de release. Exemplos validos:
+  ```
+  Tests: 442 passed, 442 total
+  ```
+  ```
+  ok      github.com/x/y      0.123s
+  ```
+  Se a ultima linha contem `FAIL`, `failed`, `error`, ou exit code != 0, **pare** — release nao sai com teste vermelho. Esta evidencia entra na nota de release como "Verificacoes que rodaram: <saida>".
 
 ## Etapa 1 — Decidir a versao (SemVer)
 

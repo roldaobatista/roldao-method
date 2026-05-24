@@ -213,6 +213,25 @@ function hookPrefix(level, name) {
 //     process.exit(2);
 //   });
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// recordApproval — registra evento de aprovacao em metrics.jsonl (T-511 / J11).
+// Diferencia do recordMetric('block', ...) — esse e POSITIVO (aprovou algo).
+// Permite auditoria forense ("quem aprovou US-042 e em que diff?").
+//
+// Uso:
+//   recordApproval('revisor', 'US-111', '<audit_sha>', 'aprovado');
+//   recordApproval('auditor-seguranca', 'US-111', '<audit_sha>', 'bloqueado',
+//                  'secret detectado em src/x.js');
+// ---------------------------------------------------------------------------
+function recordApproval(agente, refStory, auditSha, status, motivo) {
+  recordMetric('approval', agente, JSON.stringify({
+    story: refStory || 'US-?',
+    audit_sha: auditSha || '',
+    status: status || 'aprovado',
+    motivo: motivo || '',
+  }));
+}
+
 function failClosedMessage(hookName, err) {
   const errMsg = err && err.message ? err.message : String(err || 'erro nao especificado');
   return [
@@ -284,6 +303,7 @@ module.exports = {
   hookBlockHeader,
   hookPrefix,
   failClosedMessage,
+  recordApproval,
   recordMetric,
   readStdinJson,
 };
