@@ -45,20 +45,32 @@ aprovacoes:
   - etapa: revisor
     data: AAAA-MM-DD
     status: aprovado
+    audit_sha: <sha256 hex 64 chars do diff lido>   # T-025/J10
   - etapa: auditor-seguranca
     agente: Caio
     data: AAAA-MM-DD
     status: aprovado
+    audit_sha: <sha256 hex 64 chars do diff lido>   # T-025/J10
   - etapa: auditor-qualidade
     agente: Julia
     data: AAAA-MM-DD
     status: aprovado
+    audit_sha: <sha256 hex 64 chars do diff lido>   # T-025/J10
   - etapa: auditor-produto
     agente: Pedro
     data: AAAA-MM-DD
     status: aprovado
+    audit_sha: <sha256 hex 64 chars do diff lido>   # T-025/J10
 ---
 ```
+
+**Campo `audit_sha` obrigatório nas 4 etapas que auditam diff (revisor + 3 auditores) quando status=aprovado.** Contrato canônico em ADR-020. Gera com:
+
+```bash
+git diff HEAD | sha256sum | cut -d' ' -f1
+```
+
+Sem `audit_sha`, hook `validate-story-approvals.js` bloqueia `status: entregue`.
 
 Etapas obrigatórias (todas devem aparecer como item `- etapa:`): `gerente-produto`, `investigador`, `tech-lead` (pode ser `dispensado`), `dev-senior`, `revisor`, `auditor-seguranca`, `auditor-qualidade`, `auditor-produto`. Causa-raiz de bug e contagem de testes vão no **corpo** da story (seção de implementação), não no frontmatter — o hook não os exige ali, mas o checklist humano abaixo continua valendo.
 

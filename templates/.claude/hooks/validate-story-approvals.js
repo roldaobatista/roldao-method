@@ -16,6 +16,23 @@ const REQUIRED = [
   'auditor-produto',
 ];
 
+// T-025 (J10): etapas que precisam de audit_sha (auditam diff especifico).
+// Etapas que escrevem code/spec mas nao auditam diff ficam fora:
+// gerente-produto, investigador (tem investigation-*.json), tech-lead, dev-senior.
+const REQUIRE_AUDIT_SHA = ['revisor', 'auditor-seguranca', 'auditor-qualidade', 'auditor-produto'];
+const SHA256_HEX_RE = /^[a-f0-9]{64}$/i;
+
+// Extrai bloco YAML de uma etapa especifica do frontmatter de story.
+// Retorna o texto entre "- etapa: <name>" e o proximo "- etapa:" (ou fim do frontmatter).
+function extractEtapaBlock(content, etapa) {
+  const re = new RegExp(
+    `^\\s*-\\s*etapa:\\s*${etapa}\\b[\\s\\S]*?(?=^\\s*-\\s*etapa:|^---$)`,
+    'm'
+  );
+  const m = content.match(re);
+  return m ? m[0] : '';
+}
+
 (async () => {
   const input = await readStdinJson();
   const filePath = input?.tool_input?.file_path || '';
@@ -35,10 +52,25 @@ const REQUIRED = [
     missing.push("tech-lead (pode ser 'dispensado' para features triviais)");
   }
 
+  // T-025 (J10): valida audit_sha nas etapas que auditam diff
+  const missingSha = []; // {etapa, motivo}
+  for (const etapa of REQUIRE_AUDIT_SHA) {
+    const block = extractEtapaBlock(content, etapa);
+    if (!block) continue; // ja flagrado em REQUIRED se faltar
+    // status: aprovado exige audit_sha; status: dispensado/reprovado/bloqueado nao
+    if (!/^\s*status:\s*aprovado\s*$/m.test(block)) continue;
+    const shaMatch = block.match(/^\s*audit_sha:\s*([a-f0-9]+)\s*$/im);
+    if (!shaMatch) {
+      missingSha.push({ etapa, motivo: 'campo "audit_sha" ausente' });
+    } else if (!SHA256_HEX_RE.test(shaMatch[1])) {
+      missingSha.push({ etapa, motivo: `"audit_sha" nao e sha256 hex valido (got=${shaMatch[1].slice(0, 16)}...)` });
+    }
+  }
+
   // Conta aprovacoes reprovadas/bloqueadas
   const hasBlock = (content.match(/^\s*status:\s*(reprovado|bloqueado)\s*$/gm) || []).length;
 
-  if (missing.length === 0 && hasBlock === 0) process.exit(0);
+  if (missing.length === 0 && hasBlock === 0 && missingSha.length === 0) process.exit(0);
 
   const usMatch = content.match(/^id:\s*(US-\d+)/m);
   const usId = usMatch ? usMatch[1] : '(nao identificada)';
@@ -57,6 +89,22 @@ const REQUIRED = [
     process.stderr.write(`Existem aprovacoes com status 'reprovado' ou 'bloqueado'. Resolva (corrigir\n`);
     process.stderr.write(`no codigo + re-rodar etapa correspondente do /feature + atualizar a entrada\n`);
     process.stderr.write(`para status: aprovado) antes de marcar entregue.\n\n`);
+  }
+
+  if (missingSha.length > 0) {
+    process.stderr.write(`Aprovacoes que auditaram diff mas NAO declararam audit_sha (T-025 / J10):\n`);
+    for (const { etapa, motivo } of missingSha) {
+      process.stderr.write(`  ✗ ${etapa} — ${motivo}\n`);
+    }
+    process.stderr.write(`\nEtapas que auditam diff (revisor + 3 auditores) precisam declarar o sha256\n`);
+    process.stderr.write(`do diff que aprovaram. Sem isso, nao da pra cruzar 'auditor disse APROVADO'\n`);
+    process.stderr.write(`com 'diff que esta no commit'. ADR-020 (mesma logica dos pass markers).\n\n`);
+    process.stderr.write(`Formato:\n`);
+    process.stderr.write(`  - etapa: revisor\n`);
+    process.stderr.write(`    agente: Ines\n`);
+    process.stderr.write(`    data: 2026-MM-DD\n`);
+    process.stderr.write(`    status: aprovado\n`);
+    process.stderr.write(`    audit_sha: <sha256 hex de 64 chars do diff lido>\n\n`);
   }
 
   process.stderr.write(`Formato esperado no frontmatter:\n\n`);
