@@ -85,11 +85,11 @@ _(Investigador preenche antes de Bruno codar.)_
 **Bloco J — Polimento de docs faltando:**
 
 - [x] **T-007** — J3: PRIMEIRO-DIA.md entregue em sessões anteriores. Arquivo existe em `docs/PRIMEIRO-DIA.md`.
-- [ ] **T-008** — J6/J7: anti-mascaramento auditoria regressiva. _(débito baixo — hook ativo cobre o caso; auditoria adicional é confirmação extra.)_
+- [x] **T-008** — J6/J7: anti-mascaramento auditoria regressiva. Validado: `npm run test:anti-mascaramento-extra` retorna 19/19 OK cobrindo `x-it`, `f-it`, `x-describe`, `f-describe`, `if(false)`/`if(0)`, teste comentado, return precoce em `it()/test()`, controles positivo+negativo.
 - [x] **T-009** — J8: README ganha seção "Para quem é" no topo. Entregue nesta sessão: bloco logo após o pitch inicial, antes da seção "Experimente em 30 segundos".
 - [x] **T-010** — J9: README ganha seção "Para quem NÃO é". Entregue: combinado com T-009 no mesmo bloco "Para quem é (e pra quem NÃO é)".
 - [x] **T-011** — J10: audit trail final — `audit_sha` em markers. Validado em sessões anteriores: hook `validate-story-approvals.js` exige audit_sha não-vazio (ADR-020). Modo legacy desligável via `ROLDAO_METHOD_LEGACY_MARKERS=1` (ADR-021).
-- [ ] **T-012** — J11: doctor verificação "MIGRATION-v2 aplicado?" pra projeto vindo da v1.x. _(débito médio — pode ser detectado por presença de `.claude/hooks/*.sh` antigos. Implementar em release menor.)_
+- [x] **T-012** — J11: doctor detecta projeto vindo da v1.x. Entregue: `bin/install.js` doctor varre `.claude/hooks/*.sh` (hooks bash antigos) e markers de checkpoint sem `audit_sha`, e quando detecta avisa pra rodar `npx roldao-method@latest update` apontando pra `docs/migrations/MIGRATION-v2.md`.
 - [x] **T-013** — J13: doctor sugere ação corretiva. Entregue nesta sessão via Levenshtein no comando errado (`instal` → sugere `install`) + doctor já sugeria `tutorial` quando placeholder detectado + `install`/`update` quando arquivos faltam. Cobertura básica entregue.
 - [x] **T-014** — J14: CHANGELOG.md ganha bloco "como ler este arquivo" no topo. Entregue nesta sessão (versão 1.0.4).
 - [x] **T-015** — J15: `--version` retorna versão + descrição PT-BR de 1 linha. Entregue: `npx roldao-method --version` agora retorna versão + "roldao-method — manual de operacao em PT-BR pro seu assistente de IA" + link pro CHANGELOG.
@@ -98,7 +98,7 @@ _(Investigador preenche antes de Bruno codar.)_
 
 **Validação final (gate do épico):**
 
-- [ ] **T-018** — AC-116-7: rodar as 5 tarefas-tipo com Roldão ao vivo. Registrar em `docs/auditorias/2026-06-XX-validacao-5-tarefas-tipo.md` com SHA do commit gerado em cada. Gate do EP-002.
+- [ ] **T-018** — AC-116-7: rodar as 5 tarefas-tipo com Roldão ao vivo. **Template criado**: `docs/auditorias/2026-06-XX-validacao-5-tarefas-tipo.md` com checklist + critério "passou" (4 condições) + 5 tarefas detalhadas (comando + esperado + verificação + campos SHA/observações pro Roldão preencher). Execução depende do Roldão pessoalmente — gate do EP-002.
 - [x] **T-019** — MIGRATION-v2.md consolidado. Entregue: `docs/migrations/MIGRATION-v2.md` (~150 linhas) cobrindo: o que muda visivelmente (tabela antes/depois), como atualizar, 3 breaking changes documentados (hooks .sh→.js, audit_sha não-vazio, menu interativo), inventário do que entrou (comandos novos, hooks novos, skills novas, addons novos), seção pro dono de produto não-programador.
 
 ---
@@ -127,7 +127,7 @@ _(Investigador preenche antes de Bruno codar.)_
 - [x] aprovada
 - [x] em implementação
 - [x] revisão
-- [x] entregue (com débito anotado: T-008/T-012 baixa prioridade; T-018 aguardando Roldão executar ao vivo)
+- [x] entregue (**18/19 — só T-018 aguardando Roldão executar ao vivo as 5 tarefas-tipo**)
 
 ---
 
@@ -138,6 +138,7 @@ _(Investigador preenche antes de Bruno codar.)_
 | 2026-05-24 | gerente-produto (Sofia) | criação a partir de EP-002 / PRD-003 §4.US-116 |
 | 2026-05-24 | dev-senior (Bruno) | T-005 (5 exemplos completos em docs/exemplos/) entregue. T-018 (validação ao vivo das 5 tarefas-tipo) continua aberto — só Roldão executa. |
 | 2026-05-24 | dev-senior (Bruno) | T-001/T-002/T-003/T-007/T-011 marcados (já entregues em sessões anteriores). T-004 (métrica oficial), T-006 (PARA-DONO checkpoint), T-009/T-010 (README "Para quem é"), T-013 (doctor sugere via Levenshtein), T-014 (CHANGELOG bloco "como ler"), T-015 (version PT-BR), T-016 (install msg PT-BR), T-017 (README link MIGRATION), T-019 (MIGRATION-v2.md consolidado) entregues nesta sessão. **US-116 = 16/19 (84%)**. T-008/T-012 ficam como débito baixo. T-018 continua aguardando Roldão. |
+| 2026-05-24 | dev-senior (Bruno) | Sessão autônoma fechou os 2 últimos débitos: T-008 (anti-mascaramento auditoria regressiva — 19 testes adversariais cobrem xit/fit/xdescribe/fdescribe), T-012 (doctor detecta projeto vindo da v1.x via .sh antigos + markers sem audit_sha). Template T-018 criado pro Roldão executar. **US-116 = 18/19 = 95% — falta só execução ao vivo (T-018) pra fechar EP-002.** |
 
 ---
 
