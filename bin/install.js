@@ -1425,6 +1425,46 @@ function doctor() {
     console.log(`  ${c.dim}rode${c.reset} ${c.cyan}npx roldao-method tutorial${c.reset} ${c.dim}pra preencher AGENTS.md em 5 perguntas guiadas.${c.reset}`);
   }
 
+  // J11 (US-116 T-012) — projeto vindo da v1.x: detecta hooks .sh antigos OU
+  // marker de checkpoint vazio (era valido na v1.x, agora exige audit_sha).
+  // Sem isso, cliente vindo de v1.x roda doctor e nao percebe que precisa update.
+  const sinaisV1 = [];
+  const hooksDir = path.join(CWD, '.claude', 'hooks');
+  if (fs.existsSync(hooksDir)) {
+    try {
+      const arquivos = fs.readdirSync(hooksDir);
+      const hooksAntigos = arquivos.filter((f) => f.endsWith('.sh'));
+      if (hooksAntigos.length > 0) {
+        sinaisV1.push(`hooks bash antigos: ${hooksAntigos.length} arquivo(s) .sh em .claude/hooks/ — v2.0 usa só Node.`);
+      }
+    } catch { /* sem permissão de leitura — ignora */ }
+  }
+  const runtimeDir = path.join(CWD, '.claude', '.runtime');
+  if (fs.existsSync(runtimeDir)) {
+    try {
+      const markersAntigos = fs.readdirSync(runtimeDir)
+        .filter((f) => f.startsWith('checkpoint-passed-'))
+        .filter((f) => {
+          try {
+            const conteudo = fs.readFileSync(path.join(runtimeDir, f), 'utf8').trim();
+            return conteudo === '' || !conteudo.includes('audit_sha');
+          } catch { return false; }
+        });
+      if (markersAntigos.length > 0) {
+        sinaisV1.push(`marker(s) de checkpoint sem audit_sha: ${markersAntigos.length} (formato v1.x).`);
+      }
+    } catch { /* ignora */ }
+  }
+  if (sinaisV1.length > 0) {
+    console.log('');
+    console.log(`${c.yellow}AVISO:${c.reset} parece que esse projeto veio da v1.x do framework:`);
+    for (const sinal of sinaisV1) {
+      console.log(`  ${c.yellow}-${c.reset} ${sinal}`);
+    }
+    console.log(`  ${c.dim}detalhes da migração:${c.reset} ${c.cyan}docs/migrations/MIGRATION-v2.md${c.reset}`);
+    console.log(`  ${c.dim}aplicar atualização:${c.reset} ${c.cyan}npx roldao-method@latest update${c.reset} ${c.dim}(snapshot automático antes)${c.reset}`);
+  }
+
   if (faltando > 0) {
     console.log('');
     log(`execute: ${c.cyan}npx roldao-method install${c.reset} (ou ${c.cyan}update${c.reset})`);
