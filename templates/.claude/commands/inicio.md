@@ -35,9 +35,19 @@ Invoque `dev-senior` pra montar:
 - Setup local funcionando (`docker compose up` ou equivalente).
 - 1 endpoint/tela de exemplo pra validar que o ambiente funciona.
 
-## Etapa 4 — Atualizar documentos contratuais
+## Etapa 4 — Atualizar documentos contratuais (auto-fill primeiro)
 
-Preencher os campos `_(preencher)_` em:
+**T-105 (C6) — antes de pedir qualquer coisa pro usuário, auto-detectar.** Reusar a mesma varredura mecânica do `/brownfield` (lê `package.json`, `requirements.txt`, `pom.xml`, `go.mod`, `Cargo.toml`, `composer.json`, prisma/, alembic/, Dockerfile, workflows/, vercel.json, deno.json):
+
+1. **Nome do projeto** — `package.json#name` || `basename($PWD)`.
+2. **Stack (§2 do AGENTS.md)** — detectada na Etapa 2 + lida dos arquivos acima.
+3. **Comandos (§6 do AGENTS.md)** — copiar de `package.json#scripts` (`dev`, `build`, `test`, `lint`, `format`) + heurística por framework.
+4. **Modelo** — default "app interno" (se SaaS/CLI/lib for evidente, sobrescreve).
+5. **Cliente/usuário** — default "definir depois" + marcar `premissa-modelagem: cliente-pendente`.
+
+**T-106 (C7) — só dispara `AskUserQuestion` se houver empate real.** Ex: detecção identificou tanto `package.json` (Node) quanto `requirements.txt` (Python) na raiz — então `AskUserQuestion` com `[Node+TS]` `[Python+FastAPI]` `[Ambos (monorepo)]`. Sem empate, escolhe e reporta a decisão.
+
+Preencher campos restantes `_(preencher)_` (os que não foram auto-detectados) em:
 - `AGENTS.md` — identidade, stack, comandos.
 - `REGRAS-INEGOCIAVEIS.md` — adicionar regras específicas do projeto se houver.
 - `AGENTS.md` seção 10 ("O que está pendente") — registrar onde paramos (mesmo lugar que o `/retro` atualiza).

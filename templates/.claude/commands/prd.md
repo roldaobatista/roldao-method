@@ -25,7 +25,9 @@ Invoque `analista` em **Modo BRIEF**:
 - Salva `docs/research/<slug>.md`.
 - **Grava o caminho** em `.claude/.runtime/last-research-path` pra o PM consumir.
 
-Brief salvo em disco e o estado compartilhado (INV-001). Prossiga pra Etapa 3 sem perguntar. So pergunte se o brief revelar conflito real (ex: mercado nao existe no Brasil, ou regulamentacao bloqueia a iniciativa).
+Brief salvo em disco e o estado compartilhado (INV-001). Prossiga pra Etapa 3 sem perguntar.
+
+**T-107 (K7) — premissas do analista viram AskUserQuestion automatico.** Se o brief gravar premissas com `impacto: comportamento-visivel` E `opcoes: [...]` preenchido, dispare **1 AskUserQuestion consolidando todas**. Cada premissa vira 1 question. Senao (premissas tecnico-interno ou sem opcoes), assume default e marca no PRD `premissa-resolvida: <decisao>`. Nunca perguntar texto livre — sempre opcoes pre-formuladas (INV-AGENT-006). So pergunte se o brief revelar conflito real (ex: mercado nao existe no Brasil, ou regulamentacao bloqueia a iniciativa).
 
 ## Etapa 3 — Gerente de Produto (Modo PRD)
 

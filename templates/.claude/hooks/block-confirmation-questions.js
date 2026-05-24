@@ -21,6 +21,9 @@ const PATTERNS = [
   /\bshould I (continue|proceed|create|make|apply|generate|add|remove)\b/i,
   /\bdo you want me to\b/i,
   /\bwould you like me to\b/i,
+  // T-104 (C5): patterns adicionais flagrados pela auditoria
+  /\b(confirma|aceita|tudo certo|tudo bem)\b[^?]*\?/i,
+  /\bvou (prosseguir|seguir|continuar|aplicar|fazer|implementar|criar|mexer|ajustar)\b[^?]{0,80}\?/i,
 ];
 
 const LEGIT_RE = /\bnpm publish\b|\bdrop (table|database)\b|\bgit push --force\b|\brm -rf\b|\breset --hard\b|\brotacion(ar|ado) credencial|\bdeletar (producao|prod|dados)\b|\bcobrar\b|\bgastar\b|\bpagar\b|\bcredencial\b|\bgastos com terceiros\b/i;

@@ -100,4 +100,4 @@ status: draft | stable | descartado
 ---
 ```
 
-Mais: 1-3 perguntas pendentes que o PM precisa responder antes de virar PRD.
+Mais: 1-3 **premissas** que o PM deve confirmar com investigador/código/regulamentação antes de cristalizar AC. Não escalar pro usuário — usar AskUserQuestion **apenas se** a premissa afeta comportamento observável e nenhuma fonte autoritativa (código, regulamentação, documentação técnica BR) resolve. Caso contrário, assumir default razoável e marcar como `premissa-resolvida-localmente: <decisão>` no frontmatter (INV-AGENT-006).

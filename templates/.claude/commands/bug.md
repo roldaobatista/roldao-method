@@ -19,7 +19,7 @@ Invoque `investigador`:
 - Identifica builders/handlers duplicados se houver.
 - Reporta causa raiz + ponto específico da correção.
 
-**Não pule. Não substitua.** Se o investigador disser "preciso de mais info", pergunte ao usuário ANTES de propor solução.
+**Não pule. Não substitua.** Se o investigador marcar `pendencias[]` no JSON com `impacto: comportamento-visivel`, **dispare `AskUserQuestion` automaticamente** usando as opções já listadas no JSON. Caso contrário, escolha o default (INV-AGENT-006). Nunca jogar pergunta de texto livre pro Roldão — sempre opções pré-formuladas pelo investigador.
 
 **Ao terminar a investigação (MECÂNICO — destrava o hook):** o hook `require-investigador-before-fix.js` bloqueia todo Edit/Write em código de negócio até existir o marcador `investigator-invoked-${SESSION_HASH}` com o MESMO hash que os hooks usam (CLAUDE_SESSION_ID só com caracteres alfanuméricos). Sem este passo o dev-senior fica travado para sempre. Crie o marcador:
 
@@ -32,12 +32,15 @@ touch ".claude/.runtime/investigator-invoked-${SESSION_HASH}"
 
 Só crie o marcador DEPOIS que o investigador reportou causa raiz — criar antes é furar a própria REGRA #0.
 
-## Etapa 2 — Confirmação com usuário (se houver ambiguidade)
+## Etapa 2 — Confirmação com usuário (automática, baseada em `pendencias[]`)
 
-Se o investigador apontou ambiguidade na descrição do bug ("X não saiu" pode ser "quero que apareça" OU "tirar essa mensagem chata"):
-- **PARE.**
-- Pergunte ao usuário com 2-3 opções claras (`AskUserQuestion`).
-- Só siga após confirmação.
+Leia o JSON `.claude/.runtime/investigation-*.json` que o investigador gravou. Para cada item em `pendencias[]`:
+
+- Se `impacto: comportamento-visivel` E `opcoes: [...]` preenchido → dispare **1 `AskUserQuestion`** consolidando todas as ambiguidades. Cada pendência vira 1 question. Opções vêm direto do JSON (não invente novas).
+- Se `impacto: tecnico-interno` → escolha o default sugerido pelo investigador (`default:` no item) e marque `decidido-automaticamente: <razão>` no investigation JSON.
+- Se `opcoes` faltar → o investigador errou; reinvoque pedindo opções pré-formuladas.
+
+**Nunca pergunte de texto livre** ("pode me explicar melhor o problema?"). INV-AGENT-006: opções concretas ou default automático.
 
 ## Etapa 3 — Dev Sênior
 

@@ -50,6 +50,7 @@
     "test:jargon-expanded": "node test/hooks-jargon-expanded.test.js",
     "test:session-cleanup": "node test/hooks-session-cleanup.test.js",
     "test:audit-sha-story": "node test/hooks-audit-sha-story.test.js",
+    "test:confirmation-extra": "node test/hooks-confirmation-extra.test.js",
     "test:skills": "node test/skills.test.js",
     "test:addons": "node test/addons.test.js",
     "test:adapters": "node test/adapters.test.js",
@@ -59,7 +60,7 @@
     "test:tools": "node test/validar-tools.test.js",
     "test:lib-contract": "node test/lib-contract.test.js",
     "test:agents-commands-statusline": "node test/agents-commands-statusline.test.js",
-    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:dogfood-sync && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:auditors-pass && npm run test:checkpoint-marker && npm run test:investigador-gate2 && npm run test:anti-mascaramento-extra && npm run test:mensagens-leigas && npm run test:jargon-expanded && npm run test:session-cleanup && npm run test:audit-sha-story && npm run test:skills && npm run test:addons && npm run test:adapters && npm run test:agents-commands-statusline",
+    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:dogfood-sync && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:auditors-pass && npm run test:checkpoint-marker && npm run test:investigador-gate2 && npm run test:anti-mascaramento-extra && npm run test:mensagens-leigas && npm run test:jargon-expanded && npm run test:session-cleanup && npm run test:audit-sha-story && npm run test:confirmation-extra && npm run test:skills && npm run test:addons && npm run test:adapters && npm run test:agents-commands-statusline",
     "prepublishOnly": "npm test && npm run test:adapter-drift"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",
