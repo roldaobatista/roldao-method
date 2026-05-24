@@ -87,15 +87,45 @@ Antes de marcar como pronto pra mergear, rode `.specify/checklists/release-readi
 
 ## Etapa 5 — Marcar checkpoint concluído (mecânico)
 
-Após salvar o arquivo `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` e tomar decisão (merge / corrigir / escalar), crie o marcador:
+Após salvar `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` e tomar decisão (merge / corrigir / escalar), escreva o marker JSON canônico (não basta `touch`).
+
+O marker é um arquivo JSON com **5 campos obrigatórios** (contrato derivado de ADR-020):
+
+```json
+{
+  "session": "<SESSION_HASH atual>",
+  "checkpoint_path": "docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md",
+  "audit_sha": "<sha256 do diff coberto pelo checkpoint>",
+  "timestamp": "<ISO-8601 UTC>",
+  "us": "US-NNN"
+}
+```
+
+Para gerar (via Bash):
 
 ```bash
 SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
 [ -z "$SESSION_HASH" ] && SESSION_HASH=default
-mkdir -p .claude/.runtime && touch .claude/.runtime/checkpoint-done-${SESSION_HASH}
+AUDIT_SHA=$(git diff HEAD | sha256sum | cut -d' ' -f1)
+TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+mkdir -p .claude/.runtime
+cat > .claude/.runtime/checkpoint-done-${SESSION_HASH} <<EOF
+{
+  "session": "${SESSION_HASH}",
+  "checkpoint_path": "docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md",
+  "audit_sha": "${AUDIT_SHA}",
+  "timestamp": "${TS}",
+  "us": "US-NNN"
+}
+EOF
 ```
 
-Esse marcador libera o hook `require-checkpoint-before-merge.js` a deixar `git commit`/`git merge`/`git push` passarem. Sem ele, qualquer tentativa de fechar o trabalho da feature retorna exit 2.
+Hook `require-checkpoint-before-merge.js` valida:
+- 5 campos presentes e não-vazios
+- `checkpoint_path` aponta para arquivo existente em disco
+- `audit_sha` casa com `git diff HEAD` atual (se mexer no código depois, marker fica "stale" e exige re-rodar /checkpoint)
+
+Marker vazio (criado por `touch` puro) é rejeitado — exit 2. **Sem bypass mecânico.** Em migração de v1.x: setar `ROLDAO_METHOD_LEGACY_MARKERS=1` aceita marker vazio com warning até v2.1.0 (ADR-021).
 
 ## Importante
 
