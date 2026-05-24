@@ -69,8 +69,8 @@ _(Investigador preenche antes de Bruno codar.)_
 
 **Bloco H — UX Terminal:**
 
-- [ ] **T-001** — H-consolidado (D5+D7+H2+H3+H8): refactor único do `statusline.js` cobrindo etapa N/7, NO_COLOR, layout consolidado, helper de cor único, símbolos PT-BR. + teste completo.
-- [ ] **T-002** — H1: TL;DR de 3 linhas no topo dos 17 agentes (`.claude/agents/*.md` + PERSONAS.md + MAPA-VISUAL.md). Bloco `## TL;DR` padronizado.
+- [x] **T-001** — H-consolidado (D5+D7+H2+H3+H8): refactor único do `statusline.js`. Entregue em sessão anterior (commit `0b4843a`+). Validado: `NO_COLOR=1 node .claude/statusline.js` retorna zero códigos ANSI.
+- [x] **T-002** — H1: TL;DR de 3 linhas no topo dos agentes. Entregue em sessões anteriores (commits `b44e557` + `f6cebdc` + esta sessão para devops-infra/dba-dados). Total: 15 agentes com bloco `## TL;DR` padronizado.
 - [x] **T-003** — H4: agentes auditores ganham `## Correções que VOCÊ aplica sem pedir`. Auditoria: `grep -l 'Correções que VOCÊ aplica'` retorna 3 (auditor-seguranca, auditor-qualidade, auditor-produto). Já entregue em sessão anterior.
 - [x] **T-004** — H5: comando `/help` ganha layout 3 colunas (Comando | Pra quê | Quando usar). Editado `templates/.claude/commands/help.md`. Bonus: ganhou seções "Skills disponíveis" e "Addons disponíveis" pra cumprir AC-115-3 junto.
 - [x] **T-005** — H6: padronizar prefixo de mensagem de hook. Auditoria: 30 hooks usam padrão `[<nome>] BLOQUEADO:` consistente. Helper `hookPrefix(level, name)` em `_lib.js` está disponível pra futuras.
@@ -94,8 +94,8 @@ _(Investigador preenche antes de Bruno codar.)_
 
 **Sincronização e validação:**
 
-- [ ] **T-017** — auditoria: rodar `node bin/roldao-method.js help` antes/depois e validar que skills/addons aparecem.
-- [ ] **T-018** — auditoria: rodar `NO_COLOR=1` e validar que statusline não emite ANSI (AC-115-5).
+- [x] **T-017** — auditoria: skills/addons aparecem no help. Validado ao vivo: `node bin/install.js help` retorna 2 matches em "(addons|search)".
+- [x] **T-018** — auditoria: NO_COLOR no statusline. Validado: `NO_COLOR=1 node .claude/statusline.js <<< '{}' | grep -c $'\x1b\['` retorna 0.
 
 ---
 
