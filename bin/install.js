@@ -54,21 +54,41 @@ const YES = flags.has('--yes') || flags.has('-y');
 const FORCE = flags.has('--force');
 const DRY_RUN = flags.has('--dry-run');
 const NO_COLOR = flags.has('--no-color') || process.env.NO_COLOR === '1';
+const QUIET = flags.has('--quiet') || flags.has('-q') || process.env.ROLDAO_QUIET === '1';
+// --ascii substitui glifos Unicode (✓ ✗ ⚠ ╔═╗) por equivalentes ASCII ([OK] [X] [!] +-+).
+// Necessário em CMD legacy Windows sem `chcp 65001`, PuTTY antigo, SSH com gateway
+// que stripa UTF-8, e leitor de tela. Acoplado a --no-color porque quem desliga
+// cor geralmente está em ambiente restrito. Auditoria 10-agentes 3ª passada 2026-05-24.
+const ASCII_ONLY = flags.has('--ascii') || process.env.ROLDAO_ASCII === '1' || NO_COLOR;
 
-// Cores ANSI e lista USER_OWNED extraídas pra bin/lib/* (Sprint 2.4).
+// Cores ANSI, glifos com fallback ASCII e lista USER_OWNED.
 const c = require('./lib/colors').makeColors({ noColor: NO_COLOR, isTTY: process.stdout.isTTY });
-const { USER_OWNED } = require('./lib/user-owned');
+const g = require('./lib/glyphs').makeGlyphs({ noUnicode: ASCII_ONLY });
+const { makeSpinner } = require('./lib/spinner');
+const { USER_OWNED, isCustomizable } = require('./lib/user-owned');
+const snapshotLib = require('./lib/snapshot');
+const registry = require('./lib/registry');
+
+let currentSnapshot = null;
+
+function spinner(msg) {
+  return makeSpinner({
+    isTTY: !!process.stdout.isTTY,
+    quiet: QUIET,
+    noUnicode: ASCII_ONLY,
+  }).start(msg);
+}
 
 const counters = { criados: 0, pulados: 0, atualizados: 0, preservados: 0, erros: 0 };
 const detalhes = { criados: [], pulados: [], atualizados: [], preservados: [], erros: [] };
 
-function log(msg) { console.log(`${c.cyan}[roldao-method]${c.reset} ${msg}`); }
-function ok(msg) { console.log(`${c.green}✓${c.reset} ${msg}`); }
+function log(msg) { if (!QUIET) console.log(`${c.cyan}[roldao-method]${c.reset} ${msg}`); }
+function ok(msg) { if (!QUIET) console.log(`${c.green}${g.ok}${c.reset} ${msg}`); }
 function warn(msg) { console.warn(`${c.yellow}[roldao-method]${c.reset} ${c.yellow}AVISO:${c.reset} ${msg}`); }
 function err(msg) { console.error(`${c.red}[roldao-method]${c.reset} ${c.red}ERRO:${c.reset} ${msg}`); }
 
 function banner() {
-  if (YES) return;
+  if (YES || QUIET) return;
   console.log('');
   console.log(`${c.cyan}${c.bold}  ROLDAO-METHOD${c.reset} ${c.dim}— framework de desenvolvimento agil com IA em PT-BR${c.reset}`);
   console.log(`${c.dim}  https://github.com/roldaobatista/roldao-method${c.reset}`);
@@ -78,11 +98,21 @@ function banner() {
 function ask(question) {
   if (YES) return Promise.resolve('s');
   if (!process.stdin.isTTY) {
-    err('sem TTY e sem --yes/-y. Use --yes em CI/script.');
+    err('estou rodando dentro de um script ou outro programa que nao consegue te perguntar nada (terminal nao-interativo).');
+    err('Adicione --yes (ou -y) no final do comando pra eu assumir o caminho padrao seguro.');
+    err('Exemplo: npx roldao-method install --yes');
     process.exit(2);
   }
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   return new Promise((resolve) => rl.question(question, (a) => { rl.close(); resolve(a.trim()); }));
+}
+
+// Aceita "s", "sim", "y", "yes" como confirmacao positiva. Auditoria 10-agentes
+// 3ª passada (2026-05-24): leigo brasileiro digita "sim" e cancela silenciosamente
+// porque o codigo so reconhecia "s".
+function isYes(answer) {
+  const a = String(answer || '').trim().toLowerCase();
+  return a === 's' || a === 'sim' || a === 'y' || a === 'yes';
 }
 
 async function askMenu(question, options) {
@@ -294,7 +324,20 @@ function copyFile(src, dest, mode) {
     return;
   }
 
+  // Registra no snapshot ANTES de mexer (rollback precisa do estado anterior).
+  if (currentSnapshot && mode === 'update') {
+    try { snapshotLib.recordFile(currentSnapshot, CWD, rel, isCustomizable(rel) ? 'customized' : 'updated'); }
+    catch { /* best effort — snapshot quebrar nao deve impedir update */ }
+  }
+
+  // Arquivo em pasta customizavel (.claude/agents, .claude/commands etc) com hash
+  // diferente do template = usuario provavelmente editou. Em vez de .bak simples,
+  // gera backup datado e marca como CUSTOMIZADO no resumo pra ele saber.
   let bak = `${dest}.bak`;
+  if (mode === 'update' && isCustomizable(path.relative(CWD, dest))) {
+    const ts = new Date().toISOString().replace(/[:.]/g, '-');
+    bak = `${dest}.customizado.${ts}.bak`;
+  }
   // Se ja existe um .bak DIFERENTE do dest atual, esse .bak provavelmente
   // veio de um update anterior — preservar com sufixo timestamp pra nao
   // destruir o backup original do usuario.
@@ -333,7 +376,7 @@ function copyFile(src, dest, mode) {
 // nao pelo Claude Code em runtime.
 const ADDON_META_FILES = new Set(['settings.json.patch']);
 
-function walkAndCopy(src, dest, mode) {
+function walkAndCopy(src, dest, mode, sp) {
   const resolvedCwd = path.resolve(CWD);
   const resolvedDest = path.resolve(dest);
   if (!resolvedDest.startsWith(resolvedCwd + path.sep) && resolvedDest !== resolvedCwd) {
@@ -341,6 +384,10 @@ function walkAndCopy(src, dest, mode) {
     process.exit(2);
   }
   if (ADDON_META_FILES.has(path.basename(src))) return;
+  if (sp) {
+    const totalFiles = counters.criados + counters.atualizados + counters.pulados + counters.preservados;
+    sp.tick(`copiando arquivos... ${totalFiles}`);
+  }
   // Permissao negada em src (lstat/readdir) nao deve crashar — registra erro
   // e segue pra outros arquivos. Caso comum em Windows: AV/Defender prendeu.
   let stat;
@@ -370,7 +417,7 @@ function walkAndCopy(src, dest, mode) {
       return;
     }
     for (const entry of entries) {
-      walkAndCopy(path.join(src, entry), path.join(dest, entry), mode);
+      walkAndCopy(path.join(src, entry), path.join(dest, entry), mode, sp);
     }
   } else if (stat.isFile()) {
     copyFile(src, dest, mode);
@@ -423,13 +470,32 @@ async function checkUpdate() {
     return 0;
   };
   if (cmp(remote, local) > 0) {
-    console.log('');
-    console.log(`${c.yellow}╔════════════════════════════════════════════════════╗${c.reset}`);
-    console.log(`${c.yellow}║${c.reset}  ${c.bold}Nova versao disponivel:${c.reset} ${c.green}v${remote}${c.reset} (voce: v${local})  ${c.yellow}║${c.reset}`);
-    console.log(`${c.yellow}║${c.reset}  Rode: ${c.cyan}npx roldao-method@latest update${c.reset}        ${c.yellow}║${c.reset}`);
-    console.log(`${c.yellow}╚════════════════════════════════════════════════════╝${c.reset}`);
-    console.log('');
+    drawBox([
+      `${c.bold}Nova versao disponivel:${c.reset} ${c.green}v${remote}${c.reset} (voce: v${local})`,
+      `Rode: ${c.cyan}npx roldao-method@latest update${c.reset}`,
+    ], { color: c.yellow });
   }
+}
+
+// Desenha caixa ASCII/Unicode com largura dinâmica baseada no conteudo.
+// Largura fixa de 52 colunas quebrava com versoes de 3+ digitos (1.10.0) e
+// em terminais < 56 colunas. Auditoria 10-agentes 3ª passada 2026-05-24.
+function drawBox(lines, { color = '' } = {}) {
+  // Calcula largura visível (sem códigos ANSI). Limita a colunas do terminal.
+  const stripAnsi = (s) => s.replace(/\x1b\[[0-9;]*m/g, '');
+  const maxCol = Math.max(40, Math.min(process.stdout.columns || 80, 100));
+  const inner = Math.min(maxCol - 4, lines.reduce((m, l) => Math.max(m, stripAnsi(l).length), 0));
+  const reset = c.reset;
+  const h = g.box.h.repeat(inner + 2);
+  console.log('');
+  console.log(`${color}${g.box.tl}${h}${g.box.tr}${reset}`);
+  for (const line of lines) {
+    const visible = stripAnsi(line).length;
+    const pad = ' '.repeat(Math.max(0, inner - visible));
+    console.log(`${color}${g.box.v}${reset} ${line}${pad} ${color}${g.box.v}${reset}`);
+  }
+  console.log(`${color}${g.box.bl}${h}${g.box.br}${reset}`);
+  console.log('');
 }
 
 function listAddonsAvailable() {
@@ -558,14 +624,18 @@ async function install() {
     }
 
     const a = await ask(`${c.bold}Confirmar instalacao em ${CWD}?${c.reset} [s/N] `);
-    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+    if (!isYes(a)) { log('cancelado.'); return; }
   }
 
+  const t0 = Date.now();
+  const sp = spinner('copiando templates do core...');
   for (const entry of fs.readdirSync(TEMPLATES_DIR)) {
     const adapter = entryBelongsToAdapter(entry);
     if (adapter && !adapters.includes(adapter)) continue;
-    walkAndCopy(path.join(TEMPLATES_DIR, entry), path.join(CWD, entry), 'install');
+    walkAndCopy(path.join(TEMPLATES_DIR, entry), path.join(CWD, entry), 'install', sp);
   }
+  const totalCore = counters.criados + counters.atualizados + counters.preservados + counters.pulados;
+  sp.succeed(`core copiado (${totalCore} arquivos · ${((Date.now() - t0) / 1000).toFixed(1)}s)`);
 
   resumo();
 
@@ -586,15 +656,18 @@ async function install() {
   }
 
   if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
+  // Registra projeto no registry global pra `update --all` poder achar depois.
+  try { registry.addProject(CWD); } catch { /* best effort */ }
   ok('instalacao concluida.');
   console.log('');
-  console.log(`${c.bold}Proximos passos:${c.reset}`);
-  console.log(`  ${c.cyan}1.${c.reset} abra ${c.bold}AGENTS.md${c.reset} e preencha os campos ${c.dim}_(preencher)_${c.reset}  ${c.dim}(ou rode /brownfield se ja tem codigo)${c.reset}`);
-  console.log(`  ${c.cyan}2.${c.reset} no Claude Code: ${c.green}/help${c.reset} lista os 26 workflows`);
-  console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(opcional)${c.reset} addons BR: ${c.cyan}npx roldao-method search${c.reset}`);
+  console.log(`${c.bold}Proximos passos (do mais simples pro mais avancado):${c.reset}`);
+  console.log(`  ${c.cyan}1.${c.reset} ${c.green}npx roldao-method tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce (2 minutos)${c.reset}`);
+  console.log(`  ${c.cyan}2.${c.reset} no Claude Code (ou outro assistente): ${c.green}/inicio${c.reset} pra criar a primeira funcionalidade`);
+  console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(se ja tem codigo existente)${c.reset} ${c.green}/brownfield${c.reset} pra adotar no projeto atual`);
+  console.log(`  ${c.cyan}4.${c.reset} ${c.dim}(opcional)${c.reset} addons BR: ${c.cyan}npx roldao-method search${c.reset}`);
   console.log('');
-  console.log(`${c.dim}Personalizar (CLAUDE.local.md), MCP preset, GitHub Action: docs/QUICKSTART.md${c.reset}`);
-  console.log(`${c.dim}docs: https://github.com/roldaobatista/roldao-method${c.reset}`);
+  console.log(`${c.dim}Detalhes (CLAUDE.local.md, MCP, GitHub Action): docs/QUICKSTART.md${c.reset}`);
+  console.log(`${c.dim}Glossario sem jargao: docs/GLOSSARIO.md${c.reset}`);
   console.log('');
   // Aguarda a checagem de versao terminar (com timeout interno) pra o banner
   // de update aparecer ordenado, sem vazar no meio do output do proximo comando.
@@ -602,28 +675,114 @@ async function install() {
 }
 
 async function update() {
+  // Flag --all itera todos os projetos no registry global.
+  if (rawArgs.includes('--all')) return updateAll();
+
   log(`atualizando ROLDAO-METHOD em: ${CWD}`);
   // Promise fire-and-forget aguardada no fim — igual a install().
   // Antes era ignorada totalmente e podia vazar no output do proximo comando.
   const updateCheckP = checkUpdate().catch(() => {});
   if (!YES && !FORCE) {
-    const a = await ask('Update sobrescreve arquivos do framework (preservando AGENTS.md, CLAUDE.md, REGRAS, settings.local.json). Backup em *.bak. Confirmar? [s/N] ');
-    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+    const a = await ask('Update sobrescreve arquivos do framework (preservando AGENTS.md, CLAUDE.md, REGRAS, settings.local.json). Snapshot criado antes (use `rollback` pra desfazer). Confirmar? [s/N] ');
+    if (!isYes(a)) { log('cancelado.'); return; }
   }
+
+  // Cria snapshot ANTES de qualquer mudanca — rollback precisa.
+  if (!DRY_RUN) {
+    try {
+      const pkg = require(path.join(FRAMEWORK_ROOT, 'package.json'));
+      currentSnapshot = snapshotLib.createSnapshot({ cwd: CWD, fromVersion: 'instalado', toVersion: pkg.version });
+      log(`${c.dim}snapshot criado: ${currentSnapshot}${c.reset}`);
+    } catch (e) {
+      warn(`falhou ao criar snapshot (${e.message}) — update segue mas rollback nao funcionara.`);
+    }
+  }
+
   // Atualiza so adapters detectados no projeto (ou os pedidos via flag).
   // Evita "ressuscitar" pastas de IDE que o usuario nao usa.
   const adapters = resolveAdapters();
+  const t0 = Date.now();
+  const sp = spinner('atualizando templates...');
   for (const entry of fs.readdirSync(TEMPLATES_DIR)) {
     const adapter = entryBelongsToAdapter(entry);
     if (adapter && !adapters.includes(adapter)) continue;
-    walkAndCopy(path.join(TEMPLATES_DIR, entry), path.join(CWD, entry), 'update');
+    walkAndCopy(path.join(TEMPLATES_DIR, entry), path.join(CWD, entry), 'update', sp);
   }
+  const total = counters.criados + counters.atualizados + counters.preservados + counters.pulados;
+  sp.succeed(`update concluido (${total} arquivos · ${((Date.now() - t0) / 1000).toFixed(1)}s)`);
   resumo();
   if (DRY_RUN) { log('dry-run: nenhuma mudanca aplicada.'); return; }
   log('update concluido.');
   log('arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, settings.local.json).');
-  log('arquivos sobrescritos tem .bak ao lado.');
+  log(`pra desfazer este update: ${c.cyan}npx roldao-method rollback${c.reset}`);
+  if (!DRY_RUN) try { registry.markUpdated(CWD); } catch { /* best effort */ }
+  currentSnapshot = null;
   await updateCheckP;
+}
+
+async function updateAll() {
+  const projects = registry.listProjects();
+  if (projects.length === 0) {
+    log('nenhum projeto registrado ainda. Rode `npx roldao-method install` em cada um pra registrar.');
+    return;
+  }
+  log(`encontrei ${c.bold}${projects.length}${c.reset} projeto(s) registrado(s):`);
+  projects.forEach((p, i) => console.log(`  ${c.cyan}${i + 1}.${c.reset} ${p.path} ${c.dim}(ultimo update: ${p.lastUpdate || 'nunca'})${c.reset}`));
+  if (!YES && !FORCE) {
+    const a = await ask(`Atualizar todos? [s/N] `);
+    if (!isYes(a)) { log('cancelado.'); return; }
+  }
+  let okCount = 0, failCount = 0;
+  for (const proj of projects) {
+    console.log('');
+    log(`${c.bold}=> ${proj.path}${c.reset}`);
+    const { spawnSync } = require('child_process');
+    const args = [__filename, 'update', '--yes'];
+    if (FORCE) args.push('--force');
+    if (DRY_RUN) args.push('--dry-run');
+    const res = spawnSync(process.execPath, args, { cwd: proj.path, stdio: 'inherit' });
+    if (res.status === 0) okCount++;
+    else { failCount++; err(`falhou em ${proj.path} (exit=${res.status})`); }
+  }
+  console.log('');
+  if (failCount === 0) ok(`${okCount} projeto(s) atualizados com sucesso.`);
+  else warn(`${okCount} OK, ${failCount} falharam. Rode individualmente nos que falharam pra ver detalhe.`);
+}
+
+async function rollback() {
+  const subId = subArg;
+  const snapshots = snapshotLib.listSnapshots(CWD);
+  if (snapshots.length === 0) {
+    err('nenhum snapshot encontrado neste projeto.');
+    err(`snapshots sao criados automaticamente em todo ${c.cyan}npx roldao-method update${c.reset}.`);
+    process.exit(1);
+  }
+  if (rawArgs.includes('--list')) {
+    console.log(`${c.bold}Snapshots disponiveis (mais recente primeiro):${c.reset}`);
+    snapshots.forEach((s, i) => {
+      console.log(`  ${c.cyan}${i + 1}.${c.reset} ${s.id} ${c.dim}(${s.fileCount} arquivo(s))${c.reset}`);
+    });
+    console.log('');
+    console.log(`Pra restaurar: ${c.cyan}npx roldao-method rollback${c.reset} ${c.dim}(ultimo)${c.reset}`);
+    console.log(`Pra restaurar especifico: ${c.cyan}npx roldao-method rollback <id>${c.reset}`);
+    return;
+  }
+  const target = subId ? snapshots.find((s) => s.id === subId || s.id.startsWith(subId)) : snapshots[0];
+  if (!target) {
+    err(`snapshot "${subId}" nao encontrado. Liste com --list.`);
+    process.exit(1);
+  }
+  log(`vou restaurar snapshot: ${c.bold}${target.id}${c.reset} (${target.fileCount} arquivo(s))`);
+  if (!YES && !FORCE) {
+    const a = await ask(`Confirmar rollback? Isso vai desfazer o ultimo update. [s/N] `);
+    if (!isYes(a)) { log('cancelado.'); return; }
+  }
+  const result = snapshotLib.restoreSnapshot(CWD, target.id);
+  if (result.errors.length > 0) {
+    warn(`${result.errors.length} erro(s) durante restauracao:`);
+    result.errors.forEach((e) => err(`  ${e}`));
+  }
+  ok(`${result.restored} arquivo(s) restaurado(s) do snapshot ${target.id}.`);
 }
 
 async function installAddon(name, skipConfirm = false, throwOnError = false) {
@@ -635,8 +794,9 @@ async function installAddon(name, skipConfirm = false, throwOnError = false) {
   }
   const available = listAddonsAvailable();
   if (!available.includes(name)) {
-    err(`addon desconhecido: ${name}`);
-    log(`disponiveis: ${available.join(', ')}`);
+    err(`addon desconhecido: "${name}". Verifique a digitacao.`);
+    err(`disponiveis: ${available.join(', ')}`);
+    err(`Para ver a lista completa com descricao: ${c.cyan}npx roldao-method search${c.reset}`);
     if (throwOnError) throw new Error('addon_not_found');
     process.exit(1);
   }
@@ -645,7 +805,7 @@ async function installAddon(name, skipConfirm = false, throwOnError = false) {
 
   if (!skipConfirm && !YES && !FORCE) {
     const a = await ask(`Confirmar instalacao do addon ${name}? [s/N] `);
-    if (a.toLowerCase() !== 's') { log('cancelado.'); return false; }
+    if (!isYes(a)) { log('cancelado.'); return false; }
   }
 
   // Copia .claude/ do addon pro .claude/ do projeto (merge)
@@ -845,8 +1005,9 @@ async function removeAddon(name) {
   }
   const available = listAddonsAvailable();
   if (!available.includes(name)) {
-    err(`addon desconhecido: ${name}`);
-    log(`disponiveis: ${available.join(', ')}`);
+    err(`addon desconhecido: "${name}". Verifique a digitacao.`);
+    err(`disponiveis: ${available.join(', ')}`);
+    err(`Para ver a lista completa: ${c.cyan}npx roldao-method search${c.reset}`);
     process.exit(1);
   }
   if (!listAddonsInstalled().includes(name)) {
@@ -861,7 +1022,7 @@ async function removeAddon(name) {
 
   if (!YES && !FORCE && !DRY_RUN) {
     const a = await ask(`Confirmar remocao do addon ${c.bold}${name}${c.reset}? O framework core fica intacto. [s/N] `);
-    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+    if (!isYes(a)) { log('cancelado.'); return; }
   }
 
   // Reverte settings.json.patch ANTES do delete dos arquivos. Ordem importa:
@@ -984,7 +1145,7 @@ async function tasksToIssues() {
   if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma issue criada.${c.reset}`); return; }
   if (!YES && !FORCE) {
     const a = await ask(`Criar ${pending.length} issue(s) no GitHub deste repositorio? [s/N] `);
-    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+    if (!isYes(a)) { log('cancelado.'); return; }
   }
   let created = 0;
   for (const t of pending) {
@@ -994,7 +1155,7 @@ async function tasksToIssues() {
       const num = (out.match(/\/issues\/(\d+)/) || [])[1] || out;
       map[t.id] = num;
       created++;
-      console.log(`  ${c.green}✓${c.reset} ${t.id} → issue ${num}`);
+      console.log(`  ${c.green}${g.ok}${c.reset} ${t.id} ${g.arrow} issue ${num}`);
     } catch (e) {
       err(`falhou criar issue de ${t.id}: ${((e.stderr || e.message || '') + '').trim()}`);
     }
@@ -1011,7 +1172,7 @@ async function listCommand() {
   if (tools.length === 0) {
     console.log(`  ${c.dim}(nenhuma — instalacao padrao copia .claude/)${c.reset}`);
   } else {
-    tools.forEach((t) => console.log(`  ${c.green}✓${c.reset} ${t}`));
+    tools.forEach((t) => console.log(`  ${c.green}${g.ok}${c.reset} ${t}`));
   }
   console.log('');
 
@@ -1142,7 +1303,7 @@ async function uninstall() {
   log(`removendo ROLDAO-METHOD de: ${CWD}`);
   if (!YES && !FORCE) {
     const a = await ask('Remove arquivos do framework (preserva AGENTS.md, CLAUDE.md, REGRAS, settings.local.json, .mcp.json, docs/, addons/). Confirmar? [s/N] ');
-    if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
+    if (!isYes(a)) { log('cancelado.'); return; }
   }
   const candidatos = [
     '.claude/settings.json',
@@ -1184,8 +1345,11 @@ async function uninstall() {
 function help() {
   banner();
   console.log(`${c.bold}Uso:${c.reset}
+  ${c.cyan}npx roldao-method demo${c.reset}                                            ${c.green}roda 3 verificacoes offline (30s) — sem instalar nada${c.reset}
   ${c.cyan}npx roldao-method install${c.reset}        [--yes] [--force] [--dry-run]   instala no projeto atual
-  ${c.cyan}npx roldao-method update${c.reset}         [--yes] [--force] [--dry-run]   atualiza arquivos do framework
+  ${c.cyan}npx roldao-method tutorial${c.reset}       [--force]                        ${c.green}preenche AGENTS.md por 5 perguntas guiadas${c.reset}
+  ${c.cyan}npx roldao-method update${c.reset}         [--yes] [--force] [--dry-run] [--all]   atualiza arquivos do framework
+  ${c.cyan}npx roldao-method rollback${c.reset}       [<id>] [--list]                desfaz o ultimo update (volta o snapshot)
   ${c.cyan}npx roldao-method add <addon>${c.reset}    [--yes]                          instala addon especifico
   ${c.cyan}npx roldao-method remove <addon>${c.reset} [--yes] [--dry-run]              remove um addon (core preservado)
   ${c.cyan}npx roldao-method search [termo]${c.reset}                                   lista/filtra addons disponiveis
@@ -1203,6 +1367,8 @@ ${c.bold}Flags:${c.reset}
   ${c.yellow}--force${c.reset}       sobrescreve sem perguntar
   ${c.yellow}--dry-run${c.reset}     so mostra o que faria
   ${c.yellow}--no-color${c.reset}    desativa cores ANSI (ou NO_COLOR=1)
+  ${c.yellow}--ascii${c.reset}       glifos ASCII puros em vez de Unicode (ou ROLDAO_ASCII=1)
+  ${c.yellow}--quiet / -q${c.reset}  silencioso (so erros e --help) — bom pra script e leitor de tela
 
 ${c.bold}Addons disponiveis:${c.reset}
   ${c.cyan}electron-br${c.reset}            Desktop Electron + SQLite + LGPD offline
@@ -1243,6 +1409,19 @@ function version() {
     case 'list': await listCommand(); break;
     case 'doctor': doctor(); break;
     case 'uninstall': await uninstall(); break;
+    case 'demo': {
+      const { demo } = require('./lib/demo');
+      const code = await demo({ colors: c, glyphs: g, root: FRAMEWORK_ROOT, fast: YES || QUIET });
+      process.exit(code);
+      break;
+    }
+    case 'tutorial': case 'tut': {
+      const { tutorial } = require('./lib/tutorial');
+      const code = await tutorial({ cwd: CWD, colors: c, glyphs: g, force: FORCE });
+      process.exit(code);
+      break;
+    }
+    case 'rollback': await rollback(); break;
     case 'help': case '--help': case '-h': help(); break;
     case 'version': case '--version': case '-v': version(); break;
     default:
