@@ -171,6 +171,21 @@ jobs:
             exit 1
           fi
 
+  hooks-node-windows-no-bash:
+    name: Hooks .js em Windows sem Git Bash (PRD-001 caminho A)
+    runs-on: windows-latest
+    # SEM `shell: bash` em nenhum step — runner default e PowerShell. Comprova
+    # que os hooks .js (port EP-001) rodam em ambiente Windows puro sem
+    # dependencia de Git Bash. Cobre a promessa central do framework pra dev
+    # BR Windows que nao tem Git for Windows instalado.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Rodar hooks-node-only (PowerShell puro, sem bash)
+        run: node test/hooks-node-only.test.js
+
   lint-evals:
     name: Lint estrutural dos evals (cobertura 12/12)
     runs-on: ubuntu-latest
