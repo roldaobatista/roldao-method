@@ -71,17 +71,45 @@ if (fs.existsSync(RUNTIME)) {
   } catch { /* skip */ }
 }
 
-// --- Story ativa ---
+// --- Story ativa + etapa do pipeline (T-205 / D5) ---
+// Detecta modo ativo (FT, PRD, BROWNFIELD, AR) e conta etapas concluidas.
 let story = '';
+let etapa = '';
+const MODE_TOTAL_ETAPAS = { 'feature-active': 7, 'prd-active': 6, 'brownfield-active': 4, 'ar-active': 2, 'bug-active': 4 };
+const MODE_ETAPAS = {
+  'feature-active': ['sofia-done', 'detetive-done', 'rafael-done', 'rafael-skipped', 'bruno-done', 'ines-done', 'revisor-done', 'auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass', 'checkpoint-done'],
+  'prd-active': ['analista-done', 'pm-prd-done', 'tech-lead-done', 'ux-done', 'ux-skipped', 'decomp-done'],
+  'brownfield-active': ['inventario-done', 'tech-lead-done', 'pm-onboarding-done', 'audit-seg-done'],
+  'ar-active': ['inventario-done', 'auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass'],
+  'bug-active': ['detetive-done', 'bruno-done', 'revisor-done', 'auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass'],
+};
 if (fs.existsSync(RUNTIME)) {
   try {
-    const entries = fs.readdirSync(RUNTIME)
-      .filter((n) => n.startsWith('feature-active-'))
-      .map((n) => ({ n, m: fs.statSync(path.join(RUNTIME, n)).mtimeMs }))
-      .sort((a, b) => b.m - a.m);
-    if (entries.length > 0) {
-      const content = fs.readFileSync(path.join(RUNTIME, entries[0].n), 'utf8').slice(0, 12);
-      story = ` · 📌 ${content}`;
+    const files = fs.readdirSync(RUNTIME);
+    // Acha modo ativo mais recente (so 1 esperado por sessao normalmente)
+    let modoAtivo = null;
+    let mtimeMaisRecente = 0;
+    for (const prefixo of Object.keys(MODE_TOTAL_ETAPAS)) {
+      const candidatos = files.filter((n) => n.startsWith(`${prefixo}-`));
+      for (const c of candidatos) {
+        try {
+          const m = fs.statSync(path.join(RUNTIME, c)).mtimeMs;
+          if (m > mtimeMaisRecente) { mtimeMaisRecente = m; modoAtivo = { prefixo, file: c }; }
+        } catch { /* skip */ }
+      }
+    }
+    if (modoAtivo) {
+      // Le 12 chars do conteudo pra mostrar US-NNN
+      const content = fs.readFileSync(path.join(RUNTIME, modoAtivo.file), 'utf8').slice(0, 12).trim();
+      if (content) story = ` · 📌 ${content}`;
+      // Conta etapas concluidas do modo ativo
+      const sessHash = modoAtivo.file.slice(modoAtivo.prefixo.length + 1);
+      const etapasDoModo = MODE_ETAPAS[modoAtivo.prefixo] || [];
+      const concluidas = etapasDoModo.filter((e) => files.includes(`${e}-${sessHash}`)).length;
+      const total = MODE_TOTAL_ETAPAS[modoAtivo.prefixo];
+      // Cap em total (etapa pode contar duplo se houver ux-done + ux-skipped raro)
+      const N = Math.min(concluidas, total);
+      etapa = ` · 🔁 ${N}/${total}`;
     }
   } catch { /* skip */ }
 }
@@ -156,4 +184,4 @@ if (fs.existsSync(metricsFile)) {
   } catch { /* skip */ }
 }
 
-process.stdout.write(`📍 v${versao} · 🤖 ${modelo} · 🌿 ${branch}${story}${contexto}${shield} · 👤 ${agente}`);
+process.stdout.write(`📍 v${versao} · 🤖 ${modelo} · 🌿 ${branch}${story}${etapa}${contexto}${shield} · 👤 ${agente}`);

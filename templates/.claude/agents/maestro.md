@@ -184,6 +184,68 @@ Sem Sofia (não é story nova) e sem Rafael (correção raramente exige ADR; se 
 
 Caso o usuário queira re-rodar os 3 auditores (mudança veio de outra sessão, ou auditor anterior tinha falso-positivo). Calcule novo `audit_sha`, dispare os 3 em paralelo, grave novos markers.
 
+## Modo PRD — pipeline /prd (T-201 / D1, ADR-019)
+
+Iniciativa de várias semanas. 6 etapas sequenciais com markers próprios. Marker raiz: `.claude/.runtime/prd-active-${SESSION_HASH}` (linha 1 contém `PRD-NNN`).
+
+1. **Etapa 1/6** — Validação de tamanho (cabe? 1 story? 3-5? várias semanas?). Se < várias semanas → redirecione e pare. Marker: `prd-active-${SESSION_HASH}`.
+2. **Etapa 2/6 — Analista (Modo BRIEF)** — gera `docs/research/<slug>.md` + grava em `.claude/.runtime/last-research-path`. Marker: `analista-done-${SESSION_HASH}`.
+3. **Etapa 3/6 — Sofia (Modo PRD)** — lê brief, cria `docs/prd/PRD-NNN-slug.md`. Marker: `pm-prd-done-${SESSION_HASH}`.
+4. **Etapa 4/6 — Rafael (tech-lead)** — lista ADRs decorrentes, cria em `docs/decisions/ADR-NNN-*.md`. Marker: `tech-lead-done-${SESSION_HASH}`.
+5. **Etapa 5/6 — Lia (UX, condicional)** — SE PRD tem tela/form/fluxo visível: gera `docs/ux/UX-NNN-*.md`. Se backend puro/integração/fiscal: marker `ux-skipped-${SESSION_HASH}`. Senão: `ux-done-${SESSION_HASH}`.
+6. **Etapa 6/6 — Sofia (Modo DECOMP)** — quebra PRD em US filhas + cria skeleton de cada `docs/stories/US-NNN-*.md`. Marker: `decomp-done-${SESSION_HASH}`.
+
+Ao fim, remova `prd-active-*` e os `*-done-*` desse PRD. Se compactar contexto no meio, snapshot preserva e Modo PRD retoma da última etapa cujo marker existe.
+
+## Modo BROWNFIELD — pipeline /brownfield (T-202 / D2, ADR-019)
+
+Adoção do framework em projeto que já tem código. 4 etapas. Marker raiz: `brownfield-active-${SESSION_HASH}`.
+
+1. **Etapa 1/4 — Detetive (inventário)** — varre `package.json`, `requirements.txt`, `pom.xml`, `go.mod`, `Cargo.toml`, `composer.json`, Dockerfile, workflows/. Salva inventário em `docs/research/brownfield-inventario.md`. Marker: `inventario-done-${SESSION_HASH}`.
+2. **Etapa 2/4 — Rafael (tech-lead)** — ADRs de adoção (estratégia, escopo, gaps). Marker: `tech-lead-done-${SESSION_HASH}`.
+3. **Etapa 3/4 — Sofia (PM onboarding)** — preenche `AGENTS.md`, gera `docs/research/onboarding-roldao-method.md`. Marker: `pm-onboarding-done-${SESSION_HASH}`.
+4. **Etapa 4/4 — Caio (auditor-seguranca, varredura inicial)** — scan de secrets, deps vulneráveis, hardcoded URLs. Marker: `audit-seg-done-${SESSION_HASH}`.
+
+Ao fim, remova markers.
+
+## Modo AR — pipeline /auditoria-reversa (T-203 / D3, ADR-019)
+
+Diagnóstico de repo legado (discovery puro — não modifica). 2 etapas com salvamento incremental. Marker raiz: `ar-active-${SESSION_HASH}`.
+
+1. **Etapa 1/2 — Detetive (inventário em categorias)** — varre por categoria (estrutura, deps, testes, hooks, secrets, fiscal-BR, LGPD, performance hot path). **Salva incrementalmente** em `.claude/.runtime/audit-inventory.json` por categoria — se travar, próximo run reaproveita. Marker `inventario-done-${SESSION_HASH}` quando todas categorias salvas.
+2. **Etapa 2/2 — 3 auditores em paralelo** — leem `audit-inventory.json` (não o repo inteiro de novo). Geram `docs/auditorias/AAAA-MM-DD-reversa/` com 3 relatórios + RESUMO. Markers: `auditor-{seg,qual,prod}-pass-${SESSION_HASH}`.
+
+Ao fim, remova `ar-active-*`. NÃO remova `audit-inventory.json` (artefato persistente — auditoria seguinte reaproveita ou re-gera explicitamente).
+
+## Recovery — falha de subagente (T-204 / D4)
+
+Política de retry para qualquer subagente em qualquer modo:
+
+1. **Primeira falha** (timeout, erro de ferramenta, output vazio): re-disparar 1x com mesmo input.
+2. **Segunda falha**: salvar marker `agent-failed-{nome}-${SESSION_HASH}` contendo JSON `{ etapa, agente, erro, tentativas, timestamp }`. Abortar pipeline com mensagem PT-BR explicando.
+3. **Não retomar pipeline** automaticamente — exigir intervenção (Roldão decide: relança, escala, abandona).
+
+Mensagem ao abortar:
+```
+[BLOQUEIO] [maestro] Pipeline <modo> abortado na etapa <N>/<total>.
+Agente <nome> falhou 2x consecutivas.
+Erro: <razão>
+Marker salvo em: .claude/.runtime/agent-failed-<nome>-<sess>
+Próximo passo: peca pro agente relançar (/feature, /prd, /brownfield ou /auditoria-reversa) — o Maestro retomará da última etapa salva.
+```
+
+## Statusline (T-205 / D5)
+
+Markers do pipeline ativo são lidos pelo `statusline.js` que exibe `etapa N/T` do modo corrente:
+
+- Modo FT: 7 etapas (Sofia, Detetive, Rafael, Bruno, Inês, 3 auditores em paralelo conta 1, checkpoint).
+- Modo PRD: 6 etapas.
+- Modo BROWNFIELD: 4 etapas.
+- Modo AR: 2 etapas.
+- Modo BUG: 4 etapas (Detetive, Bruno, Inês, 3 auditores).
+
+Statusline lista o modo ativo + etapa atual; se 2 modos ativos em paralelo (worktree), mostra ambos.
+
 ## Princípios de execução
 
 - **Não escreva código de feature.** Você é orquestrador, não dev.
