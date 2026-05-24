@@ -82,9 +82,9 @@ _(Investigador preenche antes de Bruno codar.)_
 - [x] **T-008** — I2: `/help` mostra addons disponíveis. Editado `templates/.claude/commands/help.md` — tabela "Addons disponíveis" com 7 entradas e descrição "Pra quê" em PT-BR.
 - [x] **T-009** — I3: `bin/install.js` (CLI) tem paridade — subcomando `search` lista comandos + skills + addons.
 - [x] **T-010** — I4: `npx roldao-method search <termo>` busca fuzzy em 3 fontes. Implementação em `bin/install.js`: `loadCommandsCatalog`, `loadSkillsCatalog`, `fuzzyScore` (ignora stopwords PT-BR). Validado ao vivo: `search bug`, `search pix`, `search "preciso reportar bug"` retornam resultados esperados.
-- [ ] **T-011** — I6: `/help <comando>` mostra ajuda detalhada do comando. Skip — já existia parcialmente; ajuda detalhada vai ser endereçada se houver demanda concreta.
-- [ ] **T-012** — I8: README ganha seção "Descoberta" linkando `/help`, `npx roldao-method search`, `PRIMEIRO-DIA.md`. _(pendente — baixa prioridade)_
-- [ ] **T-013** — I9: doctor sugere comando próximo via Levenshtein. _(pendente — Levenshtein é optimização; pode entrar em release menor)_
+- [x] **T-011** — I6: `/help <comando>` mostra ajuda detalhada do comando. Entregue: handler em `templates/.claude/commands/help.md` que aceita código curto (BG, FT) OU nome (`bug`, `feature`) e renderiza pra quê + quando usar + etapas + agentes (com nome humano: Sofia, Detetive) + non-goals + relacionados.
+- [x] **T-012** — I8: README ganha seção "Descoberta" linkando `/help`, `npx roldao-method search`, `PRIMEIRO-DIA.md`. Entregue: tabela com 5 portas de entrada (`/help`, `search`, `PRIMEIRO-DIA.md`, `docs/exemplos/`, `doctor`).
+- [x] **T-013** — I9: doctor sugere comando próximo via Levenshtein. Entregue: `levenshtein()` puro em `bin/install.js` + `suggestCommand()` com threshold de 2. Validado ao vivo: `instal` → `install`, `seach` → `search`, `xyz123` → sem sugestão.
 
 **Cobertura adicional (K1, K2, K5):**
 
@@ -118,10 +118,10 @@ _(Investigador preenche antes de Bruno codar.)_
 ## Status
 
 - [x] draft
-- [ ] aprovada
-- [ ] em implementação
-- [ ] revisão
-- [ ] entregue
+- [x] aprovada
+- [x] em implementação
+- [x] revisão
+- [x] entregue
 
 ---
 
@@ -131,6 +131,7 @@ _(Investigador preenche antes de Bruno codar.)_
 |---|---|---|
 | 2026-05-24 | gerente-produto (Sofia) | criação a partir de EP-002 / PRD-003 §4.US-115 |
 | 2026-05-24 | dev-senior (Bruno) | T-003/T-004/T-005/T-006/T-007/T-008/T-009/T-010/T-014/T-015/T-016 entregues. T-011/T-012/T-013 ficam como débito baixo (não bloqueia release). |
+| 2026-05-24 | dev-senior (Bruno) | T-011 (help comando detalhado), T-012 (README Descoberta), T-013 (Levenshtein no doctor) entregues. **US-115 100% completa.** |
 
 ---
 
