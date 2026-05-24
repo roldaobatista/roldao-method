@@ -1,17 +1,28 @@
 # ROLDAO-METHOD
 
-> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores em Node puro e **13 skills BR no core (31 com os 7 addons)** — LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033, telemedicina. Roda no Claude Code e em 8 outras IDEs.
+> **Manual de operação em português pro seu assistente de IA (Claude, Cursor, etc).** Você descreve em PT-BR o que quer ("quero cadastrar cliente", "o boleto saiu errado") e ele segue um roteiro pronto: investiga antes de mexer, valida CPF/CNPJ, respeita LGPD, te avisa em PT-BR claro — sem siglas. Pensado pra dono de produto que **não programa**, no contexto brasileiro (NF-e, Pix, eSocial).
 
 [![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
 
+## Experimente em 30 segundos (sem instalar nada)
+
 ```bash
-npx roldao-method install
+npx roldao-method demo
 ```
 
-Depois, no Claude Code: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 26 workflows. Detalhes em [`docs/QUICKSTART.md`](docs/QUICKSTART.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
+Roda 3 verificações reais: bloqueia um `rm -rf /`, pega uma credencial AWS num arquivo, reprova um CPF inválido. Sem precisar de Claude Code, sem chave de API, sem cadastro.
+
+## Instalar no seu projeto
+
+```bash
+npx roldao-method install        # copia o framework pra pasta atual
+npx roldao-method tutorial       # 5 perguntas em PT-BR preenchem o resto por você
+```
+
+Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 26 roteiros. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
