@@ -1,0 +1,47 @@
+{
+  "name": "devops-dba-comportamento",
+  "descricao": "Valida comportamento PT-BR dos agentes devops-infra e dba-dados após reescrita US-114 F3/F4. Property-based — não chama LLM, valida o doc do agente que é a fonte de comportamento.",
+  "origem": "US-114 T-013 (F5) / T-014 (F6)",
+  "criterios": [
+    {
+      "id": "P1",
+      "descricao": "Agente tem bloco '## TL;DR' no topo (logo após o frontmatter + título)",
+      "tipo": "presenca-padrao",
+      "padrao": "^## TL;DR$",
+      "alvos": [".claude/agents/devops-infra.md", ".claude/agents/dba-dados.md"],
+      "esperado": "1+"
+    },
+    {
+      "id": "P2",
+      "descricao": "Agente passa no hook block-jargon-pt-br (zero jargão sem tradução)",
+      "tipo": "hook-bloqueia",
+      "hook": ".claude/hooks/block-jargon-pt-br.js",
+      "alvos": [".claude/agents/devops-infra.md", ".claude/agents/dba-dados.md"],
+      "esperado": "exit-0"
+    },
+    {
+      "id": "P3",
+      "descricao": "Saída esperada usa PT-BR ao invés de jargão cru (sem 'rollback' isolado fora de bloco PT-BR)",
+      "tipo": "regex-ausente",
+      "padrao": "^Rollback: <comando",
+      "alvos": [".claude/agents/devops-infra.md", ".claude/agents/dba-dados.md"],
+      "esperado": "0-matches"
+    },
+    {
+      "id": "P4",
+      "descricao": "Nota dedicada pro Roldão (dono de produto não-programador) presente",
+      "tipo": "regex-presente",
+      "padrao": "Nota pra Roldão|dono do produto que não programa",
+      "alvos": [".claude/agents/devops-infra.md", ".claude/agents/dba-dados.md"],
+      "esperado": "1+"
+    },
+    {
+      "id": "P5",
+      "descricao": "Agente menciona REGRA #0 ou investigação antes de mexer (alinhamento com INV-006)",
+      "tipo": "regex-presente",
+      "padrao": "REGRA #0|investigador|EXPLAIN|terraform plan",
+      "alvos": [".claude/agents/devops-infra.md", ".claude/agents/dba-dados.md"],
+      "esperado": "1+"
+    }
+  ]
+}
