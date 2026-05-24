@@ -666,7 +666,10 @@ async function install() {
   console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(se ja tem codigo existente)${c.reset} ${c.green}/brownfield${c.reset} pra adotar no projeto atual`);
   console.log(`  ${c.cyan}4.${c.reset} ${c.dim}(opcional)${c.reset} addons BR: ${c.cyan}npx roldao-method search${c.reset}`);
   console.log('');
-  console.log(`${c.dim}Detalhes (CLAUDE.local.md, MCP, GitHub Action): docs/QUICKSTART.md${c.reset}`);
+  console.log(`${c.bold}Nao programa? Comece aqui:${c.reset}`);
+  console.log(`  ${c.cyan}->${c.reset} ${c.green}docs/PARA-DONO-DE-PRODUTO.md${c.reset}  ${c.dim}— manual pro dono de produto que nao escreve codigo${c.reset}`);
+  console.log('');
+  console.log(`${c.dim}Detalhes tecnicos (CLAUDE.local.md, MCP, GitHub Action): docs/QUICKSTART.md${c.reset}`);
   console.log(`${c.dim}Glossario sem jargao: docs/GLOSSARIO.md${c.reset}`);
   console.log('');
   // Aguarda a checagem de versao terminar (com timeout interno) pra o banner

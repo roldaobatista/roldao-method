@@ -4,6 +4,8 @@
 @REGRAS-INEGOCIAVEIS.md
 @.claude/rules/roldao-method.md
 
+> **Não programa?** Este arquivo é pro **assistente de IA Claude Code** ler. Pra entender o que o framework faz pra você, leia [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md).
+>
 > Adendo do harness Claude Code. Conteúdo do produto/arquitetura está em `AGENTS.md`; regras com ID rastreável em `REGRAS-INEGOCIAVEIS.md`; tabela hook→regra em `.claude/rules/roldao-method.md`. Os 3 são carregados automaticamente via `@import`.
 >
 > Pessoal (não versionar): `CLAUDE.local.md` (copiar de [`templates/CLAUDE.local.md.example`](templates/CLAUDE.local.md.example)).

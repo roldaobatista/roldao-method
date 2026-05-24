@@ -28,14 +28,14 @@ Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já 
 
 ## O diferencial em uma linha
 
-**Hooks que impedem o erro mecanicamente** — `rm -rf`, secret commitado, teste mascarado, jargão técnico com cliente, bug "consertado" sem investigar o banco/log. Não é convenção: hook bloqueia (`exit 2` ou `decision:block`) na hora.
+**O sistema barra a ação perigosa antes dela acontecer** — `rm -rf`, senha vazada no código, teste escondendo erro, jargão técnico com cliente, bug "consertado" sem investigar o banco/log. Não é convenção que o dev pode ignorar: o framework recusa a operação na hora. Detalhe técnico (como funciona) em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
 
 ### Por que importa pra dev BR
 
 Ferramentas de IA pra desenvolvimento são quase todas em inglês e otimizadas pra realidade gringa. Dev brasileiro perde nuance e ainda adapta exemplos pra LGPD/NF-e/Pix/Receita Federal. O ROLDAO entrega:
 
 - 🇧🇷 **PT-BR nativo** — não tradução. Tabela de jargão pra usuário não-programador.
-- 🛡️ **34 hooks Node puros** (26 bloqueadores + 2 soft warnings + 5 lifecycle + 1 utilitário `_lib.js`) — bloqueadores barram a ação na hora (`exit 2` ou JSON `decision:block`); lifecycle automatiza format/snapshot/audit. Rodam em Windows sem Git Bash desde a v1.0.
+- 🛡️ **34 verificações automáticas** — 26 barram operação perigosa na hora, 2 mandam aviso, 5 cuidam de manutenção automática (formatação, snapshot, auditoria), 1 ferramenta interna. Rodam em Windows puro desde a v1.0. Detalhe em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
 - 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 7 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto em paralelo, bloqueando commit se reprovado.
@@ -71,7 +71,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).
 - **8 checklists auditáveis** + **7 knowledge bases** + **7 addons verticais BR**.
 
-> **Escopo honesto dos hooks:** são guarda-corpos para um agente **cooperativo e desatento** (o caso comum). Barram o erro óbvio na hora. **Não são sandbox contra agente malicioso**: quem tem `Write` pode reescrever `settings.json`. Defesa em profundidade, não garantia criptográfica. Hooks Node rodam em qualquer plataforma com Node 18+ (Windows puro inclusive, desde a v1.0).
+> **Escopo honesto das verificações:** são guarda-corpos para um agente IA atento mas distraído (o caso comum). Barram o erro óbvio na hora. **Não substituem revisão humana** — quem tem permissão de escrita pode mexer nas próprias regras. É defesa em camadas, não cofre. Funcionam em qualquer computador com Node 18+ instalado (Windows puro inclusive, desde a v1.0).
 
 ## Cobertura BR — IDs rastreáveis em commit
 

@@ -1,12 +1,15 @@
 ---
 owner: framework
-revisado-em: 2026-05-22
+revisado-em: 2026-05-24
 status: stable
+publico-alvo: dev
 ---
 
 # Plan mode, sessões e worktrees no Claude Code
 
-Guia em PT-BR pra recursos nativos do Claude Code que multiplicam produtividade — especialmente útil para quem **não programa** e precisa entender antes de aprovar.
+> **Pra quem é este documento:** desenvolvedor familiarizado com Git e terminal. Cobre `git worktree`, `SESSION_HASH`, markers de runtime, `--continue`, `--resume`. Se você não programa: pule este doc. O Claude Code já tem plan mode habilitado por padrão — basta apertar `Shift+Tab` quando o agente perguntar, sem precisar entender o interno.
+
+Guia em PT-BR pra recursos nativos do Claude Code que multiplicam produtividade.
 
 ## Plan mode — revise antes do Claude tocar nada
 

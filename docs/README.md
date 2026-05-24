@@ -10,9 +10,13 @@ status: stable
 
 ## 🚀 Começando (5 min)
 
-1. [QUICKSTART](QUICKSTART.md) — instalação + 1ª `/feature` em 10 min.
-2. [COMO-FUNCIONA](COMO-FUNCIONA.md) — visão de 360º (agentes, hooks, workflows, skills, addons).
-3. [EXEMPLO-FEATURE-COMPLETA](EXEMPLO-FEATURE-COMPLETA.md) — walkthrough Sofia → Detetive → Rafael → Bruno → 3 auditores.
+> **Não programa?** Comece em [**PARA-DONO-DE-PRODUTO**](PARA-DONO-DE-PRODUTO.md) e tenha o [**GLOSSARIO**](GLOSSARIO.md) aberto pra traduzir qualquer termo técnico que aparecer.
+
+1. [PARA-DONO-DE-PRODUTO](PARA-DONO-DE-PRODUTO.md) — manual pro dono que NÃO escreve código.
+2. [GLOSSARIO](GLOSSARIO.md) — tradução de jargão técnico em 3 tabelas.
+3. [QUICKSTART](QUICKSTART.md) — instalação + 1ª `/feature` em 10 min (perfil dev).
+4. [COMO-FUNCIONA](COMO-FUNCIONA.md) — visão de 360º (agentes, hooks, workflows, skills, addons).
+5. [EXEMPLO-FEATURE-COMPLETA](EXEMPLO-FEATURE-COMPLETA.md) — walkthrough Sofia → Detetive → Rafael → Bruno → 3 auditores.
 
 ## 🧱 Aprofundamento
 

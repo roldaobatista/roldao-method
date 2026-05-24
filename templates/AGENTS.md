@@ -1,5 +1,7 @@
 # AGENTS.md — contrato canônico do projeto
 
+> **Não programa?** Este arquivo é pro **assistente de IA** ler e seguir, não pra você. Pra entender o que o framework faz pra você, leia [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md).
+>
 > **Para agentes de IA (Claude Code, Cursor, ChatGPT, Codex CLI):** este é o documento de referência primária. O `CLAUDE.md` é apenas adendo do harness Claude Code e importa este via `@AGENTS.md`.
 >
 > **Princípio:** documento é estado compartilhado. Agente que decide sem doc inventa diferente toda vez.

@@ -43,13 +43,21 @@ Esse arquivo é a **fonte da verdade** que todo agente lê primeiro. Bem preench
 
 **Já tem projeto rodando?** Pule essa etapa e rode `/brownfield` no Claude Code — o investigador preenche por você.
 
-## 3. Valide os hooks
+## 3. Valide a instalação
 
 ```bash
-npm run test:hooks-node-only   # 59 cenários cobrindo os 26 bloqueadores em Node puro
+npx roldao-method doctor
 ```
 
-Deve terminar com `EXIT:0`. Em alternativa, `npx roldao-method doctor` confere que os 34 hooks estão instalados com permissão de execução. Se falhar, abra issue.
+Confere que os 34 hooks estão instalados e com permissão de execução. Funciona em qualquer máquina com Node 18+ instalado (não precisa Git Bash, não precisa Python). Se acusar problema, abra issue.
+
+**Opcional (perfil dev):** se quiser rodar a suite completa de 59 cenários adversariais:
+
+```bash
+npm run test:hooks-node-only
+```
+
+Deve terminar com `EXIT:0`. Pré-requisito: ter clonado o repositório do framework (não basta instalar via npm).
 
 ## 4. Output style PT-BR — já ativo
 
