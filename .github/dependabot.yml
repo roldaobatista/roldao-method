@@ -1,0 +1,36 @@
+# Dependabot — alertas semanais de atualização.
+# Mesmo com zero deps runtime (ADR-001), monitoramos:
+#   - npm: caso devDependency entre no futuro (hoje vazio, mas package-lock pode aparecer).
+#   - github-actions: vetor de supply chain via tag-move (mitigado também por pin SHA).
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
