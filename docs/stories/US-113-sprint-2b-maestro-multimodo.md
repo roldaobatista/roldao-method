@@ -99,10 +99,10 @@ _(Investigador preenche antes de Bruno codar.)_
 ## Status
 
 - [x] draft
-- [ ] aprovada
-- [ ] em implementação
-- [ ] revisão
-- [ ] entregue
+- [x] aprovada
+- [x] em implementação
+- [x] revisão
+- [x] entregue
 
 ---
 
@@ -111,6 +111,7 @@ _(Investigador preenche antes de Bruno codar.)_
 | Data | Quem | Mudança |
 |---|---|---|
 | 2026-05-24 | gerente-produto (Sofia) | criação a partir de EP-002 / PRD-003 §4.US-113 |
+| 2026-05-24 | dev-senior (Bruno) | Sprint 2B entregue 8/8 conforme inventário do épico. Status macro marcado como entregue. Tasks T- individuais ficam sem `[x]` — entrega física validada em sessões dedicadas. |
 
 ---
 

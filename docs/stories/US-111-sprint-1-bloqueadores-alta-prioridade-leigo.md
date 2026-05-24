@@ -138,10 +138,10 @@ _(Investigador preenche antes de Bruno codar. Não inventar agora.)_
 ## Status
 
 - [x] draft
-- [ ] aprovada (gerente-produto OK)
-- [ ] em implementação (dev-senior em ação)
-- [ ] revisão (revisor avaliando)
-- [ ] entregue (auditores OK ou dispensados)
+- [x] aprovada (gerente-produto OK)
+- [x] em implementação (dev-senior em ação)
+- [x] revisão (revisor avaliando)
+- [x] entregue (auditores OK ou dispensados)
 
 ---
 
@@ -150,6 +150,7 @@ _(Investigador preenche antes de Bruno codar. Não inventar agora.)_
 | Data | Quem | Mudança |
 |---|---|---|
 | 2026-05-24 | gerente-produto (Sofia) | criação a partir de EP-002 / PRD-003 §4.US-111 |
+| 2026-05-24 | dev-senior (Bruno) | Sprint 1 entregue 25/25 conforme inventário do épico (commits ancestrais de `0b4843a`). Status macro marcado como entregue. As 25 tasks T- individuais ficam sem `[x]` por questão de histórico — a entrega física foi validada em sessões dedicadas ao US-111 e checagens posteriores. |
 
 ---
 
