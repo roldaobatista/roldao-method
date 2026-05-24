@@ -2,6 +2,42 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.0.3] — 2026-05-24
+
+**4ª auditoria 10-agentes — foco em usabilidade pra leigo, time-to-value, inovação.** Os 10 agentes (instalação, UX terminal, dependências, docs leigo, mensagens, curva, inovação, update, acessibilidade, time-to-value) rodaram em paralelo e os 5 temas críticos foram fechados em 5 commits atômicos. Suite expande de 233 → 242 checagens (`test:install-lib` 12 → 21).
+
+### Adicionado
+
+- **`npx roldao-method demo`** — comando novo que roda 3 cenários OFFLINE em 30 segundos sem precisar de Claude Code, chave Anthropic, Python ou cadastro. Bloqueia `rm -rf /` (block-destructive), pega credencial AWS sintética em arquivo (secrets-scanner), reprova CPF `111.111.111-11` por algoritmo Node-puro. Resolve a barreira #1 de adoção: "preciso instalar tudo pra ver funcionar".
+- **`npx roldao-method tutorial`** — wizard pós-install em PT-BR claro. 5 perguntas (nome do produto, o que faz em uma frase, tipo de coisa, quem usa, diferencial) preenchem `AGENTS.md §1` automaticamente. Backup `.bak` antes de gravar. Idempotente. Substitui o "preencha 14 campos `_(preencher)_` em markdown" do install padrão.
+- **`npx roldao-method rollback [<id>] [--list]`** — desfaz o último update. Snapshot único versionado (`.roldao-method/snapshots/<ts>-from-X-to-Y/`) substitui os 30+ `.bak` espalhados pela árvore. `--list` mostra histórico.
+- **`npx roldao-method update --all`** — itera todos os projetos registrados em `~/.roldao-method/projects.json` (preenchido automaticamente em cada `install`). Usuário com N repos roda 1 comando em vez de N.
+- **`docs/GLOSSARIO.md`** — tabela de termos técnicos traduzidos pra linguagem de quem não programa (framework, hook, skill, commit, push, deploy, refactor, migration, etc) + tabela de mensagens comuns do assistente traduzidas ("CI verde", "subi em produção", "tem débito técnico").
+- **`docs/PARA-DONO-DE-PRODUTO.md`** — guia pra dono de produto que não programa. Os 5 momentos típicos (ideia nova, bug reportado, entender o que IA fez, ver status, decidir algo), o que nunca vai precisar entender, e quando pedir ajuda humana (contador/advogado/especialista de setor).
+- **Perfil "Iniciante"** — primeira opção do wizard de install. 5 comandos essenciais sem addon, recomendado pra quem está começando.
+- **Árvore de decisão ASCII** no topo de `/help` — 8 perguntas guiam pro comando certo sem precisar decorar 26 códigos.
+- **Hook `FISCAL-006` codificado** em `fiscal-br-validator.js` — código em pasta tributária que toca ICMS/ISS/PIS/COFINS/CBS/IBS sem declarar regime (`// FISCAL-006: transicao|pos-2033|nao-aplica`) bloqueia escrita. Reforma Tributária 2026-2033 (LC 214/2025) que era só doutrinária vira mecânica.
+- **GATE 2 em `require-investigador-before-fix.js`** — quando `bug-active` ativo, além do marker `investigator-invoked`, exige também `.claude/.runtime/investigation-*.json` com prova mecânica do que foi lido (banco/log/payload). Marker vazio vira teatro; agora bloqueia. REGRA #0 sai de doutrina pra prova.
+- **`bin/lib/glyphs.js`** + **`bin/lib/spinner.js`** — glifos com fallback ASCII (`--ascii` ou `ROLDAO_ASCII=1`) pra terminal cp1252 / PuTTY / leitor de tela; spinner Braille no-op fora de TTY/quiet. Substitui silêncio nas operações longas.
+- **9 testes novos** em `test:install-lib` cobrindo `isCustomizable()`, `makeGlyphs()`, `validarCPF()` e ciclo completo `createSnapshot → recordFile → restoreSnapshot`.
+
+### Corrigido
+
+- **`bin/install.js`** — caixa de versão hardcoded em 52 colunas quebrava com `1.10.0`. `drawBox()` agora calcula largura dinamicamente baseada no conteúdo e respeita `process.stdout.columns`.
+- **`bin/install.js`** — confirmação só aceitava `s`; agora `isYes()` aceita `s`/`sim`/`y`/`yes` (leigo brasileiro digita "sim" e cancelava silenciosamente).
+- **`bin/install.js`** — mensagem "sem TTY e sem --yes/-y" traduzida pra PT-BR claro ("estou rodando dentro de um script que não consegue te perguntar nada"); jargão "TTY" removido da fala com leigo.
+- **`bin/install.js`** — addon desconhecido agora sugere `npx roldao-method search` em vez de só listar opções secas.
+- **`bin/install.js`** — operações longas (walkAndCopy, fetch versão remota) com spinner Braille; "Próximos passos" do install reescrito apontando pro `tutorial` em vez de "preencha 14 campos".
+- **`bin/lib/user-owned.js`** — `isCustomizable()` protege `.claude/{agents,commands,hooks,skills,output-styles,rules}/*` editados pelo usuário. Quando hash difere do template original, update gera backup datado (`.customizado.<ts>.bak`) e marca como `CUSTOMIZADO` no resumo. Antes sobrescrevia silenciosamente deixando só `.bak` simples.
+- **`templates/.claude/hooks/no-amend-after-push.js`** — fail-closed quando `git` ausente no PATH. Antes retornava string vazia silenciosamente e o `--amend` em commit publicado passava (auditoria de portabilidade flagrou).
+- **`templates/.claude/hooks/anti-mascaramento.js`** — mensagens com acentuação UTF-8 (`BLOQUEADO`, `Violações`, `Exceção`, `Código`) e link `REGRAS-INEGOCIAVEIS.md#tst-001`.
+- **`docs/EXTENDENDO/hook.md`** — exemplo de hook reescrito em Node puro (estava em bash apesar do EP-001/v1.0 ter portado tudo). Tabela de eventos atualizada, funções de `_lib.js` listadas.
+- **`README.md`** primeira linha — reescrita sem siglas. Era "Framework agentic em português brasileiro: 15 especialistas, 26 hooks bloqueadores em Node puro..." (8 jargões em 1 frase), agora "Manual de operação em português pro seu assistente de IA. Você descreve em PT-BR o que quer e ele segue um roteiro pronto..." Bloco `npx roldao-method demo` adicionado antes do bloco de install.
+
+### Preservado
+
+- Zero deps runtime. Zero quebra de retrocompatibilidade. Cliente que rodar `npx roldao-method update` em 1.0.2 sobe pra 1.0.3 sem ajuste em arquivo do projeto. Snapshot criado automaticamente — se algo der errado, `npx roldao-method rollback` desfaz.
+
 ## [1.0.2] — 2026-05-24
 
 **Patch da 3ª auditoria 10-agentes (~31 achados).** 8 ALTOS + 11 MÉDIOS + 12 BAIXOS endereçados em sequência. Suite expandiu de 224 → 233 checagens (hooks-node-only 61 → 70). Nada quebra retrocompatibilidade — todos os fixes são aditivos ou correção de drift interno.
