@@ -33,8 +33,12 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.
   } catch { /* skip */ }
 
   const faltam = [];
+  // Revisor (Inês) e parte do pipeline /feature (Sofia → Detetive → Rafael →
+  // Bruno → Inês → 3 auditores). Sem marker dele, doc promete 6 etapas mas
+  // hook valida 5. Auditoria 10-agentes 2026-05-24 fechou esse gap.
+  if (!fs.existsSync(m('revisor-done'))) faltam.push('revisor (Inês)');
   if (!fs.existsSync(m('auditor-seg-pass'))) faltam.push('auditor-seguranca (Caio)');
-  if (!fs.existsSync(m('auditor-qual-pass'))) faltam.push('auditor-qualidade (Julia)');
+  if (!fs.existsSync(m('auditor-qual-pass'))) faltam.push('auditor-qualidade (Júlia)');
   if (!fs.existsSync(m('auditor-prod-pass'))) faltam.push('auditor-produto (Pedro)');
   if (!fs.existsSync(m('checkpoint-done'))) faltam.push('checkpoint (walkthrough do diff)');
 

@@ -37,7 +37,7 @@ INFRA / ENTREGA
 REVISÃO E AUDITORIA
 ├─ Inês (revisor)                → aderência à US + anti-padrões no diff
 ├─ Caio (auditor-seguranca)      → LGPD, secrets, OWASP, supply chain
-├─ Julia (auditor-qualidade)     → cobertura, mocks indevidos, TST-*
+├─ Júlia (auditor-qualidade)     → cobertura, mocks indevidos, TST-*
 └─ Pedro (auditor-produto)       → aderência ao pedido, non-goals
 
 DOMÍNIO BR
@@ -54,12 +54,12 @@ COMUNICAÇÃO
 | `/inicio` | Sofia → Rafael → Bruno |
 | `/brownfield` | Detetive → Rafael → Sofia → Caio |
 | `/prd` | Mariana → Sofia → Rafael → Lia → Sofia (decomp) |
-| `/feature` | Maestro orquestra: Sofia → Detetive → Rafael → Bruno → Inês → Caio+Julia+Pedro (paralelo) |
+| `/feature` | Maestro orquestra: Sofia → Detetive → Rafael → Bruno → Inês → Caio+Júlia+Pedro (paralelo) |
 | `/bug` | **Detetive (obrigatório)** → Bruno → Inês |
 | `/refactor` | Rafael → Bruno → Inês |
-| `/qa` | Detetive → Julia → Bruno → Inês |
-| `/auditoria` | Caio + Julia + Pedro (paralelo) |
-| `/consistencia` | Detetive → Caio + Julia + Pedro |
+| `/qa` | Detetive → Júlia → Bruno → Inês |
+| `/auditoria` | Caio + Júlia + Pedro (paralelo) |
+| `/consistencia` | Detetive → Caio + Júlia + Pedro |
 | `/quick-dev` | Bruno → Inês |
 | `/release` | Camila |
 | `/status` | Camila |
@@ -79,7 +79,7 @@ COMUNICAÇÃO
 | 🚀 | Lucas | DevOps / Infra | sonnet |
 | ✅ | Inês | Revisor | sonnet |
 | 🛡️ | Caio | Auditor Segurança | sonnet |
-| 🧪 | Julia | Auditor Qualidade | sonnet |
+| 🧪 | Júlia | Auditor Qualidade | sonnet |
 | 🎯 | Pedro | Auditor Produto | haiku |
 | 🧾 | Dona Marta | Fiscal BR | sonnet |
 | 📝 | Camila | Tech Writer | haiku |

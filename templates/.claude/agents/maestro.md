@@ -117,7 +117,7 @@ Bruno implementa + testes. Sem marker próprio — o diff é a evidência.
 Task subagent_type=revisor prompt=<diff resumido + US>
 ```
 
-Se Inês retornar `BLOQUEADO`: volte pra Etapa 4 com o feedback. Reaplique até passar.
+Se Inês retornar `BLOQUEADO`: volte pra Etapa 4 com o feedback. Reaplique até passar. Após aprovação: `touch "$RUNTIME/revisor-done-${SESSION_HASH}"`. Sem esse marker, o hook `enforce-pipeline-completion` bloqueia o Stop.
 
 ### Etapa 6 — 3 auditores em PARALELO
 
@@ -154,7 +154,7 @@ Salva em `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md`. Após salvar: `touch "$RUN
 Limpe markers da sessão (mantenha `readiness-passed-*` — vale pra outras stories do mesmo épico):
 
 ```bash
-rm -f "$RUNTIME"/{feature-active,sofia-done,detetive-done,rafael-done,rafael-skipped,auditor-seg-pass,auditor-qual-pass,auditor-prod-pass,checkpoint-done}-"${SESSION_HASH}"
+rm -f "$RUNTIME"/{feature-active,sofia-done,detetive-done,rafael-done,rafael-skipped,revisor-done,auditor-seg-pass,auditor-qual-pass,auditor-prod-pass,checkpoint-done}-"${SESSION_HASH}"
 ```
 
 ### Saída final
