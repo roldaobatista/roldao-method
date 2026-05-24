@@ -31,6 +31,18 @@ npx roldao-method tutorial       # 5 perguntas em PT-BR preenchem o resto por vo
 
 Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 26 roteiros. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
 
+### Descoberta — como achar o que existe
+
+Não decora comando. Use uma das 3 portas de entrada:
+
+| Quando você quer... | Use |
+|---|---|
+| Saber qual roteiro existe pra cada situação | `/help` (no Claude) — tabela "Comando \| Pra quê \| Quando usar" + skills + addons |
+| Achar comando/skill/addon por frase natural em PT-BR | `npx roldao-method search "preciso reportar bug"` → sugere `/bug` |
+| Saber o primeiro dia de uso | [`docs/PRIMEIRO-DIA.md`](docs/PRIMEIRO-DIA.md) — 30 minutos guiados |
+| Ver exemplos preenchidos de PRD/ADR/US | [`docs/exemplos/`](docs/exemplos/) — 5 casos brasileiros completos |
+| Diagnosticar instalação ou descobrir campos vazios | `npx roldao-method doctor` |
+
 ---
 
 ## O diferencial em uma linha
