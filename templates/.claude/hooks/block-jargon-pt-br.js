@@ -5,24 +5,44 @@
 const { readStdinJson, recordMetric } = require('./_lib.js');
 
 // Termos jargao (concatenados pra evitar trigger do proprio scanner em string-literal).
+// T-009 (F1) — sincronizado com tabela canonica de traduzir-jargao/SKILL.md.
 const JARGON_TERMS = [
+  // Git/workflow
   '\\bcommit(s|ar|ed|ado|ei|ou)?\\b',
   '\\bbranch(es|ar|ado)?\\b',
   '\\bpush(es|ar|ado|ei|ou)?\\b',
   '\\bpull(s|ed|ar|ado|ei|ou)?\\b',
   '\\bmerge(s|ar|ado|ei|ou|ado)?\\b',
   '\\brebase(s|ar|ado|ei|ou)?\\b',
-  '\\bdeploy(s|ar|ado|ei|ou)?\\b',
-  '\\brollback(s|ar|ado)?\\b',
   '\\brevert(s|er|ido|i|eu)?\\b',
-  '\\bendpoint(s)?\\b',
-  '\\brefactor(s|ar|ado|ei|ou)?\\b',
-  '\\blint(s|ar|ado)?\\b',
-  '\\bbuild(s|ar|ado)?\\b',
-  '\\bCI\\b', '\\bPR\\b', '\\bMR\\b',
-  '\\brepo(s)?\\b', '\\brepository(\\b|ies)',
   '\\bcheckout(s|ar|ado)?\\b', '\\bstash(es|ar|ado)?\\b',
   '\\bcherry-pick(s|ed|ar|ado)?\\b', '\\bbisect(s|ar|ado)?\\b',
+  '\\bamend(s|ar|ado)?\\b',
+  '\\bdiff(s)?\\b',
+  // CI/deploy
+  '\\bdeploy(s|ar|ado|ei|ou)?\\b',
+  '\\brollback(s|ar|ado)?\\b',
+  '\\bbuild(s|ar|ado)?\\b',
+  '\\blint(s|ar|ado)?\\b',
+  '\\bCI\\b', '\\bPR\\b', '\\bMR\\b',
+  '\\bhotfix(es)?\\b',
+  '\\bpipeline(s)?\\b',
+  // Arquitetura
+  '\\bendpoint(s)?\\b',
+  '\\brefactor(s|ar|ado|ei|ou)?\\b',
+  '\\brepo(s)?\\b', '\\brepository(\\b|ies)',
+  '\\bbackend\\b', '\\bfrontend\\b',
+  '\\bwebhook(s)?\\b',
+  '\\bpayload(s)?\\b',
+  '\\bcache(s|ar|ado)?\\b',
+  // T-009 — testes / dados
+  '\\bmock(s|ar|ado|ei|ou)?\\b',
+  '\\bfixture(s)?\\b',
+  '\\bmigration(s)?\\b',
+  // T-009 — debug
+  'stack trace(s)?',
+  '\\bnull pointer\\b',
+  '\\brace condition(s)?\\b',
 ];
 const COMBINED_RE = new RegExp(JARGON_TERMS.join('|'), 'gi');
 
@@ -84,8 +104,19 @@ Tabela de traducao:
   - refactor -> 'reorganizar (sem mudar o que aparece pro usuario)'
   - migration -> 'mudanca na estrutura dos dados salvos'
   - mock/fixture -> 'dados falsos pros testes'
+  - backend -> 'parte que roda no servidor'
+  - frontend -> 'parte que aparece pro cliente'
+  - webhook -> 'aviso automatico que o sistema externo manda'
+  - cache -> 'memoria rapida pra nao recalcular'
+  - payload -> 'pacote de dados enviado/recebido'
+  - hotfix -> 'correcao urgente'
+  - pipeline -> 'sequencia automatica de validacoes'
+  - stack trace -> 'trilha do erro tecnico'
+  - amend -> 'reescrever a ultima gravacao'
+  - diff -> 'comparacao entre versoes'
 
-Excecao: se o usuario E programador (declarado em AGENTS.md), peca pra ajustar a regra.`;
+Excecao: se o usuario E programador (declarado em AGENTS.md), peca pra ajustar a regra
+em .claude/settings.json (desligar este hook ou adicionar 'developer-mode: true').`;
 
   recordMetric('jargao', 'block-jargon-pt-br', violations[0]);
   process.stdout.write(JSON.stringify({ decision: 'block', reason: reasonText }));
