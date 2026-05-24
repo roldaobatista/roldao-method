@@ -7,7 +7,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/statusline.sh\"",
+    "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/statusline.js\"",
     "padding": 0
   },
   "permissions": {
@@ -106,17 +106,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/context-budget.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/context-budget.js\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/mcp-validator.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/mcp-validator.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot-restore.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot-restore.js\"",
             "timeout": 3
           }
         ]
@@ -127,7 +127,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/regra-zero-reminder.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/regra-zero-reminder.js\"",
             "timeout": 3
           }
         ]
@@ -139,32 +139,32 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-destructive.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-destructive.js\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/commit-message-validator.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/commit-message-validator.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-amend-after-push.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-amend-after-push.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-secrets-in-commit-message.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-secrets-in-commit-message.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-checkpoint-before-merge.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-checkpoint-before-merge.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-auditors-pass-before-commit.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-auditors-pass-before-commit.js\"",
             "timeout": 5
           }
         ]
@@ -174,87 +174,87 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/secrets-scanner.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/secrets-scanner.js\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/anti-mascaramento.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/anti-mascaramento.js\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/paths-frontmatter-validator.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/paths-frontmatter-validator.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-mock-in-integration.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-mock-in-integration.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-todo-without-issue.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-todo-without-issue.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-test-data-in-fixtures.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-test-data-in-fixtures.js\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-hardcoded-env-urls.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-hardcoded-env-urls.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/fiscal-br-validator.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/fiscal-br-validator.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-investigador-before-fix.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-investigador-before-fix.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-readiness-before-feature.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-readiness-before-feature.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-agent-sequence-before-dev.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-agent-sequence-before-dev.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-dependencies.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-dependencies.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-approvals.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-approvals.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-quick-dev-scope.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-quick-dev-scope.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-test-pyramid.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-test-pyramid.js\"",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-base-legal-reminder.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-base-legal-reminder.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-log-pix-key.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-log-pix-key.js\"",
             "timeout": 5
           }
         ]
@@ -266,7 +266,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-format-on-write.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-format-on-write.js\"",
             "timeout": 15
           }
         ]
@@ -277,7 +277,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/subagent-handoff-audit.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/subagent-handoff-audit.js\"",
             "timeout": 5
           }
         ]
@@ -288,7 +288,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot.js\"",
             "timeout": 5
           }
         ]
@@ -299,7 +299,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot.js\"",
             "timeout": 5
           }
         ]
@@ -310,17 +310,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-jargon-pt-br.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-jargon-pt-br.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-confirmation-questions.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-confirmation-questions.js\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/enforce-pipeline-completion.sh\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/enforce-pipeline-completion.js\"",
             "timeout": 5
           }
         ]

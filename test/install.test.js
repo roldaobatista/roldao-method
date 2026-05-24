@@ -82,33 +82,35 @@ const exigidos = [
   '.claude/commands/clarificar.md',
   '.claude/commands/consistencia.md',
 
-  // 18 hooks bloqueadores
-  '.claude/hooks/anti-mascaramento.sh',
-  '.claude/hooks/block-destructive.sh',
-  '.claude/hooks/block-mock-in-integration.sh',
-  '.claude/hooks/block-todo-without-issue.sh',
-  '.claude/hooks/commit-message-validator.sh',
-  '.claude/hooks/fiscal-br-validator.sh',
-  '.claude/hooks/no-amend-after-push.sh',
-  '.claude/hooks/no-hardcoded-env-urls.sh',
-  '.claude/hooks/no-test-data-in-fixtures.sh',
-  '.claude/hooks/paths-frontmatter-validator.sh',
-  '.claude/hooks/secrets-scanner.sh',
-  '.claude/hooks/block-jargon-pt-br.sh',
-  '.claude/hooks/block-secrets-in-commit-message.sh',
-  '.claude/hooks/block-confirmation-questions.sh',
-  '.claude/hooks/require-investigador-before-fix.sh',
-  '.claude/hooks/require-readiness-before-feature.sh',
-  '.claude/hooks/require-agent-sequence-before-dev.sh',
-  '.claude/hooks/validate-story-dependencies.sh',
-  '.claude/hooks/validate-quick-dev-scope.sh',
-  '.claude/hooks/validate-test-pyramid.sh',
+  // 18 hooks bloqueadores (Node — v1.0.0, port EP-001)
+  '.claude/hooks/_lib.js',
+  '.claude/hooks/anti-mascaramento.js',
+  '.claude/hooks/block-destructive.js',
+  '.claude/hooks/block-mock-in-integration.js',
+  '.claude/hooks/block-todo-without-issue.js',
+  '.claude/hooks/commit-message-validator.js',
+  '.claude/hooks/fiscal-br-validator.js',
+  '.claude/hooks/no-amend-after-push.js',
+  '.claude/hooks/no-hardcoded-env-urls.js',
+  '.claude/hooks/no-test-data-in-fixtures.js',
+  '.claude/hooks/paths-frontmatter-validator.js',
+  '.claude/hooks/secrets-scanner.js',
+  '.claude/hooks/block-jargon-pt-br.js',
+  '.claude/hooks/block-secrets-in-commit-message.js',
+  '.claude/hooks/block-confirmation-questions.js',
+  '.claude/hooks/require-investigador-before-fix.js',
+  '.claude/hooks/require-readiness-before-feature.js',
+  '.claude/hooks/require-agent-sequence-before-dev.js',
+  '.claude/hooks/validate-story-dependencies.js',
+  '.claude/hooks/validate-quick-dev-scope.js',
+  '.claude/hooks/validate-test-pyramid.js',
 
-  // 5 auxiliares + test-runner
-  '.claude/hooks/context-budget.sh',
-  '.claude/hooks/mcp-validator.sh',
-  '.claude/hooks/regra-zero-reminder.sh',
-  '.claude/hooks/_test-runner.sh',
+  // 5 auxiliares lifecycle
+  '.claude/hooks/context-budget.js',
+  '.claude/hooks/mcp-validator.js',
+  '.claude/hooks/regra-zero-reminder.js',
+  '.claude/hooks/auto-format-on-write.js',
+  '.claude/hooks/session-snapshot.js',
 
   // 13 skills BR no core
   '.claude/skills/gerar-adr-pt-br/SKILL.md',
@@ -194,39 +196,33 @@ try {
   check('override preservado no update', false);
 }
 
-// 4c) E2E hook: o hook instalado executa e bloqueia ataque real
+// 4c) E2E hook: o hook .js instalado executa e bloqueia ataque real
 // (não é só o arquivo existir — tem que rodar e devolver exit 2).
-// Pular em Windows sem bash (CI Windows usa Git Bash, dev local pode não ter).
-if (process.platform !== 'win32' || (() => {
-  try { execSync('bash --version', { stdio: 'pipe' }); return true; } catch { return false; }
-})()) {
-  const hookPath = path.join(TMP, '.claude/hooks/block-destructive.sh');
+// Pós EP-001 (v1.0): hook e Node puro, roda em qualquer plataforma sem bash.
+{
+  const hookPath = path.join(TMP, '.claude/hooks/block-destructive.js');
   if (fs.existsSync(hookPath)) {
-    // Garantir +x em Unix (npm pack pode ter preservado, mas defensivo)
-    try { fs.chmodSync(hookPath, 0o755); } catch {}
     const runHook = (input) => {
       try {
-        execSync(`bash "${hookPath}"`, { input, stdio: 'pipe' });
+        execSync(`node "${hookPath}"`, { input, stdio: 'pipe' });
         return 0;
       } catch (e) { return e.status ?? 1; }
     };
     check(
-      'E2E: hook instalado bloqueia rm -rf real (exit 2)',
+      'E2E: hook .js instalado bloqueia rm -rf real (exit 2)',
       runHook('{"tool_input":{"command":"rm -rf /tmp/foo"}}') === 2,
     );
     check(
-      'E2E: hook instalado permite ls (exit 0)',
+      'E2E: hook .js instalado permite ls (exit 0)',
       runHook('{"tool_input":{"command":"ls -la"}}') === 0,
     );
     check(
-      'E2E: hook instalado bloqueia git push --force (exit 2)',
+      'E2E: hook .js instalado bloqueia git push --force (exit 2)',
       runHook('{"tool_input":{"command":"git push --force origin main"}}') === 2,
     );
   } else {
-    check('E2E: hook block-destructive.sh presente apos install', false);
+    check('E2E: hook block-destructive.js presente apos install', false);
   }
-} else {
-  console.log('  SKIP E2E hooks: bash indisponível neste runner Windows');
 }
 
 // 5) List
@@ -265,7 +261,7 @@ try {
   check('remove tirou agente do addon', !fs.existsSync(path.join(TMP, '.claude/agents/electron-arch.md')));
   check('remove tirou hook do addon', !fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.sh')));
   check('remove preservou core (dev-senior)', fs.existsSync(path.join(TMP, '.claude/agents/dev-senior.md')));
-  check('remove preservou core (block-destructive)', fs.existsSync(path.join(TMP, '.claude/hooks/block-destructive.sh')));
+  check('remove preservou core (block-destructive)', fs.existsSync(path.join(TMP, '.claude/hooks/block-destructive.js')));
 } catch (e) {
   check('remove executou', false);
 }

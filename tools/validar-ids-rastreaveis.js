@@ -50,7 +50,7 @@ function listFilesRecursive(dir, exts) {
 }
 
 PONTOS_DE_RASTREIO.push(
-  ...listFilesRecursive(path.join(ROOT, 'templates', '.claude', 'hooks'), ['.sh']),
+  ...listFilesRecursive(path.join(ROOT, 'templates', '.claude', 'hooks'), ['.js']),
   ...listFilesRecursive(path.join(ROOT, 'templates', '.claude', 'agents'), ['.md']),
   ...listFilesRecursive(path.join(ROOT, 'templates', '.specify', 'checklists'), ['.md']),
 );

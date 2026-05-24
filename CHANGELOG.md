@@ -2,6 +2,48 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.0.0-rc1] — 2026-05-23
+
+**Release candidate da v1.0.0 — port completo dos 26 hooks de bash/perl pra Node.js puro (EP-001).**
+
+Encerra o épico [`EP-001`](docs/epicos/EP-001-hooks-node-port.md) (10 stories, US-101..US-110) que veio do [`PRD-001`](docs/prd/PRD-001-windows-sem-bash.md) caminho A. A partir desta release, o framework **roda 100% em Node 18+ — sem dependência de bash, perl, Git Bash ou Git for Windows**. Cobre o público dev BR Windows puro, que estava desprotegido nas versões anteriores.
+
+**Breaking change anunciado:** hooks `.sh` foram **removidos**. Quem está em v0.20 ou anterior precisa rodar `npx roldao-method@latest update`. Cliente que customizou hooks `.sh` em `.specify/overrides/` continua intacto (override sem fork). Guia completo: [docs/MIGRACAO-V1.md](docs/MIGRACAO-V1.md).
+
+### Adicionado
+
+- **`templates/.claude/hooks/_lib.js` (US-101)** — biblioteca Node única que espelha `_lib.sh`. 8 funções: `sanitizeProjdir`, `sanitizeSessionHash`, `safeRuntimeDir`, `safeTmpfile`, `secretTokenPatterns`, `secretTokenRegexes`, `posixToJsRegex`, `hookBlockHeader`, `recordMetric`, `readStdinJson`. Zero dependência externa.
+- **26 hooks `.js` portados (US-102..US-107)** — paridade byte-a-byte com os `.sh` originais. Grupos: destrutivos (2), segredos (2), testes (4), fiscal/Pix/LGPD (4), pipeline (10), lifecycle/util (11).
+- **`templates/.claude/statusline.js`** — status line em Node (port do `.sh`).
+- **`test/hooks-node-only.test.js`** — suite oficial pós v1.0: 59 cenários validando que cada hook `.js` executa sem dependência de bash. Roda em qualquer plataforma com Node 18+.
+- **Job CI `hooks-node-windows-no-bash` (US-109)** — `windows-latest` sem `shell: bash` em nenhum step. Comprova que os hooks rodam em PowerShell puro.
+- **3 ADRs novos**: [ADR-012](docs/decisions/ADR-012-hooks-node-port.md) (port Node — revoga ADR-002), [ADR-013](docs/decisions/ADR-013-convencao-hook-node.md) (convenção do arquivo), [ADR-014](docs/decisions/ADR-014-addons-hooks-node.md) (addons herdam contrato).
+- **`docs/MIGRACAO-V1.md`** — guia de migração v0.x → v1.0.
+
+### Mudado
+
+- **`settings.json`** agora chama `node hook.js` em vez de `bash hook.sh` (35 substituições). Migração in-place pelo `install`/`update` com backup `.bak`.
+- **`bin/install.js doctor`** checa hooks `.js` (não `.sh`). Detector de `isWindowsWithoutBash()` mantido só pra avisar se cliente quiser usar bash auxiliar.
+- **`tools/validar-cobertura-hooks.js`** escaneia `test/hooks-node-only.test.js` em vez de `_test-runner.sh`.
+- **`tools/validar-ids-rastreaveis.js`** considera `templates/.claude/hooks/*.js` como ponto de rastreio.
+- **`tools/validar-templates.js`** valida shebang `#!/usr/bin/env node` em vez de `#!/usr/bin/env bash`.
+- **Suite `npm test` reorganizada**: removidos `test:hooks` (chamava `_test-runner.sh`); removidos `test:lib-equivalence`, `test:hooks-equivalence`, `test:hooks-state-equivalence` (paridade `.sh ↔ .js` já provada na v0.20 com 216 cenários verdes — preservada em `git checkout v0.20.0`). Suite oficial: `test:hooks-node-only`.
+
+### Removido
+
+- **35 arquivos `.sh`** em `templates/.claude/hooks/` (26 hooks bloqueadores + `_lib.sh` + `_test-runner.sh` + 7 auxiliares).
+- **`templates/.claude/statusline.sh`** (substituído por `.js`).
+- **Suites de equivalência** `test/{lib,hooks,hooks-state}-equivalence.test.js` (papel cumprido em v0.20).
+- **Jobs CI** `shellcheck-hooks` e `rodar-hooks` (substituídos pelo job Node-only).
+
+### Preservado
+
+- **Comportamento idêntico** de todos os 26 hooks bloqueadores: paridade byte-a-byte validada por 216 cenários `.sh ↔ .js` em v0.20.
+- **Permissões `settings.json`**: deny/allow/ask inalterados.
+- **AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md** e `settings.local.json` do projeto cliente — `update` nunca toca.
+- **Overrides em `.specify/overrides/`** — continua intocado conforme ADR-003.
+- **Addons** (`fintech-br`, `electron-br`, etc.) — funcionam normalmente; quem usa hook `.sh` próprio em addon recebe aviso no `doctor` mas continua funcionando até a v1.1 (janela de migração).
+
 ## [0.20.0] — 2026-05-23
 
 **5 itens adiados resolvidos + CI 100% verde após meses de débito acumulado.**

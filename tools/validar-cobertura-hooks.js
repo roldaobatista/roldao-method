@@ -2,15 +2,16 @@
 /**
  * tools/validar-cobertura-hooks.js
  *
- * Verifica que todo hook bloqueador em templates/.claude/hooks/*.sh aparece
- * em pelo menos 1 `run_case` do _test-runner.sh.
+ * Verifica que todo hook bloqueador em templates/.claude/hooks/*.js aparece
+ * em pelo menos 1 cenario na suite Node-only oficial pos v1.0:
+ *   - test/hooks-node-only.test.js
  *
  * Ignorados (helpers / lifecycle sem retorno bloqueador):
- *   - _lib.sh, _test-runner.sh
- *   - auto-format-on-write.sh (PostToolUse, formatador, nao bloqueia)
- *   - session-snapshot.sh, session-snapshot-restore.sh (PreCompact/Session*)
- *   - subagent-handoff-audit.sh (SubagentStop, soft-warning)
- *   - regra-zero-reminder.sh (UserPromptSubmit, injeta texto)
+ *   - _lib.js (infra)
+ *   - auto-format-on-write.js (PostToolUse, formatador, nao bloqueia)
+ *   - session-snapshot.js, session-snapshot-restore.js (lifecycle)
+ *   - subagent-handoff-audit.js (SubagentStop, soft-warning)
+ *   - regra-zero-reminder.js (UserPromptSubmit, injeta texto)
  *
  * Exit 0 = cobertura OK; exit 1 = hooks sem caso de teste.
  */
@@ -20,16 +21,17 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const HOOKS_DIR = path.join(ROOT, 'templates', '.claude', 'hooks');
-const TEST_RUNNER = path.join(HOOKS_DIR, '_test-runner.sh');
+const SUITES = [
+  path.join(ROOT, 'test', 'hooks-node-only.test.js'),
+];
 
 const IGNORE = new Set([
-  '_lib.sh',
-  '_test-runner.sh',
-  'auto-format-on-write.sh',
-  'session-snapshot.sh',
-  'session-snapshot-restore.sh',
-  'subagent-handoff-audit.sh',
-  'regra-zero-reminder.sh',
+  '_lib.js',
+  'auto-format-on-write.js',
+  'session-snapshot.js',
+  'session-snapshot-restore.js',
+  'subagent-handoff-audit.js',
+  'regra-zero-reminder.js',
 ]);
 
 function main() {
@@ -37,46 +39,47 @@ function main() {
     console.error(`[validar-cobertura-hooks] diretorio nao existe: ${HOOKS_DIR}`);
     process.exit(2);
   }
-  if (!fs.existsSync(TEST_RUNNER)) {
-    console.error(`[validar-cobertura-hooks] _test-runner.sh nao existe`);
-    process.exit(2);
+  for (const s of SUITES) {
+    if (!fs.existsSync(s)) {
+      console.error(`[validar-cobertura-hooks] suite ausente: ${s}`);
+      process.exit(2);
+    }
   }
 
-  const runner = fs.readFileSync(TEST_RUNNER, 'utf8');
+  const allTestText = SUITES.map((s) => fs.readFileSync(s, 'utf8')).join('\n');
+
   const todos = fs
     .readdirSync(HOOKS_DIR)
-    .filter((f) => f.endsWith('.sh') && !IGNORE.has(f));
+    .filter((f) => f.endsWith('.js') && !IGNORE.has(f));
 
-  const sem_caso = [];
+  const semCaso = [];
   for (const hook of todos) {
-    // Hook tem teste se aparece em pelo menos 1 destes padroes:
-    //   - run_case "..." "<hook>.sh" ...   (helper padrao)
-    //   - bash "$HOOKS_DIR/<hook>.sh"      (teste com setup customizado)
-    const nomeEscape = hook.replace(/[.]/g, '\\.');
-    const padraoRunCase = new RegExp(`run_case\\s+"[^"]*"\\s+"${nomeEscape}"`);
-    const padraoBashHooksDir = new RegExp(`HOOKS_DIR[^"]*${nomeEscape}`);
-    if (!padraoRunCase.test(runner) && !padraoBashHooksDir.test(runner)) {
-      sem_caso.push(hook);
+    const name = hook.replace(/\.js$/, '');
+    // Cada hook deve aparecer pelo menos uma vez em alguma suite (string literal).
+    const re = new RegExp(`['"]${name.replace(/[.-]/g, '\\$&')}['"]`);
+    if (!re.test(allTestText)) {
+      semCaso.push(hook);
     }
   }
 
   console.log(`[validar-cobertura-hooks] hooks bloqueadores: ${todos.length}`);
-  console.log(`[validar-cobertura-hooks] hooks com pelo menos 1 run_case: ${todos.length - sem_caso.length}`);
+  console.log(`[validar-cobertura-hooks] hooks com pelo menos 1 cenario: ${todos.length - semCaso.length}`);
   console.log(`[validar-cobertura-hooks] ignorados (helpers/lifecycle): ${[...IGNORE].join(', ')}`);
 
-  if (sem_caso.length === 0) {
-    console.log('[validar-cobertura-hooks] OK — todos os hooks bloqueadores tem caso de teste.');
+  if (semCaso.length === 0) {
+    console.log('[validar-cobertura-hooks] OK — todos os hooks bloqueadores tem cenario de teste.');
     process.exit(0);
   }
 
   console.error('');
-  console.error('[validar-cobertura-hooks] FALHA — hooks sem run_case correspondente:');
-  for (const hook of sem_caso) {
+  console.error('[validar-cobertura-hooks] FALHA — hooks sem cenario correspondente:');
+  for (const hook of semCaso) {
     console.error(`  - ${hook}`);
   }
   console.error('');
-  console.error('Como resolver: adicione run_case em templates/.claude/hooks/_test-runner.sh.');
-  console.error('Veja docs/EXTENDENDO/hook.md (secao "Adicione caso de teste") pra esqueleto.');
+  console.error('Como resolver: adicione pair(...) em uma das suites:');
+  for (const s of SUITES) console.error(`  - ${path.relative(ROOT, s)}`);
+  console.error('Veja docs/EXTENDENDO/hook.md.');
   process.exit(1);
 }
 

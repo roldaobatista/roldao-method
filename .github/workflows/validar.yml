@@ -40,46 +40,25 @@ jobs:
       - name: Validar cobertura de hooks (todo bloqueador tem run_case)
         run: node tools/validar-cobertura-hooks.js
 
-  shellcheck-hooks:
-    name: shellcheck nos hooks (.sh)
+  # shellcheck-hooks e rodar-hooks (test-runner.sh) REMOVIDOS na v1.0.0-rc1:
+  # hooks .sh deletados (ADR-014). Cobertura migrada pra hooks-node-windows-no-bash
+  # + suite completa em test/hooks-node-only.test.js. Addons .sh continuam
+  # validados caso existam — incorporado em validar-templates.
+
+  # shellcheck dos .sh dos addons (se algum addon ainda usa bash).
+  shellcheck-addons-sh:
+    name: shellcheck dos addons (.sh ainda permitido em addons)
     runs-on: ubuntu-latest
+    if: false  # ativar quando algum addon tiver .sh — hoje todos sao Node ou markdown
     steps:
       - uses: actions/checkout@v4
-      - name: Instalar shellcheck
-        run: sudo apt-get install -y shellcheck
-      - name: Rodar shellcheck (severity=warning)
-        run: |
+      - run: |
           set -euo pipefail
-          # Inclui hooks publicados nos templates + hooks de addons.
-          # SC1091 (não consegue seguir source dinâmico) é esperado em hooks que
-          # sourceiam _lib.sh via "$(dirname "$0")/_lib.sh" — usamos shellcheck
-          # source=_lib.sh no header pra resolução estática.
-          shellcheck --severity=warning --shell=bash \
-            --exclude=SC1091 \
-            templates/.claude/hooks/*.sh
-          # Hooks de addons quando existirem (alguns addons trazem .sh).
+          sudo apt-get install -y shellcheck
           ADDON_HOOKS=$(find addons -path '*/.claude/hooks/*.sh' 2>/dev/null || true)
           if [ -n "$ADDON_HOOKS" ]; then
-            # shellcheck disable=SC2086
             shellcheck --severity=warning --shell=bash --exclude=SC1091 $ADDON_HOOKS
           fi
-
-  rodar-hooks:
-    name: Test-runner dos hooks (matriz)
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Rodar test-runner (Unix)
-        if: runner.os != 'Windows'
-        run: bash templates/.claude/hooks/_test-runner.sh
-      - name: Rodar test-runner (Windows via Git Bash)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: bash templates/.claude/hooks/_test-runner.sh
 
   smoke-install:
     name: Smoke test do instalador (matriz)
@@ -221,7 +200,7 @@ jobs:
           # e chamar o instalador via path absoluto. Antes o "$TMP" virava arg
           # ignorado e o install copiava por cima do repo, deixando HK vazio.
           (cd "$TMP" && node "$ROOT/bin/install.js" install --yes >/dev/null 2>&1)
-          HK=$(find "$TMP" -path '*/.claude/hooks/*.sh' 2>/dev/null | head -1)
+          HK=$(find "$TMP" -path '*/.claude/hooks/*.js' 2>/dev/null | head -1)
           if [ -z "$HK" ]; then
             echo "FAIL: install não criou nenhum hook em $TMP"
             exit 1

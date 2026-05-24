@@ -72,14 +72,15 @@ for (const file of listDir(cmdsDir)) {
   okCount.commands++;
 }
 
-// Hooks
+// Hooks — apos EP-001 (v1.0), hooks sao .js Node puro.
+// `_lib.js` e prefixo `_` em geral sao infra (nao hook invocavel), pula.
 const hooksDir = path.join(TEMPLATES, '.claude/hooks');
 for (const file of listDir(hooksDir)) {
-  if (!file.endsWith('.sh')) continue;
+  if (!file.endsWith('.js') || file.startsWith('_')) continue;
   const full = path.join(hooksDir, file);
   const first = fs.readFileSync(full, 'utf8').split('\n')[0];
   if (!first.startsWith('#!')) fail(`hook sem shebang: ${file}`);
-  if (!first.includes('bash')) fail(`hook sem bash no shebang: ${file}`);
+  if (!first.includes('node')) fail(`hook sem node no shebang: ${file}`);
   okCount.hooks++;
 }
 
@@ -120,19 +121,19 @@ for (const file of listDir(specDir)) {
 try {
   const settings = JSON.parse(fs.readFileSync(path.join(TEMPLATES, '.claude/settings.json'), 'utf8'));
   const hookCmds = JSON.stringify(settings.hooks || {});
-  const matches = hookCmds.match(/\.claude\/hooks\/[\w\-_]+\.sh/g) || [];
+  const matches = hookCmds.match(/\.claude\/hooks\/[\w\-_]+\.js/g) || [];
   const unique = [...new Set(matches.map((m) => m.replace('.claude/hooks/', '')))];
   for (const h of unique) {
     if (!fs.existsSync(path.join(hooksDir, h))) {
       fail(`settings.json referencia hook inexistente: ${h}`);
     }
   }
-  // Direcao inversa: hook .sh que existe mas ninguem registrou em
-  // settings.json nunca dispara — falso "tenho o bloqueador" (gap de
-  // governanca, auditoria round 8). _lib/_test-runner sao infra, nao hooks.
+  // Direcao inversa: hook .js que existe mas ninguem registrou em
+  // settings.json nunca dispara — falso "tenho o bloqueador". `_lib.js`
+  // e infra, nao hook.
   const registered = new Set(unique);
   for (const f of listDir(hooksDir)) {
-    if (!f.endsWith('.sh') || /^_/.test(f)) continue;
+    if (!f.endsWith('.js') || /^_/.test(f)) continue;
     if (!registered.has(f)) {
       fail(`hook órfão: templates/.claude/hooks/${f} existe mas não está registrado em settings.json (nunca dispara)`);
     }
@@ -175,18 +176,18 @@ try {
   // Foi exatamente o gap que deixou o README congelado em 0.12.0 ir pra producao.
   const ver = pkg.version;
   const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
-  const badge = readme.match(/badge\/vers%C3%A3o-([0-9]+\.[0-9]+\.[0-9]+)|badge\/versão-([0-9]+\.[0-9]+\.[0-9]+)/);
+  // Aceita semver completo incluindo prerelease (1.0.0-rc1, 1.0.0-beta.2).
+  const SEMVER = '([0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?)';
+  const badge = readme.match(new RegExp(`badge\\/vers%C3%A3o-${SEMVER}|badge\\/versão-${SEMVER}`));
   const badgeVer = badge ? (badge[1] || badge[2]) : null;
   if (badgeVer && badgeVer !== ver) {
     fail(`versao dessincronizada: package.json=${ver} mas badge do README=${badgeVer}`);
   }
   const changelog = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
-  const clTop = changelog.match(/##\s*\[([0-9]+\.[0-9]+\.[0-9]+)\]/);
+  const clTop = changelog.match(new RegExp(`##\\s*\\[${SEMVER}\\]`));
   if (clTop && clTop[1] !== ver) {
     fail(`versao dessincronizada: package.json=${ver} mas topo do CHANGELOG=${clTop[1]}`);
   }
-  // plugin.json e .continue/config.yaml tambem carregam versao — ja driftaram
-  // (0.13.0 enquanto tudo subiu pra 0.13.1) porque ninguem os checava.
   try {
     const plug = JSON.parse(fs.readFileSync(path.join(TEMPLATES, '.claude-plugin/plugin.json'), 'utf8'));
     if (plug.version && plug.version !== ver) {
@@ -194,7 +195,7 @@ try {
     }
   } catch (e) { fail(`plugin.json invalido: ${e.message}`); }
   const contYml = fs.readFileSync(path.join(TEMPLATES, '.continue/config.yaml'), 'utf8');
-  const contVer = contYml.match(/^version:\s*["']?([0-9]+\.[0-9]+\.[0-9]+)/m);
+  const contVer = contYml.match(new RegExp(`^version:\\s*["']?${SEMVER}`, 'm'));
   if (contVer && contVer[1] !== ver) {
     fail(`versao dessincronizada: package.json=${ver} mas .continue/config.yaml=${contVer[1]}`);
   }
@@ -212,9 +213,11 @@ try {
   // Bloqueio acontece via `exit 2` (PreToolUse) OU JSON `{"decision":"block"}` (PostToolUse/Stop).
   // Contar ambos pra refletir a realidade — ver ADR `.claude/rules/roldao-method.md`.
   const blockingHooks = listDir(hooksDir).filter((f) => {
-    if (!f.endsWith('.sh') || /^_/.test(f)) return false;
+    if (!f.endsWith('.js') || /^_/.test(f)) return false;
     const content = fs.readFileSync(path.join(hooksDir, f), 'utf8');
-    return /\bexit 2(?!\d)/.test(content) || /decision\s*=>\s*"block"|"decision"\s*:\s*"block"/.test(content);
+    // process.exit(2) (Node) ou exit 2 (bash legacy) ou JSON decision:block
+    return /process\.exit\(2\)/.test(content) || /\bexit 2(?!\d)/.test(content)
+      || /decision\s*[:=>]+\s*['"]block['"]/.test(content);
   }).length;
   const addonCount = listDir(ADDONS_DIR).filter((a) =>
     fs.existsSync(path.join(ADDONS_DIR, a, 'addon.yaml'))).length;
