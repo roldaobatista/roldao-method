@@ -97,15 +97,30 @@ function extractMessages(cmd) {
 
   if (violations.length === 0) process.exit(0);
 
-  process.stderr.write(`[commit-message-validator] BLOQUEADO: mensagem de commit nao atende politica.\n\nViolacoes:\n`);
+  process.stderr.write(`[BLOQUEIO] [commit-message-validator] mensagem da gravacao nao segue a regra do projeto.\n\n`);
+  process.stderr.write(`Efeito: a gravacao foi recusada — nada mudou no historico.\n`);
+  process.stderr.write(`Causa:\n`);
   for (const v of violations) process.stderr.write(`  - ${v}\n`);
-  process.stderr.write(`\nPolitica:\n`);
-  process.stderr.write(`  - Primeira linha <= 72 caracteres.\n`);
-  process.stderr.write(`  - 1 prefixo por commit (feat OU fix OU refactor OU ...).\n`);
-  process.stderr.write(`  - Corpo opcional, separado por linha em branco.\n`);
+  process.stderr.write(`\nRegra (commit atomico — uma mudanca, um proposito):\n`);
+  process.stderr.write(`  - Primeira linha curta (ate 72 caracteres) descrevendo a mudanca.\n`);
+  process.stderr.write(`  - Comeca com 1 categoria seguida de dois-pontos:\n`);
+  process.stderr.write(`      feat:       coisa nova\n`);
+  process.stderr.write(`      fix:        correcao de erro\n`);
+  process.stderr.write(`      docs:       so atualizacao de documento\n`);
+  process.stderr.write(`      chore:      manutencao tecnica que nao afeta o usuario\n`);
+  process.stderr.write(`      refactor:   reorganizacao sem mudar comportamento\n`);
+  process.stderr.write(`      test:       so testes\n`);
+  process.stderr.write(`  - Misturar 2 categorias na mesma gravacao e proibido — separe em 2 gravacoes.\n`);
+  process.stderr.write(`  - Em sessao /feature ou /bug ativa: precisa citar US-NNN (story) ou T-NNN (task) na mensagem.\n`);
+  process.stderr.write(`  - Corpo (explicacao mais longa) e opcional, separado da primeira linha por linha em branco.\n\n`);
+  process.stderr.write(`Exemplos validos:\n`);
+  process.stderr.write(`  feat(T-001): adiciona validacao de CNPJ alfanumerico\n`);
+  process.stderr.write(`  fix(US-042): boleto saia com valor em dobro pra clientes PJ\n`);
+  process.stderr.write(`  docs: atualiza README com novo comando demo\n`);
   recordMetric('block', 'commit-message-validator', violations[0]);
   process.exit(2);
 })().catch((err) => {
-  process.stderr.write(`[commit-message-validator] erro interno: ${err.message}\n`);
+  process.stderr.write(`[BLOQUEIO] [commit-message-validator] erro interno ao validar mensagem.\n`);
+  process.stderr.write(`Detalhe tecnico (pra desenvolvedor): ${err.message}\n`);
   process.exit(2);
 });

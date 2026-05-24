@@ -43,6 +43,10 @@ const JARGON_TERMS = [
   'stack trace(s)?',
   '\\bnull pointer\\b',
   '\\brace condition(s)?\\b',
+  // T-308 (K8): termos adicionais flagrados em auditoria de coerencia PT-BR
+  '\\bedge case(s)?\\b',
+  '\\brunbook(s)?\\b',
+  '\\bbreakpoint(s)?\\b',
 ];
 const COMBINED_RE = new RegExp(JARGON_TERMS.join('|'), 'gi');
 

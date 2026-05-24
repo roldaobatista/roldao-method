@@ -16,8 +16,8 @@ Use quando o dev precisa repassar pro cliente final (dono de produto, gestor nã
 
 Detecte qual gênero de texto chegou:
 
-- **Stack trace / erro de build** → "tela X parou de funcionar, motivo Y, vou consertar"
-- **Diff de código** → "mudei a lógica que faz Z; antes Z fazia X, agora faz Y"
+- **Erro técnico / falha de construção do programa** (no jargão: "stack trace" / "erro de build") → "tela X parou de funcionar, motivo Y, vou consertar"
+- **Comparação entre versões do código** (no jargão: "diff") → "mudei a lógica que faz Z; antes Z fazia X, agora faz Y"
 - **Plano técnico** → "o que vou fazer, em quanto tempo, o que o cliente vai ver mudar"
 - **Mensagem de commit** → "salvei a correção de X"
 - **Log de teste/CI** → "rodei o robô que simula o usuário; passou em N, falhou em M"
