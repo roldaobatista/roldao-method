@@ -7,6 +7,8 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash(npm:*), Bash(git:*), Bash(gh 
 
 # /release — fechar e empacotar um marco
 
+> **Dono de produto que não programa?** Este comando fecha uma versão do sistema (gera comunicação pro seu cliente). Pra entender quando usar: [`docs/PARA-DONO-DE-PRODUTO.md`](../../docs/PARA-DONO-DE-PRODUTO.md).
+
 Use **depois** de `/checkpoint` aprovado e **antes** de `/retro`. Fecha o ciclo: versao, CHANGELOG, tag e comunicacao pro cliente. Sem isto, o passo entre "aprovado" e "retrospectiva" fica implicito e manual.
 
 `$ARGUMENTS` = tipo de incremento (`patch`/`minor`/`major`) ou versao explicita. Default: `patch`.

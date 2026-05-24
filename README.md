@@ -86,15 +86,15 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 ## 7 addons verticais
 
-| Addon | Foco |
-|---|---|
-| [`electron-br`](addons/electron-br/) | App Electron com IPC seguro + SQLite + LGPD local |
-| [`fiscal-br-completo`](addons/fiscal-br-completo/) | NF-e 55, NFC-e, NFS-e, CNPJ alfanumérico, Reforma Tributária 2026-2033 |
-| [`lgpd-compliance`](addons/lgpd-compliance/) | DPO virtual, RIPD, canal do titular, plano de incidente 72h |
-| [`fintech-br`](addons/fintech-br/) | Pix completo (BR Code, webhook HMAC, devolução, Pix Automático), Open Finance |
-| [`esocial-completo`](addons/esocial-completo/) | Eventos S-1000 a S-3000, CIPA, NRs, prazo legal, retificação |
-| [`varejo-pdv-br`](addons/varejo-pdv-br/) | SAT-CF-e, NFC-e, TEF, MFE-CE, ECF, integração com balança/impressora |
-| [`healthtech-br`](addons/healthtech-br/) | Telemedicina CFM 2.314, prontuário ANS RN 305, CNS/SUS, TISS/TUSS, LGPD Art. 11 (beta) |
+| Addon | Pra quem é | Foco técnico |
+|---|---|---|
+| [`electron-br`](addons/electron-br/) | Quem cria app de desktop que o cliente instala (Windows/Mac/Linux) | IPC seguro + SQLite + LGPD local |
+| [`fiscal-br-completo`](addons/fiscal-br-completo/) | Quem emite nota fiscal e vai entrar na Reforma Tributária 2026-2033 | NF-e 55, NFC-e, NFS-e, CNPJ alfanumérico |
+| [`lgpd-compliance`](addons/lgpd-compliance/) | Quem precisa de DPO, RIPD e canal do titular pra LGPD | Plano de incidente 72h, base legal por feature |
+| [`fintech-br`](addons/fintech-br/) | Quem integra pagamento Pix ou Open Finance | BR Code, webhook HMAC, devolução, Pix Automático |
+| [`esocial-completo`](addons/esocial-completo/) | Empresa que manda eventos pro eSocial (folha, SST, CIPA) | Eventos S-1000 a S-3000, prazo legal, retificação |
+| [`varejo-pdv-br`](addons/varejo-pdv-br/) | Quem opera caixa/PDV físico (loja, restaurante, padaria) | SAT-CF-e, NFC-e, TEF, integração com balança/impressora |
+| [`healthtech-br`](addons/healthtech-br/) (beta) | Clínica, telemedicina, prontuário eletrônico, plano de saúde | CFM 2.314, ANS RN 305, CNS/SUS, TISS/TUSS, LGPD Art. 11 |
 
 Instalar: `npx roldao-method add <nome>`. Criar o seu: [addons/README.md](addons/README.md).
 

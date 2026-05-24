@@ -8,6 +8,8 @@ model: haiku
 
 # /status — relatório de progresso
 
+> **Dono de produto que não programa?** Este comando reporta progresso em PT-BR sem jargão. Se quiser entender quando usar, leia [`docs/PARA-DONO-DE-PRODUTO.md`](../../docs/PARA-DONO-DE-PRODUTO.md).
+
 Use quando o usuário pergunta "como tá indo?", "o que falta?", "tá pronto pra subir?". Saída em PT-BR claro, sem stack trace, sem jargão.
 
 `$ARGUMENTS` opcional define escopo (default: geral).

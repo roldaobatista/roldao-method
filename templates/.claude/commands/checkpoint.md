@@ -74,7 +74,28 @@ Saída em PT-BR estruturada:
 - [ ] Escalar pra humano (decisão fora do escopo do agente)
 ```
 
-## Etapa 4 — Decisão
+## Etapa 4 — Mudanças mensuráveis (T-517 / J17)
+
+ANTES da decisão, mostre números concretos do diff em PT-BR pro Roldão:
+
+```bash
+git diff --stat <base>..HEAD   # base = main por default ou $ARGUMENTS
+```
+
+Reportar em 1 bloco fixo:
+
+```
+Mudanças mensuráveis:
+- N arquivos alterados
+- +X linhas adicionadas
+- -Y linhas removidas
+- M testes novos (arquivos *.test.* ou *.spec.* adicionados/modificados)
+- K migrations (se houver)
+```
+
+Salvar o diff bruto em `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.diff` (artefato persistente — auditoria pode revisar meses depois).
+
+## Etapa 5 — Decisão
 
 - Se **todos auditores aprovados** → recomendar merge e executar (não perguntar).
 - Se **ressalvas não-bloqueantes** → aplicar fix e re-checkpoint.
