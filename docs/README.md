@@ -28,7 +28,7 @@ status: stable
 
 ## 📦 Addons verticais
 
-- [Catálogo de addons](addons.md) — os 6 addons (fintech-br, fiscal-br-completo, electron-br, esocial-completo, lgpd-compliance, varejo-pdv-br).
+- [Catálogo de addons](addons.md) — os 7 addons (fintech-br, fiscal-br-completo, electron-br, esocial-completo, lgpd-compliance, varejo-pdv-br, healthtech-br beta).
 - [Estender o framework](EXTENDENDO/README.md) — índice dos guias de extensão (agente, hook, skill, addon).
 
 ## 🏛️ Decisões arquiteturais

@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-18
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -8,24 +8,22 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v0.15.0 (mai/2026)
+## Versão atual: v1.0.0 (mai/2026)
 
-Pacote pós auditoria **10-agentes vs documentação oficial Claude Code** (`code.claude.com/docs`): 10 dimensões cruzadas (subagents, hooks, slash commands, memory, skills, settings/permissions, MCP, output styles/status line, SDK/headless, plan mode/worktrees), **todos os achados resolvidos** nesta release. Histórico cumulativo (round 10 — v0.14.4 fechou P0; v0.14.5 fechou P2 estruturais; v0.14.6 fechou cobertura de addons e adapters; v0.15.0 fecha paridade com a doc oficial):
-- 15 agentes especialistas (com nome + ícone)
-- 22 workflows (incluindo `/clarificar`, `/consistencia`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/readiness`, `/help`, `/shard`, `/quick-dev`, `/release`)
-- 26 hooks bloqueadores (23 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação + 2 infra (`_lib.sh`, `_test-runner.sh`) = **35 arquivos no core** (+5 em addons). Evolução: v0.6 readiness+dependencies; v0.7 agent-sequence+quick-dev-scope; v0.8 checkpoint+auditors+story-approvals+sanitização PROJDIR; v0.9 hooks Node 18 check+UTF-8 skills Python; v0.10 install seletivo+adapters Cline/Aider/Roo na raiz+SHA-256 NF-e+TxId Pix+Art. 7 V LGPD; v0.13 paridade SDD + Gemini/Codex; v0.14 hardening cumulativo + regex de secrets cobrindo `sk-proj-*`/`github_pat_`/PEM PKCS8 + path traversal blindado em `remove <addon>`; v0.15 lifecycle hooks (PostToolUse/SubagentStop/PreCompact/SessionEnd) + 3 hooks JSON `decision:block` (jargão, confirmação, pipeline).
-- 13 skills BR no core + 16 nos addons = **29 skills** (inclui `calculadora-reforma-paralela` e `validar-codigo-municipio-ibge`)
-- 8 checklists (story-dod, architecture-readiness, fiscal-compliance, lgpd-privacy-review, pm-readiness, release-readiness, pix-compliance, audit-trail)
-- 7 knowledge bases (PT-BR, fiscal, LGPD, Pix, stack-br, brainstorming, elicitation)
-- 6 addons (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
-- **12 templates de spec** (PRD, story, architecture, brownfield-prd, prd-fiscal, fullstack-architecture, decision-log, prfaq, product-brief, ux-design, headless-schemas, épico)
-- CLI completo: `add`, `remove`, `search`, `list`, `tasks-to-issues`, update check, wizard, alias `roldao`, **`--adapters` / `--all-adapters`** (instala seletivo)
-- Overrides por projeto sem fork (`.specify/overrides/`) + adapters Gemini CLI/Codex CLI = **9 IDEs**
-- **Adapters Cline/Aider/Roo** com paths corretos (`.clinerules`, `.aider.conf.yml`, `.roorules` na raiz — antes ficavam em subpastas inertes)
-- **161/161 testes** (hooks) + suíte de install ampliada (paridade SDD, overrides, adapters Gemini/Codex)
-- CI matriz Windows/macOS/Linux
-- Governança (SECURITY.md, CONTRIBUTORS.md, `.claude-plugin/plugin.json`)
-- Suite de evals (lint estrutural) dos agentes — cobertura parcial, ver `evals/README.md`
+Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do projeto): hooks, agentes, comandos, skills, docs, templates, testes, addons, CLI/instalador, consistência cruzada — **todos os achados endereçados**. Highlights:
+
+- 15 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Carla, Lia, Dona Marta, Camila.
+- 26 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`).
+- 26 hooks bloqueadores (23 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação + 1 utilitário (`_lib.js`) = **34 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
+- 13 skills BR no core + 18 nos addons = **31 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
+- 8 checklists + 7 knowledge bases.
+- **7 addons** (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta).
+- 12 templates de spec PT-BR.
+- CLI: `install`, `update`, `add`, `remove`, `search`, `list`, `tasks-to-issues`, `doctor`, `uninstall`, wizard interativo + `--adapters`/`--all-adapters`.
+- Overrides por projeto sem fork (`.specify/overrides/`) — `update` nunca toca.
+- 9 IDEs com paridade real (Claude Code com hooks executáveis + 8 IDEs com regra em texto).
+- Suite de testes Node nativa (zero deps), multi-OS no CI (Windows/macOS/Linux).
+- Governança (SECURITY.md, CONTRIBUTORS.md, `.claude-plugin/plugin.json`).
 
 ## Rodadas de auditoria entregues
 

@@ -73,7 +73,7 @@ Resposta típica em até 2 dias úteis.
 
 ## Política
 
-- **Core ROLDAO é MIT puro e seguirá assim** — quem não contrata nada continua tendo o framework completo (15 agentes, 26 hooks, 13 skills core, 26 workflows, 6 addons, 12 templates).
+- **Core ROLDAO é MIT puro e seguirá assim** — quem não contrata nada continua tendo o framework completo (15 agentes, 26 hooks bloqueadores, 13 skills core, 26 workflows, 7 addons, 12 templates).
 - **Não há licença comercial obrigatória pra usar em produto fechado.** Empresa pode rodar ROLDAO num SaaS comercial sem pagar nada.
 - **Apoio profissional é opcional** — pra quem quer adoção mais rápida, suporte SLA, ou auditoria com entregável formal.
 - **Recusa de engajamento por conflito de interesse:** se o cliente concorre diretamente com outro cliente atual ou patrocinador, o engajamento pode ser recusado.

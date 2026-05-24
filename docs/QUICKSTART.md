@@ -53,7 +53,7 @@ Deve terminar com `EXIT:0`. Em alternativa, `npx roldao-method doctor` confere q
 
 ## 4. Output style PT-BR — já ativo
 
-A partir da v0.15.0, o `.claude/settings.json` distribuído pelo `install` **já vem com `"outputStyle": "pt-br-conciso"`**. Não precisa rodar `/output-style` na mão.
+Desde a v0.15 (consolidado em v1.0), o `.claude/settings.json` distribuído pelo `install` **já vem com `"outputStyle": "pt-br-conciso"`**. Não precisa rodar `/output-style` na mão.
 
 Quer trocar (`dpo-lgpd` ou `fiscal-br` pra contexto especializado, ou `default` pra inglês)? Use `/config` ou edite `.claude/settings.local.json`.
 
@@ -62,7 +62,7 @@ Quer trocar (`dpo-lgpd` ou `fiscal-br` pra contexto especializado, ou `default` 
 O `settings.json` aponta pra `.claude/statusline.js` (Node puro desde a v1.0). No rodapé do Claude Code você verá:
 
 ```
-ROLDAO v0.15.0 | Sonnet 4.6 | main | US-042 | dev-senior
+ROLDAO v1.0.0 | Sonnet 4.6 | main | US-042 | dev-senior
 ```
 
 (versão framework, modelo ativo, branch, story em foco, último agente que rodou).

@@ -8,7 +8,7 @@ status: stable
 
 Pacotes de extensão pra domínios específicos do mercado brasileiro. Cada addon traz agentes, hooks e skills focados num cenário — você só instala quando precisa, não polui o core.
 
-## Catálogo (6 addons)
+## Catálogo (7 addons)
 
 | Addon | Cenário | Agente | Hooks | Skills principais |
 |---|---|---|---|---|
@@ -18,6 +18,7 @@ Pacotes de extensão pra domínios específicos do mercado brasileiro. Cada addo
 | [`fintech-br`](../addons/fintech-br/) | Pix completo (chave, BR Code, cobrança, devolução, Pix Automático) + Open Finance Brasil | `pix-arch` | `validate-webhook-signature` | `gerar-br-code` |
 | [`esocial-completo`](../addons/esocial-completo/) | Eventos S-1000 a S-3000, CIPA, NRs, prazos legais, retificação (Layout S-1.3) | `esocial-arch` | `validate-esocial-prazo` | — |
 | [`varejo-pdv-br`](../addons/varejo-pdv-br/) | SAT-CF-e (SP), NFC-e (demais UF), MFE (CE), TEF, balança/impressora, contingência offline | `pdv-arch` | `validate-tef-flow` | `emitir-sat-cfe` |
+| [`healthtech-br`](../addons/healthtech-br/) (beta) | Telemedicina CFM 2.314, prontuário ANS RN 305, CNS/SUS, TISS/TUSS, LGPD Art. 11 (dado sensível) | `healthtech-arch` | — | `checklist-cfm-telemedicina`, `validar-cns-cartao-sus` |
 
 ## Como instalar
 
@@ -51,6 +52,7 @@ Os addons compartilham o mesmo idioma do core (PT-BR) e respeitam as mesmas regr
 - **Cobrando via Pix** (qualquer modelo: marketplace, fintech, ERP, vending) → `fintech-br`.
 - **Folha de pagamento ou GFIP eSocial** → `esocial-completo`.
 - **Loja física com PDV** (SAT, NFC-e, TEF) → `varejo-pdv-br`.
+- **Plataforma de saúde** (telemedicina, prontuário, agenda médica, faturamento SUS) → `healthtech-br` (beta).
 
 Vários addons podem coexistir — o instalador detecta conflito de regra (IDs duplicados) antes de aplicar.
 

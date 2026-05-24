@@ -27,7 +27,7 @@ addons/<nome-do-addon>/
 
 Schema formal: [`addon.schema.json`](addon.schema.json) (JSON Schema draft 2020-12). Cada `addon.yaml` deve passar pelo `tools/validar-templates.js` antes de publicar.
 
-Schema real (idêntico nos 6 addons — chaves de estrutura em inglês, conteúdo em PT-BR):
+Schema real (idêntico nos 7 addons — chaves de estrutura em inglês, conteúdo em PT-BR):
 
 ```yaml
 name: <kebab-case>
@@ -53,7 +53,7 @@ regras:
 requisitos:                    # OU aplica-quando: (quando o gatilho é situacional)
   - <pré-requisito>            # ex: "projeto Electron com src/main"
 non-goals:
-  - <o que o addon NÃO faz>    # obrigatório nos 6 addons
+  - <o que o addon NÃO faz>    # obrigatório nos 7 addons
 ```
 
 `esocial-completo` e `varejo-pdv-br` ainda incluem `homepage:` e `layout-esocial:` quando aplicável.
@@ -110,11 +110,11 @@ npx roldao-method remove fintech-br
 | `fintech-br` | Pix completo (5 tipos de chave, BR Code, webhook HMAC, devolução, MED, Pix Automático), Open Finance Brasil (FAPI + mTLS) |
 | `esocial-completo` | Eventos S-1000 a S-3000, prazos legais, retificação via S-3000, layout S-1.3 vigente |
 | `varejo-pdv-br` | SAT-CF-e (SP), NFC-e (demais UF), TEF, integração com balança e impressora não-fiscal |
+| `healthtech-br` (beta) | Telemedicina CFM 2.314, prontuário ANS RN 305, CNS/SUS, TISS/TUSS, LGPD Art. 11 (dado sensível) |
 
 ## Roadmap de addons (sugestões)
 
-- **`telemedicina`** — LGPD art. 11 + ANS + CFM + receita digital.
-- **`saude-br-completo`** — TISS/EDI, CFM, ANS, dado sensível em escala.
+- **`saude-br-completo`** — extensão do `healthtech-br`: TISS/EDI ANS completo, integração com operadora, faturamento SUS em escala.
 - **`govtech-br`** — APIs do Governo (CPF, CNPJ, CNJ), e-Protocolo, assinatura ICP-Brasil.
 - **`agro-br`** — CAR (Cadastro Ambiental Rural), nota fiscal de produtor, SISBOV.
 - **`logistica-br`** — RNTRC, rastreamento de carga, CT-e + MDF-e.

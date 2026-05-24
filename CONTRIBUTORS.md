@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-18
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -45,14 +45,14 @@ Resumo:
 bin/install.js              ← CLI
 templates/                  ← o que vai pra .claude/ e .specify/ do projeto do usuário
   .claude/agents/           ← 15 agentes com identity + menu + skills
-  .claude/commands/         ← 22 workflows slash
-  .claude/hooks/            ← 26 bloqueadores + 2 soft warnings + 5 lifecycle + 2 utilitários (_lib + _test-runner) = 35 hooks (+5 em addons)
+  .claude/commands/         ← 26 workflows slash
+  .claude/hooks/            ← 26 bloqueadores + 2 soft warnings + 5 lifecycle + 1 utilitário (_lib.js) = 34 hooks Node puros
   .claude/skills/           ← 13 skills BR core
-  .specify/templates/       ← 11 templates de spec
-  .specify/checklists/      ← 7 checklists
+  .specify/templates/       ← 12 templates de spec
+  .specify/checklists/      ← 8 checklists
   .specify/data/            ← 7 knowledge bases
   .specify/memory/          ← constitution.md (6 princípios)
-addons/                     ← 6 addons BR
+addons/                     ← 7 addons BR (electron, fiscal, lgpd, fintech, esocial, varejo-pdv, healthtech beta)
 docs/                       ← docs do framework
 test/                       ← smoke tests
 tools/                      ← validadores

@@ -26,9 +26,9 @@ seu-projeto/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
 │   ├── agents/                    <- 15 especialistas
-│   ├── hooks/                     <- 35 hooks (26 bloqueadores + 2 soft + 5 lifecycle + 2 utilitários)
+│   ├── hooks/                     <- 34 hooks (26 bloqueadores + 2 soft + 5 lifecycle + 1 utilitário _lib.js)
 │   ├── commands/                  <- 26 workflows
-│   ├── skills/                    <- 13 skills BR core (+16 em addons)
+│   ├── skills/                    <- 13 skills BR core (+18 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
 ├── .specify/

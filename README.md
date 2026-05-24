@@ -1,6 +1,6 @@
 # ROLDAO-METHOD
 
-> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores em Node puro e 29 skills BR (LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033). Roda no Claude Code e em 8 outras IDEs.
+> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores em Node puro e 31 skills BR (LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033, telemedicina). Roda no Claude Code e em 8 outras IDEs.
 
 [![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
@@ -26,7 +26,7 @@ Ferramentas de IA pra desenvolvimento são quase todas em inglês e otimizadas p
 - 🇧🇷 **PT-BR nativo** — não tradução. Tabela de jargão pra usuário não-programador.
 - 🛡️ **34 hooks Node puros** (26 bloqueadores + 2 soft warnings + 5 lifecycle + 1 utilitário `_lib.js`) — bloqueadores barram a ação na hora (`exit 2` ou JSON `decision:block`); lifecycle automatiza format/snapshot/audit. Rodam em Windows sem Git Bash desde a v1.0.
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
-- 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 6 addons verticais.
+- 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 7 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto em paralelo, bloqueando commit se reprovado.
 
 ## Instalação
@@ -56,9 +56,9 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 - **15 especialistas virtuais com personalidade** — Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Lucas (DevOps/infra), Inês (revisor), Caio/Julia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). Catálogo em [`.claude/agents/MAPA-VISUAL.md`](templates/.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
 - **26 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
 - **26 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 1 infra (`_lib.js`) = 34 hooks Node** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
-- **13 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-codigo-municipio-ibge (DV modulo 10), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +16 nos addons = **29 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025).
+- **13 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-codigo-municipio-ibge (DV modulo 10), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +18 nos addons = **31 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025 e `validar-cns-cartao-sus` pra SUS).
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).
-- **8 checklists auditáveis** + **7 knowledge bases** + **6 addons verticais BR**.
+- **8 checklists auditáveis** + **7 knowledge bases** + **7 addons verticais BR**.
 
 > **Escopo honesto dos hooks:** são guarda-corpos para um agente **cooperativo e desatento** (o caso comum). Barram o erro óbvio na hora. **Não são sandbox contra agente malicioso**: quem tem `Write` pode reescrever `settings.json`. Defesa em profundidade, não garantia criptográfica. Hooks Node rodam em qualquer plataforma com Node 18+ (Windows puro inclusive, desde a v1.0).
 
@@ -66,7 +66,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 `REGRAS-INEGOCIAVEIS.md` tem a lista completa: **46 regras operacionais em 7 categorias** — INV-001..006 (6 invariantes gerais), SEC-001..005 (5 segurança), TST-001..004 (4 testes), LGPD-001..010 (10 proteção de dados), FISCAL-001..010 (10 fiscal BR — NF-e, NFS-e nacional, MDF-e/CT-e, Reforma, split payment), PIX-001..005 (5 Pix/Open Finance), INV-AGENT-001..006 (6 regras pra agentes IA). Cada regra cita-se em commit/ADR/PR (ex: `fix: ajusta validação CPF (LGPD-001)`).
 
-## 6 addons verticais
+## 7 addons verticais
 
 | Addon | Foco |
 |---|---|
@@ -76,6 +76,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 | [`fintech-br`](addons/fintech-br/) | Pix completo (BR Code, webhook HMAC, devolução, Pix Automático), Open Finance |
 | [`esocial-completo`](addons/esocial-completo/) | Eventos S-1000 a S-3000, CIPA, NRs, prazo legal, retificação |
 | [`varejo-pdv-br`](addons/varejo-pdv-br/) | SAT-CF-e, NFC-e, TEF, MFE-CE, ECF, integração com balança/impressora |
+| [`healthtech-br`](addons/healthtech-br/) | Telemedicina CFM 2.314, prontuário ANS RN 305, CNS/SUS, TISS/TUSS, LGPD Art. 11 (beta) |
 
 Instalar: `npx roldao-method add <nome>`. Criar o seu: [addons/README.md](addons/README.md).
 
