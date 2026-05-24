@@ -590,7 +590,7 @@ async function install() {
   console.log('');
   console.log(`${c.bold}Proximos passos:${c.reset}`);
   console.log(`  ${c.cyan}1.${c.reset} abra ${c.bold}AGENTS.md${c.reset} e preencha os campos ${c.dim}_(preencher)_${c.reset}  ${c.dim}(ou rode /brownfield se ja tem codigo)${c.reset}`);
-  console.log(`  ${c.cyan}2.${c.reset} no Claude Code: ${c.green}/help${c.reset} lista os 24 workflows`);
+  console.log(`  ${c.cyan}2.${c.reset} no Claude Code: ${c.green}/help${c.reset} lista os 26 workflows`);
   console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(opcional)${c.reset} addons BR: ${c.cyan}npx roldao-method search${c.reset}`);
   console.log('');
   console.log(`${c.dim}Personalizar (CLAUDE.local.md), MCP preset, GitHub Action: docs/QUICKSTART.md${c.reset}`);

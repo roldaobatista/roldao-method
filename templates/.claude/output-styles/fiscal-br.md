@@ -19,7 +19,7 @@ Qualquer código, exemplo, teste ou request fiscal cita explicitamente:
 - `tpAmb=2` (homologação) → CNPJ de teste, série 999, NSU/protocolo sem valor jurídico.
 - `tpAmb=1` (produção) → CNPJ real, série operacional, protocolo vinculante.
 
-**Nunca** hardcode `tpAmb=1` em código de exemplo, fixture ou documentação. Hook `fiscal-br-validator.sh` bloqueia (FISCAL-002).
+**Nunca** hardcode `tpAmb=1` em código de exemplo, fixture ou documentação. Hook `fiscal-br-validator.js` bloqueia (FISCAL-002).
 
 ## Citação obrigatória de norma
 

@@ -26,7 +26,7 @@ Pré-requisito: ler [`ARQUITETURA.md`](ARQUITETURA.md) e [`COMO-FUNCIONA.md`](CO
 
 ## Quando NÃO criar
 
-- **Agente:** 14 já é o teto razoável. Refine o existente em vez de criar #15.
+- **Agente:** 15 já é o teto razoável. Refine o existente em vez de criar #16.
 - **Hook:** cenário que acontece 1x por mês vira regex frágil — não compensa.
 - **Skill:** padrão só repetiu 1-2 vezes — espere 3 (regra de 3).
 - **Addon:** domínio cabe em 1 skill — addon é overhead.
