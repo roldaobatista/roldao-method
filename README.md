@@ -2,6 +2,12 @@
 
 > **Manual de operação em português pro seu assistente de IA (Claude, Cursor, etc).** Você descreve em PT-BR o que quer ("quero cadastrar cliente", "o boleto saiu errado") e ele segue um roteiro pronto: investiga antes de mexer, valida CPF/CNPJ, respeita LGPD, te avisa em PT-BR claro — sem siglas. Pensado pra dono de produto que **não programa**, no contexto brasileiro (NF-e, Pix, eSocial).
 
+## Para quem é (e pra quem NÃO é)
+
+**É pra você se:** você quer que IA gere código pro seu produto e você **não é programador** (ou tem dev terceirizado/aspirante a empresa), opera no Brasil (precisa LGPD/NF-e/Pix/SEFAZ), e cansou de saída em inglês com jargão. Você conduz, o assistente executa.
+
+**NÃO é pra você se:** você é dev sênior que prefere convenção em vez de bloqueio mecânico, prefere fluxo livre sem hook, ou seu produto não toca dado brasileiro (LGPD/fiscal/Pix). Continue com BMAD, AGENT-CLI, ou seu próprio fluxo — esse framework optimizou pra dono de produto BR que precisa de proteção embutida.
+
 [![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -31,6 +37,10 @@ npx roldao-method tutorial       # 5 perguntas em PT-BR preenchem o resto por vo
 
 Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 26 roteiros. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
 
+### Vindo da v1.x?
+
+`npx roldao-method@latest update` faz tudo. Detalhes da migração em [`docs/migrations/MIGRATION-v2.md`](docs/migrations/MIGRATION-v2.md) (3 breaking changes, todos absorvidos pelo update). Se algo der errado: `npx roldao-method rollback`.
+
 ### Descoberta — como achar o que existe
 
 Não decora comando. Use uma das 3 portas de entrada:
@@ -48,6 +58,10 @@ Não decora comando. Use uma das 3 portas de entrada:
 ## O diferencial em uma linha
 
 **O sistema barra a ação perigosa antes dela acontecer** — `rm -rf`, senha vazada no código, teste escondendo erro, jargão técnico com cliente, bug "consertado" sem investigar o banco/log. Não é convenção que o dev pode ignorar: o framework recusa a operação na hora. Detalhe técnico (como funciona) em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
+
+### Métrica de sucesso
+
+**Não é "100% de cobertura" nem "0 bugs".** É **5 tarefas-tipo que o dono de produto (que não programa) executa sozinho, sem chamar dev**. Detalhe em [`docs/METRICA-OFICIAL.md`](docs/METRICA-OFICIAL.md).
 
 ### Por que importa pra dev BR
 
