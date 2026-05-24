@@ -47,11 +47,16 @@ function gitInstalled() {
   // Fail-closed: sem `git` no PATH nao da pra saber se ja foi pushado.
   // Bloqueia o --amend pedindo instalacao OU desligar este hook.
   if (!gitInstalled()) {
-    process.stderr.write(`[no-amend-after-push] BLOQUEADO: comando 'git' nao encontrado no PATH.\n\n`);
-    process.stderr.write(`Sem 'git' nao da pra saber se este commit ja foi pushado. Bloqueio por seguranca.\n\n`);
-    process.stderr.write(`Como resolver:\n`);
-    process.stderr.write(`  - Instale Git (https://git-scm.com) e rode de novo.\n`);
-    process.stderr.write(`  - OU desligue temporariamente este hook em .claude/settings.json se voce tem certeza que nao publicou.\n`);
+    process.stderr.write(`[BLOQUEIO] [no-amend-after-push] nao encontrei o programa Git instalado no computador.\n\n`);
+    process.stderr.write(`Efeito: nao consegui validar a operacao de reescrever a ultima gravacao do projeto.\n`);
+    process.stderr.write(`Causa: a alteracao que voce pediu (reescrever historico) pode sobrescrever algo ja\n`);
+    process.stderr.write(`enviado ao servidor sem que ninguem perceba — sem o Git instalado, eu nao sei se isso\n`);
+    process.stderr.write(`vai acontecer. Bloqueio por seguranca.\n\n`);
+    process.stderr.write(`Proximo passo:\n`);
+    process.stderr.write(`  - Baixar Git em https://git-scm.com (gratis, instalar como qualquer programa).\n`);
+    process.stderr.write(`  - Reiniciar o terminal e pedir a mesma coisa de novo.\n`);
+    process.stderr.write(`  - OU se voce tem certeza absoluta que nada foi enviado ao servidor ainda, peca pro\n`);
+    process.stderr.write(`    agente desligar este hook temporariamente em .claude/settings.json.\n`);
     recordMetric('block', 'no-amend-after-push', 'git ausente — fail-closed');
     process.exit(2);
   }

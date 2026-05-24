@@ -181,6 +181,27 @@ function hookBlockHeader(name, reason) {
 }
 
 // ---------------------------------------------------------------------------
+// hookPrefix — prefixo padronizado de severidade pros hooks (T-006 / G7).
+// Retorna string formatada "[NIVEL] [hook-name]" pra usar em stderr.
+//
+// Niveis:
+//   'block' (default) → [BLOQUEIO] — exit 2 ou decision:block
+//   'warn'            → [AVISO]    — soft warning (exit 0 com aviso)
+//   'info'            → [INFO]     — lembrete / reminder
+//
+// Uso:
+//   const { hookPrefix } = require('./_lib.js');
+//   process.stderr.write(`${hookPrefix('block', 'meu-hook')} mensagem\n`);
+//   // → "[BLOQUEIO] [meu-hook] mensagem"
+// ---------------------------------------------------------------------------
+function hookPrefix(level, name) {
+  let tag = 'BLOQUEIO';
+  if (level === 'warn') tag = 'AVISO';
+  else if (level === 'info') tag = 'INFO';
+  return `[${tag}] [${name || 'hook'}]`;
+}
+
+// ---------------------------------------------------------------------------
 // recordMetric — appenda 1 evento em .claude/.runtime/metrics.jsonl.
 // Formato JSONL: {"ts","kind","label","reason"}.
 // Best-effort: silencia erros (disco cheio, permissao).
@@ -235,6 +256,7 @@ module.exports = {
   secretTokenRegexes,
   posixToJsRegex,
   hookBlockHeader,
+  hookPrefix,
   recordMetric,
   readStdinJson,
 };
