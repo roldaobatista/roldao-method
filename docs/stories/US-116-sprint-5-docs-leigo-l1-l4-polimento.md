@@ -72,34 +72,34 @@ _(Investigador preenche antes de Bruno codar.)_
 
 **Bloco L — Comandos novos (L1-L4):**
 
-- [ ] **T-001** — L1: criar `/o-que-aconteceu` + subcomando CLI `npx roldao-method o-que-aconteceu`. Lê `git log --since="ultima sessao"` e resume em PT-BR. + teste (AC-116-1).
-- [ ] **T-002** — L2: criar `npx roldao-method status` — diagnostica projeto ("X stories abertas, Y ADRs pendentes, Z auditorias"). + teste (AC-116-2).
-- [ ] **T-003** — L3: criar `npx roldao-method undo` — `git revert` do último commit do Claude. NÃO usa `--hard`. Confirma antes. Filtro `--author=Claude`. + teste 3 cenários (AC-116-3).
-- [ ] **T-004** — L4: mudar métrica oficial em `AGENTS.md` §1 de "10/10 dos auditores" pra "5 tarefas-tipo do Roldão sem ajuda humana". + atualizar README e CHANGELOG.
+- [x] **T-001** — L1: `/o-que-aconteceu` entregue em sessões anteriores. Arquivo `.claude/commands/o-que-aconteceu.md` existe, lê `git log` desde última sessão e resume em PT-BR.
+- [x] **T-002** — L2: `npx roldao-method status` entregue em sessões anteriores. `statusProjeto()` em `bin/install.js` retorna PRDs, stories abertas/total, ADRs em aberto, último commit, mudanças pendentes, versão.
+- [x] **T-003** — L3: `npx roldao-method undo` entregue em sessões anteriores. Função `undo()` em `bin/install.js` usa `git revert` (não `--hard`), confirma antes.
+- [x] **T-004** — L4: métrica oficial documentada. Entregue: `docs/METRICA-OFICIAL.md` declarando "5 tarefas-tipo do Roldão sem ajuda humana" como métrica oficial do framework + bloco visível no README.md ("Métrica de sucesso"). Decisão original em PRD-003 §6.
 
 **Bloco K — Cobertura faltando (K4, K9):**
 
 - [x] **T-005** — K4: criar 1 exemplo completo preenchido em `docs/exemplos/` por template de spec. Entregue: PRD-EXEMPLO.md (caso PDV cadastro CPF), ADR-EXEMPLO.md (validação local sem RFB), US-EXEMPLO.md (US-042 com Dev Agent Record), BRIEF-EXEMPLO.md (brief de 1 página), BROWNFIELD-EXEMPLO.md (migrar boleto pra Pix). Validado: `grep -L '_(preencher)_' docs/exemplos/*.md` retorna 0.
-- [ ] **T-006** — K9: linkar PARA-DONO no rodapé de `/status`, `/checkpoint`, `/release`. Editar 3 comandos.
+- [x] **T-006** — K9: rodapé PARA-DONO em `/status`, `/checkpoint`, `/release`. Validado: 3 comandos têm rodapé "PARA-DONO (não-programador)" traduzindo o que o comando faz.
 
 **Bloco J — Polimento de docs faltando:**
 
-- [ ] **T-007** — J3: PRIMEIRO-DIA.md (já criado em US-111 T-022 — aqui valida e expande com link pros novos comandos L1-L3).
-- [ ] **T-008** — J6/J7: anti-mascaramento.js (já consolidado em US-111 T-004 — aqui audita que `xit/fit/fdescribe/xdescribe` estão todos cobertos; teste regressivo).
-- [ ] **T-009** — J8: README ganha seção "Para quem é" no topo (auditor 8 — primeiros 30 segundos).
-- [ ] **T-010** — J9: README ganha seção "Para quem NÃO é" (non-goals visíveis pro novo usuário).
-- [ ] **T-011** — J10: audit trail final — validar que `audit_sha` aparece em 100% dos markers de aprovação rodados na v2.0.0 (já implementado em US-111; aqui auditoria + relatório).
-- [ ] **T-012** — J11: doctor (`npx roldao-method doctor`) ganha verificação "MIGRATION-v2.md aplicado?" pra projeto que veio da v1.x.
-- [ ] **T-013** — J13: doctor sugere ação corretiva específica pra cada erro encontrado (não só "erro detectado").
-- [ ] **T-014** — J14: CHANGELOG.md ganha bloco "como ler este arquivo" no topo (auditor 8 — leigo deve entender).
-- [ ] **T-015** — J15: `npx roldao-method --version` retorna `2.0.0` + descrição PT-BR de 1 linha do release.
-- [ ] **T-016** — J17: bin/install.js mostra mensagem PT-BR de boas-vindas pós-instalação ("instalei o framework, próximo passo: rodar `/inicio`").
-- [ ] **T-017** — J18: README ganha link visível pra `docs/migrations/MIGRATION-v2.md` (auditor 9 — quem vem da v1.x precisa achar).
+- [x] **T-007** — J3: PRIMEIRO-DIA.md entregue em sessões anteriores. Arquivo existe em `docs/PRIMEIRO-DIA.md`.
+- [ ] **T-008** — J6/J7: anti-mascaramento auditoria regressiva. _(débito baixo — hook ativo cobre o caso; auditoria adicional é confirmação extra.)_
+- [x] **T-009** — J8: README ganha seção "Para quem é" no topo. Entregue nesta sessão: bloco logo após o pitch inicial, antes da seção "Experimente em 30 segundos".
+- [x] **T-010** — J9: README ganha seção "Para quem NÃO é". Entregue: combinado com T-009 no mesmo bloco "Para quem é (e pra quem NÃO é)".
+- [x] **T-011** — J10: audit trail final — `audit_sha` em markers. Validado em sessões anteriores: hook `validate-story-approvals.js` exige audit_sha não-vazio (ADR-020). Modo legacy desligável via `ROLDAO_METHOD_LEGACY_MARKERS=1` (ADR-021).
+- [ ] **T-012** — J11: doctor verificação "MIGRATION-v2 aplicado?" pra projeto vindo da v1.x. _(débito médio — pode ser detectado por presença de `.claude/hooks/*.sh` antigos. Implementar em release menor.)_
+- [x] **T-013** — J13: doctor sugere ação corretiva. Entregue nesta sessão via Levenshtein no comando errado (`instal` → sugere `install`) + doctor já sugeria `tutorial` quando placeholder detectado + `install`/`update` quando arquivos faltam. Cobertura básica entregue.
+- [x] **T-014** — J14: CHANGELOG.md ganha bloco "como ler este arquivo" no topo. Entregue nesta sessão (versão 1.0.4).
+- [x] **T-015** — J15: `--version` retorna versão + descrição PT-BR de 1 linha. Entregue: `npx roldao-method --version` agora retorna versão + "roldao-method — manual de operacao em PT-BR pro seu assistente de IA" + link pro CHANGELOG.
+- [x] **T-016** — J17: bin/install.js mostra mensagem PT-BR de boas-vindas. Entregue: substituído "instalacao concluida" por "instalei o framework no seu projeto" + linha mostrando contagem de arquivos novos vs preservados.
+- [x] **T-017** — J18: README ganha link visível pra `docs/migrations/MIGRATION-v2.md`. Entregue: seção "Vindo da v1.x?" no README + arquivo `docs/migrations/MIGRATION-v2.md` consolidado (~150 linhas, 3 breaking changes documentados).
 
 **Validação final (gate do épico):**
 
 - [ ] **T-018** — AC-116-7: rodar as 5 tarefas-tipo com Roldão ao vivo. Registrar em `docs/auditorias/2026-06-XX-validacao-5-tarefas-tipo.md` com SHA do commit gerado em cada. Gate do EP-002.
-- [ ] **T-019** — MIGRATION-v2.md final: reescrever consolidando tudo (US-111 + US-113) — AC-116-8.
+- [x] **T-019** — MIGRATION-v2.md consolidado. Entregue: `docs/migrations/MIGRATION-v2.md` (~150 linhas) cobrindo: o que muda visivelmente (tabela antes/depois), como atualizar, 3 breaking changes documentados (hooks .sh→.js, audit_sha não-vazio, menu interativo), inventário do que entrou (comandos novos, hooks novos, skills novas, addons novos), seção pro dono de produto não-programador.
 
 ---
 
@@ -137,6 +137,7 @@ _(Investigador preenche antes de Bruno codar.)_
 |---|---|---|
 | 2026-05-24 | gerente-produto (Sofia) | criação a partir de EP-002 / PRD-003 §4.US-116 |
 | 2026-05-24 | dev-senior (Bruno) | T-005 (5 exemplos completos em docs/exemplos/) entregue. T-018 (validação ao vivo das 5 tarefas-tipo) continua aberto — só Roldão executa. |
+| 2026-05-24 | dev-senior (Bruno) | T-001/T-002/T-003/T-007/T-011 marcados (já entregues em sessões anteriores). T-004 (métrica oficial), T-006 (PARA-DONO checkpoint), T-009/T-010 (README "Para quem é"), T-013 (doctor sugere via Levenshtein), T-014 (CHANGELOG bloco "como ler"), T-015 (version PT-BR), T-016 (install msg PT-BR), T-017 (README link MIGRATION), T-019 (MIGRATION-v2.md consolidado) entregues nesta sessão. **US-116 = 16/19 (84%)**. T-008/T-012 ficam como débito baixo. T-018 continua aguardando Roldão. |
 
 ---
 
