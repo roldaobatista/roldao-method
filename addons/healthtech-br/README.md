@@ -60,17 +60,16 @@ Use como guard-rail, não como certificação.
 |---|---|
 | Esqueleto do addon | DRAFT |
 | Regras HEALTH-EXT-001..006 documentadas | DRAFT (texto inicial) |
-| Skill `checklist-cfm-telemedicina` | STUB |
-| Skill `validar-cns-cartao-sus` | STUB |
+| Skill `checklist-cfm-telemedicina` | STABLE |
+| Skill `validar-cns-cartao-sus` | STABLE (algoritmo módulo 11 implementado + 8 testes) |
 | Agente `healthtech-arch` | STUB |
 | Validação por advogado | PENDENTE |
 | Issue de evolução | a criar |
 
 ## Roadmap (não decidido — depende de adoção real)
 
-- v0.2: skill `validar-cns-cartao-sus` funcional (com algoritmo módulo 11)
-- v0.3: skill `gerar-receita-icp-brasil` (template de prescrição com placeholder de assinatura)
-- v0.4: agente `healthtech-arch` com tradeoffs concretos (PEP próprio vs SaaS, FHIR vs ABRASF)
+- v0.2: skill `gerar-receita-icp-brasil` (template de prescrição com placeholder de assinatura)
+- v0.3: agente `healthtech-arch` com tradeoffs concretos (PEP próprio vs SaaS, FHIR vs ABRASF)
 - v1.0: validação por advogado + 3 implantações reais
 
 ---

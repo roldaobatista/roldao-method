@@ -107,6 +107,19 @@ run('chave NF-e modelo desconhecido (99)', chaveNfe, '35240611222333000181990010
 run('chave NF-e DV errado (forca 0)', chaveNfe, chave43Sp + ((dvSp + 1) % 10), false);
 run('chave NF-e CNPJ zerado', chaveNfe, '35240600000000000000550010000000001112345670', false);
 
+// validar-cns-cartao-sus (addon healthtech-br): 15 digitos com modulo 11.
+// CNS definitivo: comeca com 1/2 + PIS de 11 digitos + sufixo + DV.
+// CNS provisorio: comeca com 7/8/9 + soma ponderada total multiplo de 11.
+const cnsSus = path.join(ROOT, 'addons', 'healthtech-br', '.claude', 'skills', 'validar-cns-cartao-sus', 'scripts', 'validar-cns.py');
+run('CNS definitivo valido (100000000000007)', cnsSus, '100000000000007', true);
+run('CNS provisorio valido (800000000000001)', cnsSus, '800000000000001', true);
+run('CNS provisorio valido com 7 (700000000000005)', cnsSus, '700000000000005', true);
+run('CNS com mascara aceita (100 0000 0000 0007)', cnsSus, '100 0000 0000 0007', true);
+run('CNS DV errado rejeitado (100000000000000)', cnsSus, '100000000000000', false);
+run('CNS tamanho invalido (14 digitos)', cnsSus, '10000000000000', false);
+run('CNS comeca com 3 (rejeita primeiro digito invalido)', cnsSus, '300000000000000', false);
+run('CNS provisorio com DV errado', cnsSus, '800000000000000', false);
+
 // validar-codigo-municipio-ibge: 7 digitos = UF + sequencial + DV modulo 10
 run('codigo IBGE Sao Paulo (3550308)', munIbge, '3550308', true);
 run('codigo IBGE Rio (3304557)', munIbge, '3304557', true);
