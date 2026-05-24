@@ -117,9 +117,10 @@ for (const addon of addons) {
   }
   check(`${addon}: name no YAML bate com diretorio`, yaml.top.name === addon, `name=${yaml.top.name}`);
 
-  // status valido
-  const statusOk = ['draft', 'stable', 'deprecated'].includes(yaml.top.status);
-  check(`${addon}: status valido (draft/stable/deprecated)`, statusOk, `valor: ${yaml.top.status}`);
+  // status valido — enum do addon.schema.json (fonte canonica).
+  // 'draft' nao e aceito desde a auditoria 10-agentes 2026-05-24.
+  const statusOk = ['stable', 'beta', 'deprecated'].includes(yaml.top.status);
+  check(`${addon}: status valido (stable/beta/deprecated)`, statusOk, `valor: ${yaml.top.status}`);
 
   // Provocacoes — cada item declarado tem que existir
   const agents = yaml.lists['provoca.agents'] || [];

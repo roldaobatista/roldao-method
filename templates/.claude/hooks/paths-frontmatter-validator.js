@@ -32,8 +32,6 @@ const CANONICAL_NAMES = new Set(['README.md', 'INDICE.md', 'CONVENCOES-DOC.md', 
   }
 
   // Extrai bloco de frontmatter (entre 1o e 2o ---)
-  const fmMatch = cleaned.replace(/^\s*\n/, '').match(/\A---\s*\n([\s\S]*?)\n---/);
-  // JS regex \A não existe — usar ^ com flag m
   const fmBlock = (cleaned.replace(/^\s*\n/, '').match(/^---\s*\n([\s\S]*?)\n---/) || [, ''])[1];
 
   for (const field of ['owner', 'revisado-em', 'status']) {

@@ -142,9 +142,22 @@ try {
   fail(`settings.json invalido: ${e.message}`);
 }
 
-// Addons — schema do addon.yaml
+// Addons — schema do addon.yaml.
+// Antes validava so presenca (regex `^campo:\s*\S`) e o `status: draft` do
+// healthtech-br passou silencioso, violando o enum do addon.schema.json
+// (stable|beta|deprecated). Auditoria 10-agentes 2026-05-24 reforcou: validar
+// enum + pattern em vez de so presenca, sem precisar puxar Ajv (zero deps).
 const ADDONS_DIR = path.join(ROOT, 'addons');
-const ADDON_REQUIRED = ['name', 'version', 'description', 'license', 'status'];
+const STATUS_VALIDOS = ['stable', 'beta', 'deprecated'];
+const LICENCAS_VALIDAS = ['MIT', 'Apache-2.0', 'BSD-3-Clause', 'ISC'];
+const VERSION_RE = /^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$/;
+const NAME_RE = /^[a-z][a-z0-9-]+$/;
+
+function getYamlValue(text, field) {
+  const m = text.match(new RegExp(`^${field}:\\s*(\\S.*)$`, 'm'));
+  return m ? m[1].trim() : null;
+}
+
 for (const addon of listDir(ADDONS_DIR)) {
   const addonYaml = path.join(ADDONS_DIR, addon, 'addon.yaml');
   if (!fs.existsSync(addonYaml)) continue;
@@ -156,10 +169,26 @@ for (const addon of listDir(ADDONS_DIR)) {
   if (!/^provoca:/m.test(text)) {
     fail(`addon ${addon}: faltando bloco 'provoca:' (agents/hooks/skills/commands/templates).`);
   }
-  for (const field of ADDON_REQUIRED) {
-    const re = new RegExp(`^${field}:\\s*\\S`, 'm');
-    if (!re.test(text)) fail(`addon ${addon}: campo '${field}' ausente ou vazio em addon.yaml`);
-  }
+  const name = getYamlValue(text, 'name');
+  const version = getYamlValue(text, 'version');
+  const description = getYamlValue(text, 'description');
+  const license = getYamlValue(text, 'license');
+  const status = getYamlValue(text, 'status');
+
+  if (!name) fail(`addon ${addon}: campo 'name' ausente em addon.yaml`);
+  else if (!NAME_RE.test(name)) fail(`addon ${addon}: name='${name}' fora do padrao kebab-case (${NAME_RE}).`);
+  else if (name !== addon) fail(`addon ${addon}: name='${name}' diverge do nome do diretorio '${addon}'.`);
+
+  if (!version) fail(`addon ${addon}: campo 'version' ausente em addon.yaml`);
+  else if (!VERSION_RE.test(version)) fail(`addon ${addon}: version='${version}' fora do padrao SemVer (${VERSION_RE}).`);
+
+  if (!description) fail(`addon ${addon}: campo 'description' ausente em addon.yaml`);
+
+  if (!license) fail(`addon ${addon}: campo 'license' ausente em addon.yaml`);
+  else if (!LICENCAS_VALIDAS.includes(license)) fail(`addon ${addon}: license='${license}' fora do enum (${LICENCAS_VALIDAS.join('|')}).`);
+
+  if (!status) fail(`addon ${addon}: campo 'status' ausente em addon.yaml`);
+  else if (!STATUS_VALIDOS.includes(status)) fail(`addon ${addon}: status='${status}' fora do enum addon.schema.json (${STATUS_VALIDOS.join('|')}).`);
 }
 
 // package.json

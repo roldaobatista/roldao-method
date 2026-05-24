@@ -88,66 +88,12 @@ async function askMenu(question, options) {
   return options[0];
 }
 
-// Em Windows, hooks bash/perl so rodam dentro de Git Bash. PowerShell e CMD
-// nao executam .sh — o Claude Code chama os hooks via shell, e sem Git Bash
-// no PATH eles falham silenciosamente (cliente acha que esta protegido, nao
-// esta). Detectar via MSYSTEM (setado pelo Git Bash/MSYS2) e SHELL.
-function isWindowsWithoutBash() {
-  if (process.platform !== 'win32') return false;
-  if (process.env.MSYSTEM) return false;        // Git Bash, MSYS2, Cygwin
-  if ((process.env.SHELL || '').toLowerCase().includes('bash')) return false;
-  return true;
-}
-
-function warnWindowsShell() {
-  if (!isWindowsWithoutBash()) return;
-  // Banner grande e persistente — pior modo de falha possivel e o cliente
-  // achar que esta protegido quando NAO esta. Repetido no fim do install
-  // pra quem rodou com --force.
-  console.log('');
-  console.log(`${c.red}${c.bold}════════════════════════════════════════════════════════════════${c.reset}`);
-  console.log(`${c.red}${c.bold}  ⚠  HOOKS DESATIVADOS — Windows sem Git Bash detectado${c.reset}`);
-  console.log(`${c.red}${c.bold}════════════════════════════════════════════════════════════════${c.reset}`);
-  console.log('');
-  console.log(`${c.red}${c.bold}Os 26 hooks bloqueadores NAO vao executar em PowerShell ou CMD.${c.reset}`);
-  console.log(`${c.red}Isso significa que o framework esta ${c.bold}silenciosamente desprotegido${c.reset}${c.red}:${c.reset}`);
-  console.log(`${c.red}  - secret commitado nao e bloqueado${c.reset}`);
-  console.log(`${c.red}  - rm -rf nao e bloqueado${c.reset}`);
-  console.log(`${c.red}  - teste mascarado nao e bloqueado${c.reset}`);
-  console.log(`${c.red}  - chave Pix em log nao e bloqueada${c.reset}`);
-  console.log('');
-  console.log(`${c.bold}Como ativar a protecao:${c.reset}`);
-  console.log(`  ${c.cyan}1.${c.reset} Instale Git for Windows: ${c.dim}https://git-scm.com/download/win${c.reset}`);
-  console.log(`  ${c.cyan}2.${c.reset} Abra ${c.bold}Git Bash${c.reset} (nao PowerShell, nao CMD)`);
-  console.log(`  ${c.cyan}3.${c.reset} Rode o Claude Code de dentro do Git Bash`);
-  console.log('');
-  console.log(`${c.dim}Para forcar instalacao mesmo assim (sem protecao): ${c.bold}--force${c.reset}`);
-  console.log(`${c.dim}Diagnostico: npx roldao-method doctor${c.reset}`);
-  console.log(`${c.red}${c.bold}════════════════════════════════════════════════════════════════${c.reset}`);
-  console.log('');
-}
-
-// Windows sem Git Bash: BLOQUEIA por default (era warn-silencioso ate v0.20).
-// TTY interativo: pergunta — pode continuar com "s".
-// CI/wizard (--yes) sem --force: ABORTA. Forca o operador a passar --force
-// explicitamente, sinalizando que sabe que a protecao esta inerte.
-// --force ou --dry-run: prossegue (avisa no final tambem).
-async function confirmWindowsShellOrExit() {
-  if (!isWindowsWithoutBash()) return;
-  warnWindowsShell();
-  if (FORCE || DRY_RUN) return;
-  if (YES || !process.stdin.isTTY) {
-    err('Windows sem Git Bash: instalacao abortada por seguranca.');
-    err('Para continuar mesmo assim (sem protecao dos hooks): adicione --force');
-    err('Para ativar protecao: instale Git for Windows e rode dentro do Git Bash.');
-    process.exit(2);
-  }
-  const a = await ask(`${c.red}${c.bold}Continuar instalando ${c.reset}${c.red}SEM PROTECAO dos hooks?${c.reset} [s/N] `);
-  if (a.toLowerCase() !== 's') {
-    log('cancelado — abra Git Bash e rode de novo.');
-    process.exit(2);
-  }
-}
+// Hooks foram migrados pra Node puro em EP-001 (v1.0). Não usam mais bash/perl.
+// Funcionam em PowerShell, CMD, bash, zsh, sh — qualquer shell que execute `node`.
+// Gate Windows-sem-Git-Bash de versões anteriores virou ruído: bloqueava
+// instalação válida em Win11 default sem benefício real. Removido na auditoria
+// 10-agentes de 2026-05-24. Se algum addon legado voltar a usar `.sh`, o aviso
+// passa a ser problema desse addon, não do core.
 
 function detectTools() {
   const tools = [];
@@ -530,10 +476,6 @@ async function install() {
     process.exit(1);
   }
 
-  // Gate Windows-sem-Git-Bash ANTES de copiar arquivos — evita instalar e o
-  // cliente achar que esta protegido quando hooks nao vao rodar.
-  await confirmWindowsShellOrExit();
-
   // Wizard interativo (apenas se TTY + sem --yes/--force).
   // Perfis vem de addons/profiles.json — data-driven, sem hardcode no CLI.
   let addonsEscolhidos = [];
@@ -586,7 +528,6 @@ async function install() {
 
   if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
   ok('instalacao concluida.');
-  warnWindowsShell();
   console.log('');
   console.log(`${c.bold}Proximos passos:${c.reset}`);
   console.log(`  ${c.cyan}1.${c.reset} abra ${c.bold}AGENTS.md${c.reset} e preencha os campos ${c.dim}_(preencher)_${c.reset}  ${c.dim}(ou rode /brownfield se ja tem codigo)${c.reset}`);
@@ -1054,48 +995,11 @@ function doctor() {
   }
   console.log('');
 
-  // Check bash + perl em TODAS as plataformas (hooks dependem de ambos).
-  // Auditoria 10-agentes v0.15.2: Linux/macOS minimal (Alpine/BusyBox/sh-only)
-  // tambem podem rodar sem bash; antes so checavamos no Windows.
-  const { execSync } = require('child_process');
-  if (process.platform === 'win32' && isWindowsWithoutBash()) {
-    console.log(`  ${c.yellow}AVISO${c.reset} parece que este terminal nao e Git Bash (MSYSTEM/SHELL nao detectado).`);
-    console.log(`         Em PowerShell/CMD, hooks .sh ${c.bold}nao executam${c.reset} — abra Git Bash antes.`);
-    faltando++;
-  }
-  try {
-    const ver = execSync('bash --version', { stdio: 'pipe' }).toString();
-    // Extrai versao maior. Hooks usam features de bash >=3.2 (mac antigo) ate 4.x.
-    const m = ver.match(/version\s+(\d+)\.(\d+)/);
-    if (m) {
-      const major = parseInt(m[1], 10);
-      if (major < 3) {
-        console.log(`  ${c.yellow}AVISO${c.reset} bash ${m[0]} muito antigo — hooks usam bash >=3.2.`);
-      } else {
-        console.log(`  ${c.green}OK   ${c.reset} bash ${major}.${m[2]} disponivel`);
-      }
-    } else {
-      console.log(`  ${c.green}OK   ${c.reset} bash disponivel`);
-    }
-  } catch {
-    if (process.platform === 'win32') {
-      console.log(`  ${c.red}FALTA${c.reset} bash — hooks nao vao funcionar. Instale Git for Windows.`);
-    } else {
-      console.log(`  ${c.red}FALTA${c.reset} bash — hooks nao vao funcionar. Instale via gestor da distro (apt install bash, apk add bash, etc).`);
-    }
-    faltando++;
-  }
-  try {
-    execSync('perl --version', { stdio: 'pipe' });
-    console.log(`  ${c.green}OK   ${c.reset} perl disponivel`);
-  } catch {
-    if (process.platform === 'win32') {
-      console.log(`  ${c.red}FALTA${c.reset} perl — hooks usam perl -MJSON::PP. Instale Strawberry Perl ou use Git Bash.`);
-    } else {
-      console.log(`  ${c.red}FALTA${c.reset} perl — hooks usam perl -MJSON::PP. Instale via gestor da distro (apt install perl, apk add perl, etc).`);
-    }
-    faltando++;
-  }
+  // Hooks são Node puro desde EP-001 (v1.0). Único requisito de runtime é Node>=18
+  // — já validado por bin/lib/node-version-check.js antes de qualquer require não-builtin.
+  // Checks de bash/perl removidos na auditoria 10-agentes (2026-05-24) — eram ruído
+  // que confundia operador (alegava "FALTA" quando hooks rodavam perfeitamente).
+  console.log(`  ${c.green}OK   ${c.reset} node ${process.version} (hooks são Node puro)`);
 
   console.log('');
   console.log(`${c.bold}Total:${c.reset} ${checks.length}  |  ${c.green}OK:${c.reset} ${okCount}  |  ${c.red}FALTA:${c.reset} ${faltando}  |  ${c.yellow}NOVO:${c.reset} ${opcionalFaltando}`);
@@ -1184,10 +1088,11 @@ ${c.bold}Addons disponiveis:${c.reset}
   ${c.cyan}fintech-br${c.reset}             Pix completo + Open Finance + webhook HMAC
   ${c.cyan}esocial-completo${c.reset}       Eventos S-1000 a S-3000, CIPA, NRs, prazo legal
   ${c.cyan}varejo-pdv-br${c.reset}          SAT-CF-e, NFC-e, TEF, balanca/impressora
+  ${c.cyan}healthtech-br${c.reset}          Telemedicina CFM 2.314, prontuario ANS RN 305, CNS, TISS/TUSS ${c.dim}(beta)${c.reset}
 
 ${c.bold}IDEs suportadas:${c.reset} Claude Code, Cursor, Windsurf, Continue, Aider, Cline, Roo, Gemini CLI, Codex CLI
 
-${c.bold}Requisito Windows:${c.reset} Git for Windows (Git Bash) — hooks usam bash + perl.
+${c.bold}Requisito:${c.reset} Node.js >=18. Hooks rodam em qualquer shell (PowerShell, CMD, bash, zsh, sh).
 
 ${c.dim}Docs: https://github.com/roldaobatista/roldao-method${c.reset}
 `);

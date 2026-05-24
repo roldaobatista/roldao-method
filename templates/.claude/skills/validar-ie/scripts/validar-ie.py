@@ -147,13 +147,16 @@ def validar(uf: str, ie: str) -> dict:
             "motivo": "" if ok else "dv-invalido",
         }
 
-    # UFs sem algoritmo dedicado: aceita formalmente, marca metodo.
+    # UFs sem algoritmo dedicado: NAO afirma validade. Antes retornava
+    # valido:true ("formal-sem-dv") e operador SEFAZ confiava — SEFAZ rejeitava.
+    # Auditoria 10-agentes 2026-05-24: skill nao deve mentir. Operador valida
+    # com Sintegra/SEFAZ por outra via.
     return {
         "uf": uf,
-        "valido": True,
+        "valido": False,
         "normalizado": num,
         "metodo": "formal-sem-dv",
-        "motivo": "uf-sem-algoritmo-dedicado-validar-com-sintegra",
+        "motivo": "uf-sem-algoritmo-dedicado-valide-com-sintegra-ou-sefaz",
     }
 
 

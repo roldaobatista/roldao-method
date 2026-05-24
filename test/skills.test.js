@@ -78,7 +78,9 @@ runIE('IE SP ISENTO aceito', 'SP', 'ISENTO', true);
 runIE('IE SP 12 digitos com DV invalido rejeitado', 'SP', '110042490100', false);
 runIE('IE RJ DV invalido rejeitado', 'RJ', '99999999', false);
 runIE('IE UF invalida', 'ZZ', '12345', false);
-runIE('IE de UF sem algoritmo dedicado (CE) — aceito formalmente', 'CE', '12345678', true);
+// Auditoria 10-agentes 2026-05-24: UF sem algoritmo retorna valido:false (antes era true,
+// confundia operador SEFAZ). Skill avisa pra validar com Sintegra/SEFAZ.
+runIE('IE de UF sem algoritmo dedicado (CE) — nao confirma DV, exige Sintegra', 'CE', '12345678', false);
 
 // validar-boleto: linha digitavel real de teste (44 digitos numerico)
 // O codigo gera DV correto na hora do calculo; usamos uma string que sabemos invalida

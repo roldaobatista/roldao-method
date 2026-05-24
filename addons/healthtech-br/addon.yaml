@@ -1,10 +1,10 @@
 name: healthtech-br
-version: 0.1.1-draft
+version: 0.1.1
 description: Regras e ferramentas pra healthtech BR — ANS (RN 305 prontuario), CFM (telemedicina, e-prescricao), TISS/TUSS, LGPD Art. 11 (dado sensivel), retencao de prontuario 20 anos
 authors:
   - Roldão Batista
 license: MIT
-status: draft
+status: beta
 revisado-em: 2026-05-24
 
 requires:
