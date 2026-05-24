@@ -68,6 +68,44 @@ status: stable
 | "Subi em produção" | "Agora o cliente já está usando essa versão." |
 | "Tem débito técnico" | "Tem coisa meia-feita ou improvisada que vou precisar limpar depois." |
 
+## O que são esses códigos no commit / mensagem do agente?
+
+Quando o assistente diz "vou aplicar `INV-AGENT-006`" ou "essa mudança fere `LGPD-001`", ele está citando uma regra interna do framework. Cada código aponta pra uma regra rastreável:
+
+| Prefixo | Significa | Exemplo |
+|---|---|---|
+| **`INV-NNN`** | Invariante geral — coisa que o framework nunca viola | `INV-006` = "investigar antes de mexer no código" |
+| **`SEC-NNN`** | Regra de segurança | `SEC-002` = "operação destrutiva (`rm -rf`, `git push --force`) exige confirmação explícita" |
+| **`TST-NNN`** | Regra de testes | `TST-001` = "nunca mascarar teste que falhou (skip/xit/comentado)" |
+| **`LGPD-NNN`** | Regra de proteção de dados brasileira (LGPD) | `LGPD-001` = "todo dado pessoal coletado precisa de base legal documentada" |
+| **`FISCAL-NNN`** | Regra fiscal brasileira (NF-e, eSocial, Reforma Tributária) | `FISCAL-001` = "NF-e autorizada nunca pode ser alterada" |
+| **`PIX-NNN`** | Regra Pix / Open Finance | `PIX-004` = "chave Pix é dado pessoal — nunca pode aparecer em log" |
+| **`INV-AGENT-NNN`** | Regra que o próprio assistente IA segue | `INV-AGENT-006` = "executar a ação, não perguntar permissão" |
+
+**Lista completa:** [`REGRAS-INEGOCIAVEIS.md`](../REGRAS-INEGOCIAVEIS.md). Quando o agente cita um código, você pode pesquisar lá pra entender o contexto.
+
+## O que são esses códigos no nome de um documento ou tarefa?
+
+| Prefixo | Significa | Exemplo |
+|---|---|---|
+| **`PRD-NNN`** | Product Requirements Document — descrição grande de uma iniciativa (semanas de trabalho) | `PRD-003-v2-0-auditoria-10-de-10.md` |
+| **`EP-NNN`** | Épico — guarda-chuva de várias histórias relacionadas | `EP-002-v2-0-auditoria-10-de-10.md` |
+| **`US-NNN`** | User Story — uma funcionalidade que cabe num ciclo curto | `US-111-sprint-1-bloqueadores.md` |
+| **`AC-NNN-N`** | Acceptance Criterion — critério mensurável dentro de uma US | `AC-111-3` = terceiro critério da story 111 |
+| **`T-NNN`** | Task — passo concreto dentro de uma US | `T-001`, `T-002`... |
+| **`ADR-NNN`** | Architecture Decision Record — decisão técnica registrada com motivo | `ADR-020-contrato-audit-sha-markers.md` |
+| **`CHK-AAAA-MM-DD-<slug>`** | Checkpoint — walkthrough antes de subir mudança | `CHK-2026-05-24-pix-cobranca.md` |
+
+Esses códigos aparecem no nome do commit (`feat(T-001): ...`) pra você conseguir rastrear depois de meses qual decisão gerou qual código.
+
+## Termos do framework que aparecem em docs internas
+
+- **Pipeline mental** — sequência fixa que o agente segue numa feature: Sofia (PM) → Detetive (investiga) → Rafael (arquitetura) → Bruno (implementa) → Inês (revisa) → 3 auditores → checkpoint.
+- **Fail-closed** — se o framework não tem certeza, ele BARRA por segurança em vez de liberar. Padrão dos hooks.
+- **Lifecycle hook** — hook que roda em momento específico do ciclo da sessão (início, fim, antes de compactar contexto, etc).
+- **Soft warning** — aviso que aparece mas não bloqueia. Diferente de `[BLOQUEIO]`.
+- **`/shard`** — comando que quebra um documento muito grande (ex: PRD de 200 linhas) em pedaços menores pra agente carregar só o relevante.
+
 ---
 
 _Faltou algum termo? Abra issue em [github.com/roldaobatista/roldao-method/issues](https://github.com/roldaobatista/roldao-method/issues)._

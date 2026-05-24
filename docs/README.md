@@ -13,10 +13,12 @@ status: stable
 > **Não programa?** Comece em [**PARA-DONO-DE-PRODUTO**](PARA-DONO-DE-PRODUTO.md) e tenha o [**GLOSSARIO**](GLOSSARIO.md) aberto pra traduzir qualquer termo técnico que aparecer.
 
 1. [PARA-DONO-DE-PRODUTO](PARA-DONO-DE-PRODUTO.md) — manual pro dono que NÃO escreve código.
-2. [GLOSSARIO](GLOSSARIO.md) — tradução de jargão técnico em 3 tabelas.
-3. [QUICKSTART](QUICKSTART.md) — instalação + 1ª `/feature` em 10 min (perfil dev).
-4. [COMO-FUNCIONA](COMO-FUNCIONA.md) — visão de 360º (agentes, hooks, workflows, skills, addons).
-5. [EXEMPLO-FEATURE-COMPLETA](EXEMPLO-FEATURE-COMPLETA.md) — walkthrough Sofia → Detetive → Rafael → Bruno → 3 auditores.
+2. [PRIMEIRO-DIA](PRIMEIRO-DIA.md) — passo-a-passo de instalação + primeira feature, sem jargão.
+3. [GLOSSARIO](GLOSSARIO.md) — tradução de jargão técnico em 5 tabelas (inclui IDs como `LGPD-001`, `US-NNN`).
+4. [COMO-PEDIR-AJUDA](COMO-PEDIR-AJUDA.md) — onde abrir issue, como descrever problema sem stack trace, quanto tempo demora.
+5. [QUICKSTART](QUICKSTART.md) — instalação + 1ª `/feature` em 10 min (perfil dev).
+6. [COMO-FUNCIONA](COMO-FUNCIONA.md) — visão de 360º (agentes, hooks, workflows, skills, addons).
+7. [EXEMPLO-FEATURE-COMPLETA](EXEMPLO-FEATURE-COMPLETA.md) — walkthrough Sofia → Detetive → Rafael → Bruno → 3 auditores.
 
 ## 🧱 Aprofundamento
 
