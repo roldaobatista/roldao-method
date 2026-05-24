@@ -16,7 +16,8 @@ status: stable
 2. [PRIMEIRO-DIA](PRIMEIRO-DIA.md) — passo-a-passo de instalação + primeira feature, sem jargão.
 3. [GLOSSARIO](GLOSSARIO.md) — tradução de jargão técnico em 5 tabelas (inclui IDs como `LGPD-001`, `US-NNN`).
 4. [COMO-PEDIR-AJUDA](COMO-PEDIR-AJUDA.md) — onde abrir issue, como descrever problema sem stack trace, quanto tempo demora.
-5. [QUICKSTART](QUICKSTART.md) — instalação + 1ª `/feature` em 10 min (perfil dev).
+5. [SEU-DEV-PRECISA-LER-ISSO](SEU-DEV-PRECISA-LER-ISSO.md) — pro desenvolvedor profissional contratado pelo dono.
+6. [QUICKSTART](QUICKSTART.md) — instalação + 1ª `/feature` em 10 min (perfil dev).
 6. [COMO-FUNCIONA](COMO-FUNCIONA.md) — visão de 360º (agentes, hooks, workflows, skills, addons).
 7. [EXEMPLO-FEATURE-COMPLETA](EXEMPLO-FEATURE-COMPLETA.md) — walkthrough Sofia → Detetive → Rafael → Bruno → 3 auditores.
 

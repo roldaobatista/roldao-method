@@ -1426,6 +1426,103 @@ async function undo() {
   }
 }
 
+// status — diagnostico do projeto pra Roldao (nao-programador). PT-BR.
+// Conta stories abertas, ADRs propostos, ultimo commit, mudanca pendente.
+// T-502 (L2) / PRD-003 US-116.
+async function statusProjeto() {
+  banner();
+  const { execFileSync } = require('child_process');
+
+  function safeFs(fn) { try { return fn(); } catch { return null; } }
+
+  function countMdFilesByStatus(pasta, statusEsperado, statusInverso = false) {
+    const dir = path.join(CWD, pasta);
+    if (!fs.existsSync(dir)) return { total: 0, abertas: 0 };
+    const arquivos = fs.readdirSync(dir).filter((f) => f.endsWith('.md'));
+    let abertas = 0;
+    for (const f of arquivos) {
+      try {
+        const conteudo = fs.readFileSync(path.join(dir, f), 'utf8').slice(0, 600);
+        const matchStatus = conteudo.match(/^status:\s*(\S+)/m);
+        const status = matchStatus ? matchStatus[1].toLowerCase().trim() : '';
+        if (statusInverso ? status !== statusEsperado : status === statusEsperado) abertas++;
+      } catch { /* skip */ }
+    }
+    return { total: arquivos.length, abertas };
+  }
+
+  // Stories: aberta = qualquer status != 'entregue'
+  const stories = countMdFilesByStatus('docs/stories', 'entregue', true);
+  // ADRs: aberto = status diferente de 'aceito'
+  const adrs = countMdFilesByStatus('docs/decisions', 'aceito', true);
+  // PRDs no total
+  const prds = countMdFilesByStatus('docs/prd', 'qualquer-coisa', true);
+
+  // Ultimo commit
+  let ultimoCommit = 'nao identificado';
+  let diasDesde = '?';
+  try {
+    const tsStr = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%ai'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    const msg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    if (tsStr) {
+      const ts = new Date(tsStr);
+      const agora = new Date();
+      diasDesde = Math.floor((agora - ts) / (1000 * 60 * 60 * 24));
+      ultimoCommit = `${msg.slice(0, 60)} (ha ${diasDesde} dia${diasDesde !== 1 ? 's' : ''})`;
+    }
+  } catch { /* sem git */ }
+
+  // Mudanca pendente
+  let pendente = false;
+  let arquivosPendentes = 0;
+  try {
+    const status = execFileSync('git', ['-C', CWD, 'status', '--porcelain'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    if (status) {
+      pendente = true;
+      arquivosPendentes = status.split('\n').filter(Boolean).length;
+    }
+  } catch { /* skip */ }
+
+  // Versao do framework
+  let versaoFramework = '?';
+  const pkgFile = path.join(CWD, 'package.json');
+  if (fs.existsSync(pkgFile)) {
+    try {
+      const pkgData = JSON.parse(fs.readFileSync(pkgFile, 'utf8'));
+      versaoFramework = pkgData.dependencies?.['roldao-method'] || pkgData.devDependencies?.['roldao-method'] || pkgData.version || '?';
+    } catch { /* skip */ }
+  }
+
+  console.log(`${c.bold}Estado do projeto:${c.reset}\n`);
+  console.log(`  ${c.cyan}Iniciativas grandes (PRDs):${c.reset} ${prds.total}`);
+  console.log(`  ${c.cyan}Stories abertas:${c.reset} ${stories.abertas} de ${stories.total}`);
+  console.log(`  ${c.cyan}Decisoes (ADRs) em aberto:${c.reset} ${adrs.abertas} de ${adrs.total}`);
+  console.log('');
+  console.log(`  ${c.cyan}Ultima atividade:${c.reset} ${ultimoCommit}`);
+  if (pendente) {
+    console.log(`  ${c.yellow}Mudancas pendentes nao gravadas:${c.reset} ${arquivosPendentes} arquivo${arquivosPendentes !== 1 ? 's' : ''}`);
+  } else {
+    console.log(`  ${c.green}Nada pendente${c.reset} — tudo gravado.`);
+  }
+  console.log('');
+  console.log(`  ${c.dim}Versao do framework: ${versaoFramework}${c.reset}`);
+  console.log('');
+
+  console.log(`${c.bold}Proximo passo sugerido:${c.reset}`);
+  if (stories.abertas > 0) {
+    console.log(`  ${c.green}/feature${c.reset} pra fechar uma das ${stories.abertas} stories abertas`);
+  } else if (adrs.abertas > 0) {
+    console.log(`  Aceitar ${adrs.abertas} ADR${adrs.abertas !== 1 ? 's' : ''} pendente${adrs.abertas !== 1 ? 's' : ''} (mudar 'status: proposta' pra 'status: aceito')`);
+  } else if (pendente) {
+    console.log(`  Gravar mudancas pendentes (pedir pro agente fazer commit)`);
+  } else if (diasDesde !== '?' && diasDesde >= 7) {
+    console.log(`  ${c.green}/o-que-aconteceu${c.reset} pra ver o que mudou desde a ultima atividade`);
+  } else {
+    console.log(`  Pedir nova feature: ${c.green}/feature <descricao em PT-BR>${c.reset}`);
+  }
+  console.log('');
+}
+
 function menu() {
   banner();
   console.log(`${c.bold}O que voce quer fazer?${c.reset}\n`);
@@ -1448,6 +1545,7 @@ function help() {
   ${c.cyan}npx roldao-method update${c.reset}         [--yes] [--force] [--dry-run] [--all]   atualiza arquivos do framework
   ${c.cyan}npx roldao-method rollback${c.reset}       [<id>] [--list]                desfaz o ultimo update (volta o snapshot)
   ${c.cyan}npx roldao-method undo${c.reset}           [--yes] [--dry-run]            desfaz ultimo commit via git revert (rede de seguranca pro Roldao)
+  ${c.cyan}npx roldao-method status${c.reset}                                          diagnostico PT-BR do projeto (stories abertas, ADRs, ultimo commit, pendente)
   ${c.cyan}npx roldao-method add <addon>${c.reset}    [--yes]                          instala addon especifico
   ${c.cyan}npx roldao-method remove <addon>${c.reset} [--yes] [--dry-run]              remove um addon (core preservado)
   ${c.cyan}npx roldao-method search [termo]${c.reset}                                   lista/filtra addons disponiveis
@@ -1521,6 +1619,7 @@ function version() {
     }
     case 'rollback': await rollback(); break;
     case 'undo': await undo(); break;
+    case 'status': await statusProjeto(); break;
     case 'menu': menu(); break;
     case 'help': case '--help': case '-h': help(); break;
     case 'version': case '--version': case '-v': version(); break;
