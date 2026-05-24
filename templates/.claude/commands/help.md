@@ -152,17 +152,25 @@ Lista atualizada: `npx roldao-method search`.
 3. Se aprovado, mergear
 4. `/retro` ao fim do marco
 
-## Se `$ARGUMENTS` é um código
+## Se `$ARGUMENTS` é um código curto (BG, FT, BF, etc.) OU nome de comando
 
-Mostre detalhe do comando correspondente:
-- Nome
-- Para quando
-- Que agentes invoca
-- Que artefatos gera
-- Tempo médio esperado
-- Comando relacionado a rodar antes/depois
+Mostre detalhe do comando correspondente seguindo este passo a passo:
 
-Exemplo: `/help BG` mostra detalhe completo de `/bug`.
+1. **Resolver o argumento.** Se `$ARGUMENTS` é um código de 2-3 letras maiúsculas (BG, FT, IPM, etc.), consulte a tabela acima e descubra qual comando ele referencia (BG → `/bug`, FT → `/feature`, etc.). Se `$ARGUMENTS` já é um nome de comando (`bug`, `feature`, `prd`, com ou sem `/`), use direto.
+2. **Ler o arquivo do comando.** Abra `.claude/commands/<nome>.md` (sem `/` no nome do arquivo). Se não existir, responda: "Não encontrei o comando `<nome>`. Use `/help` sem argumento pra ver a lista, ou `npx roldao-method search "<termo>"` pra busca fuzzy."
+3. **Renderizar detalhe em PT-BR claro.** Extraia do frontmatter e do corpo:
+   - **Pra quê** — descrição em 1 frase
+   - **Quando usar** — gatilho concreto
+   - **O que ele faz** — sequência de etapas em PT-BR (resumida)
+   - **Quem participa** — agentes invocados (traduzir nome técnico pra papel: `gerente-produto` → Sofia, `investigador` → Detetive, etc.)
+   - **O que ele NÃO faz** — non-goals do comando, se houver
+   - **Comando relacionado** — o que rodar antes/depois (ex: `/feature` → rode `/readiness` antes; `/release` → rode `/checkpoint` antes)
+4. **Encerrar com sugestão prática.** Frase final: "Rode `<comando>` quando estiver pronto" ou "Não tem certeza? `/clarificar` primeiro."
+
+Exemplos:
+- `/help BG` → mostra detalhe completo de `/bug` (REGRA #0, Detetive obrigatório, etc.)
+- `/help bug` → idem
+- `/help feature` → mostra pipeline Sofia → Detetive → Rafael → Bruno → Inês → 3 auditores
 
 ## Se `$ARGUMENTS` é uma frase em PT-BR (busca)
 
