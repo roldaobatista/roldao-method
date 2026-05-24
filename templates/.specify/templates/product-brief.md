@@ -3,7 +3,7 @@ tipo: product-brief
 versao: 1.0
 data: AAAA-MM-DD
 autor: _(nome)_
-status: rascunho
+status: draft
 relacionado-prd: _(opcional)_
 ---
 

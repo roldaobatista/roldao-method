@@ -3,7 +3,7 @@ tipo: prfaq
 versao: 1.0
 data: AAAA-MM-DD
 autor: _(nome)_
-status: rascunho
+status: draft
 ---
 
 # PRFAQ — _(nome do produto/feature)_

@@ -83,7 +83,7 @@ revisado-em: AAAA-MM-DD
 
 ### Pré-spec / descoberta — usam `autor`/`data` (não vão para `docs/` versionado de spec)
 
-`product-brief`, `prfaq`, `ux-design` usam `tipo / versao / data / autor / status: rascunho`. **Não** colocar em `docs/` sem adicionar `owner`/`revisado-em`/`status` — o hook `paths-frontmatter-validator.sh` bloqueia. O lugar deles é `docs/research/` (brief) ou anexo da story; ao promover para spec, converter o frontmatter para o formato spec-as-source acima.
+`product-brief`, `prfaq`, `ux-design` usam `tipo / versao / data / autor / status: draft` (unificado na auditoria 10-agentes 2026-05-24; antes alguns usavam `rascunho`). **Não** colocar em `docs/` sem adicionar `owner`/`revisado-em`/`status` — o hook `paths-frontmatter-validator.js` bloqueia. O lugar deles é `docs/research/` (brief) ou anexo da story; ao promover para spec, converter o frontmatter para o formato spec-as-source acima.
 
 ## Regra de ouro
 

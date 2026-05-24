@@ -22,8 +22,13 @@ Moldes prontos pra **spec-driven development** (INV-002).
 | `ux-design.md` | Wireframe + estados + mensagens PT-BR (feature com UI) |
 | `decision-log.md` | Log cronológico de decisões pequenas/médias |
 | `headless-schemas.md` | Referência do contrato de frontmatter (espelha templates + hooks) |
+| `adr-contingencia-fiscal.md` | ADR obrigatório pra feature de emissão fiscal (FISCAL-004 contingência) |
 
-ADR continua em `.claude/skills/gerar-adr-pt-br/templates/adr.md` (gravado em `docs/decisions/`).
+ADR padrão continua em `.claude/skills/gerar-adr-pt-br/templates/adr.md` (gravado em `docs/decisions/`); o ADR de contingência fiscal acima é especialização.
+
+## Convenção de placeholders
+
+Todo template usa **`_(preencher)_`** / **`_(descrever ...)_`** / **`_(ex: ...)_`** como marcadores de campo a preencher (em itálico, fica visível no markdown renderizado). Evite `<...>` (parsers de markdown podem interpretar como tag HTML) e `{{...}}` (não-padrão no projeto).
 
 ## Override por projeto (sem fork)
 
