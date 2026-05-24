@@ -1078,28 +1078,129 @@ async function removeAddon(name) {
 
 // search [termo] — lista addons disponiveis com descricao, marcando os
 // instalados. Sem termo = catalogo completo.
+// Le frontmatter YAML simples (name/description) de um arquivo .md.
+// Sem parser real porque YAML completo seria dependencia externa.
+function readFrontmatterField(file, field) {
+  try {
+    const text = fs.readFileSync(file, 'utf8');
+    const m = text.match(new RegExp(`^${field}:\\s*(.+)$`, 'm'));
+    return m ? m[1].trim().replace(/^["']|["']$/g, '') : '';
+  } catch {
+    return '';
+  }
+}
+
+function loadCommandsCatalog() {
+  const dir = path.join(TEMPLATES_DIR, '.claude', 'commands');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => ({
+      name: '/' + f.replace(/\.md$/, ''),
+      desc: readFrontmatterField(path.join(dir, f), 'description'),
+    }));
+}
+
+function loadSkillsCatalog() {
+  const dir = path.join(TEMPLATES_DIR, '.claude', 'skills');
+  if (!fs.existsSync(dir)) return [];
+  const skills = [];
+  for (const name of fs.readdirSync(dir)) {
+    const skillFile = path.join(dir, name, 'SKILL.md');
+    if (!fs.existsSync(skillFile)) continue;
+    skills.push({
+      name,
+      desc: readFrontmatterField(skillFile, 'description'),
+    });
+  }
+  return skills;
+}
+
+// Fuzzy match simples: tokeniza o termo em palavras curtas e conta quantas
+// aparecem como substring no haystack (case-insensitive). Score = nº de palavras
+// casadas. Ignora stopwords PT-BR ("preciso", "quero", "como") pra permitir
+// frase natural ("preciso reportar bug" → casa /bug via palavra "bug").
+const STOPWORDS_PTBR = new Set([
+  'a', 'o', 'as', 'os', 'um', 'uma', 'uns', 'umas', 'de', 'do', 'da', 'dos', 'das',
+  'em', 'no', 'na', 'nos', 'nas', 'por', 'para', 'pra', 'com', 'que', 'e', 'ou',
+  'preciso', 'quero', 'como', 'fazer', 'isso', 'esse', 'essa', 'eu', 'me', 'mim',
+  'algum', 'alguma', 'meu', 'minha', 'qual', 'tem', 'ter', 'estou', 'sobre',
+]);
+function fuzzyScore(term, haystack) {
+  if (!term) return 1;
+  const tokens = term.toLowerCase().split(/\s+/)
+    .filter(Boolean)
+    .filter((t) => !STOPWORDS_PTBR.has(t) && t.length > 1);
+  if (tokens.length === 0) return 1;
+  const hay = haystack.toLowerCase();
+  let hits = 0;
+  for (const t of tokens) {
+    if (hay.includes(t)) hits++;
+  }
+  return hits;
+}
+
 function searchCommand(term) {
   banner();
-  const available = listAddonsAvailable();
+  const q = (term || '').trim();
+  const commands = loadCommandsCatalog();
+  const skills = loadSkillsCatalog();
+  const addons = listAddonsAvailable();
   const installed = listAddonsInstalled();
-  const q = (term || '').toLowerCase();
-  const rows = [];
-  for (const addon of available) {
-    const desc = addonDescription(addon);
-    if (q && !`${addon} ${desc}`.toLowerCase().includes(q)) continue;
-    rows.push({ addon, desc, inst: installed.includes(addon) });
-  }
-  if (rows.length === 0) {
-    log(q ? `nenhum addon casa com "${term}".` : 'nenhum addon disponivel.');
+
+  const matchedCmds = commands
+    .map((cmd) => ({ ...cmd, score: fuzzyScore(q, `${cmd.name} ${cmd.desc}`) }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || a.name.length - b.name.length);
+
+  const matchedSkills = skills
+    .map((sk) => ({ ...sk, score: fuzzyScore(q, `${sk.name} ${sk.desc}`) }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || a.name.length - b.name.length);
+
+  const matchedAddons = addons
+    .map((addon) => {
+      const desc = addonDescription(addon);
+      return { name: addon, desc, inst: installed.includes(addon), score: fuzzyScore(q, `${addon} ${desc}`) };
+    })
+    .filter((x) => x.score > 0);
+
+  const total = matchedCmds.length + matchedSkills.length + matchedAddons.length;
+  if (total === 0) {
+    log(q ? `nenhum comando, skill ou addon casa com "${q}".` : 'nada encontrado.');
+    log(`tente: ${c.cyan}npx roldao-method search bug${c.reset} ou ${c.cyan}npx roldao-method search pix${c.reset}`);
     return;
   }
-  console.log(`${c.bold}Addons${q ? ` ${c.dim}(filtro: "${term}")${c.reset}${c.bold}` : ''}:${c.reset}`);
-  for (const r of rows) {
-    const flag = r.inst ? `${c.green}[instalado]${c.reset}` : `${c.dim}[disponivel]${c.reset}`;
-    console.log(`  ${flag} ${c.cyan}${r.addon}${c.reset} ${c.dim}${r.desc.substring(0, 90)}${c.reset}`);
+
+  const filtroLabel = q ? ` ${c.dim}(filtro: "${q}")${c.reset}` : '';
+
+  if (matchedCmds.length > 0) {
+    console.log(`${c.bold}Comandos${filtroLabel}:${c.reset}`);
+    for (const r of matchedCmds.slice(0, 15)) {
+      console.log(`  ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`);
+    }
+    if (matchedCmds.length > 15) console.log(`  ${c.dim}... e mais ${matchedCmds.length - 15} comando(s)${c.reset}`);
+    console.log('');
   }
-  console.log('');
-  console.log(`${c.dim}instalar:${c.reset} ${c.cyan}npx roldao-method add <addon>${c.reset}    ${c.dim}remover:${c.reset} ${c.cyan}npx roldao-method remove <addon>${c.reset}`);
+
+  if (matchedSkills.length > 0) {
+    console.log(`${c.bold}Skills${filtroLabel}:${c.reset}`);
+    for (const r of matchedSkills.slice(0, 15)) {
+      console.log(`  ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`);
+    }
+    if (matchedSkills.length > 15) console.log(`  ${c.dim}... e mais ${matchedSkills.length - 15} skill(s)${c.reset}`);
+    console.log('');
+  }
+
+  if (matchedAddons.length > 0) {
+    console.log(`${c.bold}Addons${filtroLabel}:${c.reset}`);
+    for (const r of matchedAddons) {
+      const flag = r.inst ? `${c.green}[instalado]${c.reset}` : `${c.dim}[disponivel]${c.reset}`;
+      console.log(`  ${flag} ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`);
+    }
+    console.log('');
+    console.log(`${c.dim}instalar:${c.reset} ${c.cyan}npx roldao-method add <addon>${c.reset}    ${c.dim}remover:${c.reset} ${c.cyan}npx roldao-method remove <addon>${c.reset}`);
+  }
 }
 
 // tasks-to-issues — varre docs/stories/*.md por linhas com T-NNN e cria
@@ -1294,6 +1395,35 @@ function doctor() {
 
   console.log('');
   console.log(`${c.bold}Total:${c.reset} ${checks.length}  |  ${c.green}OK:${c.reset} ${okCount}  |  ${c.red}FALTA:${c.reset} ${faltando}  |  ${c.yellow}NOVO:${c.reset} ${opcionalFaltando}`);
+
+  // E9 — alerta se placeholders _(preencher)_ ainda existirem nos docs canônicos
+  // do projeto. Não bloqueia (warning), mas chama atenção: dono que esqueceu
+  // preencher AGENTS.md vai ter agente decidindo coisa sem identidade do projeto.
+  const placeholderFiles = [];
+  const docsParaVerificar = [
+    'AGENTS.md',
+    'REGRAS-INEGOCIAVEIS.md',
+  ];
+  for (const docFile of docsParaVerificar) {
+    const full = path.join(CWD, docFile);
+    if (!fs.existsSync(full)) continue;
+    try {
+      const text = fs.readFileSync(full, 'utf8');
+      const matches = text.match(/_\(preencher\)_/g);
+      if (matches && matches.length > 0) {
+        placeholderFiles.push({ file: docFile, count: matches.length });
+      }
+    } catch { /* leitura falhou, ignora */ }
+  }
+  if (placeholderFiles.length > 0) {
+    console.log('');
+    console.log(`${c.yellow}AVISO:${c.reset} ${placeholderFiles.length} arquivo(s) com campos vazios pra preencher (${c.cyan}_(preencher)_${c.reset}):`);
+    for (const p of placeholderFiles) {
+      console.log(`  ${c.yellow}-${c.reset} ${p.file} (${p.count} campo(s) vazio(s))`);
+    }
+    console.log(`  ${c.dim}rode${c.reset} ${c.cyan}npx roldao-method tutorial${c.reset} ${c.dim}pra preencher AGENTS.md em 5 perguntas guiadas.${c.reset}`);
+  }
+
   if (faltando > 0) {
     console.log('');
     log(`execute: ${c.cyan}npx roldao-method install${c.reset} (ou ${c.cyan}update${c.reset})`);
