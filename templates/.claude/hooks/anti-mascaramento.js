@@ -54,21 +54,22 @@ const EXCEPTION_RE = /TST-001-exception:\s*\S+/i;
 
   if (violations.length > 0) {
     const MAX = 3;
-    process.stderr.write(`[anti-mascaramento] Bloqueei a escrita: padrao de mascaramento detectado.\n\n`);
+    process.stderr.write(`[anti-mascaramento] BLOQUEADO: padrão de mascaramento detectado.\n\n`);
     process.stderr.write(`Arquivo: ${filePath}\n\n`);
-    process.stderr.write(`Violacoes (mostrando ate ${MAX}):\n`);
+    process.stderr.write(`Violações (mostrando até ${MAX}):\n`);
     for (let i = 0; i < Math.min(MAX, violations.length); i++) {
       process.stderr.write(`  - ${violations[i]}\n`);
     }
     if (violations.length > MAX) {
-      process.stderr.write(`  (... e mais ${violations.length - MAX} ocorrencia(s))\n`);
+      process.stderr.write(`  (... e mais ${violations.length - MAX} ocorrência(s))\n`);
     }
-    process.stderr.write(`\nPor que: teste mascarado = bug silencioso. O teste falhou porque o CODIGO\n`);
-    process.stderr.write(`esta errado — esconder o erro nao corrige nada, so atrasa a descoberta.\n`);
-    process.stderr.write(`Corrija o codigo, nao o teste.\n\n`);
-    process.stderr.write(`Excecao com prazo (use so se for inevitavel):\n`);
-    process.stderr.write(`  // TST-001-exception: <razao + prazo, ex: "API externa fora ate 2026-05-25">\n\n`);
+    process.stderr.write(`\nPor que: teste mascarado = bug silencioso. O teste falhou porque o CÓDIGO\n`);
+    process.stderr.write(`está errado — esconder o erro não corrige nada, só atrasa a descoberta.\n`);
+    process.stderr.write(`Corrija o código, não o teste.\n\n`);
+    process.stderr.write(`Exceção com prazo (use só se for inevitável):\n`);
+    process.stderr.write(`  // TST-001-exception: <razão + prazo, ex: "API externa fora até 2026-05-25">\n\n`);
     process.stderr.write(`Regra: TST-001.\n`);
+    process.stderr.write(`Ver: REGRAS-INEGOCIAVEIS.md#tst-001\n`);
     recordMetric('block', 'anti-mascaramento', violations[0]);
     process.exit(2);
   }

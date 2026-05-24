@@ -20,22 +20,58 @@ const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
   let projdir;
   try { projdir = sanitizeProjdir(); } catch { process.exit(2); }
   const sess = sanitizeSessionHash(undefined, projdir);
-  const markBug = path.join(projdir, '.claude', '.runtime', `bug-trigger-${sess}`);
-  const markInv = path.join(projdir, '.claude', '.runtime', `investigator-invoked-${sess}`);
+  const runtime = path.join(projdir, '.claude', '.runtime');
+  const markBug = path.join(runtime, `bug-trigger-${sess}`);
+  const markInv = path.join(runtime, `investigator-invoked-${sess}`);
 
   if (!fs.existsSync(markBug)) process.exit(0);
-  if (fs.existsSync(markInv)) process.exit(0);
 
-  process.stderr.write(`[require-investigador-before-fix] Bloqueei Edit/Write em codigo de negocio.\n\n`);
-  process.stderr.write(`Arquivo: ${filePath}\n`);
-  process.stderr.write(`Motivo: o pedido inicial falou de bug/comportamento errado e o Detetive\n`);
-  process.stderr.write(`(investigador) ainda nao rodou. Mexer no codigo agora vira fix-no-sintoma\n`);
-  process.stderr.write(`(REGRA #0 — INV-006).\n\n`);
-  process.stderr.write(`Como destravar: rode /investigar ou /bug primeiro — o Detetive le banco/log/\n`);
-  process.stderr.write(`payload, identifica causa raiz e libera a edicao.\n\n`);
-  process.stderr.write(`Bypass (so se o usuario autorizar): touch ${markInv}\n`);
-  recordMetric('block', 'require-investigador-before-fix', `edit em ${filePath} sem investigador`);
-  process.exit(2);
+  // GATE 1: investigador invocado.
+  if (!fs.existsSync(markInv)) {
+    process.stderr.write(`[require-investigador-before-fix] BLOQUEADO: Edit/Write em código de negócio sem investigador.\n\n`);
+    process.stderr.write(`Arquivo: ${filePath}\n`);
+    process.stderr.write(`Motivo: o pedido inicial falou de bug/comportamento errado e o Detetive\n`);
+    process.stderr.write(`(investigador) ainda não rodou. Mexer no código agora vira fix-no-sintoma\n`);
+    process.stderr.write(`(REGRA #0 — INV-006).\n\n`);
+    process.stderr.write(`Como destravar: rode /investigar ou /bug primeiro — o Detetive lê banco/log/\n`);
+    process.stderr.write(`payload, identifica causa raiz e libera a edição.\n\n`);
+    process.stderr.write(`Bypass (só se o usuário autorizar): touch ${markInv}\n`);
+    recordMetric('block', 'require-investigador-before-fix', `edit em ${filePath} sem investigador`);
+    process.exit(2);
+  }
+
+  // GATE 2 (auditoria 10-agentes 3ª passada 2026-05-24): investigador invocado E
+  // gravou prova mecanica do que leu (investigation-*.json). Sem o JSON, o
+  // marker pode ter sido "touch" cego — REGRA #0 vira cosmetica. Com bug-active
+  // presente, EXIGIR o artefato.
+  let bugActive = false;
+  try {
+    bugActive = fs.readdirSync(runtime).some((n) => /^bug-active-/.test(n));
+  } catch { /* runtime ausente — confia no GATE 1 */ }
+
+  if (bugActive) {
+    let temProva = false;
+    try {
+      temProva = fs.readdirSync(runtime).some((n) => /^investigation-.*\.json$/.test(n));
+    } catch { /* idem */ }
+
+    if (!temProva) {
+      process.stderr.write(`[require-investigador-before-fix] BLOQUEADO: investigador invocado SEM gravar prova.\n\n`);
+      process.stderr.write(`Arquivo: ${filePath}\n`);
+      process.stderr.write(`Motivo: REGRA #0 exige LEITURA REAL antes do fix (banco, log, payload, config).\n`);
+      process.stderr.write(`O marker investigator-invoked existe mas nao ha .claude/.runtime/investigation-*.json\n`);
+      process.stderr.write(`registrando o que foi lido. Sem prova mecânica, marker vira teatro.\n\n`);
+      process.stderr.write(`Como resolver: o subagente investigador deve gravar JSON com:\n`);
+      process.stderr.write(`  { "lido": ["arquivo:linha ou query SELECT"], "achado": "causa raiz", "ref": "..." }\n`);
+      process.stderr.write(`em .claude/.runtime/investigation-<ref>.json antes de devolver controle ao dev.\n\n`);
+      process.stderr.write(`Bypass (so se for trivial e o usuario autorizar):\n`);
+      process.stderr.write(`  echo '{"lido":["bypass: confiei no usuario"], "achado":"trivial"}' > .claude/.runtime/investigation-bypass.json\n`);
+      recordMetric('block', 'require-investigador-before-fix', `marker sem prova investigation-*.json`);
+      process.exit(2);
+    }
+  }
+
+  process.exit(0);
 })().catch((err) => {
   process.stderr.write(`[require-investigador-before-fix] erro interno: ${err.message}\n`);
   process.exit(2);

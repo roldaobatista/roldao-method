@@ -16,6 +16,17 @@ function git(args, opts = {}) {
   }
 }
 
+// Fail-closed: se `git` nao esta no PATH, NAO liberamos o --amend (antes ficava
+// fail-open silencioso — auditoria 10-agentes 3ª passada 2026-05-24).
+function gitInstalled() {
+  try {
+    execFileSync('git', ['--version'], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 (async () => {
   // Hook roda no PWD do harness. Aceita PROJDIR via env (sanitizado) ou cai pra
   // PWD. Fail-closed: se sanitizeProjdir recusar (env malicioso, traversal),
@@ -32,6 +43,18 @@ function git(args, opts = {}) {
 
   // --amend como argumento isolado (regex igual ao grep -E do .sh)
   if (!/(^|\s)--amend(\s|$)/.test(cmd)) process.exit(0);
+
+  // Fail-closed: sem `git` no PATH nao da pra saber se ja foi pushado.
+  // Bloqueia o --amend pedindo instalacao OU desligar este hook.
+  if (!gitInstalled()) {
+    process.stderr.write(`[no-amend-after-push] BLOQUEADO: comando 'git' nao encontrado no PATH.\n\n`);
+    process.stderr.write(`Sem 'git' nao da pra saber se este commit ja foi pushado. Bloqueio por seguranca.\n\n`);
+    process.stderr.write(`Como resolver:\n`);
+    process.stderr.write(`  - Instale Git (https://git-scm.com) e rode de novo.\n`);
+    process.stderr.write(`  - OU desligue temporariamente este hook em .claude/settings.json se voce tem certeza que nao publicou.\n`);
+    recordMetric('block', 'no-amend-after-push', 'git ausente — fail-closed');
+    process.exit(2);
+  }
 
   const opts = { cwd: projdir };
 

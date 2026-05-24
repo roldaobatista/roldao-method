@@ -39,6 +39,17 @@ const F3_CONST_REFERENCIAL_RE = /^\s*(const|let|var|final|static)\s+(tpAmb_PROD|
 const FISCAL_005_DIGIT = /cnpj.{0,30}=.{0,30}\/\^?\[0-9\]\{14\}\$?\//i;
 const FISCAL_005_BACKSLASH = /cnpj.{0,30}=.{0,30}\/\^?\\d\{14\}\$?\//i;
 
+// FISCAL-006: Reforma Tributaria 2026-2033 — calculo paralelo ICMS/ISS/PIS/COFINS
+// (regime atual) E CBS/IBS/IS (regime novo) durante a transicao. Codigo que toca
+// imposto sem declarar "qual regime cobre" vira debito tecnico fiscal grande.
+//
+// Detectamos: criacao de campo/variavel/funcao de calculo tributario sem
+// declaracao de // FISCAL-006: <periodo>, ex: "transicao", "pos-2033", "split-payment".
+const FISCAL_006_TAX_FIELDS = /\b(icms|iss|pis|cofins|cbs|ibs|imposto_seletivo|imposto_unico|aliquota|base_calculo|tributacao)\b/i;
+const FISCAL_006_DECLARATION_RE = /FISCAL-006:\s*(transicao|pos-?2033|atual|novo-regime|split-payment|nao-aplica)/i;
+// So dispara em arquivo que parece calculo (nome ou diretorio de tributacao/fiscal)
+const FISCAL_006_RELEVANT_PATH = /(tributa|fiscal|imposto|calculo[-_]?(icms|iss|pis|cofins|cbs|ibs))/i;
+
 (async () => {
   const input = await readStdinJson();
   const filePath = input?.tool_input?.file_path || '';
@@ -83,6 +94,16 @@ const FISCAL_005_BACKSLASH = /cnpj.{0,30}=.{0,30}\/\^?\\d\{14\}\$?\//i;
     }
   });
 
+  // FISCAL-006: checagem por arquivo (nao por linha). Se o caminho parece fiscal
+  // E o conteudo menciona impostos sem declaracao FISCAL-006, soft-bloqueia.
+  if (FISCAL_006_RELEVANT_PATH.test(filePath) && FISCAL_006_TAX_FIELDS.test(content)) {
+    if (!FISCAL_006_DECLARATION_RE.test(content)) {
+      violations.push(
+        `arquivo [FISCAL-006]: codigo tributario sem declaracao de regime (transicao/pos-2033/split-payment). Reforma 2026-2033 exige calculo paralelo ICMS/CBS — sem isso vira debito tecnico fiscal.`
+      );
+    }
+  }
+
   if (violations.length > 0) {
     const MAX = 3;
     process.stderr.write(`[fiscal-br-validator] Bloqueei a escrita: padrao que viola regra fiscal BR.\n\n`);
@@ -97,8 +118,12 @@ const FISCAL_005_BACKSLASH = /cnpj.{0,30}=.{0,30}\/\^?\\d\{14\}\$?\//i;
     process.stderr.write(`  FISCAL-001: NF-e autorizada nao pode ser alterada. Cancele ou emita CC-e.\n`);
     process.stderr.write(`  FISCAL-002: tire o certificado/senha do codigo. Coloque em variavel de ambiente.\n`);
     process.stderr.write(`  FISCAL-003: ambiente SEFAZ (1=producao, 2=homolog) vem de env, nunca do codigo.\n`);
-    process.stderr.write(`  FISCAL-005: jul/2026: CNPJ aceita letras. Use [0-9A-Z]{14}, nao [0-9]{14}.\n\n`);
-    process.stderr.write(`Detalhe: REGRAS-INEGOCIAVEIS.md (FISCAL-001..007).\n`);
+    process.stderr.write(`  FISCAL-005: jul/2026: CNPJ aceita letras. Use [0-9A-Z]{14}, nao [0-9]{14}.\n`);
+    process.stderr.write(`  FISCAL-006: declare regime tributario no topo do arquivo:\n`);
+    process.stderr.write(`              // FISCAL-006: transicao (calcula ICMS atual E CBS/IBS novo em paralelo)\n`);
+    process.stderr.write(`              ou: // FISCAL-006: pos-2033 (so CBS/IBS)\n`);
+    process.stderr.write(`              ou: // FISCAL-006: nao-aplica (codigo nao toca calculo, so persistencia)\n\n`);
+    process.stderr.write(`Detalhe: REGRAS-INEGOCIAVEIS.md (FISCAL-001..010).\n`);
     process.stderr.write(`Excecao por linha: // FISCAL-NNN-exception: <razao + responsavel>.\n`);
     recordMetric('block', 'fiscal-br-validator', violations[0]);
     process.exit(2);
