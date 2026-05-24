@@ -463,5 +463,53 @@ pair('commit-msg: bloqueia primeira linha > 72', 'commit-message-validator',
 pair('enforce-pipeline: sem markers sai 0', 'enforce-pipeline-completion', '{}');
 pair('enforce-pipeline: input vazio sai 0', 'enforce-pipeline-completion', '');
 
+// ============================================================================
+// US-107 — Hooks lifecycle/util (11)
+// Maioria sai exit 0 sem state ativo. Cenarios reais cobertos em US-108.
+// ============================================================================
+
+pair('auto-format: file vazio sai 0', 'auto-format-on-write', '{}');
+pair('auto-format: file inexistente sai 0', 'auto-format-on-write',
+  JSON.stringify({ tool_input: { file_path: '/proj/nao-existe.js' } }));
+
+pair('context-budget: input vazio sai 0', 'context-budget', '');
+pair('context-budget: JSON minimo sai 0', 'context-budget', '{}');
+
+pair('subagent-handoff: input vazio sai 0', 'subagent-handoff-audit', '');
+pair('subagent-handoff: sem subagent_type sai 0', 'subagent-handoff-audit', '{}');
+
+pair('frontmatter: nao e doc sai 0', 'paths-frontmatter-validator',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: 'x' } }));
+pair('frontmatter: README ignorado', 'paths-frontmatter-validator',
+  JSON.stringify({ tool_input: { file_path: '/proj/docs/README.md', content: '# x' } }));
+pair('frontmatter: bloqueia doc sem frontmatter', 'paths-frontmatter-validator',
+  JSON.stringify({ tool_input: { file_path: '/proj/docs/x.md', content: '# Titulo\nblabla' } }));
+
+pair('todo: arquivo md ignorado', 'block-todo-without-issue',
+  JSON.stringify({ tool_input: { file_path: '/proj/docs/x.md', content: '// TODO sem id' } }));
+pair('todo: codigo limpo sai 0', 'block-todo-without-issue',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: 'export const x = 1;' } }));
+pair('todo: bloqueia TODO sem id', 'block-todo-without-issue',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: '// TODO refactor depois' } }));
+pair('todo: libera TODO com US-NNN', 'block-todo-without-issue',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: '// TODO(US-042): doc' } }));
+
+pair('jargon: input vazio sai 0', 'block-jargon-pt-br', '');
+pair('jargon: response sem jargao sai 0', 'block-jargon-pt-br',
+  JSON.stringify({ response: 'Salvei a correcao no sistema, ja esta funcionando.' }));
+
+pair('confirmacao: input vazio sai 0', 'block-confirmation-questions', '');
+pair('confirmacao: response neutro sai 0', 'block-confirmation-questions',
+  JSON.stringify({ response: 'Apliquei a mudanca. Validei com teste.' }));
+
+pair('mcp-validator: input vazio sai 0', 'mcp-validator', '');
+
+pair('regra-zero: input vazio sai 0', 'regra-zero-reminder', '');
+pair('regra-zero: prompt sem trigger sai 0', 'regra-zero-reminder',
+  JSON.stringify({ prompt: 'Crie uma funcao de soma simples' }));
+
+pair('session-snapshot: sem state sai 0', 'session-snapshot', '');
+pair('session-snapshot-restore: sem snapshot sai 0', 'session-snapshot-restore', '');
+
 console.log(`\nhooks-equivalence: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);
