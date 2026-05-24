@@ -19,10 +19,11 @@ jobs:
     name: Validar templates
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '20'
+          cache: 'npm'
       - name: Sanity (node --check) em todos os .js do projeto
         run: |
           set -euo pipefail
@@ -40,25 +41,10 @@ jobs:
       - name: Validar cobertura de hooks (todo bloqueador tem run_case)
         run: node tools/validar-cobertura-hooks.js
 
-  # shellcheck-hooks e rodar-hooks (test-runner.sh) REMOVIDOS na v1.0.0-rc1:
-  # hooks .sh deletados (ADR-014). Cobertura migrada pra hooks-node-windows-no-bash
-  # + suite completa em test/hooks-node-only.test.js. Addons .sh continuam
-  # validados caso existam — incorporado em validar-templates.
-
-  # shellcheck dos .sh dos addons (se algum addon ainda usa bash).
-  shellcheck-addons-sh:
-    name: shellcheck dos addons (.sh ainda permitido em addons)
-    runs-on: ubuntu-latest
-    if: false  # ativar quando algum addon tiver .sh — hoje todos sao Node ou markdown
-    steps:
-      - uses: actions/checkout@v4
-      - run: |
-          set -euo pipefail
-          sudo apt-get install -y shellcheck
-          ADDON_HOOKS=$(find addons -path '*/.claude/hooks/*.sh' 2>/dev/null || true)
-          if [ -n "$ADDON_HOOKS" ]; then
-            shellcheck --severity=warning --shell=bash --exclude=SC1091 $ADDON_HOOKS
-          fi
+  # NOTA HISTÓRICA: shellcheck-hooks e rodar-hooks (test-runner.sh) foram REMOVIDOS na v1.0.0-rc1
+  # (hooks .sh deletados — ADR-014). Cobertura migrada pra hooks-node-windows-no-bash +
+  # suite completa em test/hooks-node-only.test.js. O job shellcheck-addons-sh com `if: false`
+  # foi removido na v1.0.0-rc3 (auditoria 2026-05-23) — virou código morto após o port dos addons.
 
   smoke-install:
     name: Smoke test do instalador (matriz)
@@ -69,10 +55,11 @@ jobs:
         node: ['18', '20', '22']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: ${{ matrix.node }}
+          cache: 'npm'
       - name: Rodar test/install.test.js
         # shell: bash força SHELL=bash no env do step. Sem isso, em Windows
         # o doctor marca isWindowsWithoutBash()=true (MSYSTEM/SHELL ausentes
@@ -89,8 +76,8 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.2.2
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: '3.11'
       - name: Detectar binario Python (python3 no Unix, python no Windows)
@@ -158,8 +145,8 @@ jobs:
     # dependencia de Git Bash. Cobre a promessa central do framework pra dev
     # BR Windows que nao tem Git for Windows instalado.
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '20'
       - name: Rodar hooks-node-only (PowerShell puro, sem bash)
@@ -169,8 +156,8 @@ jobs:
     name: Lint estrutural dos evals (cobertura 12/12)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '20'
       - name: Lint estrutural dos evals (não é eval de comportamento)
@@ -180,11 +167,12 @@ jobs:
     name: Suite completa (npm test) + permissão dos hooks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '20'
-      - uses: actions/setup-python@v5
+          cache: 'npm'
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: '3.11'
       - name: npm test (validar + hooks + install + skills)
@@ -215,10 +203,11 @@ jobs:
     name: Empacotamento npm (pack dry-run + sanidade)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '20'
+          cache: 'npm'
       - name: npm pack --dry-run e checagens de sanidade
         shell: bash
         run: |
