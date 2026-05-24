@@ -23,7 +23,9 @@ function run(cmd, args) {
 
   const input = await readStdinJson();
   const file = input?.tool_input?.file_path || '';
-  if (!file || !fs.existsSync(file)) process.exit(0);
+  // Guard contra path interpretado como flag (ex: "-rf", "--config=evil")
+  // pelas ferramentas chamadas adiante (prettier/eslint/ruff/black/gofmt/etc).
+  if (!file || file.startsWith('-') || !fs.existsSync(file)) process.exit(0);
 
   const ext = (file.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
   const localBin = (b) => path.join(projdir, 'node_modules', '.bin', b);
