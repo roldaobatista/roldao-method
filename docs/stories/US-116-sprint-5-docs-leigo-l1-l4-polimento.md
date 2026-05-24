@@ -79,7 +79,7 @@ _(Investigador preenche antes de Bruno codar.)_
 
 **Bloco K — Cobertura faltando (K4, K9):**
 
-- [ ] **T-005** — K4: criar 1 exemplo completo preenchido em `docs/exemplos/` por template de spec (PRD, ADR, US, brief, brownfield — 5 arquivos). + verificar com `grep -L '_(preencher)_'`.
+- [x] **T-005** — K4: criar 1 exemplo completo preenchido em `docs/exemplos/` por template de spec. Entregue: PRD-EXEMPLO.md (caso PDV cadastro CPF), ADR-EXEMPLO.md (validação local sem RFB), US-EXEMPLO.md (US-042 com Dev Agent Record), BRIEF-EXEMPLO.md (brief de 1 página), BROWNFIELD-EXEMPLO.md (migrar boleto pra Pix). Validado: `grep -L '_(preencher)_' docs/exemplos/*.md` retorna 0.
 - [ ] **T-006** — K9: linkar PARA-DONO no rodapé de `/status`, `/checkpoint`, `/release`. Editar 3 comandos.
 
 **Bloco J — Polimento de docs faltando:**
@@ -136,6 +136,7 @@ _(Investigador preenche antes de Bruno codar.)_
 | Data | Quem | Mudança |
 |---|---|---|
 | 2026-05-24 | gerente-produto (Sofia) | criação a partir de EP-002 / PRD-003 §4.US-116 |
+| 2026-05-24 | dev-senior (Bruno) | T-005 (5 exemplos completos em docs/exemplos/) entregue. T-018 (validação ao vivo das 5 tarefas-tipo) continua aberto — só Roldão executa. |
 
 ---
 

@@ -76,7 +76,7 @@ _(Investigador preenche antes de Bruno codar. REGRA #0: confirmar primeiro array
 - [ ] **T-003** — E3: `/inicio` etapa 4 chama varredura de stack reaproveitada do `/brownfield`. + teste.
 - [ ] **T-004** — E4: `/inicio` etapa 5 lista frameworks detectados em PT-BR ("achei React, Node 20, PostgreSQL — confirma?"). + teste.
 - [ ] **T-005** — E5: `/help` sugere addon relevante quando detecta stack (ex: detectou NF-e → sugere `fiscal-br-completo`).
-- [ ] **T-006** — E6: helper unificado em `_lib.js` pra parse de frontmatter (reusado por todos hooks que leem YAML).
+- [x] **T-006** — E6: helper unificado em `_lib.js` pra parse de frontmatter (reusado por todos hooks que leem YAML). Entregue: `parseFrontmatter(text)` em `templates/.claude/hooks/_lib.js` retorna objeto `{ key: value }` ou `null` se malformado.
 - [ ] **T-007** — E7: `/inicio` ganha resumo final em 3 bullets PT-BR (não dump técnico).
 - [ ] **T-008** — E8: placeholder `_(preencher)_` com botão `[ajuda]` que abre helper irmão.
 - [ ] **T-009** — E9: doctor (`npx roldao-method doctor`) avisa quando placeholder ainda existe no template do projeto.
@@ -84,8 +84,8 @@ _(Investigador preenche antes de Bruno codar. REGRA #0: confirmar primeiro array
 **Bloco F — PT-BR sincronizado (F2-F6, F1 já entregue):**
 
 - [ ] **T-010** — F2: sincronizar tabela canônica `traduzir-jargao` com regex do `block-jargon-pt-br.js` (12 termos AC-114-3 + termos já cobertos por F1 em US-111). + teste.
-- [ ] **T-011** — F3: reescrever `devops-infra.md` em PT-BR — zero jargões não-traduzidos.
-- [ ] **T-012** — F4: reescrever `dba-dados.md` em PT-BR — zero jargões não-traduzidos.
+- [x] **T-011** — F3: reescrever `devops-infra.md` em PT-BR — zero jargões não-traduzidos. Entregue: TL;DR de 3 bullets no topo + "Saída esperada" PT-BR (rollback → "voltar atrás", blast radius → "alcance do impacto") + nota dedicada pro Roldão. Hook `block-jargon-pt-br.js` retorna 0.
+- [x] **T-012** — F4: reescrever `dba-dados.md` em PT-BR — zero jargões não-traduzidos. Entregue: idem T-011 — TL;DR + saída PT-BR + nota pro Roldão. Hook retorna 0.
 - [ ] **T-013** — F5: criar eval `evals/agent-behavior/devops-dba-comportamento.eval` antes/depois.
 - [ ] **T-014** — F6: rodar eval, comparar com baseline, gerar relatório `docs/auditorias/2026-05-24-auditoria-10-agentes/eval-devops-dba-pt-br.md`.
 
@@ -134,6 +134,7 @@ _(Investigador preenche antes de Bruno codar. REGRA #0: confirmar primeiro array
 | Data | Quem | Mudança |
 |---|---|---|
 | 2026-05-24 | gerente-produto (Sofia) | criação a partir de EP-002 / PRD-003 §4.US-114 |
+| 2026-05-24 | dev-senior (Bruno) | T-006 (parseFrontmatter), T-011 (devops-infra), T-012 (dba-dados) entregues. F3/F4 validados via hook block-jargon-pt-br retornando 0. |
 
 ---
 
