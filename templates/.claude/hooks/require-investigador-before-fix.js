@@ -96,7 +96,9 @@ function validateInvestigationJson(filepath) {
   let runtimeFiles = [];
   try {
     runtimeFiles = fs.readdirSync(runtime);
-    bugActive = runtimeFiles.some((n) => /^bug-active-/.test(n));
+    // T-010 (G4): casa SOMENTE sessao atual. Antes era /^bug-active-/ generico
+    // — marker de sessao antiga contaminava sessao nova (auditor 6).
+    bugActive = runtimeFiles.includes(`bug-active-${sess}`);
   } catch { /* runtime ausente — confia no GATE 1 */ }
 
   if (!bugActive) process.exit(0);
