@@ -17,7 +17,7 @@ provoca:
   hooks:
     - validate-webhook-signature
   skills:
-    - gerar-br-code
+    - gerar-br-code-typescript
     - validar-webhook-pix
     - estruturar-open-finance
   templates: []

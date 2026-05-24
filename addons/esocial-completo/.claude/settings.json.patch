@@ -1,0 +1,17 @@
+{
+  "_comentario": "Mescla automatica em .claude/settings.json quando addon e instalado via 'npx roldao-method add esocial-completo'. NAO copia este arquivo pro projeto — so e usado como template de merge.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-esocial-prazo.js\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

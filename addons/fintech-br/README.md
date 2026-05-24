@@ -11,7 +11,7 @@ Pix tem 5 tipos de chave, BR Code com 15+ campos EMV, webhook com HMAC, devoluç
 - **1 agente:** `pix-arch` — decide arquitetura Pix (PSP direto vs BaaS, idempotência, fila).
 - **1 hook:** `validate-webhook-signature` — barra handler de webhook Pix sem verificação de assinatura.
 - **3 skills:**
-  - `gerar-br-code` — gera BR Code EMV padrão Bacen.
+  - `gerar-br-code-typescript` — guia de implementação TypeScript do BR Code EMV. A skill executável `gerar-br-code` (Python) vive no core.
   - `validar-webhook-pix` — valida HMAC, idempotência, status.
   - `estruturar-open-finance` — guia de implementação Open Finance Brasil.
 - **4 regras novas:** `PIX-EXT-001`, `PIX-EXT-002`, `PIX-EXT-003`, `PIX-EXT-004` (prefixadas `EXT` pra não colidir com `PIX-001..005` do core, que tratam DICT/validação de chave).

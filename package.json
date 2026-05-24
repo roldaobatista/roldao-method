@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
   "version": "1.0.0",
-  "description": "Framework agentic em PT-BR. 15 agentes, 26 hooks bloqueadores em Node puro + 2 soft warnings + 5 lifecycle + 1 utilitário (_lib.js) = 34 hooks total, 26 workflows, 31 skills BR (13 core + 18 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Reforma Tributária 2026-2033, Pix, LGPD, fiscal, eSocial, CFM telemedicina), 7 addons especializados (6 stable + healthtech-br DRAFT). 46 regras inegociáveis (INV/SEC/TST/LGPD/FISCAL/PIX/INV-AGENT). Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
+  "description": "Framework agentic em PT-BR. 15 agentes, 26 hooks bloqueadores em Node puro + 2 soft warnings + 5 lifecycle + 1 utilitário (_lib.js) = 34 hooks total, 26 workflows, 31 skills BR (13 core + 18 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Reforma Tributária 2026-2033, Pix, LGPD, fiscal, eSocial, CFM telemedicina, CNS/SUS), 7 addons especializados (6 stable + healthtech-br beta). 46 regras inegociáveis (INV/SEC/TST/LGPD/FISCAL/PIX/INV-AGENT). Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
     "claude-code",
@@ -49,7 +49,8 @@
     "test:claude-md-sync": "node tools/sincronizar-claude-md.js",
     "test:tools": "node test/validar-tools.test.js",
     "test:lib-contract": "node test/lib-contract.test.js",
-    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:skills && npm run test:addons && npm run test:adapters",
+    "test:agents-commands-statusline": "node test/agents-commands-statusline.test.js",
+    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:skills && npm run test:addons && npm run test:adapters && npm run test:agents-commands-statusline",
     "prepublishOnly": "npm test && npm run test:adapter-drift"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",
