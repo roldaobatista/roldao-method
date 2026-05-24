@@ -1,7 +1,8 @@
 {
   "_doc": "Perfis de instalação — wizard do CLI usa este arquivo. Para adicionar perfil novo, edite aqui (não bin/install.js).",
   "perfis": [
-    { "label": "Genérico (sem addon)", "addons": [] },
+    { "label": "Iniciante (5 comandos essenciais, sem addon) — RECOMENDADO se está começando", "addons": [] },
+    { "label": "Genérico (todos os 26 comandos, sem addon)", "addons": [] },
     { "label": "Electron (desktop offline)", "addons": ["electron-br"] },
     { "label": "Fiscal/NF-e", "addons": ["fiscal-br-completo"] },
     { "label": "Fintech/Pix", "addons": ["fintech-br"] },

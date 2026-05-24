@@ -8,7 +8,49 @@ model: haiku
 
 # /help — catálogo dos 26 workflows
 
-Se `$ARGUMENTS` é vazio, mostre o catálogo completo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre detalhes do workflow correspondente.
+Se `$ARGUMENTS` é vazio, mostre PRIMEIRO a árvore de decisão abaixo, DEPOIS o catálogo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre só detalhes do workflow correspondente (pule a árvore).
+
+## Árvore de decisão (responda mentalmente)
+
+```
+Você tem um pedido. Que tipo de pedido é?
+
+  ┌─ É algo que NÃO funciona como deveria?
+  │     → /bug        (REGRA #0 — investiga antes de mexer)
+  │
+  ├─ É algo NOVO que precisa ser construído?
+  │   │
+  │   ├─ É projeto que ainda nem começou?
+  │   │     → /inicio
+  │   │
+  │   ├─ Vai adotar no projeto que já existe?
+  │   │     → /brownfield
+  │   │
+  │   ├─ É mudança pequena (1 label, 1 texto, ≤3 arquivos)?
+  │   │     → /quick-dev
+  │   │
+  │   ├─ É uma funcionalidade comum (cabe em ~1 semana)?
+  │   │     → /feature
+  │   │
+  │   └─ É iniciativa grande (várias semanas, muita gente)?
+  │         → /prd → /epico → /feature (uma story de cada vez)
+  │
+  ├─ É EMERGÊNCIA em produção (cliente parado AGORA)?
+  │     → /hotfix
+  │
+  ├─ Quer ENTENDER o que está acontecendo?
+  │   │
+  │   ├─ Não entendi a última resposta técnica  → /explicar-para-cliente
+  │   ├─ Como está o projeto, o que falta       → /status
+  │   ├─ Vale a pena subir pra produção?        → /checkpoint
+  │   └─ Quero ver TUDO que dá pra fazer        → /help (este)
+  │
+  └─ Quer CONFERIR a saúde do código?
+        → /auditoria      (3 auditores em paralelo)
+        → /consistencia   (doc bate com o código?)
+```
+
+**Regra simples:** se não souber, use `/clarificar` — o agente te ajuda a descobrir qual comando se encaixa.
 
 ## Catálogo
 
