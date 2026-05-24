@@ -2,6 +2,10 @@
 // require-auditors-pass-before-commit.js — exige que os 3 auditores tenham aprovado
 // antes de git commit/merge/push em sessao /feature ativa.
 // Hook PreToolUse, matcher: Bash.
+//
+// Contrato: ADR-020 (markers de auditor sao JSON com 5 campos obrigatorios).
+// Janela de compat v2.0.0 → v2.1.0: ADR-021 (flag ROLDAO_METHOD_LEGACY_MARKERS=1).
+// Decomposicao: PRD-003 → US-111 → T-001.
 
 const fs = require('fs');
 const path = require('path');
@@ -10,12 +14,54 @@ const { execFileSync } = require('child_process');
 const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const SKIP_PREFIXES_RE = /(docs|chore|ci|build|style):/;
+const REQUIRED_FIELDS = ['session', 'agent', 'audit_sha', 'timestamp', 'lido_de'];
+const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
 
 const LABELS = {
   seg:  'auditor-seguranca (Caio) — secrets, LGPD, supply chain, OWASP',
   qual: 'auditor-qualidade (Julia) — testes, cobertura, anti-mascaramento',
   prod: 'auditor-produto (Pedro) — aderencia a US, non-goals',
 };
+
+// validateMarker — le um marker de auditor e classifica.
+// Retorna { state, audit_sha } onde state ∈ {ok, missing, empty, malformed, missing-field, stale, legacy}.
+// Em LEGACY_MODE: marker vazio vira {state: 'legacy', audit_sha: ''} (passa com warning).
+function validateMarker(passMark, currentSha) {
+  if (!fs.existsSync(passMark)) return { state: 'missing', audit_sha: '' };
+
+  let txt;
+  try {
+    txt = fs.readFileSync(passMark, 'utf8').trim();
+  } catch {
+    return { state: 'malformed', audit_sha: '' };
+  }
+
+  if (!txt) {
+    // Marker vazio = tentativa de bypass via `touch` (ADR-020).
+    // Em LEGACY_MODE (v2.0.0 a v2.1.0), passa com warning. Senao, bloqueia.
+    return { state: LEGACY_MODE ? 'legacy' : 'empty', audit_sha: '' };
+  }
+
+  let j;
+  try {
+    j = JSON.parse(txt);
+  } catch {
+    return { state: 'malformed', audit_sha: '' };
+  }
+
+  // Valida shape canonico (ADR-020 secao 'Shape do marker').
+  const faltando = REQUIRED_FIELDS.filter((k) => j[k] === undefined || j[k] === null || j[k] === '');
+  if (faltando.length > 0) {
+    return { state: 'missing-field', audit_sha: '', faltando };
+  }
+
+  // audit_sha valido — compara com diff atual (staleness check).
+  if (currentSha && j.audit_sha !== currentSha) {
+    return { state: 'stale', audit_sha: j.audit_sha };
+  }
+
+  return { state: 'ok', audit_sha: j.audit_sha };
+}
 
 (async () => {
   const input = await readStdinJson();
@@ -42,31 +88,42 @@ const LABELS = {
 
   const blocked = [];
   const missing = [];
+  const empty = [];
+  const malformed = [];
+  const missingField = []; // {label, faltando}
   const stale = [];
+  const legacy = [];
 
   for (const key of ['seg', 'qual', 'prod']) {
     const passMark = path.join(runtime, `auditor-${key}-pass-${sess}`);
     const blockMark = path.join(runtime, `auditor-${key}-blocked-${sess}`);
+
     if (fs.existsSync(blockMark)) {
       blocked.push(LABELS[key]);
-    } else if (!fs.existsSync(passMark)) {
-      missing.push(LABELS[key]);
-    } else if (currentSha) {
-      let auditSha = '';
-      try {
-        const txt = fs.readFileSync(passMark, 'utf8').trim();
-        if (txt) {
-          const j = JSON.parse(txt);
-          auditSha = j.audit_sha || '';
-        }
-      } catch { /* marker sem JSON valido — sem staleness check */ }
-      if (auditSha && auditSha !== currentSha) {
-        stale.push(LABELS[key]);
-      }
+      continue;
+    }
+
+    const r = validateMarker(passMark, currentSha);
+    switch (r.state) {
+      case 'ok': break;
+      case 'missing': missing.push(LABELS[key]); break;
+      case 'empty': empty.push(LABELS[key]); break;
+      case 'malformed': malformed.push(LABELS[key]); break;
+      case 'missing-field': missingField.push({ label: LABELS[key], faltando: r.faltando }); break;
+      case 'stale': stale.push(LABELS[key]); break;
+      case 'legacy': legacy.push(LABELS[key]); break;
     }
   }
 
-  if (blocked.length === 0 && missing.length === 0 && stale.length === 0) process.exit(0);
+  const totalProblemas = blocked.length + missing.length + empty.length + malformed.length + missingField.length + stale.length;
+  if (totalProblemas === 0) {
+    // Avisa sobre markers legacy se houver, mas nao bloqueia.
+    if (legacy.length > 0) {
+      process.stderr.write(`[require-auditors-pass-before-commit] AVISO: ${legacy.length} marker(s) sem JSON canonico — aceito porque ROLDAO_METHOD_LEGACY_MARKERS=1.\n`);
+      process.stderr.write(`Esta tolerancia some em v2.2.0. Rode 'npx roldao-method migrate markers' pra atualizar.\n`);
+    }
+    process.exit(0);
+  }
 
   let usHint = '';
   try {
@@ -76,12 +133,12 @@ const LABELS = {
   } catch { /* skip */ }
 
   process.stderr.write(`[require-auditors-pass-before-commit] BLOQUEADO: tentativa de commit/merge/push\n`);
-  process.stderr.write(`em sessao /feature ativa sem aprovacao consolidada dos 3 auditores.\n\n`);
+  process.stderr.write(`em sessao /feature ativa sem aprovacao consolidada e VERIFICAVEL dos 3 auditores.\n\n`);
   process.stderr.write(`Story alvo: ${usHint || '(nao identificada)'}\n`);
   process.stderr.write(`Comando bloqueado: ${cmd}\n\n`);
 
   if (blocked.length > 0) {
-    process.stderr.write(`Auditores que BLOQUEARAM:\n`);
+    process.stderr.write(`Auditores que BLOQUEARAM (apontaram ressalva grave):\n`);
     for (const a of blocked) process.stderr.write(`  ✗ ${a}\n`);
     process.stderr.write(`\n`);
   }
@@ -90,27 +147,53 @@ const LABELS = {
     for (const a of missing) process.stderr.write(`  ⏳ ${a}\n`);
     process.stderr.write(`\n`);
   }
+  if (empty.length > 0) {
+    process.stderr.write(`Auditores com marker VAZIO (tentativa de bypass — ADR-020):\n`);
+    for (const a of empty) process.stderr.write(`  ⚠  ${a}\n`);
+    process.stderr.write(`\n`);
+  }
+  if (malformed.length > 0) {
+    process.stderr.write(`Auditores com marker MALFORMADO (JSON invalido):\n`);
+    for (const a of malformed) process.stderr.write(`  ⚠  ${a}\n`);
+    process.stderr.write(`\n`);
+  }
+  if (missingField.length > 0) {
+    process.stderr.write(`Auditores com marker INCOMPLETO (campo obrigatorio faltando):\n`);
+    for (const it of missingField) {
+      process.stderr.write(`  ⚠  ${it.label}\n`);
+      process.stderr.write(`     campos faltando: ${it.faltando.join(', ')}\n`);
+    }
+    process.stderr.write(`Campos obrigatorios (ADR-020): ${REQUIRED_FIELDS.join(', ')}\n\n`);
+  }
   if (stale.length > 0) {
     process.stderr.write(`Auditores cuja aprovacao esta STALE (codigo mudou depois):\n`);
     for (const a of stale) process.stderr.write(`  ⚠  ${a}\n`);
     process.stderr.write(`\n`);
   }
 
-  process.stderr.write(`ANTES de fechar a feature:\n`);
-  process.stderr.write(`  - Volte ao /feature etapa 6 e rode os 3 auditores em paralelo.\n`);
-  process.stderr.write(`  - Cada auditor cria seu marker: auditor-{seg|qual|prod}-pass-* (aprovou)\n`);
-  process.stderr.write(`    ou auditor-{seg|qual|prod}-blocked-* (apontou ressalva bloqueante).\n`);
-  process.stderr.write(`  - Se algum BLOQUEOU, volte pra Dev Senior (etapa 4), corrija, re-rode etapas 5 e 6.\n\n`);
-  process.stderr.write(`Pular essa validacao reintroduz o erro classico:\n`);
-  process.stderr.write(`  - Merge com auditor BLOQUEADO = vulnerabilidade/regressao subindo em producao\n`);
-  process.stderr.write(`  - "Eu falo com o auditor depois" = o depois nunca chega\n\n`);
-  process.stderr.write(`Override manual (so com autorizacao explicita do usuario nao-tecnico):\n`);
-  process.stderr.write(`  mkdir -p "${runtime}"\n`);
-  process.stderr.write(`  touch "${path.join(runtime, `auditor-seg-pass-${sess}`)}"\n`);
-  process.stderr.write(`  touch "${path.join(runtime, `auditor-qual-pass-${sess}`)}"\n`);
-  process.stderr.write(`  touch "${path.join(runtime, `auditor-prod-pass-${sess}`)}"\n\n`);
-  process.stderr.write(`Aplica regras: INV-AGENT-006, SEC-* (seguranca obrigatoria), TST-* (qualidade obrigatoria).\n`);
-  recordMetric('block', 'require-auditors-pass-before-commit', `${usHint || 'US-?'} blocked=${blocked.length} missing=${missing.length} stale=${stale.length}`);
+  process.stderr.write(`Como destravar (caminho legitimo — NAO ha bypass mecanico):\n`);
+  process.stderr.write(`  1. Volte ao /feature etapa 6 e peca pro Maestro re-rodar os 3 auditores.\n`);
+  process.stderr.write(`     Ele invoca auditor-seguranca, auditor-qualidade, auditor-produto em paralelo.\n`);
+  process.stderr.write(`  2. Cada auditor, ao APROVAR, escreve marker JSON canonico (ADR-020):\n`);
+  process.stderr.write(`        {\n`);
+  process.stderr.write(`          "session": "<hash da sessao>",\n`);
+  process.stderr.write(`          "agent":   "auditor-seguranca",\n`);
+  process.stderr.write(`          "audit_sha": "<sha256 do diff lido>",\n`);
+  process.stderr.write(`          "timestamp": "2026-MM-DDTHH:MM:SSZ",\n`);
+  process.stderr.write(`          "lido_de": ["arquivo1.js", "arquivo2.md"]\n`);
+  process.stderr.write(`        }\n`);
+  process.stderr.write(`  3. Se algum BLOQUEOU: volte pra Dev Senior (etapa 4), corrija, re-rode 5 e 6.\n\n`);
+  process.stderr.write(`Por que esse rigor:\n`);
+  process.stderr.write(`  - Marker vazio (criado por 'touch') NAO conta como aprovacao — INV-AGENT-004.\n`);
+  process.stderr.write(`  - audit_sha amarra aprovacao ao diff exato — se voce mexer no codigo depois,\n`);
+  process.stderr.write(`    marker fica "stale" e auditor precisa rodar de novo.\n`);
+  process.stderr.write(`  - Sem esse contrato, "auditado" vira teatro (bloqueador 1 da auditoria 2026-05-24).\n\n`);
+  process.stderr.write(`Em migracao de v1.x pra v2.x: setar ROLDAO_METHOD_LEGACY_MARKERS=1 aceita\n`);
+  process.stderr.write(`markers antigos vazios por enquanto. Janela de tolerancia (ADR-021):\n`);
+  process.stderr.write(`  - v2.0.0 → v2.1.0: flag aceita\n`);
+  process.stderr.write(`  - v2.2.0+: flag removida; sem migracao quebra commit.\n\n`);
+  process.stderr.write(`Aplica regras: INV-AGENT-004, INV-AGENT-006, SEC-* (seguranca), TST-* (qualidade).\n`);
+  recordMetric('block', 'require-auditors-pass-before-commit', `${usHint || 'US-?'} blocked=${blocked.length} missing=${missing.length} empty=${empty.length} malformed=${malformed.length} missing-field=${missingField.length} stale=${stale.length}`);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[require-auditors-pass-before-commit] erro interno: ${err.message}\n`);
