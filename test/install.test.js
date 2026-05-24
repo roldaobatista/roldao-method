@@ -238,7 +238,7 @@ try {
 try {
   execSync(`node "${BIN}" add electron-br --yes`, { stdio: 'pipe' });
   check('add electron-br copiou agente', fs.existsSync(path.join(TMP, '.claude/agents/electron-arch.md')));
-  check('add electron-br copiou hook', fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.sh')));
+  check('add electron-br copiou hook', fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.js')));
 } catch (e) {
   check('add electron-br executou', false);
 }

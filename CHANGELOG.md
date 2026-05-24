@@ -2,6 +2,31 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.0.0-rc2] — 2026-05-23
+
+**Migração dos 5 hooks `.sh` dos 6 addons oficiais pra Node.js puro.** Completa o port iniciado na rc1 — agora **TODO o framework + addons oficiais** rodam sem dependência de bash/perl/Git Bash.
+
+### Mudado
+
+- **`addons/fintech-br/.claude/hooks/validate-webhook-signature.js`** — port do `.sh`. Mesma semântica: detecta handler de webhook Pix sem validação HMAC e bloqueia (PIX-EXT-002).
+- **`addons/fiscal-br-completo/.claude/hooks/require-sefaz-env.js`** — port. Bloqueia código fiscal sem `process.env.SEFAZ_AMBIENTE` (FISCAL-003).
+- **`addons/electron-br/.claude/hooks/block-ipc-without-validation.js`** — port. Bloqueia `ipcMain.handle` sem `parse/validate/zod` nas 4 primeiras linhas (ELECTRON-002).
+- **`addons/esocial-completo/.claude/hooks/validate-esocial-prazo.js`** — port. Soft warning sobre prazos legais S-2200/2299/2210 (ESOCIAL-001).
+- **`addons/varejo-pdv-br/.claude/hooks/validate-tef-flow.js`** — port. Bloqueia PAN em texto puro + avisa fluxo TEF incompleto (PDV-002).
+- **`addons/fintech-br/.claude/settings.json.patch`** — chama `node validate-webhook-signature.js` em vez de `bash .sh`.
+- **`addons/fintech-br/addon.yaml`** — descrição cita `.js`.
+- **`test/addons.test.js`** — valida hooks `.js` via `node --check` + spawn (sem dependência de `bash`).
+- **`test/install.test.js`** — `add electron-br` checa `.js`.
+
+### Removido
+
+- 5 arquivos `.sh` em `addons/*/`.claude/hooks/`. Substituídos pelos `.js` acima.
+
+### Preservado
+
+- Comportamento idêntico ao port do core (paridade testada via `node --check` + smoke individual).
+- Quem usa addon em produção precisa só rodar `npx roldao-method add <addon>` de novo após upgrade.
+
 ## [1.0.0-rc1] — 2026-05-23
 
 **Release candidate da v1.0.0 — port completo dos 26 hooks de bash/perl pra Node.js puro (EP-001).**

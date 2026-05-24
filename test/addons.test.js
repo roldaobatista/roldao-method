@@ -127,23 +127,23 @@ for (const addon of addons) {
     check(`${addon}: agente declarado existe (${a})`, fs.existsSync(path.join(dir, '.claude/agents', `${a}.md`)));
   }
   for (const h of hooks) {
-    const hookPath = path.join(dir, '.claude/hooks', `${h}.sh`);
+    // Pos v1.0.1: addons portados pra Node. Hook agora e .js, validado por
+    // `node --check` (syntax) + spawn node (smoke).
+    const hookPath = path.join(dir, '.claude/hooks', `${h}.js`);
     check(`${addon}: hook declarado existe (${h})`, fs.existsSync(hookPath));
     if (fs.existsSync(hookPath)) {
-      // bash -n syntax check
-      if (BASH) {
-        try {
-          execSync(`bash -n "${hookPath}"`, { stdio: 'pipe' });
-          check(`${addon}: hook ${h} syntax (bash -n)`, true);
-        } catch (e) {
-          check(`${addon}: hook ${h} syntax (bash -n)`, false, (e.stderr || '').toString().substring(0, 120));
-        }
-        // smoke: input minimo, hook nao pode crashar (exit 0 ou 2 OK; outros = falha de robustez)
-        const r = spawnSync('bash', [hookPath], { input: '{"tool_input":{}}', timeout: 5000 });
-        const exit = r.status;
-        const okExit = exit === 0 || exit === 2;
-        check(`${addon}: hook ${h} smoke (exit 0 ou 2, nunca crash)`, okExit, `exit=${exit}, stderr=${(r.stderr || '').toString().substring(0, 100)}`);
+      // node --check syntax
+      try {
+        execSync(`node --check "${hookPath}"`, { stdio: 'pipe' });
+        check(`${addon}: hook ${h} syntax (node --check)`, true);
+      } catch (e) {
+        check(`${addon}: hook ${h} syntax (node --check)`, false, (e.stderr || '').toString().substring(0, 120));
       }
+      // smoke: input minimo, hook nao pode crashar (exit 0 ou 2 OK)
+      const r = spawnSync('node', [hookPath], { input: '{"tool_input":{}}', timeout: 5000 });
+      const exit = r.status;
+      const okExit = exit === 0 || exit === 2;
+      check(`${addon}: hook ${h} smoke (exit 0 ou 2, nunca crash)`, okExit, `exit=${exit}, stderr=${(r.stderr || '').toString().substring(0, 100)}`);
     }
   }
   for (const s of skills) {
