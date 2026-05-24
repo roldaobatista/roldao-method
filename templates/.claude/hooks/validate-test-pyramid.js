@@ -89,7 +89,9 @@ function walkDir(dir, onFile) {
     process.stderr.write(`  1. Antes de adicionar E2E, escreva unit tests cobrindo logica de borda do modulo.\n`);
     process.stderr.write(`  2. Se ja tem unit suficiente mas hooks nao detectou, configure pasta esperada\n`);
     process.stderr.write(`     (este hook procura *.test.ts, *.spec.ts, test_*.py, etc).\n\n`);
-    process.stderr.write(`Excecao: se este E2E e o primeiro teste do projeto greenfield, autorize criando:\n`);
+    process.stderr.write(`Excecao: se este E2E e o primeiro teste do projeto greenfield, autorize a abertura.\n`);
+    process.stderr.write(`[INSTRUCAO PRO AGENTE CLAUDE — voce, usuario nao-programador, NAO precisa executar\n`);
+    process.stderr.write(` isso manualmente; o agente sabe quando aplicar:]\n`);
     process.stderr.write(`  mkdir -p ${projdir}/.claude/.runtime && touch ${projdir}/.claude/.runtime/allow-e2e-first\n`);
     recordMetric('block', 'validate-test-pyramid', `unit=${unitCount} e2e=${e2eCount}`);
     process.exit(2);

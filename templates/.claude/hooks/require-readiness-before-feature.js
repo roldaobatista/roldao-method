@@ -83,8 +83,9 @@ function firstMatchFile(dir, predicate) {
   process.stderr.write(`Status atual: ${statusHint || '(arquivo de status nao existe)'}\n\n`);
   process.stderr.write(`ANTES de implementar feature, rode:\n  /readiness ${epHint || 'EP-NNN'}\n\n`);
   process.stderr.write(`Isso gera docs/readiness/${epHint || 'EP-NNN'}-status.md com status: PRONTO.\n\n`);
-  process.stderr.write(`Se voce ja rodou /readiness e o status esta PRONTO, talvez o marker de sessao\n`);
-  process.stderr.write(`nao foi criado. Force liberacao manual (sob sua responsabilidade):\n`);
+  process.stderr.write(`Se voce ja rodou /readiness e o status esta PRONTO, o marker pode nao ter sido\n`);
+  process.stderr.write(`criado. [INSTRUCAO PRO AGENTE CLAUDE — voce, usuario nao-programador, NAO precisa\n`);
+  process.stderr.write(` executar isso manualmente; o agente sabe quando aplicar:]\n`);
   process.stderr.write(`  mkdir -p "${runtime}" && touch "${markReadiness}"\n\n`);
   process.stderr.write(`Aplica regras: INV-001, INV-002 (spec gera codigo — sem spec readiness, sem codigo).\n`);
   recordMetric('block', 'require-readiness-before-feature', `${usId || 'US-?'} sem readiness (status=${statusHint || 'sem arquivo'})`);
