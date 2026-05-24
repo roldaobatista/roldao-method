@@ -55,6 +55,10 @@ const COMBINED_RE = new RegExp(JARGON_TERMS.join('|'), 'gi');
     if (/\(.{0,80}(salv|enviei|atualiz|servidor|cliente|sistema|arquivo|versao|configura).{0,80}\)/i.test(ctx)) continue;
     if (/"[^"]{3,40}"/.test(ctx)) continue;
     if (/\bou seja\b|\bsignific|isso e|isto e|i\.e\.|ex:/i.test(ctx)) continue;
+    // Auditoria 10-agentes 2026-05-24: ignora linha que esta DISCUTINDO o
+    // proprio hook (tech-writer/auditores explicando o bloqueio). Sem isso,
+    // qualquer resposta que cite o hook ou a regra INV-AGENT-001 se auto-bloqueia.
+    if (/block-jargon-pt-br|INV-AGENT-001|hook que bloqueia jarg|tabela de jarg|tabela de traducao|tabela de tradu/i.test(ctx)) continue;
     violations.push(`jargao sem traducao: '${m}' em -> ${ctx}`);
   }
 

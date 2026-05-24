@@ -6,7 +6,7 @@
 // (upstream tracking) — mais robusto que exigir `git fetch` recente.
 
 const { execFileSync } = require('child_process');
-const { sanitizeProjdir, readStdinJson } = require('./_lib.js');
+const { sanitizeProjdir, readStdinJson, recordMetric } = require('./_lib.js');
 
 function git(args, opts = {}) {
   try {
@@ -68,6 +68,7 @@ function git(args, opts = {}) {
     process.stderr.write(`Regra: nunca reescrever historico publicado. Faca um NOVO commit em vez disso.\n\n`);
     process.stderr.write(`Excecao: se voce TEM CERTEZA que ninguem mais usa essa branch e quer mesmo reescrever,\n`);
     process.stderr.write(`execute com confirmacao explicita e force-with-lease consciente (autorizacao do usuario obrigatoria).\n`);
+    recordMetric('block', 'no-amend-after-push', `amend em commit ja pushado para ${pushedTo}`);
     process.exit(2);
   }
 

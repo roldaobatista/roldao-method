@@ -62,8 +62,10 @@ const SYNTHETIC_PHONES = new Set(['11999999999']);
       violations.push(`CPF aparente em fixture: ${c}  ->  ${line}`);
     }
 
-    // CPF nao formatado: 11 digitos seguidos com DV valido
-    const cpfBare = line.match(/\d{11}/g) || [];
+    // CPF nao formatado: exatamente 11 digitos isolados (\b...\b) com DV valido.
+    // Auditoria 10-agentes 2026-05-24: usar \b evita falso-positivo em timestamps
+    // Unix em ms (13 dig — substring de 11 casava sem \b) e outros IDs longos.
+    const cpfBare = line.match(/\b\d{11}\b/g) || [];
     for (const c of cpfBare) {
       if (allSameDigits(c)) continue;
       if (SYNTHETIC_CPFS.has(c)) continue;

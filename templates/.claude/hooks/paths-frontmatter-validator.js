@@ -3,7 +3,7 @@
 // Hook PreToolUse, matcher: Write|Edit. INV-004.
 
 const path = require('path');
-const { readStdinJson } = require('./_lib.js');
+const { readStdinJson, recordMetric } = require('./_lib.js');
 
 const DOC_MD_RE = /docs\/.*\.(md|MD)$/;
 const CANONICAL_NAMES = new Set(['README.md', 'INDICE.md', 'CONVENCOES-DOC.md', 'QUICKSTART.md', 'PUBLICAR.md']);
@@ -28,6 +28,7 @@ const CANONICAL_NAMES = new Set(['README.md', 'INDICE.md', 'CONVENCOES-DOC.md', 
     process.stderr.write(`[paths-frontmatter-validator] BLOQUEADO: doc em docs/ deve começar com frontmatter.\n\n`);
     process.stderr.write(`Arquivo: ${filePath}\n\nFormato esperado no topo:\n---\nowner: <responsável>\nrevisado-em: YYYY-MM-DD\nstatus: draft | stable | deprecated\n---\n\n`);
     process.stderr.write(`Regra: INV-004 — IDs rastreáveis + convenção de docs.\n`);
+    recordMetric('block', 'paths-frontmatter-validator', `frontmatter ausente em ${filePath}`);
     process.exit(2);
   }
 
@@ -38,6 +39,7 @@ const CANONICAL_NAMES = new Set(['README.md', 'INDICE.md', 'CONVENCOES-DOC.md', 
     const re = new RegExp(`^${field}:`, 'm');
     if (!re.test(fmBlock)) {
       process.stderr.write(`[paths-frontmatter-validator] BLOQUEADO: frontmatter sem campo obrigatório '${field}' em ${filePath}\n`);
+      recordMetric('block', 'paths-frontmatter-validator', `campo '${field}' ausente em ${filePath}`);
       process.exit(2);
     }
   }
