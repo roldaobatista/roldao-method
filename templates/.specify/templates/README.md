@@ -67,7 +67,7 @@ revisado-em: AAAA-MM-DD
 ---
 ```
 
-Hook `paths-frontmatter-validator.sh` verifica.
+Hook `paths-frontmatter-validator.js` verifica.
 
 ## Versionamento
 

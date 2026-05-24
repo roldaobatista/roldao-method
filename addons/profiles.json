@@ -5,9 +5,11 @@
     { "label": "Electron (desktop offline)", "addons": ["electron-br"] },
     { "label": "Fiscal/NF-e", "addons": ["fiscal-br-completo"] },
     { "label": "Fintech/Pix", "addons": ["fintech-br"] },
+    { "label": "Fintech + Fiscal (e-commerce BR)", "addons": ["fintech-br", "fiscal-br-completo", "lgpd-compliance"] },
     { "label": "LGPD-strict", "addons": ["lgpd-compliance"] },
     { "label": "eSocial/folha", "addons": ["esocial-completo"] },
     { "label": "Varejo/PDV", "addons": ["varejo-pdv-br", "fiscal-br-completo"] },
+    { "label": "Healthtech/telemedicina (beta)", "addons": ["healthtech-br", "lgpd-compliance"] },
     { "label": "Customizar (escolho depois)", "addons": [] }
   ]
 }

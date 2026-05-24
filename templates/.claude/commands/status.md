@@ -2,7 +2,7 @@
 description: Reporta progresso atual em PT-BR sem jargão — para o usuário não-programador.
 argument-hint: "[escopo opcional: sprint | epico | feature | geral]"
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Bash(git log:*), Bash(git status:*), Bash(git diff:*)
+allowed-tools: Task, Read, Glob, Grep, Bash(git log:*), Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(git remote:*)
 model: haiku
 ---
 

@@ -36,9 +36,9 @@ Anuncie em 1 frase o caminho escolhido. Nao pergunte ao usuario.
 
 ## Hooks que aplicam
 
-- `require-readiness-before-feature.sh` — exige readiness PRONTO antes de Edit/Write.
-- `require-agent-sequence-before-dev.sh` — exige Sofia + Detetive + Rafael (ou rafael-skipped).
-- `require-auditors-pass-before-commit.sh` — exige 3 auditores aprovados com hash do diff atual.
-- `enforce-pipeline-completion.sh` — exige pipeline completo (todos os markers) antes de encerrar a sessao.
+- `require-readiness-before-feature.js` — exige readiness PRONTO antes de Edit/Write.
+- `require-agent-sequence-before-dev.js` — exige Sofia + Detetive + Rafael (ou rafael-skipped).
+- `require-auditors-pass-before-commit.js` — exige 3 auditores aprovados com hash do diff atual.
+- `enforce-pipeline-completion.js` — exige pipeline completo (todos os markers) antes de encerrar a sessao.
 
 Detalhes mecanicos completos (SESSION_HASH, audit_sha, markers, limpeza, modo BUG, modo AUDIT) estao em `.claude/agents/maestro.md`. Decisao registrada em `docs/decisions/ADR-011-maestro-fonte-unica-pipeline.md`.

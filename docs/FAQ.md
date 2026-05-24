@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-22
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -15,13 +15,13 @@ Não. O ROLDAO-METHOD foi feito por e para gente que não programa. Os agentes t
 
 Os 9 alvos suportados — paridade real declarada na tabela do README:
 
-- **Claude Code:** suporte nativo (15 agentes executáveis, 26 hooks bloqueadores [23 via `exit 2` + 3 via JSON `decision:block`], 24 commands, 13 skills com algoritmo Python).
+- **Claude Code:** suporte nativo (15 agentes executáveis, 26 hooks bloqueadores [23 via `exit 2` + 3 via JSON `decision:block`], 26 commands, 9 skills com algoritmo Python + 4 skills prompt-only).
 - **Cursor / Windsurf / Cline / Roo / Continue / Aider / Gemini CLI / Codex CLI:** suporta as **regras** (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, regra própria do adapter). Os outros 8 lêem texto carregado no contexto, **mas não executam hooks** (limitação do harness de cada IDE). O instalador detecta a IDE local e instala o que se aplica; pode forçar todos com `--all-adapters` ou um subconjunto com `--adapters=cursor,windsurf`.
 
 Quem usa Cursor/Windsurf/etc. e quer também os bloqueios mecânicos: rode Claude Code em paralelo nos pontos críticos (commit, release).
 
 ### Roda no Windows?
-Sim. Hooks são bash (rodam no Git Bash que já vem com o Git Windows). O instalador é Node.js puro.
+Sim, em Windows puro (PowerShell, CMD ou qualquer shell). Desde a v1.0, hooks foram portados pra Node puro (EP-001) — **não exige mais Git Bash nem perl**. Único requisito é Node.js 18+.
 
 ### Preciso pagar?
 Não. MIT, gratis. O custo é do Claude/Cursor que você já paga.
@@ -47,7 +47,7 @@ Sim: `npx roldao-method uninstall`. Remove os arquivos do framework e preserva s
 Se a versão X quebrou alguma coisa pro seu time:
 
 ```bash
-npm install -g roldao-method@0.15.0    # ou a versão que funcionava
+npm install -g roldao-method@1.0.0    # ou a versão que funcionava
 npx roldao-method update
 ```
 
@@ -117,7 +117,7 @@ Pode, edite `.claude/settings.json` e remova a entrada. Mas pense duas vezes —
 Tem profundidade real: 10 IDs `LGPD-001` a `LGPD-010` rastreáveis em commit, skill `checklist-lgpd` com árvore de decisão de base legal, agent `auditor-seguranca` com checklist específico. Mas: **não substitui advogado**. O framework documenta e orienta; consultoria humana é necessária.
 
 ### NF-e, certificado A1, contingência SEFAZ?
-Sim, ver agent `fiscal-br` + regras `FISCAL-001` a `FISCAL-007`. Cobre imutabilidade pós-emissão, certificado por tenant, contingência (EPEC/FS-DA/SVC), reforma tributária 2026-2033, CNPJ alfanumérico. **Também não substitui contador**.
+Sim, ver agent `fiscal-br` + regras `FISCAL-001` a `FISCAL-010`. Cobre imutabilidade pós-emissão, certificado por tenant, contingência (SVC-AN/SVC-RS/EPEC — FS-DA descontinuado desde Manual 7.00/2023), Reforma Tributária 2026-2033, CNPJ alfanumérico (jul/2026), NFS-e padrão nacional, CT-e/MDF-e e split payment. **Também não substitui contador**.
 
 ### Reforma Tributária 2026?
 Sim, FISCAL-006. Período de transição 2026-2033 exige cálculo paralelo (regime atual + CBS/IBS). ADR da feature tributária declara qual período cobre.

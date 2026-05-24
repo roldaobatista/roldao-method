@@ -12,7 +12,7 @@ status: stable
 
 Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do projeto): hooks, agentes, comandos, skills, docs, templates, testes, addons, CLI/instalador, consistência cruzada — **todos os achados endereçados**. Highlights:
 
-- 15 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Carla, Lia, Dona Marta, Camila.
+- 15 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila.
 - 26 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`).
 - 26 hooks bloqueadores (23 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação + 1 utilitário (`_lib.js`) = **34 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
 - 13 skills BR no core + 18 nos addons = **31 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
@@ -48,36 +48,37 @@ Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do p
 
 ## Próximas releases
 
-## v0.16.0 — "Setor saúde + setor público" (alvo: set/2026)
+## v1.1.0 — "Setor saúde expansão + setor público" (alvo: set/2026)
 
-- [ ] Addon `telemedicina` — **Definição de pronto:** ≥3 agentes (médico-relator, dpo-saúde, fiscal-saúde), ≥4 hooks (consentimento Art. 11, log de acesso PHI, anonimização export, retention CFM), ≥3 skills (validar-CRM, gerar-receita-digital-assinada, validar-CID-10), ≥12 testes verdes.
+> Healthtech-br já saiu em **beta** na v1.0 (skill `validar-cns-cartao-sus` + `checklist-cfm-telemedicina`). v1.1 expande pra cobertura completa.
+
+- [ ] Addon `saude-br-completo` — extensão do healthtech-br: TISS 4.x + EDI ANS, ≥3 hooks (TUSS obrigatório, prontuário CFM 1.821 mínimo, dado sensível em escala = RIPD), ≥10 testes verdes.
 - [ ] Addon `govtech-br` — **Definição de pronto:** ≥2 agentes (proc-public, transparência-ativa), ≥3 hooks (LAI-prazo, assinatura ICP-Brasil obrigatória, e-Protocolo no fluxo), ≥3 skills (validar-CPF-funcionário, gerar-protocolo, consultar-e-CAC), ≥10 testes verdes.
-- [ ] Addon `saude-br-completo` — **Definição de pronto:** suporte TISS 4.x + EDI ANS, ≥3 hooks (TUSS obrigatório, prontuário CFM 1.821 mínimo, dado sensível em escala = RIPD), ≥10 testes verdes.
 - [ ] Skill `consultar-cnpj-receita` — **Definição de pronto:** wrapper RFB com cache 24h, LGPD-004 (auditado), fallback offline com dados sintéticos pra teste, 4 testes verdes.
 - [ ] Skill `validar-receita-medica-digital` — **Definição de pronto:** valida assinatura ICP-Brasil + carimbo de tempo + CRM ativo, 5 testes verdes.
 
-## v0.17.0 — "Setores produtivos" (alvo: nov/2026)
+## v1.2.0 — "Setores produtivos" (alvo: nov/2026)
 
 - [ ] Addon `agro-br` — **Definição de pronto:** ≥2 agentes (rural-fiscal, rastreabilidade), ≥3 hooks (CAR obrigatório em pessoa-rural, SISBOV em bovino, nota fiscal de produtor com IE rural), ≥3 skills (validar-CAR, validar-SISBOV, calcular-funrural), ≥10 testes verdes.
 - [ ] Addon `logistica-br` — **Definição de pronto:** CT-e 4.0 + MDF-e 3.0, ≥4 hooks (RNTRC obrigatório, MDF-e antes do tráfego, CT-e por trecho, CIOT em sub-contratação), ≥10 testes verdes.
 - [ ] Addon `educacao-br` — **Definição de pronto:** ENADE/SISTEC/Censo MEC, ≥3 hooks (matrícula INEP obrigatória, histórico CONAES, e-Docente sincronizado), ≥10 testes verdes.
 - [ ] Skill `migration-postgres-segura` — **Definição de pronto:** detecta lock longo, valida backup ≤24h, gera DDL com `CONCURRENTLY` quando aplicável, 6 testes verdes.
 
-## v0.18.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
+## v1.3.0 — "Open Finance + Fintech avançado" (alvo: jan/2027)
 
 - [ ] Pix Automático no addon `fintech-br` — **Definição de pronto:** suporte a recorrência autorizada (Resolução BCB 80/2021 atualizada), 2 hooks novos (recorrência precisa contrato, cancelamento sob pedido), ≥8 testes verdes.
 - [ ] Addon `open-banking-iniciador` — **Definição de pronto:** fluxo ITP completo (consent → autorização → SCA → pagamento), ≥3 hooks (consent expirado bloqueia, SCA obrigatório, idempotência por ConsentId), ≥10 testes verdes.
 - [ ] Skill `gerar-relatorio-bacen` — **Definição de pronto:** cobre DLO, SCR, IF.DATA, 3 testes verdes com fixture validada.
 - [ ] eSocial S-3000 (exclusão) — **Definição de pronto:** evento gerado + XML válido + assinatura + retransmissão, 4 testes verdes.
 
-## v1.0.0 — "Estabilidade + comunidade" (alvo: abr/2027)
+## v2.0.0 — "Comunidade + tração" (alvo: abr/2027)
 
 Pré-requisitos técnicos (controláveis pelo time):
 - [ ] Pacote publicado no npm com ≥6 meses sem breaking change em minor.
 - [ ] `bin/install.js` modularizado com ≥80% de cobertura de teste unitário.
 - [ ] Documentação completa em pt-BR + en (com `tools/sincronizar-traducao.js --check`).
 - [ ] RFC process estabelecido (`docs/RFC-PROCESS.md` + template em `.specify/templates/`).
-- [ ] Skill `validar-chave-acesso-nfe` no core.
+- [x] Skill `validar-chave-acesso-nfe` no core — **entregue na v1.0**.
 - [ ] Test runner com ≥300 casos cobertos.
 
 Sinais de tração (dependem da comunidade — separados pra não bloquear release técnica):

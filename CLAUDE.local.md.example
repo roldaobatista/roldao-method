@@ -1,0 +1,43 @@
+# CLAUDE.local.md — preferências pessoais (NÃO versionar)
+
+> Copie este arquivo para `CLAUDE.local.md` no mesmo diretório. Já está no `.gitignore` — o conteúdo aqui é só do seu setup, não do time.
+
+## Tua identidade
+
+- **Nome:** _(seu nome — o agente vai te chamar assim)_
+- **Papel no projeto:** _(dono de produto / dev / DPO / contador / outro)_
+- **Domínio que conhece bem:** _(ex.: fiscal NF-e, integração bancária, UX mobile)_
+- **Domínio onde precisa de tradução:** _(ex.: Git, infra, deploy)_
+
+## Como prefere receber resposta
+
+- **Verbosidade:** curto / médio / detalhado.
+- **Mostrar diff/código:** sempre / só quando pedir / nunca.
+- **Tradução de jargão:** total / parcial / não preciso.
+
+## Atalhos pessoais
+
+- **Comandos de uso frequente:** _(ex.: `/feature US-042` toda manhã)_
+- **Branch padrão de trabalho:** _(ex.: `main`, `develop`, `feature/sprint-9`)_
+
+## Ambiente local
+
+- **OS:** _(Windows 11 / macOS / Linux)_
+- **Editor preferido:** _(VS Code, Cursor, etc.)_
+- **Stack pessoal:** _(node 20, python 3.12, etc.)_
+
+## Coisas que sempre esqueço
+
+_(lista pra Claude te lembrar — exemplo:)_
+
+- Toda feature fiscal: rodar `validar-cpf-cnpj` no payload.
+- Toda story: vincular ao épico no frontmatter.
+- Antes de release: rodar `/checkpoint` em todas branches abertas.
+
+## Coisas que NÃO quero que apareçam
+
+_(o que o Claude deve evitar — exemplo:)_
+
+- Não sugerir TypeScript se a stack é JS puro.
+- Não criar abstração genérica em PoC.
+- Não pedir confirmação pra mudança trivial.

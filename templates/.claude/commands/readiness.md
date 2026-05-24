@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash(mkdir:*), Task
 
 # /readiness — gate antes de partir de épico pra dev
 
-Use depois de `/epico` e antes de `/feature` (primeira story do épico). **Sem o arquivo de status gerado aqui, `/feature` recusa rodar** — o hook `require-readiness-before-feature.sh` bloqueia.
+Use depois de `/epico` e antes de `/feature` (primeira story do épico). **Sem o arquivo de status gerado aqui, `/feature` recusa rodar** — o hook `require-readiness-before-feature.js` bloqueia.
 
 `$ARGUMENTS` = épico de referência (`EP-NNN`).
 

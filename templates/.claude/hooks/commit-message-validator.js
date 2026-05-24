@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
 const TIPOS = 'feat|fix|refactor|chore|docs|test|perf|build|ci|revert';
 const TIPOS_STYLE = TIPOS + '|style';
@@ -103,6 +103,7 @@ function extractMessages(cmd) {
   process.stderr.write(`  - Primeira linha <= 72 caracteres.\n`);
   process.stderr.write(`  - 1 prefixo por commit (feat OU fix OU refactor OU ...).\n`);
   process.stderr.write(`  - Corpo opcional, separado por linha em branco.\n`);
+  recordMetric('block', 'commit-message-validator', violations[0]);
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[commit-message-validator] erro interno: ${err.message}\n`);

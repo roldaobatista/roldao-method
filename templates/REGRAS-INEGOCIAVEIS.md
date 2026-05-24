@@ -141,7 +141,7 @@ Split payment (recolhimento do CBS/IBS direto pelo adquirente/PSP no momento do 
 TxId determinístico (hash do pedido) + Idempotency-Key + lock distribuído + UNIQUE no banco. Combinar camadas — é a única defesa contra dupla cobrança/devolução. Detalhes operacionais no agente `pix-arch` do addon `fintech-br`.
 
 ### PIX-002 — Webhook valida assinatura na primeira linha do handler
-HMAC + IP de origem validados ANTES de qualquer lógica de negócio. Falha → 401 imediato. Hook `validate-webhook-signature.sh` (addon) bloqueia handler que pula validação.
+HMAC + IP de origem validados ANTES de qualquer lógica de negócio. Falha → 401 imediato. Hook `validate-webhook-signature.js` (addon) bloqueia handler que pula validação.
 
 ### PIX-003 — EndToEndId persistido em coluna indexada
 Pivô único de conciliação financeira (extrato bancário ↔ pedido). Matching por nome+valor é proibido. Coluna indexada, idealmente UNIQUE.
@@ -150,7 +150,7 @@ Pivô único de conciliação financeira (extrato bancário ↔ pedido). Matchin
 Logs não podem vazar chave Pix completa em texto puro. Mascarar (`***@***`, `***.***.***-99`). Acesso a chaves logado e auditado.
 
 ### PIX-005 — URL do PSP/Bacen via env (SEC-005)
-`BACEN_BASE_URL`, `PSP_BASE_URL` vêm de variável de ambiente — sandbox ↔ produção sem deploy. Hardcoded chamando produção em teste é incidente. Hook `no-hardcoded-env-urls.sh` bloqueia.
+`BACEN_BASE_URL`, `PSP_BASE_URL` vêm de variável de ambiente — sandbox ↔ produção sem deploy. Hardcoded chamando produção em teste é incidente. Hook `no-hardcoded-env-urls.js` bloqueia.
 
 ---
 

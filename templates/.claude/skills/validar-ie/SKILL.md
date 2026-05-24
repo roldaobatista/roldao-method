@@ -24,15 +24,15 @@ Skill para validar Inscricao Estadual (IE) brasileira por UF.
 |---|---|---|
 | SP | 12 digitos | Indutrial/comercial; outras especificas (produtor rural) tem padrao proprio |
 | RJ | 8 | Modulo 11 com pesos [2,7,6,5,4,3,2] |
-| MG | 13 | 2 DVs, algoritmo do estado |
 | RS | 10 | Modulo 11 |
 | PR | 10 | 2 DVs |
 | SC | 9 | Modulo 11 |
 | BA | 8 ou 9 | Modulo 10 ou 11 dependendo do primeiro digito |
-| DF | 13 | 2 DVs |
-| Demais | varia | Fallback formal (so tamanho) com aviso |
+| Demais (MG, DF, GO, MT, ES, CE, PE, etc.) | varia | **Sem algoritmo dedicado nesta skill** — retorna `valido: false` com motivo explicito |
 
-A skill **valida formato + DV pras UFs cobertas** e retorna **aceito-com-aviso** pras demais (tamanho ok, DV nao verificado). Pra integracao fiscal critica, complementar com consulta ao SINTEGRA/SEFAZ.
+A skill **valida formato + DV pras 6 UFs cobertas** (SP/RJ/RS/PR/SC/BA). Pras 21 demais, retorna `valido: false` com `metodo: "formal-sem-dv"` e `motivo: "uf-sem-algoritmo-dedicado-valide-com-sintegra-ou-sefaz"`. **Auditoria 10-agentes 2026-05-24:** mudamos de `valido: true` (aceito-com-aviso) pra `valido: false` porque o operador SEFAZ confiava no `true` e o SEFAZ rejeitava o XML.
+
+Pra IE de UF não-coberta, **consultar SINTEGRA/SEFAZ** por outra via antes de gravar.
 
 ## Como invocar
 

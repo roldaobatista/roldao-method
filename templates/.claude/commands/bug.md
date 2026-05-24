@@ -21,7 +21,7 @@ Invoque `investigador`:
 
 **Não pule. Não substitua.** Se o investigador disser "preciso de mais info", pergunte ao usuário ANTES de propor solução.
 
-**Ao terminar a investigação (MECÂNICO — destrava o hook):** o hook `require-investigador-before-fix.sh` bloqueia todo Edit/Write em código de negócio até existir o marcador `investigator-invoked-${SESSION_HASH}` com o MESMO hash que os hooks usam (CLAUDE_SESSION_ID só com caracteres alfanuméricos). Sem este passo o dev-senior fica travado para sempre. Crie o marcador:
+**Ao terminar a investigação (MECÂNICO — destrava o hook):** o hook `require-investigador-before-fix.js` bloqueia todo Edit/Write em código de negócio até existir o marcador `investigator-invoked-${SESSION_HASH}` com o MESMO hash que os hooks usam (CLAUDE_SESSION_ID só com caracteres alfanuméricos). Sem este passo o dev-senior fica travado para sempre. Crie o marcador:
 
 ```bash
 SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')

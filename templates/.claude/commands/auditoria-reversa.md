@@ -41,7 +41,7 @@ NÃO ler conteúdo profundo — só catalogar. Detalhe vem dos auditores depois.
 Em UMA ÚNICA MENSAGEM, invocar:
 
 1. `auditor-seguranca` — varredura completa de violações:
-   - SEC-001: grep por padrões de secret (`secret_token_patterns()` do `_lib.sh`); contar quantos secrets vivos vs comentados; conferir `.env*` versionado.
+   - SEC-001: grep por padrões de secret (`secret_token_patterns()` do `_lib.js`); contar quantos secrets vivos vs comentados; conferir `.env*` versionado.
    - SEC-005: URLs hardcoded de serviço externo (`SEFAZ_HOMOLOG`, `sandbox`, `production` literal).
    - LGPD-001: arquivos que tocam PII sem ADR de base legal próximo (`grep -L "LGPD-001\|base legal" arquivo`).
    - LGPD-004: PII em log sem mascaramento (`console.log.*cpf`, `printf.*chave_pix`).

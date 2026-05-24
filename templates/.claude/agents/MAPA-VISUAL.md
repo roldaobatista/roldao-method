@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-23
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -69,19 +69,19 @@ COMUNICAÇÃO
 | Ícone | Nome | Papel | Modelo |
 |---|---|---|---|
 | 🎼 | Maestro | Orquestrador | sonnet |
-| 🔎 | Mariana | Analista | haiku |
-| 📋 | Sofia | Gerente de Produto | haiku |
-| 🎨 | Lia | UX Designer | haiku |
-| 🏛️ | Rafael | Tech Lead | sonnet |
-| 🔬 | Detetive | Investigador | sonnet |
-| 💻 | Bruno | Dev Sênior | sonnet |
+| 🔎 | Mariana | Analista | inherit |
+| 📋 | Sofia | Gerente de Produto | inherit |
+| 🎨 | Lia | UX Designer | sonnet |
+| 🏛️ | Rafael | Tech Lead | inherit |
+| 🔬 | Detetive | Investigador | inherit |
+| 💻 | Bruno | Dev Sênior | inherit |
 | 🗄️ | Helena | DBA / Dados | sonnet |
 | 🚀 | Lucas | DevOps / Infra | sonnet |
-| ✅ | Inês | Revisor | sonnet |
-| 🛡️ | Caio | Auditor Segurança | sonnet |
-| 🧪 | Júlia | Auditor Qualidade | sonnet |
-| 🎯 | Pedro | Auditor Produto | haiku |
-| 🧾 | Dona Marta | Fiscal BR | sonnet |
-| 📝 | Camila | Tech Writer | haiku |
+| ✅ | Inês | Revisor | inherit |
+| 🛡️ | Caio | Auditor Segurança | inherit |
+| 🧪 | Júlia | Auditor Qualidade | inherit |
+| 🎯 | Pedro | Auditor Produto | inherit |
+| 🧾 | Dona Marta | Fiscal BR | inherit |
+| 📝 | Camila | Tech Writer | inherit |
 
 > Para detalhes de cada agente: leia `.claude/agents/<nome>.md`.

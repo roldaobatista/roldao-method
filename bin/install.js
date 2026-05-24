@@ -38,10 +38,18 @@ const ADDONS_DIR = path.join(FRAMEWORK_ROOT, 'addons');
 const CWD = process.cwd();
 
 const rawArgs = process.argv.slice(2);
+// --help/--version/-h/-v sao reconhecidos como COMANDO (nao flag) — antes
+// caiam no filtro `positional = !startsWith('-')` e nunca chegavam ao switch,
+// rodando `install` em vez do help. Auditoria 10-agentes 2ª passada 2026-05-24.
+const HELP_FLAGS = new Set(['--help', '-h', '-?']);
+const VERSION_FLAGS = new Set(['--version', '-v', '-V']);
+const earlyCommand = rawArgs.find((a) => HELP_FLAGS.has(a)) ? 'help'
+                   : rawArgs.find((a) => VERSION_FLAGS.has(a)) ? 'version'
+                   : null;
 const positional = rawArgs.filter((a) => !a.startsWith('-'));
-const command = positional[0] || 'install';
+const command = earlyCommand || positional[0] || 'install';
 const subArg = positional[1];
-const flags = new Set(rawArgs.filter((a) => a.startsWith('-')));
+const flags = new Set(rawArgs.filter((a) => a.startsWith('-') && !HELP_FLAGS.has(a) && !VERSION_FLAGS.has(a)));
 const YES = flags.has('--yes') || flags.has('-y');
 const FORCE = flags.has('--force');
 const DRY_RUN = flags.has('--dry-run');
@@ -685,6 +693,66 @@ function applyAddonSettingsPatch(name) {
   }
 }
 
+// Simetrica de applyAddonSettingsPatch — desfaz hooks/permissions que o addon
+// adicionou. Roda em `remove <addon>` ANTES do delete dos arquivos pra evitar
+// orfao (settings.json referenciando hook que ja foi apagado do disco).
+// Auditoria 10-agentes 2ª passada 2026-05-24 identificou o gap (addons/README.md
+// promete reverter, mas implementacao nao revertia — Claude Code lancava erro
+// a cada Write/Edit apos remove).
+function reverseAddonSettingsPatch(name) {
+  const patchPath = path.join(ADDONS_DIR, name, '.claude', 'settings.json.patch');
+  const settingsPath = path.join(CWD, '.claude', 'settings.json');
+  if (!fs.existsSync(patchPath) || !fs.existsSync(settingsPath)) return;
+
+  let patch, settings;
+  try {
+    patch = JSON.parse(fs.readFileSync(patchPath, 'utf8'));
+    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  } catch (e) {
+    warn(`addon ${name}: settings.json.patch invalido (${e.message}); revert pulado.`);
+    return;
+  }
+
+  let changed = false;
+
+  // Hooks: remove cada command exato; remove grupo se ficar sem hooks; remove
+  // array do evento se ficar vazio.
+  if (patch.hooks && settings.hooks && typeof patch.hooks === 'object') {
+    for (const [event, entries] of Object.entries(patch.hooks)) {
+      if (!Array.isArray(entries) || !Array.isArray(settings.hooks[event])) continue;
+      for (const patchEntry of entries) {
+        const matcher = patchEntry.matcher || '';
+        const patchHooks = Array.isArray(patchEntry.hooks) ? patchEntry.hooks : [];
+        const group = settings.hooks[event].find((g) => (g.matcher || '') === matcher);
+        if (!group || !Array.isArray(group.hooks)) continue;
+        const before = group.hooks.length;
+        group.hooks = group.hooks.filter((existing) => !patchHooks.some((h) => h.command === existing.command));
+        if (group.hooks.length !== before) changed = true;
+        if (group.hooks.length === 0) {
+          settings.hooks[event] = settings.hooks[event].filter((g) => g !== group);
+        }
+      }
+      if (settings.hooks[event].length === 0) delete settings.hooks[event];
+    }
+  }
+
+  // Permissions: remove items exatos
+  if (patch.permissions && settings.permissions && typeof patch.permissions === 'object') {
+    for (const k of ['allow', 'ask', 'deny']) {
+      if (Array.isArray(patch.permissions[k]) && Array.isArray(settings.permissions[k])) {
+        const before = settings.permissions[k].length;
+        settings.permissions[k] = settings.permissions[k].filter((item) => !patch.permissions[k].includes(item));
+        if (settings.permissions[k].length !== before) changed = true;
+      }
+    }
+  }
+
+  if (changed) {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf8');
+    log(`  ${c.green}-${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} removidas`);
+  }
+}
+
 // Enumera os arquivos que um addon instala dentro de .claude/ (paths
 // relativos ao CWD). Usado pra remocao cirurgica sem tocar no core.
 //
@@ -744,6 +812,10 @@ async function removeAddon(name) {
     const a = await ask(`Confirmar remocao do addon ${c.bold}${name}${c.reset}? O framework core fica intacto. [s/N] `);
     if (a.toLowerCase() !== 's') { log('cancelado.'); return; }
   }
+
+  // Reverte settings.json.patch ANTES do delete dos arquivos. Ordem importa:
+  // se apagar o hook primeiro e o reverso falhar, settings.json fica orfão.
+  if (!DRY_RUN) reverseAddonSettingsPatch(name);
 
   // SECURITY: re-resolver cada path e validar que cai dentro de CWD/.claude/.
   // Sem isto, addon malicioso com symlink (ou TOCTOU entre walk e rm) podia

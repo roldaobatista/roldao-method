@@ -7,7 +7,13 @@ const { readStdinJson, recordMetric } = require('./_lib.js');
 const EXCLUDED_PATH_RE = /\.env|config.*\.example|\.example|README|\.md$|\/docs\/|\/test\/|\/tests\/|\/__tests__\/|\/spec\/|\/specs\/|\/e2e\/|\/cypress\/|\/playwright\/|\.test\.|\.spec\.|\.e2e\.|\/fixtures\/|\/mocks\/|\/__mocks__\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift)$/;
 const COMMENT_LINE_RE = /^\s*(\/\/|#|\/\*|\*)/;
-const EXCEPTION_RE = /SEC-005-exception|env\.|process\.env|os\.environ|getenv|ENV\[|Deno\.env/;
+// EXCEPTION_RE deve cobrir SO o opt-out explicito (SEC-005-exception). Antes
+// liberava qualquer linha que mencionasse process.env, o que abria o padrao
+// `process.env.SEFAZ_URL || 'https://api.sefaz.sp.gov.br'` — exatamente o
+// fallback perigoso que SEC-005 quer evitar. Auditoria 10-agentes 2ª passada
+// 2026-05-24 estreitou o gatilho. Se voce precisa do fallback, declare
+// // SEC-005-exception: <razao> na linha.
+const EXCEPTION_RE = /SEC-005-exception/;
 
 const SENSITIVE_DOMAINS = [
   'api\\.sefaz\\.[a-z]+\\.gov\\.br',

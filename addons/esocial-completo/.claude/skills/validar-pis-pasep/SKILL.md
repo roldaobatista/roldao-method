@@ -1,8 +1,9 @@
 ---
 name: validar-pis-pasep
 description: Valida PIS/PASEP/NIS brasileiros (11 dígitos) com algoritmo módulo 11. Use sempre que receber, salvar ou consultar PIS/PASEP/NIS — em admissão, folha, eSocial, ou qualquer integração com Receita Federal/Caixa.
+allowed-tools: Bash(python3:*), Bash(python:*), Bash(py:*)
 owner: esocial-completo
-revisado-em: 2026-05-18
+revisado-em: 2026-05-24
 status: stable
 ---
 

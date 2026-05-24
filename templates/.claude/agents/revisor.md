@@ -1,7 +1,7 @@
 ---
 name: revisor
 description: Audita o DIFF específico de uma feature/bug/refactor antes de marcar como pronto. Foco em aderência à user story, regras inegociáveis (INV-, SEC-, TST-, LGPD-), causa raiz, testes do diff. Use IMEDIATAMENTE após dev-senior implementar. NÃO confundir com auditor-qualidade (que audita saúde MACRO do projeto pré-release).
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(git status:*), Bash(grep:*), Bash(rg:*), Bash(npm test:*), Bash(npm run:*), Bash(npx vitest:*), Bash(npx jest:*), Bash(pytest:*), Bash(ls:*), Bash(cat:*), Bash(head:*)
 model: inherit
 color: yellow
 identity:

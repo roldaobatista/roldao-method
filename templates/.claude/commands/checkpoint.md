@@ -95,11 +95,11 @@ SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
 mkdir -p .claude/.runtime && touch .claude/.runtime/checkpoint-done-${SESSION_HASH}
 ```
 
-Esse marcador libera o hook `require-checkpoint-before-merge.sh` a deixar `git commit`/`git merge`/`git push` passarem. Sem ele, qualquer tentativa de fechar o trabalho da feature retorna exit 2.
+Esse marcador libera o hook `require-checkpoint-before-merge.js` a deixar `git commit`/`git merge`/`git push` passarem. Sem ele, qualquer tentativa de fechar o trabalho da feature retorna exit 2.
 
 ## Importante
 
 - **NUNCA aprovar PR com auditor BLOQUEADO** sem autorização explícita do usuário.
 - **Apresentar sumário em PT-BR** — sem stack trace, sem stack de testes inteiro.
 - Salvar como `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md`.
-- **Hook mecânico:** `require-checkpoint-before-merge.sh` bloqueia commit/merge/push em sessão `/feature` ativa enquanto o marker não existir.
+- **Hook mecânico:** `require-checkpoint-before-merge.js` bloqueia commit/merge/push em sessão `/feature` ativa enquanto o marker não existir.

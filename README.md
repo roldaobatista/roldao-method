@@ -17,7 +17,7 @@ Depois, no Claude Code: `/inicio` (projeto novo) ou `/brownfield` (já tem códi
 
 ## O diferencial em uma linha
 
-**Outros frameworks orientam o agente. ROLDAO impede o erro** — hooks travam `rm -rf`, secret commitado, teste mascarado, jargão técnico com cliente, bug "consertado" sem investigar o banco/log.
+**Hooks que impedem o erro mecanicamente** — `rm -rf`, secret commitado, teste mascarado, jargão técnico com cliente, bug "consertado" sem investigar o banco/log. Não é convenção: hook bloqueia (`exit 2` ou `decision:block`) na hora.
 
 ### Por que importa pra dev BR
 

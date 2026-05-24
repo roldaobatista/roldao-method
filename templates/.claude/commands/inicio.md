@@ -44,7 +44,7 @@ Preencher os campos `_(preencher)_` em:
 
 ## Etapa 5 — Épico inicial + readiness (destrava o /feature)
 
-`/feature` tem gate mecânico (`require-readiness-before-feature.sh`): exige `docs/readiness/EP-NNN-status.md` com `status: PRONTO`. `/inicio` já fez o trabalho de prontidão (stack, ADRs, esqueleto na Etapa 2-3), então registre-o — senão o usuário roda `/feature US-001` e bate em bloqueio sem explicação.
+`/feature` tem gate mecânico (`require-readiness-before-feature.js`): exige `docs/readiness/EP-NNN-status.md` com `status: PRONTO`. `/inicio` já fez o trabalho de prontidão (stack, ADRs, esqueleto na Etapa 2-3), então registre-o — senão o usuário roda `/feature US-001` e bate em bloqueio sem explicação.
 
 1. Criar `docs/epicos/EP-000-bootstrap.md` (use `.specify/templates/epico.md` como base) agrupando US-001..US-NNN como stories filhas. `prd:` pode ser `null` (greenfield direto). Frontmatter: `tipo: epico`, `id: EP-000`, `status: aprovado`, `owner`, `revisado-em`.
 2. Em cada `docs/stories/US-NNN-*.md`, garantir `epico: EP-000` no frontmatter (o hook resolve o readiness via esse campo).

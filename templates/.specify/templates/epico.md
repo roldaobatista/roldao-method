@@ -45,7 +45,7 @@ _(O que esse épico entrega ao cliente final, em linguagem leiga.)_
 
 ## Readiness (gate mecânico)
 
-Estado do gate `/readiness EP-NNN` — preenchido pelo comando, lido pelo hook `require-readiness-before-feature.sh`.
+Estado do gate `/readiness EP-NNN` — preenchido pelo comando, lido pelo hook `require-readiness-before-feature.js`.
 
 - **Última verificação:** _(data)_
 - **Resultado:** _(PRONTO | NAO_PRONTO)_

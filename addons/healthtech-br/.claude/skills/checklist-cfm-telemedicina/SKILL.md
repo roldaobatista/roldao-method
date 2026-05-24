@@ -1,13 +1,14 @@
 ---
 name: checklist-cfm-telemedicina
 description: Checklist obrigatorio pra plataforma de telemedicina BR conforme CFM 2.314/2022 + LGPD Art. 11. Use ANTES de subir feature de consulta online, segunda opiniao, teleconsulta urgencia. Cobre 8 pontos nao-negociaveis — sem todos, a plataforma nao e telemedicina valida no Brasil.
-status: draft
+owner: healthtech-br
 revisado-em: 2026-05-24
+status: beta
 ---
 
 # checklist-cfm-telemedicina
 
-> **Status: DRAFT** — texto inicial baseado na CFM 2.314/2022. Validar com advogado de saúde antes de usar em produção.
+> **Status: BETA** — texto inicial baseado na CFM 2.314/2022. Validar com advogado de saúde antes de usar em produção.
 
 Checklist binário pra plataforma de telemedicina. Cada item é obrigatório — falha em qualquer um = a plataforma NÃO é telemedicina válida no Brasil, mesmo que tecnicamente funcione.
 

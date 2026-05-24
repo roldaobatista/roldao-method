@@ -8,6 +8,9 @@ const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|\/test\/|\/tests\/|\/_
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs)$/;
 const COMMENT_LINE_RE = /^\s*(\/\/|#)/;
 const EXCEPTION_RE = /FISCAL-\d+-exception/;
+// ENV_RE cobre referencia a env/secret. Usado SO em FISCAL-002 (caminho/senha
+// de certificado vinda de env) — la o padrao seguro existe e o validator
+// confirma. NAO use ENV_RE em FISCAL-003 (ambiente=1) — ver F3_ENV_PURE_RE.
 const ENV_RE = /env\.|process\.env|os\.environ|getenv|ENV\[|secret|vault/i;
 
 // FISCAL-001: regerar/alterar XML autorizado
@@ -23,7 +26,12 @@ const FISCAL_002_CERT_PASS = /(cert_pass|cert_password|certificado_senha|pfx_pas
 const FISCAL_003_NUMERIC = /(tpAmb|tp_amb|ambiente|environment)\s*[=:]\s*["']?1["']?/;
 const FISCAL_003_STRING = /(tpAmb|tp_amb|ambiente|environment)\s*[=:]\s*["']?(producao|production|prod)["']?/i;
 const FISCAL_003_XML = /<\s*tpAmb\s*>\s*1\s*<\s*\/\s*tpAmb\s*>/i;
-const F3_ENV_RE = /env\.|process\.env|os\.environ|getenv|ENV\[|config\.|settings\./i;
+// F3_ENV_PURE_RE: libera APENAS quando o valor de ambiente VEM de env/config
+// sem fallback literal. Antes (F3_ENV_RE simples) liberava
+// `tpAmb = process.env.TPAMB || 1` — o fallback hardcoded de producao passava.
+// Auditoria 10-agentes 2ª passada 2026-05-24: bloquear fallback || 1/'prod'.
+const F3_ENV_PURE_RE = /(env\.|process\.env|os\.environ|getenv|ENV\[|config\.|settings\.)/i;
+const F3_FALLBACK_PROD_RE = /(\|\||\?\?)\s*["']?(1|producao|production|prod)["']?\b/i;
 const F3_COMMENT_HOMOLOG_RE = /(\/\/|#|\/\*).{0,80}(homolog|sandbox|desenvolvimento|dev|teste|test|exemplo|example|comentario|documenta)/i;
 const F3_CONST_REFERENCIAL_RE = /^\s*(const|let|var|final|static)\s+(tpAmb_PROD|TP_AMB_PROD|AMBIENTE_PRODUCAO|SEFAZ_PRODUCAO|PROD_ENV)/i;
 
@@ -57,10 +65,14 @@ const FISCAL_005_BACKSLASH = /cnpj.{0,30}=.{0,30}\/\^?\\d\{14\}\$?\//i;
       violations.push(`linha ${ln} [FISCAL-002]: senha de certificado em texto puro: ${line}`);
     }
 
-    if ((FISCAL_003_NUMERIC.test(line) || FISCAL_003_STRING.test(line) || FISCAL_003_XML.test(line)) && !F3_ENV_RE.test(line)) {
+    if (FISCAL_003_NUMERIC.test(line) || FISCAL_003_STRING.test(line) || FISCAL_003_XML.test(line)) {
+      // Libera se vem de env/config E nao tem fallback hardcoded de producao
+      const fromEnv = F3_ENV_PURE_RE.test(line);
+      const hasProdFallback = F3_FALLBACK_PROD_RE.test(line);
+      if (fromEnv && !hasProdFallback) return;
       if (F3_COMMENT_HOMOLOG_RE.test(line)) return;
       if (F3_CONST_REFERENCIAL_RE.test(line)) return;
-      violations.push(`linha ${ln} [FISCAL-003]: ambiente de producao codificado direto: ${line}`);
+      violations.push(`linha ${ln} [FISCAL-003]: ambiente de producao codificado direto (ou fallback ||1 perigoso): ${line}`);
     }
 
     if (FISCAL_005_DIGIT.test(line)) {

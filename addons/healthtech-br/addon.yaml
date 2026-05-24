@@ -52,8 +52,9 @@ non-goals:
   - "validar prontuario contra padrao internacional (HL7 FHIR fica fora)"
 
 aviso-importante: |
-  Este addon esta em STATUS DRAFT (v0.1.0) — esqueleto inicial liberado na auditoria 10-agentes
-  de 2026-05-24. Antes de usar em producao com dado real de paciente:
+  Este addon esta em STATUS BETA (v0.1.1) — primeira versao publicada na v1.0.0 do framework.
+  Algoritmo CNS (modulo 11) e checklist CFM 2.314/2022 estaveis; expansao TISS/TUSS e prontuario
+  CFM 1.821 sai no addon saude-br-completo (v1.1.0). Antes de usar em producao com dado real de paciente:
   - Validar conformidade com advogado especializado em saude/LGPD
   - Validar versoes TISS/ANS RN vigentes na data
   - Conferir CFM/ANVISA aplicavel ao caso

@@ -2,7 +2,7 @@
 description: Atalho pra mudancas triviais (cosmetica, label, regra simples). Pula investigador e auditores. So use se a mudanca cabe em ate 3 arquivos.
 argument-hint: "[descricao-curta]"
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash(npm test:*), Bash(npm run:*)
+allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash(npm test:*), Bash(npm run:*), Bash(mkdir:*), Bash(touch:*), Bash(rm:*), Bash(printf:*), Bash(tr:*), Bash(git log:*)
 model: haiku
 ---
 
@@ -69,7 +69,7 @@ Commit: T-NNN <hash>
 
 ## Por que existe
 
-Sem atalho controlado, o agente pula etapas no `/feature` "porque e simples" — e perde disciplina. `/quick-dev` e o atalho **explicito** com limite duro (3 arquivos, codificado em `validate-quick-dev-scope.sh`).
+Sem atalho controlado, o agente pula etapas no `/feature` "porque e simples" — e perde disciplina. `/quick-dev` e o atalho **explicito** com limite duro (3 arquivos, codificado em `validate-quick-dev-scope.js`).
 
 ## Importante
 

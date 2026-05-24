@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-18
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -16,10 +16,11 @@ Quality gates auditáveis. Cada checklist tem **dono claro**, **quando rodar**, 
 | [lgpd-privacy-review.md](lgpd-privacy-review.md) | `auditor-seguranca` | Antes de feature que toca dado pessoal | Sim (itens 1-3, 5, 11) |
 | [pm-readiness.md](pm-readiness.md) | `gerente-produto` ou `auditor-produto` | Antes de passar PRD pro dev | Sim (itens 1, 4, 5, 6, 8) |
 | [pix-compliance.md](pix-compliance.md) | `auditor-seguranca` ou `fiscal-br` | Antes de produção de feature Pix | Sim (itens essenciais) |
+| [obrigacao-acessoria-br.md](obrigacao-acessoria-br.md) | `fiscal-br` | Antes de feature que gera dado fiscal mensal | Sim (formato exportável pro contador) |
 | [release-readiness.md](release-readiness.md) | quem conduz `/checkpoint` | Antes de fechar/mergear release | Sim (itens essenciais) |
 | [audit-trail.md](audit-trail.md) | `auditor-qualidade` / `/auditoria` | Antes de marcar story como entregue | Sim (trilha completa) |
 
-São **8 checklists** no total.
+São **9 checklists** no total.
 
 ## Como integrar no workflow
 

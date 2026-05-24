@@ -30,7 +30,7 @@ regras:
     descricao: "TxId é chave única — handler trata duplicata sem regravar."
   - id: PIX-EXT-002
     titulo: "Webhook Pix valida assinatura HMAC na primeira linha"
-    descricao: "Toda notificação do PSP é verificada com HMAC + replay protection antes de processar. Codificado em validate-webhook-signature.sh."
+    descricao: "Toda notificação do PSP é verificada com HMAC + replay protection antes de processar. Codificado em validate-webhook-signature.js."
   - id: PIX-EXT-003
     titulo: "EndToEndId persistido em coluna indexada"
     descricao: "Pra rastreabilidade e idempotência no recebimento. Coluna única em DB."

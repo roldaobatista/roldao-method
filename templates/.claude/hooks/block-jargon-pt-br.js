@@ -58,7 +58,11 @@ const COMBINED_RE = new RegExp(JARGON_TERMS.join('|'), 'gi');
     // Auditoria 10-agentes 2026-05-24: ignora linha que esta DISCUTINDO o
     // proprio hook (tech-writer/auditores explicando o bloqueio). Sem isso,
     // qualquer resposta que cite o hook ou a regra INV-AGENT-001 se auto-bloqueia.
-    if (/block-jargon-pt-br|INV-AGENT-001|hook que bloqueia jarg|tabela de jarg|tabela de traducao|tabela de tradu/i.test(ctx)) continue;
+    // 2ª passada (mesma data): "tabela de tradu" era largo demais (casava
+    // qualquer doc LGPD/fiscal mencionando "tabela de tradução"). Estreitamos
+    // pra exigir contexto explicito de jargao/tecnico.
+    if (/block-jargon-pt-br|INV-AGENT-001|hook que bloqueia jarg|tabela de jarg/i.test(ctx)) continue;
+    if (/tabela de tradu[cç][aã]o[^.]{0,80}(jarg|tecnic|t[eé]cnic)/i.test(ctx)) continue;
     violations.push(`jargao sem traducao: '${m}' em -> ${ctx}`);
   }
 

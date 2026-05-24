@@ -1,7 +1,7 @@
 ---
 name: auditor-qualidade
 description: Auditor MACRO de qualidade. Verifica saúde GERAL do projeto: cobertura agregada, débito acumulado, duplicação cross-file, métricas globais, regras inegociáveis (TST-001..004, INV-005). Use ANTES DE RELEASE/MARCO, NUNCA para revisar um diff específico (isso é o `revisor`).
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(grep:*), Bash(rg:*), Bash(npm test:*), Bash(npm run:*), Bash(npx vitest:*), Bash(npx jest:*), Bash(pytest:*), Bash(go test:*), Bash(cargo test:*), Bash(ls:*), Bash(cat:*), Bash(wc:*), Bash(head:*), Bash(tail:*)
 model: inherit
 color: orange
 identity:

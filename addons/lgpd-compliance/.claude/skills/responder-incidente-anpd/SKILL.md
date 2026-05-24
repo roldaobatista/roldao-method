@@ -1,8 +1,8 @@
 ---
 name: responder-incidente-anpd
 description: Gera o draft de notificação à ANPD em caso de incidente de segurança que afete dado pessoal (LGPD Art. 48, Resolução CD/ANPD 15/2024). Use no T+24 a T+72h após detecção do incidente. Saída em markdown versionável para revisão jurídica antes de submeter ao portal da ANPD.
-owner: framework
-revisado-em: 2026-05-22
+owner: lgpd-compliance
+revisado-em: 2026-05-24
 status: stable
 ---
 

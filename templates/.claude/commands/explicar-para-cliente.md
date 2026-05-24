@@ -59,7 +59,7 @@ PRECISA FAZER ALGO: <"nada" / "limpar cache do navegador" / "rodar essa migratio
 - **Nunca cole stack trace inteiro**. Resuma em 1 frase do efeito.
 - **Se o output original tem mais de 1 problema**, separe: 1 bloco por problema.
 - **Se você não entendeu o output técnico**, fala: "não consegui traduzir esse texto; preciso de mais contexto". Não chuta.
-- Hook `block-jargon-pt-br.sh` audita sua saída — se vazar jargão sem tradução, ele bloqueia.
+- Hook `block-jargon-pt-br.js` audita sua saída — se vazar jargão sem tradução, ele bloqueia.
 
 ## Quando NÃO usar
 

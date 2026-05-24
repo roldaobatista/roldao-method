@@ -1,7 +1,7 @@
 ---
 name: auditor-seguranca
 description: Auditor especializado em segurança. Verifica LGPD (LGPD-001..010), secrets (SEC-001), vulnerabilidades OWASP Top 10, supply chain, permissões, criptografia. Use no /auditoria ou antes de subir mudança que toca em autenticação, dados pessoais, ou superfície externa.
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(grep:*), Bash(rg:*), Bash(npm audit:*), Bash(npm ls:*), Bash(pip list:*), Bash(pip-audit:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(find:*)
 model: inherit
 color: red
 identity:

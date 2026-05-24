@@ -51,7 +51,7 @@ const AGENT_MAP = {
   'devops-infra':     '🚀 Lucas',
   revisor:            '✅ Inês',
   'auditor-seguranca':'🛡️ Caio',
-  'auditor-qualidade':'🧪 Julia',
+  'auditor-qualidade':'🧪 Júlia',
   'auditor-produto':  '🎯 Pedro',
   'fiscal-br':        '🧾 Dona Marta',
   'tech-writer':      '📝 Camila',

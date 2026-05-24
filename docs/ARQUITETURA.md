@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-17
+revisado-em: 2026-05-24
 status: stable
 ---
 
@@ -45,8 +45,12 @@ roldao-method/                        <- raiz do framework
 │   ├── EXEMPLO-FEATURE-COMPLETA.md
 │   ├── CASOS-DE-USO-BR.md
 │   └── ARQUITETURA.md                <- este arquivo
-├── addons/                           <- expansion packs (em construcao)
-│   └── README.md
+├── addons/                           <- 7 addons verticais BR (electron-br, fiscal-br-completo,
+│   │                                    lgpd-compliance, fintech-br, esocial-completo,
+│   │                                    varejo-pdv-br, healthtech-br beta)
+│   ├── README.md
+│   ├── addon.schema.json             <- JSON Schema validador de addon.yaml
+│   └── profiles.json                 <- perfis pre-configurados (e-commerce, healthtech, etc.)
 ├── .github/workflows/validar.yml     <- CI (templates + hooks + smoke + skills python)
 ├── README.md
 ├── CONTRIBUTING.md
@@ -84,13 +88,14 @@ Não confundir com `docs/` que o framework **gera** no projeto do usuário (PRDs
 
 Vale a pena? Sim. O custo é: o CLI fica mais verboso (sem `chalk`, `commander`, `@clack/prompts`). Aceitável.
 
-## Princípio: hook bloqueador é shell, não TypeScript
+## Princípio: hook bloqueador é Node puro
 
-Todos os hooks são bash + perl + grep. Justificativa:
-- Roda em Windows Git Bash sem setup.
-- Sem `npm install` pré-requisito.
-- Lê stdin JSON sem dependência (perl é onipresente).
+Desde a v1.0 (EP-001), todos os hooks são `.js` Node puro. Justificativa:
+- Roda em Windows puro (PowerShell/CMD), sem Git Bash.
+- Sem `npm install` pré-requisito — Node 18+ já é exigência do framework.
+- Lê stdin JSON com `fs.readFileSync(0)` — sem dependência externa.
 - Performance: < 50ms por hook.
+- Histórico: o framework usou bash + perl antes da v1.0; a migração foi planejada em [ADR-012](decisions/ADR-012-hooks-node-port.md).
 
 ## Princípio: skills com algoritmo inline > skills com dependência externa
 
@@ -111,10 +116,13 @@ O `tools/validar-templates.js` valida a coerência.
 
 ```yaml
 jobs:
-  validar-templates:    # node tools/validar-templates.js
-  rodar-hooks:          # bash templates/.claude/hooks/_test-runner.sh
-  smoke-install:        # node test/install.test.js
-  validar-skills-python: # python3 <cada skill>
+  validar-templates:           # node tools/validar-templates.js
+  hooks-node-only:             # node test/hooks-node-only.test.js (matriz Win/Mac/Linux)
+  hooks-node-windows-no-bash:  # node test/hooks-node-only.test.js em PowerShell puro
+  smoke-install:               # node test/install.test.js (matriz multi-OS x multi-Node)
+  validar-skills-python:       # python3 <cada skill BR>
+  empacotamento:               # npm pack --dry-run + sanidade tarball
+  suite-completa:              # npm test (todos os 14 scripts)
 ```
 
 Se algum desses falha, **não publicar no npm**.
@@ -131,20 +139,19 @@ Compatibilidade do `update`: sempre preserva `AGENTS.md`, `CLAUDE.md`, `REGRAS-I
 ## Manutenção
 
 Antes de publicar:
-1. `node tools/validar-templates.js` — verde.
-2. `bash templates/.claude/hooks/_test-runner.sh` — 167/167.
-3. `node test/install.test.js` — verde.
-4. `npm pack --dry-run` — confirmar que `files` inclui só o necessário.
-5. Atualizar `CHANGELOG.md`.
-6. Bumpar `package.json`.
-7. `npm publish` (exige login do mantenedor).
+1. `npm test` — toda a suíte verde (14 scripts).
+2. `npm run test:adapter-drift` — confirma adapters em paridade.
+3. `npm pack --dry-run` — confirmar que `files` inclui só o necessário.
+4. Atualizar `CHANGELOG.md` com o novo bloco de versão.
+5. Bumpar `package.json`.
+6. `npm publish` (exige login do mantenedor — ver `docs/PUBLICAR-NPM.md`).
 
 ## Decisões arquiteturais registradas
 
 Como o framework não tem um ARQ.md formal próprio (ainda), aqui vão as decisões de fundo:
 
 - **Zero deps runtime** — sustentabilidade vence ergonomia.
-- **Bash + perl pros hooks** — portabilidade vence elegância.
+- **Node puro pros hooks** (a partir da v1.0) — Windows-first vence "shell pure" (ver ADR-012).
 - **Skills Python embutido** — autocontido vence reuso.
 - **PT-BR sempre** — coerência vence audiência maior.
 - **CNPJ alfanumérico no algoritmo desde dia 0** — futuro-prova vence simplicidade.

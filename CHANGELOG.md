@@ -2,6 +2,53 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.0.1] — 2026-05-24
+
+**Patch de drift e bugs funcionais identificados em 2 auditorias 10-agentes pós-release v1.0.0.** 59 achados endereçados (29 da 1ª passada + 30 da 2ª). Suite expandiu de 210 → 224 checagens; suite agents-commands-statusline foi de 151 → 165.
+
+### Corrigido
+
+- **`bin/install.js`** — gate Windows-sem-Git-Bash removido. Era resquício pré-EP-001 que bloqueava install em Win11 puro alegando proteção desativada, quando hooks já eram Node puros desde a v1.0. Doctor também substituiu check `bash`/`perl` por check Node. `--help`/`-h`/`--version`/`-v` agora reconhecidos como comando (antes filtrados como flag e nunca chegavam ao switch — rodavam `install` em vez do help).
+- **`bin/install.js` `removeAddon`** — agora reverte o `settings.json.patch` antes de apagar os arquivos do addon. Antes, após `remove`, sobravam entradas em `.claude/settings.json` apontando pra hooks que não existiam mais e o Claude Code lançava erro a cada Write/Edit. `addons/README.md` já prometia isso; agora a implementação cumpre.
+- **`/quick-dev` e `/status`** — `Task` adicionado em `allowed-tools`. Ambos invocavam `dev-senior`/`revisor`/`investigador`/`tech-writer` mas não tinham permissão — falhavam silenciosamente em runtime.
+- **`auditor-qualidade`, `auditor-seguranca`, `revisor`** — `Bash` cru substituído por allowlist específica (SEC-004).
+- **`healthtech-br`** — `status: draft` → `status: beta`, `version: 0.1.1-draft` → `0.1.1`. Alinha com enum oficial em `addon.schema.json`.
+- **`validar-templates.js`** — agora valida enum status/license + pattern SemVer/kebab pra addons.
+- **`paths-frontmatter-validator.js`** — removida linha morta com regex `\A` (não existe em JS).
+- **`validar-ie.py`** — UF sem algoritmo retorna `valido: false` em vez de `true` enganoso. Operador SEFAZ confiava no `true` e XML era rejeitado.
+- **`addons/fintech-br/.claude/skills/gerar-br-code/`** renomeado pra `gerar-br-code-typescript/` — evita colisão com a skill executável homônima do core.
+- **Hooks médios** — `no-hardcoded-env-urls` exception agora libera apenas `SEC-005-exception` (antes `process.env` puro liberava o vetor real `process.env.URL || 'https://prod'`); `fiscal-br-validator` FISCAL-003 detecta fallback `|| 1`/`|| 'prod'`; `block-jargon-pt-br` exceção `tabela de tradu` estreitada; `no-test-data-in-fixtures` regex CPF agora exige `\b\d{11}\b` (evita falso-positivo em timestamps Unix ms).
+- **`enforce-pipeline-completion.js`** — valida marker `revisor-done` (Inês) que o maestro agora cria. Hook valida as 6 etapas que a doc do `/feature` promete.
+- **15 hooks** ganharam `recordMetric` (statusline reportando bloqueios reais).
+- **Drift `.sh` → `.js`** propagado em 22 arquivos (REGRAS-INEGOCIAVEIS.md PIX-002/005, 13 commands, headless-schemas.md, templates README, fintech-br addon.yaml).
+- **Drift de contagens** — README "29 skills"→"31", "6 addons"→"7"; CONTRIBUTORS, ROADMAP, docs/addons, docs/ARQUITETURA, docs/COMO-FUNCIONA, docs/CONSULTORIA, docs/README, docs/QUICKSTART atualizados.
+- **ROADMAP** — versão atual "v0.15.0"→"v1.0.0"; releases futuras renumeradas pra v1.1.0+; `validar-chave-acesso-nfe` marcada entregue; persona fantasma "Carla" removida.
+- **`docs/FAQ.md`** — "Hooks são bash..."→"Node puros"; "24 commands"→"26"; "FISCAL-001..007"→"FISCAL-001..010"; downgrade "@0.15.0"→"@1.0.0".
+- **`docs/ARQUITETURA.md`** — frontmatter atualizado; layout inclui ADRs novos + `addon.schema.json` + `profiles.json`; "hook bloqueador é shell" reescrito pra "Node puro"; comandos CI atualizados.
+- **`docs/README.md`** — "10 ADRs"→"18 ADRs" (contagem real).
+- **README.md** — pitch "Outros frameworks orientam o agente" reformulado sem comparativo.
+- **`MAPA-VISUAL.md`** — coluna "Modelo" alinhada com PERSONAS.md e arquivos reais. "Julia"→"Júlia" também no `statusline.js`.
+- **Frontmatter de skills** — `checklist-cfm-telemedicina`/`validar-cns-cartao-sus` ganharam `owner: healthtech-br`; `validar-cns-cartao-sus`/`validar-pis-pasep` ganharam `allowed-tools`; `responder-incidente-anpd` `owner: framework`→`lgpd-compliance`.
+- **Checklist órfão** — `obrigacao-acessoria-br.md` adicionada à tabela `.specify/checklists/README.md` (8→9 checklists).
+- **Templates** — placeholders padronizados; `status: rascunho`→`draft` em prfaq/product-brief/ux-design.
+- **CI** — `shell: bash` removido do step `smoke-install`. Comprova instalador rodando em PowerShell puro no Windows runner.
+
+### Adicionado
+
+- **`templates/.claude/agents/PERSONAS.md`** — mapa canônico nome próprio ↔ slug (Sofia=`gerente-produto`, Bruno=`dev-senior`, Inês=`revisor`, etc.).
+- **`reverseAddonSettingsPatch(name)`** em `bin/install.js` — simétrica do `applyAddonSettingsPatch`.
+- **4 novos `settings.json.patch`** em electron-br/esocial-completo/fiscal-br-completo/varejo-pdv-br — hooks do addon agora ativam de fato após `npx roldao-method add <addon>`.
+- **`addons/profiles.json`** — perfis `Healthtech/telemedicina (beta)` e `Fintech + Fiscal (e-commerce BR)`.
+- **`test/agents-commands-statusline.test.js`** — 14 checagens novas: parsing de `transcript_path` com % de contexto; frontmatter de output-styles + rules. Total: 151 → 165.
+- **`test/skills.test.js`** — fixtures de boleto bancário e arrecadação programaticamente válidas; recálculo de CRC16-CCITT do BR-Code em JS independente; verificação de TLV.
+- **`test/hooks-node-only.test.js`** — 3 checagens em `no-hardcoded-env-urls` (fallback bloqueia / env puro libera / SEC-005-exception libera).
+
+### Preservado
+
+- Funcionalidade dos hooks existentes — todos os bloqueios anteriores continuam; exceções foram apertadas, não afrouxadas.
+- Compatibilidade com projetos rodando v1.0.0 — nada removido. Migração: `npx roldao-method update`.
+- Zero deps runtime. Suite 224 OK / 0 FAIL local.
+
 ## [1.0.0] — 2026-05-24
 
 **Release estável da v1.0.** Fecha o ciclo iniciado nas rc1/rc2 — hooks 100% Node + auditoria 10-agentes aplicada + 3 ADRs novos formalizando débitos arquiteturais.

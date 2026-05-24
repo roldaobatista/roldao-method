@@ -111,6 +111,58 @@ if (fs.existsSync(STATUSLINE)) {
   check('statusline: contém 📍 versão', /📍/.test(r.stdout || ''));
   check('statusline: contém 🤖 modelo', /🤖/.test(r.stdout || ''));
   check('statusline: contém Sonnet 4.6', /Sonnet 4\.6/.test(r.stdout || ''));
+
+  // Smoke do parsing de transcript_path com porcentagem de contexto (commit e139c06).
+  // Cria transcript JSONL fake com usage e confirma que statusline imprime "📊 N%".
+  const tmpTranscript = path.join(require('os').tmpdir(), `roldao-test-transcript-${Date.now()}.jsonl`);
+  const linhaUsage = JSON.stringify({
+    type: 'assistant',
+    message: { usage: { input_tokens: 50000, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 } },
+  });
+  fs.writeFileSync(tmpTranscript, linhaUsage + '\n');
+  const r2 = spawnSync('node', [STATUSLINE], {
+    input: JSON.stringify({ model: { display_name: 'Sonnet 4.6', id: 'claude-sonnet-4-6' }, transcript_path: tmpTranscript }),
+    encoding: 'utf8',
+    timeout: 5000,
+  });
+  check('statusline: lê transcript_path e calcula % de contexto', /📊\s*\d+%/.test(r2.stdout || ''),
+        `stdout=${(r2.stdout || '').slice(0, 200)}`);
+  try { fs.unlinkSync(tmpTranscript); } catch { /* skip */ }
+}
+
+// [output-styles] — smoke do frontmatter
+console.log('\n[output-styles — frontmatter]');
+const OUTPUT_STYLES_DIR = path.join(ROOT, 'templates', '.claude', 'output-styles');
+if (fs.existsSync(OUTPUT_STYLES_DIR)) {
+  const styles = fs.readdirSync(OUTPUT_STYLES_DIR).filter((f) => f.endsWith('.md'));
+  check('output-styles: ≥ 3 estilos (pt-br-conciso/dpo-lgpd/fiscal-br)', styles.length >= 3, `achou ${styles.length}`);
+  for (const file of styles) {
+    const fm = readFrontmatter(path.join(OUTPUT_STYLES_DIR, file));
+    check(`output-style ${file}: tem frontmatter`, !!fm);
+    if (fm) {
+      check(`output-style ${file}: name presente`, !!fm.name);
+      check(`output-style ${file}: description presente`, !!fm.description);
+    }
+  }
+}
+
+// [rules] — smoke do frontmatter (paths: opcional, mas owner/revisado-em/status quando declarado)
+console.log('\n[rules — frontmatter]');
+const RULES_DIR = path.join(ROOT, 'templates', '.claude', 'rules');
+if (fs.existsSync(RULES_DIR)) {
+  const rules = fs.readdirSync(RULES_DIR).filter((f) => f.endsWith('.md'));
+  check('rules: ≥ 1 regra', rules.length >= 1, `achou ${rules.length}`);
+  for (const file of rules) {
+    const fm = readFrontmatter(path.join(RULES_DIR, file));
+    // Frontmatter em rules é opcional, mas se declarar deve estar bem formado
+    if (fm) {
+      check(`rule ${file}: frontmatter coerente (se declarado)`,
+            !!fm.owner || !!fm.description || !!fm.paths,
+            `fm=${JSON.stringify(fm).slice(0, 100)}`);
+    } else {
+      check(`rule ${file}: arquivo não-vazio`, fs.statSync(path.join(RULES_DIR, file)).size > 100);
+    }
+  }
 }
 
 console.log('');

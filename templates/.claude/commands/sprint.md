@@ -74,7 +74,7 @@ status: planejada
 - Recomende: rodar `/feature` na primeira story.
 - Se o usuário discordar do sequenciamento, ele reverte (INV-AGENT-006).
 
-> **Sequenciamento mecânico:** o hook `validate-story-dependencies.sh` valida o campo `depende-de:` no frontmatter da story-alvo. Se US-002 declara `depende-de: [US-001]` e US-001 não está com `status: entregue`, o hook recusa Edit/Write em código quando `/feature US-002` está ativo. Não é convenção — é gate.
+> **Sequenciamento mecânico:** o hook `validate-story-dependencies.js` valida o campo `depende-de:` no frontmatter da story-alvo. Se US-002 declara `depende-de: [US-001]` e US-001 não está com `status: entregue`, o hook recusa Edit/Write em código quando `/feature US-002` está ativo. Não é convenção — é gate.
 
 ## Saída final
 

@@ -160,8 +160,14 @@ assertExit('fixtures: example.com libera', 'no-test-data-in-fixtures',
 // no-hardcoded-env-urls
 assertExit('urls: SEFAZ hardcoded bloqueia', 'no-hardcoded-env-urls',
   JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch("https://nfe.fazenda.sp.gov.br/x");' } }), 2);
-assertExit('urls: com process.env libera', 'no-hardcoded-env-urls',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch(process.env.SEFAZ_URL || "https://nfe.fazenda.sp.gov.br/x");' } }), 0);
+// Auditoria 10-agentes 2ª passada 2026-05-24: fallback `|| 'URL'` agora BLOQUEIA
+// (era o vetor real de SEC-005 violado). Apenas SEC-005-exception libera.
+assertExit('urls: fallback || URL bloqueia (vetor SEC-005 real)', 'no-hardcoded-env-urls',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch(process.env.SEFAZ_URL || "https://nfe.fazenda.sp.gov.br/x");' } }), 2);
+assertExit('urls: process.env puro (sem fallback hardcoded) libera', 'no-hardcoded-env-urls',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch(process.env.SEFAZ_URL);' } }), 0);
+assertExit('urls: SEC-005-exception libera', 'no-hardcoded-env-urls',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'const URL = "https://nfe.fazenda.sp.gov.br/x"; // SEC-005-exception: URL canonica documentada na RFC interna' } }), 0);
 
 // fiscal-br-validator
 assertExit('fiscal: tpAmb=1 hardcoded bloqueia', 'fiscal-br-validator',

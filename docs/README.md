@@ -33,11 +33,11 @@ status: stable
 
 ## 🏛️ Decisões arquiteturais
 
-- [Catálogo de ADRs](decisions/README.md) — 10 ADRs fundadores (zero deps, hooks bash, override sem fork, spec-driven, dogfooding, multi-adapter, addons, skills BR, lifecycle hooks, templates vs .specify).
+- [Catálogo de ADRs](decisions/README.md) — 18 ADRs (zero deps, port hooks Node, override sem fork, spec-driven, dogfooding, multi-adapter, addons, skills BR, lifecycle hooks, templates vs .specify, port statusline Node, contrato `_lib.js`, addons importam lib do core, e mais).
 
 ## 🆘 Quando algo dá errado
 
-- [TROUBLESHOOTING](TROUBLESHOOTING.md) — hook bloqueou indevidamente, Windows sem Git Bash, settings corrompido, downgrade.
+- [TROUBLESHOOTING](TROUBLESHOOTING.md) — hook bloqueou indevidamente, settings corrompido, downgrade.
 - [FAQ](FAQ.md) — perguntas frequentes (instalar, criar agente, voltar versão).
 - [REGRESSIONS](REGRESSIONS.md) — falhas conhecidas + workaround.
 - [Runbook LGPD — incidente 72h](runbooks/incident-response-lgpd.md) — passo-a-passo operacional de resposta a vazamento de dado pessoal (LGPD-006/ANPD).

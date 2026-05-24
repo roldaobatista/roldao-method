@@ -14,9 +14,9 @@ owner: framework
 
 | Hook | O que exige | Onde |
 |---|---|---|
-| `paths-frontmatter-validator.sh` | Todo `.md` em `docs/` começa com `---` e tem `owner`, `revisado-em`, `status` | qualquer `docs/**/*.md` |
-| `validate-story-approvals.sh` | Story só vira `status: entregue` com bloco `aprovacoes:` completo | `docs/stories/US-*.md` |
-| `validate-story-dependencies.sh` | `depende-de:` aponta para stories já entregues | `docs/stories/US-*.md` |
+| `paths-frontmatter-validator.js` | Todo `.md` em `docs/` começa com `---` e tem `owner`, `revisado-em`, `status` | qualquer `docs/**/*.md` |
+| `validate-story-approvals.js` | Story só vira `status: entregue` com bloco `aprovacoes:` completo | `docs/stories/US-*.md` |
+| `validate-story-dependencies.js` | `depende-de:` aponta para stories já entregues | `docs/stories/US-*.md` |
 
 `tools/validar-templates.js` valida os **templates do framework** (frontmatter presente, contagens, versão, doc-vs-código) — ele **não** lê `docs/` do projeto-cliente. A validação dos artefatos do cliente é a dos hooks acima, em tempo de escrita.
 

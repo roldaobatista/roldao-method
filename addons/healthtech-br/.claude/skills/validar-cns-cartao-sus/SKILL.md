@@ -1,8 +1,10 @@
 ---
 name: validar-cns-cartao-sus
 description: Valida CNS (Cartao Nacional de Saude) brasileiro — 15 digitos com algoritmo de modulo 11. CNS definitivo comeca com 1 ou 2 (primeiros 11 digitos = PIS/PASEP). CNS provisorio comeca com 7, 8 ou 9 (soma ponderada total multiplo de 11). Use ao receber CNS em cadastro de paciente, importacao do RH, integracao com CADSUS, faturamento SUS.
-status: stable
+allowed-tools: Bash(python3:*), Bash(python:*), Bash(py:*)
+owner: healthtech-br
 revisado-em: 2026-05-24
+status: stable
 ---
 
 # validar-cns-cartao-sus
@@ -28,6 +30,8 @@ python3 .claude/skills/validar-cns-cartao-sus/scripts/validar-cns.py "8000000000
 echo "100000000000007" | python3 .claude/skills/validar-cns-cartao-sus/scripts/validar-cns.py -
 # le do stdin
 ```
+
+> **Windows:** `python` em vez de `python3` (ou `py` se usar Python Launcher).
 
 Exit code: 0 se válido, 1 se inválido, 2 se erro de input (faltou argumento).
 
