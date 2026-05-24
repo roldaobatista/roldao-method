@@ -118,6 +118,11 @@
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-snapshot-restore.js\"",
             "timeout": 3
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/suggest-addon-on-keywords.js\"",
+            "timeout": 8
           }
         ]
       }
@@ -185,6 +190,11 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/paths-frontmatter-validator.js\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-frontmatter.js\"",
             "timeout": 5
           },
           {
