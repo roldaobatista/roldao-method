@@ -202,51 +202,6 @@ function hookPrefix(level, name) {
 }
 
 // ---------------------------------------------------------------------------
-// failClosedMessage — formata mensagem de fail-closed PT-BR leiga (T-318/K6).
-// Usado por hooks que precisam abortar por erro interno (parse falhou,
-// ferramenta externa quebrou, ambiente suspeito) sem expor stack trace
-// ao usuario nao-programador.
-//
-// Uso (tipico no catch final):
-//   .catch((err) => {
-//     process.stderr.write(failClosedMessage('meu-hook', err));
-//     process.exit(2);
-//   });
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// recordApproval — registra evento de aprovacao em metrics.jsonl (T-511 / J11).
-// Diferencia do recordMetric('block', ...) — esse e POSITIVO (aprovou algo).
-// Permite auditoria forense ("quem aprovou US-042 e em que diff?").
-//
-// Uso:
-//   recordApproval('revisor', 'US-111', '<audit_sha>', 'aprovado');
-//   recordApproval('auditor-seguranca', 'US-111', '<audit_sha>', 'bloqueado',
-//                  'secret detectado em src/x.js');
-// ---------------------------------------------------------------------------
-function recordApproval(agente, refStory, auditSha, status, motivo) {
-  recordMetric('approval', agente, JSON.stringify({
-    story: refStory || 'US-?',
-    audit_sha: auditSha || '',
-    status: status || 'aprovado',
-    motivo: motivo || '',
-  }));
-}
-
-function failClosedMessage(hookName, err) {
-  const errMsg = err && err.message ? err.message : String(err || 'erro nao especificado');
-  return [
-    `${hookPrefix('block', hookName)} erro interno ao validar a operacao.`,
-    `Efeito: a operacao foi RECUSADA por seguranca (fail-closed).`,
-    `Causa: o sistema de protecao do framework nao conseguiu rodar normalmente.`,
-    `Proximo passo:`,
-    `  - Tentar de novo (pode ser falha temporaria de leitura/escrita).`,
-    `  - Se persistir, peca pro agente Claude diagnosticar com 'npx roldao-method doctor'.`,
-    `  - Pra desenvolvedor: detalhe tecnico → ${errMsg}`,
-    ``,
-  ].join('\n');
-}
-
-// ---------------------------------------------------------------------------
 // recordMetric — appenda 1 evento em .claude/.runtime/metrics.jsonl.
 // Formato JSONL: {"ts","kind","label","reason"}.
 // Best-effort: silencia erros (disco cheio, permissao).
@@ -292,6 +247,88 @@ async function readStdinJson() {
   });
 }
 
+// ---------------------------------------------------------------------------
+// parseFrontmatter — extrai bloco YAML simples (--- ... ---) do topo de um
+// markdown e devolve objeto { key: value }. Aceita apenas linhas no formato
+// `chave: valor` (1 nivel, sem arrays/objetos aninhados). Comentarios `#` sao
+// ignorados. Strip BOM + linhas em branco iniciais antes do primeiro `---`.
+// Retorna null se nao houver frontmatter ou se for malformado (sem fechamento).
+//
+// Reuso central — usado por paths-frontmatter-validator, validate-story-approvals,
+// validate-story-dependencies e demais hooks que leem cabecalho YAML.
+// ---------------------------------------------------------------------------
+function parseFrontmatter(text) {
+  if (!text || typeof text !== 'string') return null;
+  const cleaned = text.replace(/^﻿/, '');
+  const lines = cleaned.split(/\r?\n/);
+  let i = 0;
+  while (i < lines.length && lines[i].trim() === '') i++;
+  if (lines[i] !== '---') return null;
+  i++;
+  const fields = {};
+  while (i < lines.length && lines[i] !== '---') {
+    const line = lines[i];
+    if (line.trim() === '' || line.trim().startsWith('#')) { i++; continue; }
+    const m = line.match(/^([A-Za-z_][\w-]*)\s*:\s*(.*)$/);
+    if (m) {
+      const key = m[1];
+      let value = m[2].trim();
+      if ((value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+      fields[key] = value;
+    }
+    i++;
+  }
+  if (i >= lines.length) return null;
+  return fields;
+}
+
+// ---------------------------------------------------------------------------
+// failClosedMessage — formata mensagem PT-BR leiga quando o hook precisa
+// abortar por erro interno (parse falhou, ferramenta externa quebrou, ambiente
+// suspeito) sem expor stack trace ao usuario nao-programador.
+//
+// Uso (tipico no catch final):
+//   .catch((err) => {
+//     process.stderr.write(failClosedMessage('meu-hook', err));
+//     process.exit(2);
+//   });
+// ---------------------------------------------------------------------------
+function failClosedMessage(hookName, err) {
+  const errMsg = err && err.message ? err.message : String(err || 'erro nao especificado');
+  return [
+    `${hookPrefix('block', hookName)} erro interno ao validar a operacao.`,
+    `Efeito: a operacao foi RECUSADA por seguranca (fail-closed).`,
+    `Causa: o sistema de protecao do framework nao conseguiu rodar normalmente.`,
+    `Proximo passo:`,
+    `  - Tentar de novo (pode ser falha temporaria de leitura/escrita).`,
+    `  - Se persistir, peca pro agente Claude diagnosticar com 'npx roldao-method doctor'.`,
+    `  - Pra desenvolvedor: detalhe tecnico -> ${errMsg}`,
+    ``,
+  ].join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// recordApproval — registra evento POSITIVO de aprovacao em metrics.jsonl.
+// Diferencia do recordMetric('block', ...) que e negativo (recusou algo).
+// Permite auditoria forense: "quem aprovou US-042 e em que diff?"
+//
+// Uso:
+//   recordApproval('revisor', 'US-111', '<audit_sha>', 'aprovado');
+//   recordApproval('auditor-seguranca', 'US-111', '<audit_sha>', 'bloqueado',
+//                  'secret detectado em src/x.js');
+// ---------------------------------------------------------------------------
+function recordApproval(agente, refStory, auditSha, status, motivo) {
+  recordMetric('approval', agente, JSON.stringify({
+    story: refStory || 'US-?',
+    audit_sha: auditSha || '',
+    status: status || 'aprovado',
+    motivo: motivo || '',
+  }));
+}
+
 module.exports = {
   sanitizeProjdir,
   sanitizeSessionHash,
@@ -302,8 +339,9 @@ module.exports = {
   posixToJsRegex,
   hookBlockHeader,
   hookPrefix,
-  failClosedMessage,
-  recordApproval,
   recordMetric,
   readStdinJson,
+  parseFrontmatter,
+  failClosedMessage,
+  recordApproval,
 };
