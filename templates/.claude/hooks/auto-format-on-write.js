@@ -14,7 +14,16 @@ function hasCommand(cmd) {
 }
 
 function run(cmd, args) {
-  try { spawnSync(cmd, args, { stdio: 'ignore', timeout: 15000 }); } catch { /* best-effort */ }
+  // shell:false explicito + sem env herdado evita injection se algum dia o
+  // file vier com metachar shell; timeout protege formatter travado.
+  try {
+    spawnSync(cmd, args, {
+      stdio: 'ignore',
+      timeout: 15000,
+      shell: false,
+      windowsHide: true,
+    });
+  } catch { /* best-effort */ }
 }
 
 (async () => {
@@ -24,8 +33,9 @@ function run(cmd, args) {
   const input = await readStdinJson();
   const file = input?.tool_input?.file_path || '';
   // Guard contra path interpretado como flag (ex: "-rf", "--config=evil")
-  // pelas ferramentas chamadas adiante (prettier/eslint/ruff/black/gofmt/etc).
-  if (!file || file.startsWith('-') || !fs.existsSync(file)) process.exit(0);
+  // pelas ferramentas chamadas adiante (prettier/eslint/ruff/black/gofmt/etc),
+  // contra null-byte injection (corta path em libc) e contra path nao-string.
+  if (typeof file !== 'string' || !file || file.startsWith('-') || file.includes('\0') || !fs.existsSync(file)) process.exit(0);
 
   const ext = (file.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
   const localBin = (b) => path.join(projdir, 'node_modules', '.bin', b);

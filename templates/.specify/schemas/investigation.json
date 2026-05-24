@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/roldaobatista/roldao-method/blob/main/.specify/schemas/investigation.json",
+  "title": "investigation",
+  "description": "Saída do agente investigador (Detetive). Lida pelo dev-senior (Bruno) e revisor (Inês). Contrato entre etapas do pipeline /feature e /bug.",
+  "type": "object",
+  "required": [
+    "id_referencia",
+    "data",
+    "causa_raiz",
+    "arquivos_relevantes"
+  ],
+  "properties": {
+    "id_referencia": {
+      "type": "string",
+      "description": "ID rastreável da story ou bug (ex: US-042, BUG-2026-05-22-pdf-vazio)",
+      "pattern": "^(US|BUG|EP|T)-[A-Z0-9-]+$"
+    },
+    "data": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Quando a investigação foi feita (ISO 8601 UTC)"
+    },
+    "causa_raiz": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Frase clara explicando a causa raiz, não o sintoma"
+    },
+    "arquivo_correcao": {
+      "type": "string",
+      "description": "Caminho do arquivo onde a correção deve ser aplicada (ponto raiz, não sintoma)"
+    },
+    "linha_aproximada": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Linha aproximada no arquivo_correcao"
+    },
+    "arquivos_relevantes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["caminho", "papel"],
+        "properties": {
+          "caminho": { "type": "string" },
+          "papel": {
+            "type": "string",
+            "enum": ["origem", "persistencia", "leitura", "render", "validacao", "outro"]
+          },
+          "observacao": { "type": "string" }
+        }
+      },
+      "minItems": 1,
+      "description": "Arquivos tocados pelo fluxo investigado, com papel de cada um"
+    },
+    "estado_atual": {
+      "type": "object",
+      "description": "Snapshot do estado real (banco, log, payload) no momento da investigação",
+      "properties": {
+        "banco": { "type": "string", "description": "Query + resultado relevante" },
+        "log": { "type": "string", "description": "Trecho de log relevante" },
+        "payload": { "type": "string", "description": "Payload IPC/HTTP relevante" }
+      }
+    },
+    "pendencias": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pergunta", "impacto"],
+        "properties": {
+          "pergunta": { "type": "string" },
+          "impacto": {
+            "type": "string",
+            "enum": ["bloqueia", "afeta-escopo", "decisao-produto"]
+          }
+        }
+      },
+      "description": "Ambiguidades que precisam de decisão antes de implementar"
+    },
+    "nao_fazer": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Lista de anti-padrões específicos do contexto (ex: 'não mudar o template — flag está errada no banco')"
+    },
+    "regra_zero_ok": {
+      "type": "boolean",
+      "description": "Confirmação de que o investigador leu estado real antes de propor solução (REGRA #0)"
+    }
+  },
+  "additionalProperties": false
+}

@@ -23,20 +23,25 @@ provoca:
   templates: []
 
 regras:
-  # IDs prefixados PIX-EXT-* pra nao colidir com PIX-001..005 do core
-  # (que tratam de DICT, validacao de chave e TxId — semantica diferente).
+  # PIX-EXT-* sao IMPLEMENTACAO OPERACIONAL das regras PIX-001..005 do core
+  # (REGRAS-INEGOCIAVEIS.md). Cite o ID do core em commits/ADR; o ID -EXT
+  # serve so para localizar o hook/skill que aplica a regra neste addon.
   - id: PIX-EXT-001
-    titulo: "Idempotência por TxId em criação de cobrança"
-    descricao: "TxId é chave única — handler trata duplicata sem regravar."
+    aplica: PIX-001
+    titulo: "Implementacao da idempotencia por TxId"
+    descricao: "Concretiza PIX-001 do core: TxId deterministico + Idempotency-Key + lock + UNIQUE. Skill: validar-webhook-pix."
   - id: PIX-EXT-002
-    titulo: "Webhook Pix valida assinatura HMAC na primeira linha"
-    descricao: "Toda notificação do PSP é verificada com HMAC + replay protection antes de processar. Codificado em validate-webhook-signature.js."
+    aplica: PIX-002
+    titulo: "Validacao HMAC do webhook na primeira linha"
+    descricao: "Concretiza PIX-002 do core via hook validate-webhook-signature.js — bloqueia handler que pula validacao HMAC."
   - id: PIX-EXT-003
-    titulo: "EndToEndId persistido em coluna indexada"
-    descricao: "Pra rastreabilidade e idempotência no recebimento. Coluna única em DB."
+    aplica: PIX-003
+    titulo: "EndToEndId em coluna indexada"
+    descricao: "Concretiza PIX-003 do core. Agente pix-arch desenha schema com indice UNIQUE."
   - id: PIX-EXT-004
+    aplica: novo  # nao tem equivalente no core — e novidade Open Finance
     titulo: "Open Finance via FAPI + mTLS"
-    descricao: "OAuth 2.0 + FAPI + DCR + mTLS. Sem atalho. Skill estruturar-open-finance."
+    descricao: "OAuth 2.0 + FAPI + DCR + mTLS. Skill estruturar-open-finance. Nao colide com PIX-001..005 do core."
 
 requisitos:
   - "PSP integrado (banco, BaaS, ou direto Bacen com homologação)"

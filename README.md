@@ -1,6 +1,6 @@
 # ROLDAO-METHOD
 
-> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores em Node puro e 31 skills BR (LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033, telemedicina). Roda no Claude Code e em 8 outras IDEs.
+> Framework agentic **em português brasileiro**: 15 especialistas, 26 hooks bloqueadores em Node puro e **13 skills BR no core (31 com os 7 addons)** — LGPD, NF-e, Pix, eSocial, Reforma Tributária 2026-2033, telemedicina. Roda no Claude Code e em 8 outras IDEs.
 
 [![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)

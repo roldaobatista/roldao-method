@@ -16,7 +16,7 @@ revisado-em: AAAA-MM-DD
 ## Formato
 
 ```
-## AAAA-MM-DD — <título curto>
+## AAAA-MM-DD — _(título curto)_
 **Decidi:** _(o quê)_
 **Por quê:** _(razão em 1-2 linhas)_
 **Alternativa descartada:** _(o que NÃO escolhi e por quê)_

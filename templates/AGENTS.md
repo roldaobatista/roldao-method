@@ -3,6 +3,8 @@
 > **Para agentes de IA (Claude Code, Cursor, ChatGPT, Codex CLI):** este é o documento de referência primária. O `CLAUDE.md` é apenas adendo do harness Claude Code e importa este via `@AGENTS.md`.
 >
 > **Princípio:** documento é estado compartilhado. Agente que decide sem doc inventa diferente toda vez.
+>
+> **Este arquivo é um TEMPLATE.** Quando você roda `npx roldao-method install`, ele vira o `AGENTS.md` da raiz do seu projeto. As seções `§1 Identidade`, `§2 Stack` e `§6 Comandos do projeto` chegam com `_(preencher)_` **de propósito** — você preenche conforme decidir cada coisa. No próprio repo do framework esses placeholders ficam visíveis porque o `AGENTS.md` da raiz é regenerado a cada install (ADR-005); a identidade do framework está em `README.md` + `docs/`, não aqui.
 
 ---
 

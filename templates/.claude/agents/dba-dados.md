@@ -31,6 +31,8 @@ menu:
     descricao: Modelagem alinhada com LGPD (minimização, retenção, pseudonimização, criptografia em repouso)
 skills:
   - validar-cpf-cnpj
+  - validar-cep
+  - validar-codigo-municipio-ibge
 ---
 
 # DBA / Especialista de Dados — Helena 🗄️

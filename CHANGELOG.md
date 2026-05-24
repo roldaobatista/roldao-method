@@ -2,6 +2,42 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.0.2] — 2026-05-24
+
+**Patch da 3ª auditoria 10-agentes (~31 achados).** 8 ALTOS + 11 MÉDIOS + 12 BAIXOS endereçados em sequência. Suite expandiu de 224 → 233 checagens (hooks-node-only 61 → 70). Nada quebra retrocompatibilidade — todos os fixes são aditivos ou correção de drift interno.
+
+### Adicionado
+
+- **`tools/sincronizar-dogfood.js`** — novo gate que detecta drift entre `templates/` (fonte) e o dogfood em `.claude/`, `.specify/`. Ligado ao `npm test` via `test:dogfood-sync`. `--write` regenera, `--quiet` para CI. Drift na própria 3ª auditoria estava em **16 hooks + 6 agents + 12 commands + 7 specify templates** — todos espelhados a partir do template (mais novo). De agora em diante, drift quebra PR no `npm test`.
+- **`addons/lgpd-compliance`** ganhou seu primeiro hook: `require-ripd-for-automated-decision.js` (soft warning quando código cita score de crédito, perfilhamento, biometria, reconhecimento facial, dado de criança/adolescente etc. sem RIPD ou ADR de decisão automatizada — LGPD-008/010).
+- **`REGRAS-INEGOCIAVEIS.md`** ganhou seção "Mapa de cobertura" listando para cada um dos 46 IDs onde a regra é aplicada (hook, agente, addon, doutrina). Resolve a dúvida "essa regra tem hook ou é só doutrinária?" sem precisar grepar o repo.
+- **3 exemplos preenchidos** em `templates/docs/`: `EXEMPLO-PRD-001-checkout-pix.md`, `EXEMPLO-US-001-gerar-qr-pix-checkout.md`, `EXEMPLO-ADR-001-postgres-vs-sqlite.md`. Cliente que rodar `install` recebe walkthrough visual da estrutura.
+- **Mascaramento LGPD** ganhou seção dedicada em 4 skills (`validar-cpf-cnpj`, `validar-ie`, `validar-chave-acesso-nfe`, `validar-pix`) — tabela de máscara + helper Python pronto pra copiar. PIX-004 / LGPD-004 deixam de ser regra solta sem implementação clara.
+- **Exemplo de saída real** em `gerar-br-code/SKILL.md` — string EMV completa com CRC, evita o bug clássico "copiar EMV e mudar a chave sem regerar CRC".
+- **Skills declaradas** em 3 agentes que naturalmente as usariam: `dev-senior` (+validar-boleto, +traduzir-jargao), `dba-dados` (+validar-cep, +validar-codigo-municipio-ibge), `fiscal-br` (+validar-chave-acesso-nfe, +validar-ie, +validar-codigo-municipio-ibge).
+- **`templates/.specify/schemas/investigation.json`** copiado pro payload distribuído (estava só na raiz; `/feature` quebrava em consumidor).
+- **`templates/.claude/skills/README.md`** copiado pro payload (catálogo das skills core).
+- **9 novos testes positivo+negativo** em `hooks-node-only.test.js` para hooks que só tinham smoke: `block-jargon-pt-br`, `block-confirmation-questions`, `lgpd-base-legal-reminder`, `mcp-validator`, `validate-test-pyramid`.
+
+### Corrigido
+
+- **Conflito de IDs PIX-001..005** — `validar-pix/SKILL.md` redefinia PIX-002..005 com semântica diferente de `REGRAS-INEGOCIAVEIS.md` (MED, DICT, Pix Automático, limites). Agora cita os IDs canônicos (assinatura webhook, EndToEndId indexado, chave é dado pessoal, URL via env); MED/DICT/Automático/limites movidos pra seção "Outros pontos operacionais". Quebra de INV-004 resolvida.
+- **Colisão PIX-EXT-* (addon fintech-br) vs PIX-* (core)** — `addon.yaml` agora declara `aplica: PIX-001` em cada PIX-EXT-*, deixando claro que addon é IMPLEMENTAÇÃO operacional do core, não regra paralela.
+- **`bin/install.js` cópia parcial sem aviso** — `copyFileSync` (linhas 241, 295) e walk de diretório (`mkdir`/`readdir`/`lstat`) agora têm try/catch. Disco cheio, EACCES, EBUSY (NTFS travado pelo antivírus) viram entrada em `counters.erros` e o instalador segue, em vez de crashar no meio deixando instalação parcial.
+- **`bin/install.js` `settings.json` corrompido em Ctrl+C** — `applyAddonSettingsPatch` e `reverseAddonSettingsPatch` agora usam atomic write (`writeFileSync(.tmp) + renameSync`). Antes, processo morto entre write parcial e flush quebrava o `settings.json` do projeto e o Claude Code parava de funcionar.
+- **`auto-format-on-write.js`** — `spawnSync` com `shell: false` explícito, `windowsHide: true`, e guard adicional contra null-byte injection (`\0` no path corta string em libc) e contra `tool_input.file_path` que não seja string. Defense-in-depth.
+- **4 links `http://` em portais governamentais** trocados por `https://`: `planalto.gov.br/...LGPD` (em kb-lgpd + addon LGPD), `nfe.fazenda.gov.br` (em adr-contingencia-fiscal), `sped.rfb.gov.br` (em checklist obrigacao-acessoria-br).
+- **README linha 3** — "31 skills BR" induzia a achar que vinha tudo no install padrão. Agora diz "13 skills BR no core (31 com os 7 addons)".
+- **`templates/AGENTS.md`** ganhou nota explicativa no topo: §1/§2/§6 ficam com `_(preencher)_` de propósito porque é template distribuído (ADR-005 dogfood — o `AGENTS.md` da raiz do framework é regenerado a cada install, identidade do framework está no README).
+- **`templates/.claude/agents/fiscal-br.md`** — `description` no frontmatter ganhou acentos PT-BR corretos.
+- **`addons/healthtech-br/README.md`** — frontmatter `status: draft` + "DRAFT v0.1.0" alinhados ao `addon.yaml` (`status: beta`, `v0.1.1`).
+- **`bin/install.js` cabeçalho de comando** menciona `healthtech-br beta` na lista de addons + aponta `search` como fonte dinâmica.
+- **Placeholders `<...>` inconsistentes** em 4 templates spec (`adr-contingencia-fiscal.md`, `decision-log.md`, `headless-schemas.md`) trocados por `_(...)_` — segue a convenção declarada em `templates/.specify/templates/README.md`.
+
+### Preservado
+
+- Zero deps runtime. Zero quebra de retrocompatibilidade. Cliente que rodar `npx roldao-method update` em v1.0.1 sobe pra v1.0.2 sem ajuste em arquivo do projeto.
+
 ## [1.0.1] — 2026-05-24
 
 **Patch de drift e bugs funcionais identificados em 2 auditorias 10-agentes pós-release v1.0.0.** 59 achados endereçados (29 da 1ª passada + 30 da 2ª). Suite expandiu de 210 → 224 checagens; suite agents-commands-statusline foi de 151 → 165.

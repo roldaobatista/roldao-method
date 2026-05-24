@@ -176,6 +176,63 @@ Tudo que o agente PODE fazer (tem a ferramenta, não é destrutivo, não custa d
 
 ---
 
+## Mapa de cobertura (ID → onde é aplicado)
+
+Nem toda regra tem hook bloqueador: algumas são **doutrinárias** (decisão de produto/legal), outras **vivem em addon** (operacional quando o projeto integrar), outras **rodam por workflow** (não há toque de ferramenta pra interceptar). Esta tabela deixa claro onde checar:
+
+| ID | Codificado em hook? | Onde aplicar |
+|---|---|---|
+| INV-001 | não — doutrinário | Revisão de PR; agente `revisor` |
+| INV-002 | parcial | `paths-frontmatter-validator.js`; `/feature` exige spec antes de dev |
+| INV-003 | não — doutrinário | Templates de PRD/ADR pedem "Non-goals"; `auditor-produto` reprova spec sem |
+| INV-004 | sim | `commit-message-validator.js`, `block-todo-without-issue.js`, `paths-frontmatter-validator.js` |
+| INV-005 | sim | `context-budget.js` (warning) |
+| INV-006 | sim | `require-investigador-before-fix.js`, `regra-zero-reminder.js` |
+| SEC-001 | sim | `secrets-scanner.js`, `block-secrets-in-commit-message.js` |
+| SEC-002 | sim | `block-destructive.js` |
+| SEC-003 | não — doutrinário | `auditor-seguranca` cobre em revisão |
+| SEC-004 | não — doutrinário | `auditor-seguranca` cobre em revisão |
+| SEC-005 | sim | `no-hardcoded-env-urls.js` |
+| TST-001 | sim | `anti-mascaramento.js`, `validar-self-masking.js` (lint do próprio repo) |
+| TST-002 | não — doutrinário | `auditor-qualidade` em release |
+| TST-003 | sim | `block-mock-in-integration.js` |
+| TST-004 | sim | `no-test-data-in-fixtures.js` |
+| LGPD-001 | parcial | `lgpd-base-legal-reminder.js` (soft warning); `auditor-seguranca` reprova |
+| LGPD-002 | não — doutrinário | RIPD + ADR; addon `lgpd-compliance` traz checklist |
+| LGPD-003 | não — doutrinário | `auditor-seguranca` + checklist `lgpd-privacy-review.md` |
+| LGPD-004 | parcial | `no-log-pix-key.js`; skills `validar-cpf-cnpj/ie/chave-nfe/pix` trazem helper de mascaramento |
+| LGPD-005 | não — doutrinário | ADR de integração + DPA assinado fora do código |
+| LGPD-006 | não — operacional | Workflow `/incident-postmortem`; skill `responder-incidente-anpd` (addon `lgpd-compliance`) |
+| LGPD-007 | sim (soft) | `lgpd-base-legal-reminder.js`; skill `checklist-lgpd` |
+| LGPD-008 | não — doutrinário | Skill `gerar-ripd` (addon `lgpd-compliance`); `auditor-seguranca` |
+| LGPD-009 | não — operacional | Skill `gerar-canal-dpo` (addon `lgpd-compliance`) |
+| LGPD-010 | não — doutrinário | ADR obrigatório em feature com decisão automatizada |
+| FISCAL-001 | não — doutrinário | `fiscal-br` reprova em revisão |
+| FISCAL-002 | parcial | `secrets-scanner.js` pega `.pfx`/`.p12` |
+| FISCAL-003 | sim | `fiscal-br-validator.js` (bloqueia `ambiente=1` hardcoded) |
+| FISCAL-004 | não — doutrinário | ADR obrigatório (template `adr-contingencia-fiscal.md`) |
+| FISCAL-005 | sim | Skill `validar-cpf-cnpj` aceita `[0-9A-Z]{14}`; `dba-dados` audita coluna |
+| FISCAL-006 | não — doutrinário | `fiscal-br` orienta cálculo paralelo; ADR declara período coberto |
+| FISCAL-007 | não — doutrinário | Checklist `obrigacao-acessoria-br.md` |
+| FISCAL-008 | não — doutrinário | `fiscal-br` orienta padrão ABRASF/RFB nacional |
+| FISCAL-009 | não — doutrinário | `fiscal-br` modela CT-e/MDF-e como cidadão 1ª classe |
+| FISCAL-010 | não — doutrinário | ADR de integração Pix/cartão/boleto prevê extensão pra split |
+| PIX-001 | não — no addon | Hook + agente `pix-arch` no addon `fintech-br` |
+| PIX-002 | não — no addon | Hook `validate-webhook-signature.js` no addon `fintech-br` |
+| PIX-003 | não — no addon | `dba-dados` audita; addon `fintech-br` traz modelo |
+| PIX-004 | sim | `no-log-pix-key.js`; skill `validar-pix` traz helper de mascaramento |
+| PIX-005 | sim | `no-hardcoded-env-urls.js` |
+| INV-AGENT-001 | sim | `block-jargon-pt-br.js` (soft block) |
+| INV-AGENT-002 | sim | `require-investigador-before-fix.js`, `regra-zero-reminder.js` |
+| INV-AGENT-003 | não — doutrinário | Output style + treino dos agentes |
+| INV-AGENT-004 | não — doutrinário | Output style; PR review verifica "comando + resultado" |
+| INV-AGENT-005 | sim | `block-destructive.js` cobre o caso destrutivo; resto é doutrinário |
+| INV-AGENT-006 | sim | `block-confirmation-questions.js` (soft block) |
+
+**Legenda:** "sim" = hook bloqueia/avisa em runtime; "parcial" = parte coberta; "não — doutrinário" = depende de agente/revisor humano; "não — no addon" = vive no addon citado; "não — operacional" = workflow ou skill dedicada cobre.
+
+---
+
 ## Como citar uma regra
 
 Em ADR: `aderente a INV-002, SEC-001`

@@ -1,12 +1,12 @@
 ---
 owner: framework
 revisado-em: 2026-05-24
-status: draft
+status: beta
 ---
 
 # healthtech-br (addon)
 
-> **DRAFT — v0.1.0.** Esqueleto inicial criado em 2026-05-24 a partir da auditoria 10-agentes. Não use em produção com dado real de paciente sem antes validar com advogado de saúde/LGPD.
+> **BETA — v0.1.1.** Esqueleto inicial criado em 2026-05-24, status promovido a beta após auditoria 10-agentes. Não use em produção com dado real de paciente sem antes validar com advogado de saúde/LGPD.
 
 Regras e ferramentas pra healthtech brasileira: ANS, CFM, TISS/TUSS, LGPD Art. 11 (dado sensível), retenção de prontuário, e-prescrição.
 

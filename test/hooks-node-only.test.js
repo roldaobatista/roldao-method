@@ -201,5 +201,47 @@ assertExit('commit-msg: tipo invalido bloqueia', 'commit-message-validator',
 assertExit('commit-msg: msg valida libera', 'commit-message-validator',
   JSON.stringify({ tool_input: { command: 'git commit -m "fix: ajusta validacao"' } }), 0);
 
+// ============================================================================
+// Pares positivo+negativo dos soft-blocks e validators sem state
+// (auditoria 10-agentes 2026-05-24: cobertura comportamental dos hooks só-smoke)
+// ============================================================================
+
+// block-jargon-pt-br (PostToolUse, JSON decision:block) — INV-AGENT-001
+assertBlockDecision('jargon: resposta com "commit/push/merge" bloqueia',
+  'block-jargon-pt-br',
+  JSON.stringify({ response: 'Fiz commit do push e dei merge na branch principal.' }));
+assertExit('jargon: resposta PT-BR clara libera',
+  'block-jargon-pt-br',
+  JSON.stringify({ response: 'Salvei a correcao no sistema e ja esta valendo no servidor.' }), 0);
+
+// block-confirmation-questions (PostToolUse, JSON decision:block) — INV-AGENT-006
+assertBlockDecision('confirmation: "quer que eu faca X?" bloqueia',
+  'block-confirmation-questions',
+  JSON.stringify({ response: 'Quer que eu crie a release agora ou prefere fazer depois?' }));
+assertExit('confirmation: resposta sem pergunta de confirmacao libera',
+  'block-confirmation-questions',
+  JSON.stringify({ response: 'Criei a release v1.0.2 com 3 correcoes. Conferi tudo verde.' }), 0);
+assertExit('confirmation: confirmacao legitima sobre destrutivo libera',
+  'block-confirmation-questions',
+  JSON.stringify({ response: 'Posso fazer git push --force pra sobrescrever a branch principal?' }), 0);
+
+// lgpd-base-legal-reminder (PreToolUse, soft warning — sempre exit 0)
+assertExit('lgpd-base-legal: codigo sem PII libera silencioso',
+  'lgpd-base-legal-reminder',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/util.js', content: 'export const soma = (a,b) => a+b;' } }), 0);
+assertExit('lgpd-base-legal: codigo com PII em md/test/docs libera silencioso',
+  'lgpd-base-legal-reminder',
+  JSON.stringify({ tool_input: { file_path: '/proj/docs/cpf.md', content: 'campo cpf obrigatorio' } }), 0);
+
+// mcp-validator (PreToolUse, exit 2 se MCP fora da allowlist)
+assertExit('mcp-validator: ferramenta sem mcp__ libera',
+  'mcp-validator',
+  JSON.stringify({ tool_name: 'Read', tool_input: { file_path: '/proj/x.js' } }), 0);
+
+// validate-test-pyramid (PostToolUse, exit 2 se E2E criado sem unit)
+assertExit('test-pyramid: arquivo nao-teste libera',
+  'validate-test-pyramid',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/app.js', content: 'export const x = 1;' } }), 0);
+
 console.log(`\nhooks-node-only: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);

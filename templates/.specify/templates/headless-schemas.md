@@ -30,7 +30,7 @@ tipo: prd            # subtipo: fiscal | brownfield (opcional)
 id: PRD-NNN
 versao: 1
 status: draft        # draft | aprovado | em-andamento | entregue | arquivado
-owner: <responsável>
+owner: _(responsável)_
 revisado-em: AAAA-MM-DD
 ```
 
@@ -41,7 +41,7 @@ id: EP-NNN
 versao: 1
 status: draft        # draft | aprovado | em-andamento | entregue | arquivado
 prd: PRD-NNN
-owner: <responsável>
+owner: _(responsável)_
 revisado-em: AAAA-MM-DD
 tamanho: G           # M | G | XG (soma das stories)
 ```
@@ -55,7 +55,7 @@ status: draft        # draft | em-andamento | entregue | bloqueada
 prd: PRD-NNN
 epico: EP-NNN
 tamanho: P           # P | M | G
-owner: <responsável>
+owner: _(responsável)_
 revisado-em: AAAA-MM-DD
 depende-de: []        # lista de US-NNN que precisam vir antes
 aprovacoes: []        # audit trail — ver checklist audit-trail.md
@@ -77,7 +77,7 @@ tipo: decision-log
 id: LOG-DECISOES
 versao: 1
 status: stable
-owner: <responsável>
+owner: _(responsável)_
 revisado-em: AAAA-MM-DD
 ```
 

@@ -5,7 +5,7 @@
  * Comandos:
  *   install      copia templates pro projeto (preserva arquivos do usuario)
  *   update       sobrescreve arquivos do framework, preserva customizacoes
- *   add <addon>  instala addon especifico (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br)
+ *   add <addon>  instala addon especifico (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta). Lista dinâmica via `search`.
  *   remove <add> remove um addon especifico (preserva o framework core)
  *   search [t]   lista addons disponiveis (filtra por termo opcional)
  *   list         lista IDEs detectadas, addons disponiveis, versao remota
@@ -217,6 +217,36 @@ function ensureExecutable(dest) {
   try { fs.chmodSync(dest, 0o755); } catch { /* best effort */ }
 }
 
+// copyFileSync que NUNCA crasha o instalador no meio do walk. Disco cheio,
+// EACCES (permissao), EBUSY (NTFS travou) viram entrada em counters.erros
+// e a instalacao segue — outros arquivos ainda copiam, e o resumo final
+// mostra o que falhou pro cliente reaplicar depois.
+function safeCopy(src, dest, rel) {
+  try {
+    fs.copyFileSync(src, dest);
+    return true;
+  } catch (e) {
+    counters.erros++;
+    detalhes.erros.push(`${rel}: copia falhou (${e.code || ''} ${e.message})`);
+    return false;
+  }
+}
+
+// Atomic write em JSON: escreve em arquivo .tmp e renomeia. Se o processo
+// morrer no meio, o original fica intacto (rename e operacao atomica em
+// POSIX/NTFS). Antes, settings.json corrompia se Ctrl+C cai entre o write
+// e o flush — e settings.json corrompido quebra o Claude Code inteiro do projeto.
+function atomicWriteJson(filePath, obj) {
+  const dir = path.dirname(filePath);
+  const base = path.basename(filePath);
+  // O sufixo aleatorio evita colisao quando 2 addons aplicam patch em paralelo
+  // (raro em uso interativo, mas possivel em CI rodando `add a && add b`).
+  const tmp = path.join(dir, `.${base}.tmp.${process.pid}.${Date.now()}`);
+  const payload = JSON.stringify(obj, null, 2) + '\n';
+  fs.writeFileSync(tmp, payload, 'utf8');
+  fs.renameSync(tmp, filePath);
+}
+
 function copyFile(src, dest, mode) {
   const rel = path.relative(CWD, dest);
   const exists = fs.existsSync(dest);
@@ -238,7 +268,7 @@ function copyFile(src, dest, mode) {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
 
   if (!exists) {
-    fs.copyFileSync(src, dest);
+    if (!safeCopy(src, dest, rel)) return;
     ensureExecutable(dest);
     counters.criados++;
     detalhes.criados.push(rel);
@@ -292,7 +322,7 @@ function copyFile(src, dest, mode) {
     }
     detalhes.erros.push(`${rel}: backup falhou (${e.message}) — sobrescrito com --force`);
   }
-  fs.copyFileSync(src, dest);
+  if (!safeCopy(src, dest, rel)) return;
   ensureExecutable(dest);
   counters.atualizados++;
   detalhes.atualizados.push(`${rel} (backup: ${path.basename(bak)})`);
@@ -311,14 +341,35 @@ function walkAndCopy(src, dest, mode) {
     process.exit(2);
   }
   if (ADDON_META_FILES.has(path.basename(src))) return;
-  const stat = fs.lstatSync(src);
+  // Permissao negada em src (lstat/readdir) nao deve crashar — registra erro
+  // e segue pra outros arquivos. Caso comum em Windows: AV/Defender prendeu.
+  let stat;
+  try { stat = fs.lstatSync(src); }
+  catch (e) {
+    counters.erros++;
+    detalhes.erros.push(`${path.relative(FRAMEWORK_ROOT, src)}: lstat falhou (${e.code || ''} ${e.message})`);
+    return;
+  }
   if (stat.isSymbolicLink()) {
     warn(`pulando symlink: ${path.relative(FRAMEWORK_ROOT, src)}`);
     return;
   }
   if (stat.isDirectory()) {
-    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
-    for (const entry of fs.readdirSync(src)) {
+    try {
+      if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    } catch (e) {
+      counters.erros++;
+      detalhes.erros.push(`${path.relative(CWD, dest)}: mkdir falhou (${e.code || ''} ${e.message})`);
+      return;
+    }
+    let entries;
+    try { entries = fs.readdirSync(src); }
+    catch (e) {
+      counters.erros++;
+      detalhes.erros.push(`${path.relative(FRAMEWORK_ROOT, src)}: readdir falhou (${e.code || ''} ${e.message})`);
+      return;
+    }
+    for (const entry of entries) {
       walkAndCopy(path.join(src, entry), path.join(dest, entry), mode);
     }
   } else if (stat.isFile()) {
@@ -688,7 +739,7 @@ function applyAddonSettingsPatch(name) {
   }
 
   if (changed) {
-    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf8');
+    atomicWriteJson(settingsPath, settings);
     log(`  ${c.green}+${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} ativadas`);
   }
 }
@@ -748,7 +799,7 @@ function reverseAddonSettingsPatch(name) {
   }
 
   if (changed) {
-    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf8');
+    atomicWriteJson(settingsPath, settings);
     log(`  ${c.green}-${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} removidas`);
   }
 }

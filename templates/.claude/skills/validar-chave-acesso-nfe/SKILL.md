@@ -70,6 +70,24 @@ Retorna exit 0 se valida, 1 se invalida. Imprime:
 - Se invalida: reportar em PT-BR claro ("chave invalida — verifique a digitacao") sem stack trace.
 - Chave invalida em conciliacao = **suspeita de fraude ou erro grosseiro**. Logar (mascarado se necessario) e exigir intervencao humana.
 
+## Mascaramento em log (LGPD-001 + LGPD-004)
+
+Chave NF-e contem CNPJ do emitente nas posicoes 7-20 — log com chave inteira expoe o CNPJ + identifica a operacao exata. Pra log de aplicacao, audit, console de suporte ou mensagem ao cliente final, mascarar o CNPJ embutido:
+
+| Original                                          | Em log                                            |
+|---------------------------------------------------|---------------------------------------------------|
+| `35240612345678000190550010000001231234567894`    | `352406**********90550010000001231234567894`      |
+
+```python
+def mascarar_chave_nfe(chave: str) -> str:
+    # preserva UF+AAMM (1-6), mascara CNPJ (7-20), mantem o resto (modelo+serie+numero+tpEmis+cNF+DV)
+    if not chave or len(chave) != 44:
+        return "***chave-invalida***"
+    return chave[:6] + "*" * 10 + chave[16:]
+```
+
+Acesso a base de chaves NF-e deve gerar trilha de auditoria (LGPD-004) — chave permite reconstruir compras/vendas de um CNPJ ao longo do tempo.
+
 ## Limitacao declarada
 
 Esta skill valida **estrutura** e **DV**. Nao consulta SEFAZ. Pra validar status real (autorizada/cancelada/denegada), use o web service `nfeConsultaProtocolo4` (vive no addon `fiscal-br-completo`).

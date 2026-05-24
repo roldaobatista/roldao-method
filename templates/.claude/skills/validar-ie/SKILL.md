@@ -54,6 +54,26 @@ Saida JSON: `{ "uf": "SP", "valido": true, "normalizado": "110042490114", "metod
 - LGPD: IE de PF (raro mas existe) e dado pessoal (LGPD-001).
 - Fiscal: IE incorreta em NF-e e motivo de rejeicao na SEFAZ — sempre validar **antes** de assinar XML.
 
+## Mascaramento em log (LGPD-001 + LGPD-004)
+
+IE liga CNPJ a UF — quando aparece em log junto com nome/cidade, vira identificador suficiente do contribuinte. Para log de aplicacao, audit ou console de suporte, mascarar tudo exceto UF + 2 ultimos digitos:
+
+| Original                | Em log                |
+|-------------------------|-----------------------|
+| `SP 110.042.490.114`    | `SP ***.***.***.*14`  |
+| `RJ 86.439.93-2`        | `RJ **.***.**-2`      |
+| `ISENTO`                | `ISENTO`              |
+
+```python
+def mascarar_ie(uf: str, ie: str) -> str:
+    if not ie or ie.upper() == "ISENTO":
+        return f"{uf} ISENTO"
+    digitos = "".join(c for c in ie if c.isalnum())
+    return f"{uf} {'*' * max(0, len(digitos) - 2)}{digitos[-2:]}"
+```
+
+Acesso a base de IE deve gerar trilha de auditoria (LGPD-004) quando ligar a PF.
+
 ## Anti-padroes
 
 - "Validar IE como CPF" — algoritmos diferentes, da falso-positivo.

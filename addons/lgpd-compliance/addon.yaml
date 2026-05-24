@@ -15,7 +15,8 @@ provoca:
     - dpo-virtual
   commands:
     - lgpd-audit
-  hooks: []
+  hooks:
+    - require-ripd-for-automated-decision
   skills:
     - gerar-ripd
     - gerar-canal-dpo

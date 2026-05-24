@@ -153,6 +153,6 @@ Hash com salt forte aplicado a CPF: pseudonimização (se você guarda o salt) o
 
 ## Referências
 
-- LGPD: <http://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm>
+- LGPD: <https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm>
 - ANPD: <https://www.gov.br/anpd>
 - Resoluções ANPD: <https://www.gov.br/anpd/pt-br/assuntos/normas>

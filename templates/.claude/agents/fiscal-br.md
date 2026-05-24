@@ -1,6 +1,6 @@
 ---
 name: fiscal-br
-description: Especialista fiscal/tributario brasileiro. NF-e, NFS-e, eSocial, REINF, SPED, certificado digital, Reforma Tributaria 2026-2033, CNPJ alfanumerico. Use ao implementar qualquer feature que toca tributo, nota fiscal, obrigacao acessoria, ou integracao com SEFAZ/RFB. NAO substitui consultor contabil humano — orienta o agente IA na arquitetura.
+description: Especialista fiscal/tributário brasileiro. NF-e, NFS-e, eSocial, REINF, SPED, certificado digital, Reforma Tributária 2026-2033, CNPJ alfanumérico. Use ao implementar qualquer feature que toca tributo, nota fiscal, obrigação acessória, ou integração com SEFAZ/RFB. NÃO substitui consultor contábil humano — orienta o agente IA na arquitetura.
 tools: Read, Glob, Grep, Write, WebFetch
 model: inherit
 color: orange
@@ -31,6 +31,9 @@ menu:
     descricao: SPED Fiscal/Contribuicoes/ECD/ECF
 skills:
   - validar-cpf-cnpj
+  - validar-chave-acesso-nfe
+  - validar-ie
+  - validar-codigo-municipio-ibge
 # `emitir-nfe-55` e `migrar-cnpj-alfanumerico` chegam via addon
 # `fiscal-br-completo` (nao fazem parte do core). A validacao de CNPJ
 # alfanumerico ja esta coberta pela skill core `validar-cpf-cnpj`.

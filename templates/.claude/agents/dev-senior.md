@@ -29,6 +29,8 @@ skills:
   - validar-cpf-cnpj
   - validar-pix
   - validar-cep
+  - validar-boleto
+  - traduzir-jargao
 ---
 
 # Dev Sênior

@@ -15,13 +15,13 @@ revisado-em: 2026-05-24
 
 ---
 
-# ADR-NNN — Contingência fiscal de `<feature/módulo>`
+# ADR-NNN — Contingência fiscal de `_(feature/módulo)_`
 
 ## Contexto
 
-`<descrever o cenário: qual módulo emite o quê, em qual UF, qual SEFAZ atende, qual o impacto de operação se SEFAZ cair X minutos>`
+_(descrever o cenário: qual módulo emite o quê, em qual UF, qual SEFAZ atende, qual o impacto de operação se SEFAZ cair X minutos)_
 
-Histórico recente de indisponibilidade SEFAZ (consultar [Painel de Disponibilidade SEFAZ](http://www.nfe.fazenda.gov.br/portal/disponibilidade.aspx)):
+Histórico recente de indisponibilidade SEFAZ (consultar [Painel de Disponibilidade SEFAZ](https://www.nfe.fazenda.gov.br/portal/disponibilidade.aspx)):
 - `<UF>: <data> — X horas off`
 - ...
 
@@ -72,13 +72,13 @@ Histórico recente de indisponibilidade SEFAZ (consultar [Painel de Disponibilid
 
 ## Não escopo (non-goals — INV-003)
 
-- `<o que esta feature NÃO cobre, ex: "não cobre operação interestadual com SVC de outra UF">`.
+- _(o que esta feature NÃO cobre, ex: "não cobre operação interestadual com SVC de outra UF")_.
 - `<...>`
 
 ## Verificação trimestral
 
 - **Data do próximo teste:** `<AAAA-MM-DD>`
-- **Responsável:** `<nome/papel>`
+- **Responsável:** _(nome/papel)_
 - **Critério de sucesso:** emitir 3 NF-e em contingência, conciliar quando SEFAZ "voltar" no ambiente de teste, sem perda nem duplicação.
 
 ## Regras envolvidas

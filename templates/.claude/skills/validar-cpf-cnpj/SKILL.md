@@ -59,6 +59,28 @@ Retorna exit code 0 se valido, 1 se invalido. Imprime `OK <tipo>` ou `INVALIDO <
 - Se invalido: reportar ao usuario em PT-BR ("CPF invalido — verifique os digitos") **sem** stack trace.
 - Nunca expor lista de CPFs invalidos em log publico (LGPD-001).
 
+## Mascaramento em log (LGPD-001 + LGPD-004)
+
+CPF/CNPJ sao dado pessoal. **Nunca** escrever inteiro em log de aplicacao, audit, console de suporte ou mensagem de erro mostrada ao cliente. Use mascara:
+
+| Tipo              | Original          | Em log                |
+|-------------------|-------------------|-----------------------|
+| CPF               | `12345678909`     | `***.***.***-09`      |
+| CNPJ numerico     | `12345678000190`  | `**.***.***/0001-90`  |
+| CNPJ alfanumerico | `12ABC34501DE35`  | `**.***.***/01DE-35`  |
+
+Helper Python (copie pro projeto):
+
+```python
+def mascarar_cpf(cpf: str) -> str:
+    return f"***.***.***-{cpf[-2:]}" if cpf and len(cpf) >= 2 else "***"
+
+def mascarar_cnpj(cnpj: str) -> str:
+    return f"**.***.***/{cnpj[-6:-2]}-{cnpj[-2:]}" if cnpj and len(cnpj) >= 6 else "***"
+```
+
+Acesso a base de CPF/CNPJ deve gerar trilha de auditoria (LGPD-004): quem consultou, quando, qual chave (mascarada), motivo.
+
 ## Migracao para CNPJ alfanumerico
 
 Checklist pra app que ja tem CNPJ em producao:

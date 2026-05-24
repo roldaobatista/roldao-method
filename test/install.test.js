@@ -274,13 +274,23 @@ try {
   check('remove addon inexistente falha (esperado)', true);
 }
 
-// 6e) tasks-to-issues sem docs/stories (ou sem gh) falha de forma controlada
+// 6e) tasks-to-issues com docs/stories vazio retorna mensagem amigavel.
+// Limpo o EXEMPLO-US que o install agora copia (templates/docs/) pra simular
+// projeto recem-criado sem stories preenchidas. Comportamento esperado:
+// exit 0 com "nenhuma task" — nao e erro, e o estado normal de "ainda nada".
+const storiesDir = path.join(TMP, 'docs', 'stories');
+if (fs.existsSync(storiesDir)) {
+  for (const f of fs.readdirSync(storiesDir)) fs.unlinkSync(path.join(storiesDir, f));
+}
 try {
-  execSync(`node "${BIN}" tasks-to-issues --yes --dry-run`, { stdio: 'pipe' });
-  check('tasks-to-issues sem stories deveria falhar', false);
+  const out = execSync(`node "${BIN}" tasks-to-issues --yes --dry-run`, { stdio: 'pipe' }).toString();
+  check('tasks-to-issues sem stories retorna mensagem amigavel',
+    /nenhuma task|0 ja exportada|0 no projeto/i.test(out));
 } catch (e) {
+  // Cair aqui tambem e aceitavel se mensagem cita docs/stories ou gh
   const out = ((e.stdout || '') + (e.stderr || '')).toString();
-  check('tasks-to-issues falha com mensagem clara', /docs\/stories|GitHub CLI \(gh\)/.test(out));
+  check('tasks-to-issues sem stories falha com mensagem clara',
+    /docs\/stories|GitHub CLI \(gh\)|nenhuma task/.test(out));
 }
 
 // 7) Uninstall

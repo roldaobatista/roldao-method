@@ -77,7 +77,7 @@ status: stable
 
 ## Referências
 
-- [Portal SPED — Receita Federal](http://sped.rfb.gov.br/)
+- [Portal SPED — Receita Federal](https://sped.rfb.gov.br/)
 - [eSocial — leiautes oficiais](https://www.gov.br/esocial/)
 - [LC 214/2025 — Reforma Tributária](https://www.gov.br/) (impacta SPED a partir de 2026)
 - Skill `calculadora-reforma-paralela` (addon `fiscal-br-completo`) — cálculo paralelo regime atual/novo.

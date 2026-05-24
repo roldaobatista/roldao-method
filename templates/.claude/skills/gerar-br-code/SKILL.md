@@ -41,6 +41,14 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/gerar-br-code.py dinamico \
 
 Saida: string EMV (1 linha) pronta pra ser passada pra `qrcode.make(...)` ou equivalente.
 
+Exemplo de saida real (Pix estatico, chave email, R$ 99,90, TxId `PEDIDO123`):
+
+```
+00020126540014BR.GOV.BCB.PIX0114loja@exemplo.com.br5204000053039865406099.905802BR5912LOJA EXEMPLO6009SAO PAULO62150511PEDIDO12363042B7A
+```
+
+Como conferir rapido: os ultimos 4 caracteres (`2B7A`) sao o CRC16-CCITT. Se mudar 1 byte antes dele, o CRC tem que recalcular — bug comum e copiar EMV de exemplo e mudar a chave sem regerar o CRC. O app do banco rejeita silenciosamente.
+
 ## Limites do EMV
 
 - **Nome:** maximo 25 caracteres, sem acento (padrao Bacen).
