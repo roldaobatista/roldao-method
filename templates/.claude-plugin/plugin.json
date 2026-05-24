@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "roldao-method",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 15 agentes, 26 hooks bloqueadores (gates mecânicos pra readiness/sequência de agentes/dependências/escopo de quick-dev/REGRA #0/jargão PT-BR/pergunta de confirmação/pipeline incompleto/chave Pix em log), 28 workflows, 13 skills BR core + 18 em addons (inclui Reforma Tributária 2026-2033), 9 checklists, 7 KBs, 7 addons BR (6 stable + healthtech-br beta). Para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
   "author": "Roldão Batista",
   "homepage": "https://github.com/roldaobatista/roldao-method",

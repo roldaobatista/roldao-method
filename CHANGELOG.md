@@ -1,5 +1,43 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [1.0.5] — 2026-05-24
+
+**Sessão autônoma fechou todos os débitos da US-114 (100%) e da US-116 (95% — falta só execução ao vivo do Roldão).**
+
+### O que muda pra você (não-programador)
+
+- 5 **helpers irmãos** novos em `templates/.specify/templates/` — quando você travar num campo `_(preencher)_`, abre o helper irmão (`prd-helper.md`, `story-helper.md`, etc.) com 3 exemplos prontos.
+- `/inicio` agora **confirma a tecnologia montada** em PT-BR antes de seguir ("achei Node 20, PostgreSQL, vitest — está certo?"). Mesma varredura que o `/brownfield` faz.
+- `npx roldao-method doctor` agora **detecta projeto vindo da v1.x** (hooks `.sh` antigos, markers sem `audit_sha`) e avisa pra rodar `update`.
+- **Template de validação das 5 tarefas-tipo** em `docs/auditorias/2026-06-XX-validacao-5-tarefas-tipo.md` — quando você quiser executar o gate do EP-002 ao vivo, é só seguir o checklist.
+
+### Adicionado
+
+- **5 helpers irmãos** com 3 exemplos cada (`prd-helper.md`, `story-helper.md`, `adr-helper.md`, `product-brief-helper.md`, `epico-helper.md`).
+- **`/inicio` etapa 4** invoca varredura de stack reutilizada do `/brownfield` (deduplicação INV-002). Investigador identifica linguagem, banco, testes, deploy, integrações BR e reporta em PT-BR claro.
+- **Placeholders com link `[ajuda]`** clicável apontando pro helper irmão (`<sup>[[ajuda]](...)</sup>`).
+- **Eval comportamental** property-based (`evals/runner.js` + `evals/agent-behavior/devops-dba-comportamento.eval.json`) — valida que reescrita PT-BR não mudou comportamento técnico. 5/5 OK.
+- **`docs/MENSAGENS-ERRO-CATALOGO.md`** — inventário de 21 hooks bloqueadores + padrão obrigatório de mensagem + passo a passo pra criar hook novo (US-114 T-017).
+- **`docs/METRICA-OFICIAL.md`** — declara a métrica do framework como "5 tarefas-tipo do Roldão sem ajuda humana" (US-116 T-004).
+- **`docs/migrations/MIGRATION-v2.md`** — consolidado da migração v1.x → v2.0 (US-116 T-019).
+- **`docs/auditorias/2026-05-24-auditoria-10-agentes/eval-devops-dba-pt-br.md`** — relatório do eval comportamental (US-114 T-014).
+- **`docs/auditorias/2026-06-XX-validacao-5-tarefas-tipo.md`** — TEMPLATE pro Roldão executar as 5 tarefas-tipo ao vivo (US-116 T-018).
+- **`.specify/scripts/next-id.js`** — devolve próximo ID disponível de US/PRD/EP/ADR/T (US-114 T-001).
+- **doctor detecta v1.x** (US-116 T-012).
+- **`--version`** retorna versão + descrição PT-BR + link pro CHANGELOG (US-116 T-015).
+
+### Corrigido
+
+- **Tabela canônica `traduzir-jargao`** sincronizada com a regex do hook `block-jargon-pt-br.js` — 23 termos cobertos em 5 seções (Git, CI, Arquitetura, Testes, Debug).
+- **Mensagens de erro do `_lib.js`** auditadas — zero ocorrências em inglês no caminho de erro pro usuário.
+- **Prefixo padronizado** em mensagens de hook (`[BLOQUEIO] [<nome>]`) — helper `hookPrefix(level, name)` disponível.
+
+### Preservado
+
+Zero deps runtime. Zero breaking change.
+
+---
+
 ## [1.0.4] — 2026-05-24
 
 **Sprints US-114/115/116 — fechando US-115 e US-114 quase-completas, 5 exemplos completos pro dono de produto consultar.**
