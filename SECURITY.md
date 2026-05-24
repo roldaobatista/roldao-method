@@ -49,6 +49,17 @@ Se não receber resposta em 14 dias da confirmação, abra issue pública.
 - Vulnerabilidades em projetos que USAM o framework (esse é responsabilidade do projeto).
 - Comportamento esperado dos hooks (não é vuln, é design — abrir discussão se quiser mudar).
 
+## Confiança em addons
+
+Addons (`addons/<nome>/`) instalam **código executável** no projeto consumidor: hooks `.js`, scripts em `.claude/skills/`, configurações de `.mcp.json.patch`, regras de `settings.json.patch`. Eles rodam sob a **mesma confiança** do core do framework.
+
+Implicações:
+
+- **Addon oficial (publicado neste repo)** passa pela mesma auditoria do core, vai pra release npm com `provenance` e segue SemVer do framework.
+- **Addon de terceiro** (qualquer um fora deste repo, mesmo distribuído por npm com nome parecido) NÃO tem essa garantia. Antes de instalar, audite: leia os `.js` de `hooks/`, verifique se há chamadas de rede, leia o `addon.yaml`, confirme assinatura `npm` do mantenedor.
+- O comando `npx roldao-method add <nome>` só aceita addons que ESTÃO no pacote npm oficial (`addons/<nome>/` deste repositório). Não puxa de URL arbitrária. Mas se um terceiro publicar um pacote `roldao-method-addon-X` no npm, é responsabilidade do usuário auditar antes de copiar a mão.
+- Comprometimento da release npm oficial é mitigado por: 2FA do mantenedor + `provenance` assinada na pipeline `release.yml`. Se a release `latest` no npm mostrar `provenance: none`, **não instale**.
+
 ## O que NÃO consideramos vuln
 
 - Hook bloqueia comando legítimo → ajustar regra ou usar exception documentada.
