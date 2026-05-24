@@ -184,4 +184,33 @@ if (fs.existsSync(metricsFile)) {
   } catch { /* skip */ }
 }
 
-process.stdout.write(`📍 v${versao} · 🤖 ${modelo} · 🌿 ${branch}${story}${etapa}${contexto}${shield} · 👤 ${agente}`);
+// T-402 (H2 + H3): respeita NO_COLOR + TERM=dumb + fallback emoji em terminal
+// que nao suporta UTF-8.
+const NO_COLOR = process.env.NO_COLOR === '1' || process.env.FORCE_COLOR === '0';
+const DUMB_TERM = process.env.TERM === 'dumb' || process.env.NO_EMOJI === '1';
+
+// Se DUMB_TERM: troca emojis por equivalente texto.
+// Convertemos so os emojis usados nesta linha — sem dep externa.
+function plainText(s) {
+  if (!DUMB_TERM) return s;
+  return s
+    .replace(/📍/g, '[v]')
+    .replace(/🤖/g, '[modelo]')
+    .replace(/🌿/g, '[branch]')
+    .replace(/📌/g, '[story]')
+    .replace(/🔁/g, '[etapa]')
+    .replace(/📊/g, '[ctx]')
+    .replace(/🛡️/g, '[bloqueios]')
+    .replace(/🛡/g, '[bloqueios]')
+    .replace(/👤/g, '[agente]')
+    .replace(/·/g, '|');
+}
+
+// Se NO_COLOR ou DUMB_TERM: remove sequencias ANSI dos componentes.
+function stripAnsi(s) {
+  if (!NO_COLOR && !DUMB_TERM) return s;
+  return s.replace(/\x1b\[[0-9;]*m/g, '');
+}
+
+const linha = `📍 v${versao} · 🤖 ${modelo} · 🌿 ${branch}${story}${etapa}${contexto}${shield} · 👤 ${agente}`;
+process.stdout.write(plainText(stripAnsi(linha)));

@@ -8,6 +8,8 @@ model: opus
 
 # /hotfix — correcao urgente
 
+> **Se o incidente envolve dado pessoal (vazamento, acesso indevido, exposicao):** abra paralelamente o runbook LGPD em [`docs/runbooks/incident-response-lgpd.md`](../../docs/runbooks/incident-response-lgpd.md) — voce tem 72h pra notificar ANPD (LGPD-006).
+
 Use `$ARGUMENTS` como descricao do incidente em 1 frase. **Este workflow nao substitui `/bug`** — use so quando:
 
 - Cliente esta parado AGORA (downtime ativo).

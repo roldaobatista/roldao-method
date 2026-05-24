@@ -58,11 +58,11 @@ Você tem um pedido. Que tipo de pedido é?
 |---|---|---|---|
 | IN | `/inicio` | Projeto novo do zero | Sofia → Rafael → Bruno |
 | BF | `/brownfield` | Adotar framework em projeto que já existe | Detetive → Rafael → Sofia → Caio |
-| PRD | `/prd` | Iniciativa grande (várias semanas) | Mariana → Sofia → Rafael → Carla |
-| EP | `/epico` | Decompor iniciativa em stories | Mariana → Sofia → Rafael |
-| US | `/historia` | Criar 1 user story rastreável | Sofia → Detetive |
-| CL | `/clarificar` | Tirar ambiguidade ANTES de codar | Sofia |
-| FT | `/feature` | Funcionalidade nova (ciclo completo) | Sofia → Detetive → Rafael → Bruno → Revisor → Caio+Julia+Pedro |
+| PRD | `/prd` | Iniciativa grande (várias semanas / muitas stories) | Mariana → Sofia → Rafael → Carla |
+| EP | `/epico` | Decompor iniciativa em stories (coleção de stories) | Mariana → Sofia → Rafael |
+| US | `/historia` | Criar 1 user story rastreável (1 story) | Sofia → Detetive |
+| CL | `/clarificar` | Tirar ambiguidade ANTES de codar (ideia vaga) | Sofia |
+| FT | `/feature` | Funcionalidade nova ciclo completo (1 story implementada) | Sofia → Detetive → Rafael → Bruno → Revisor → Caio+Julia+Pedro |
 | QD | `/quick-dev` | Mudança trivial (≤3 arquivos, ≤50 linhas) | Bruno → Revisor |
 | BG | `/bug` | Corrigir comportamento — REGRA #0 | **Detetive (obrigatório)** → Bruno → Revisor |
 | HF | `/hotfix` | Incidente urgente em produção (cliente parado, SEFAZ off, Pix duplicado) | Detetive (rápido) → Bruno → Revisor → `/incident-postmortem` em 48h |
@@ -82,6 +82,38 @@ Você tem um pedido. Que tipo de pedido é?
 | RD | `/readiness` | Gate entre épico e dev | Detetive → Rafael |
 | HP | `/help` | Este comando | (catálogo) |
 | SH | `/shard` | Quebra PRD/ARQ longo em chunks | (fatiamento) |
+
+## Validações prontas pro Brasil (13 skills core)
+
+O assistente invoca automaticamente quando detecta o gatilho. Você não precisa lembrar o nome.
+
+| Skill | Pra que serve |
+|---|---|
+| `validar-cpf-cnpj` | Valida CPF/CNPJ (numérico + alfanumérico jul/2026) |
+| `validar-chave-acesso-nfe` | Valida chave 44 dígitos de NF-e/NFC-e/CT-e/MDF-e |
+| `validar-codigo-municipio-ibge` | Valida código IBGE (7 dígitos + DV módulo 10) |
+| `validar-pix` | Valida chave Pix (CPF/CNPJ/email/celular/aleatória) + TxId + EndToEndId |
+| `validar-cep` | Valida CEP + consulta ViaCEP opcional |
+| `validar-ie` | Valida Inscrição Estadual por UF (27 algoritmos diferentes) |
+| `validar-boleto` | Valida código de barras/linha digitável FEBRABAN |
+| `gerar-br-code` | Gera QR Code Pix padrão EMV (estático ou dinâmico) |
+| `gerar-test-fixture-br` | Gera CPF/CNPJ/CEP/telefone válidos por algoritmo (pra fixture) |
+| `gerar-adr-pt-br` | Cria ADR no template oficial |
+| `traduzir-jargao` | Reescreve texto técnico pra PT-BR sem jargão |
+| `brainstormar-ideia` | Menu de 15 técnicas de brainstorming BR |
+| `checklist-lgpd` | Checklist LGPD + árvore de decisão de base legal |
+
+## Addons disponíveis (`npx roldao-method search`)
+
+| Addon | Pra quem é |
+|---|---|
+| `fiscal-br-completo` | Quem emite NF-e/NFC-e/NFS-e/CT-e/MDF-e ou está na Reforma Tributária 2026-2033 |
+| `fintech-br` | Quem integra Pix (BR Code, webhook HMAC, devolução) ou Open Finance |
+| `lgpd-compliance` | Quem precisa de DPO, RIPD, canal do titular, plano de incidente 72h |
+| `esocial-completo` | Quem manda eventos S-1000 a S-3000 pro eSocial |
+| `electron-br` | Quem faz app de desktop pra Windows/Mac/Linux com SQLite local |
+| `varejo-pdv-br` | Quem opera PDV/caixa com SAT-CF-e, NFC-e, TEF, integração balança |
+| `healthtech-br` (beta) | Telemedicina CFM 2.314, prontuário ANS RN 305, CNS/SUS, TISS/TUSS |
 
 > Detalhe de cada agente: `.claude/agents/MAPA-VISUAL.md` ou `.claude/agents/<nome>.md`.
 

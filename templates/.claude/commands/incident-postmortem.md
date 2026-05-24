@@ -8,6 +8,8 @@ model: opus
 
 # /incident-postmortem — pos-incidente
 
+> **Se o incidente envolve dado pessoal:** abra paralelamente o runbook em [`docs/runbooks/incident-response-lgpd.md`](../../docs/runbooks/incident-response-lgpd.md) — janela legal de 72h pra ANPD (LGPD-006) corre desde a ciencia do fato, nao desde o pos-mortem.
+
 Use `$ARGUMENTS` como referencia do incidente (numero ou 1 frase).
 
 Disparado por:
