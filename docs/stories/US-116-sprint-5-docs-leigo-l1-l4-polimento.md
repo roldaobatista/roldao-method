@@ -98,7 +98,7 @@ _(Investigador preenche antes de Bruno codar.)_
 
 **Validação final (gate do épico):**
 
-- [ ] **T-018** — AC-116-7: rodar as 5 tarefas-tipo com Roldão ao vivo. **Template criado**: `docs/auditorias/2026-06-XX-validacao-5-tarefas-tipo.md` com checklist + critério "passou" (4 condições) + 5 tarefas detalhadas (comando + esperado + verificação + campos SHA/observações pro Roldão preencher). Execução depende do Roldão pessoalmente — gate do EP-002.
+- [ ] **T-018** — AC-116-7: 5 tarefas-tipo com Roldão ao vivo. **Status:** aguardando Roldão executar (decisão do próprio Roldão em 2026-05-24 — deixar pendurado até disposição/tempo). Template pronto em `docs/auditorias/2026-06-XX-validacao-5-tarefas-tipo.md` (status: `aguardando-roldao`). Execução por agente IA INVALIDA o gate por definição. Quando executar, esta task fecha e EP-002 = 100%.
 - [x] **T-019** — MIGRATION-v2.md consolidado. Entregue: `docs/migrations/MIGRATION-v2.md` (~150 linhas) cobrindo: o que muda visivelmente (tabela antes/depois), como atualizar, 3 breaking changes documentados (hooks .sh→.js, audit_sha não-vazio, menu interativo), inventário do que entrou (comandos novos, hooks novos, skills novas, addons novos), seção pro dono de produto não-programador.
 
 ---

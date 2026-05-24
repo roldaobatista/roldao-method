@@ -1,12 +1,14 @@
 ---
 owner: roldao
-revisado-em: 2026-06-XX
-status: pendente-execucao
+revisado-em: 2026-05-24
+status: aguardando-roldao
 ---
 
 # Validação ao vivo — 5 tarefas-tipo do Roldão
 
-> **TEMPLATE pendente de execução.** Esta é a validação que **só o Roldão pode rodar** — gate do épico EP-002, AC-116-7 da story US-116. Atende ao critério "Roldão completa 5 tarefas-tipo sozinho sem ajuda humana técnica".
+> **Status:** aguardando Roldão executar quando tiver tempo/disposição. Em 2026-05-24, Roldão confirmou explicitamente que prefere deixar pendurado até execução real — Claude foi instruído a NÃO rodar como proxy (registro em `git log --grep="T-018"`).
+>
+> **TEMPLATE pronto pra execução.** Esta é a validação que **só o Roldão pode rodar** — gate do épico EP-002, AC-116-7 da story US-116. Atende ao critério "Roldão completa 5 tarefas-tipo sozinho sem ajuda humana técnica".
 >
 > **Como usar este arquivo:** o Roldão executa cada tarefa abaixo numa sessão real (com Claude Code rodando), registra **SHA do commit gerado**, marca **passou/não passou** e adiciona qualquer observação. Quando todas as 5 estiverem marcadas, o gate fecha e a v2.0 sai pra release.
 >
