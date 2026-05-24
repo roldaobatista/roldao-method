@@ -100,10 +100,10 @@ Usuario nao-programador. Reescrever em PT-BR claro.
 Violacoes:
 ${violationsStr}
 
-Tabela de traducao:
+Tabela de traducao (sincronizada com skill traduzir-jargao):
   - commit/push -> 'salvei a correcao no sistema'
   - CI verde -> 'esta funcionando, validei'
-  - rollback -> 'voltar pra versao anterior'
+  - rollback/revert -> 'voltar pra versao anterior'
   - deploy -> 'subir pro servidor'
   - refactor -> 'reorganizar (sem mudar o que aparece pro usuario)'
   - migration -> 'mudanca na estrutura dos dados salvos'
@@ -118,6 +118,13 @@ Tabela de traducao:
   - stack trace -> 'trilha do erro tecnico'
   - amend -> 'reescrever a ultima gravacao'
   - diff -> 'comparacao entre versoes'
+  - null pointer -> 'tentou usar uma coisa que nao existe'
+  - race condition -> 'duas coisas acontecendo ao mesmo tempo e atrapalhando'
+  - edge case -> 'caso fora do comum'
+  - runbook -> 'passo a passo de plantao'
+  - breakpoint -> 'parar o codigo pra investigar'
+  - branch -> 'ramo de trabalho separado'
+  - rebase -> 'reordenei as gravacoes'
 
 Excecao: se o usuario E programador (declarado em AGENTS.md), peca pra ajustar a regra
 em .claude/settings.json (desligar este hook ou adicionar 'developer-mode: true').`;
