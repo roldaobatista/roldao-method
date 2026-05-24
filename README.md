@@ -15,6 +15,13 @@ npx roldao-method demo
 
 Roda 3 verificações reais: bloqueia um `rm -rf /`, pega uma credencial AWS num arquivo, reprova um CPF inválido. Sem precisar de Claude Code, sem chave de API, sem cadastro.
 
+<!-- TODO J12 (T-019): adicionar GIF/video de 90s do demo rodando.
+     Asset esperado em docs/assets/demo.gif (Roldao grava via Loom/OBS).
+     Linha pronta pra ativar quando asset existir:
+     ![demo](docs/assets/demo.gif) -->
+
+> 💡 **Roda `npx roldao-method` sem nada** e ele te mostra o menu com as 4 opções principais (demo, install, tutorial, doctor).
+
 ## Instalar no seu projeto
 
 ```bash

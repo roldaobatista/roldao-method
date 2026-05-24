@@ -47,7 +47,11 @@ const earlyCommand = rawArgs.find((a) => HELP_FLAGS.has(a)) ? 'help'
                    : rawArgs.find((a) => VERSION_FLAGS.has(a)) ? 'version'
                    : null;
 const positional = rawArgs.filter((a) => !a.startsWith('-'));
-const command = earlyCommand || positional[0] || 'install';
+// T-020 (J16): `npx roldao-method` sem argumentos em TTY interativo mostra
+// menu de proximos passos em vez de cair em `install` cego. Em CI/script
+// (sem TTY) continua default = install pra nao quebrar pipelines.
+const isInteractiveBare = rawArgs.length === 0 && process.stdout.isTTY;
+const command = earlyCommand || positional[0] || (isInteractiveBare ? 'menu' : 'install');
 const subArg = positional[1];
 const flags = new Set(rawArgs.filter((a) => a.startsWith('-') && !HELP_FLAGS.has(a) && !VERSION_FLAGS.has(a)));
 const YES = flags.has('--yes') || flags.has('-y');
@@ -1345,6 +1349,22 @@ async function uninstall() {
   log('arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS, .mcp.json, settings.local.json).');
 }
 
+// menu — chamado por `npx roldao-method` sem argumento em TTY interativo.
+// Mostra menu amigavel ao Roldao (nao-programador) com as 4 opcoes mais usadas
+// em vez de cair em `install` cego.
+function menu() {
+  banner();
+  console.log(`${c.bold}O que voce quer fazer?${c.reset}\n`);
+  console.log(`  ${c.cyan}npx roldao-method ${c.green}demo${c.reset}      ${c.dim}— testa 3 verificacoes em 30s, sem instalar nada${c.reset}`);
+  console.log(`  ${c.cyan}npx roldao-method ${c.green}install${c.reset}   ${c.dim}— copia o framework pra pasta atual${c.reset}`);
+  console.log(`  ${c.cyan}npx roldao-method ${c.green}tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce${c.reset}`);
+  console.log(`  ${c.cyan}npx roldao-method ${c.green}doctor${c.reset}    ${c.dim}— diagnostica instalacao existente${c.reset}`);
+  console.log('');
+  console.log(`${c.bold}Nao programa?${c.reset} Veja primeiro: ${c.green}docs/PARA-DONO-DE-PRODUTO.md${c.reset}`);
+  console.log(`${c.bold}Mais comandos?${c.reset}  ${c.cyan}npx roldao-method --help${c.reset}`);
+  console.log('');
+}
+
 function help() {
   banner();
   console.log(`${c.bold}Uso:${c.reset}
@@ -1425,6 +1445,7 @@ function version() {
       break;
     }
     case 'rollback': await rollback(); break;
+    case 'menu': menu(); break;
     case 'help': case '--help': case '-h': help(); break;
     case 'version': case '--version': case '-v': version(); break;
     default:

@@ -15,6 +15,12 @@ Cada modo do agente `tech-writer` tem template fixo. Camila preenche os placehol
 
 <Frase de abertura: 1 linha resumindo a release.>
 
+### O que muda pra voce (nao-programador)
+
+- <bullet em PT-BR claro: efeito visivel ao usuario / cliente final>
+- <ex: "Mensagens de erro do framework ficam mais claras — voce nao precisa mais perguntar pro dev o que quer dizer 'exit 2'">
+- <"Nenhum" se a release for so manutencao tecnica>
+
 ### Adicionado
 - <feature 1 em linguagem narrativa>
 
