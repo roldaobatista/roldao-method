@@ -47,8 +47,8 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 ### Requisitos
 
-- **Node.js 18+** (CI: 20+) — único requisito do framework desde a v1.0.
-- **Python 3.8+** (opcional) — usado pelas skills de validação fiscal (CPF/CNPJ, CEP, Pix). Sem Python local, executam em CI; testes marcam SKIP claro.
+- **Node.js 18+** (CI: 20+) — requisito do framework (todos os hooks, CLI, validadores).
+- **Python 3.10+** (opcional, mas necessário pra 9 skills BR) — usado por: `validar-cpf-cnpj`, `validar-chave-acesso-nfe`, `validar-codigo-municipio-ibge`, `validar-cep`, `validar-ie`, `validar-pix`, `validar-boleto`, `gerar-br-code`, `gerar-test-fixture-br`. Sem Python local essas skills falham com erro claro; o agente IA continua funcionando, mas você não consegue validar CPF/CNPJ/chave NF-e localmente — o que pode mascarar bug em dado brasileiro. Decisão registrada em [ADR-018](docs/decisions/ADR-018-python-requisito-skills.md).
 - **bash/perl/Git Bash:** **não são mais requisito.** A v1.0 portou todos os hooks pra Node puro, então rodam em Windows puro (PowerShell/CMD) sem Git for Windows instalado. Quem ainda usa bash auxiliar fora do framework continua livre pra usar.
 
 ## O que vem instalado
@@ -64,7 +64,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 ## Cobertura BR — IDs rastreáveis em commit
 
-`REGRAS-INEGOCIAVEIS.md` tem a lista completa: **43 regras operacionais em 7 categorias** — INV-001..006 (6 invariantes gerais), SEC-001..005 (5 segurança), TST-001..004 (4 testes), LGPD-001..010 (10 proteção de dados), FISCAL-001..007 (7 fiscal BR), PIX-001..005 (5 Pix/Open Finance), INV-AGENT-001..006 (6 regras pra agentes IA). Cada regra cita-se em commit/ADR/PR (ex: `fix: ajusta validação CPF (LGPD-001)`).
+`REGRAS-INEGOCIAVEIS.md` tem a lista completa: **46 regras operacionais em 7 categorias** — INV-001..006 (6 invariantes gerais), SEC-001..005 (5 segurança), TST-001..004 (4 testes), LGPD-001..010 (10 proteção de dados), FISCAL-001..010 (10 fiscal BR — NF-e, NFS-e nacional, MDF-e/CT-e, Reforma, split payment), PIX-001..005 (5 Pix/Open Finance), INV-AGENT-001..006 (6 regras pra agentes IA). Cada regra cita-se em commit/ADR/PR (ex: `fix: ajusta validação CPF (LGPD-001)`).
 
 ## 6 addons verticais
 
