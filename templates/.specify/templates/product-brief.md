@@ -10,6 +10,8 @@ relacionado-prd: _(opcional)_
 # Brief — _(nome da iniciativa)_
 
 > Brief curto de iniciativa (1 página). Use ANTES do PRD para alinhar contexto sem custo. Se a iniciativa não cabe em 1 página, é grande demais — quebre antes.
+>
+> 💡 **Travou?** Helper irmão: [`product-brief-helper.md`](product-brief-helper.md). Exemplo completo: [`docs/exemplos/BRIEF-EXEMPLO.md`](../../docs/exemplos/BRIEF-EXEMPLO.md).
 
 ---
 

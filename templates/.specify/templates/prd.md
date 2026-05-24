@@ -10,12 +10,14 @@ revisado-em: AAAA-MM-DD
 # PRD-NNN — _(nome curto da iniciativa)_
 
 > **PRD = Product Requirements Document.** Em PT-BR: documento que diz o que vamos construir, pra quem, por quê, e como saberemos que deu certo. Spec-as-source (INV-002): este documento gera as user stories e o código, não o contrário.
+>
+> 💡 **Travou em algum campo?** Veja o helper irmão: [`prd-helper.md`](prd-helper.md) (3 exemplos preenchidos por seção) ou o exemplo completo: [`docs/exemplos/PRD-EXEMPLO.md`](../../docs/exemplos/PRD-EXEMPLO.md).
 
 ---
 
 ## 1. Problema
 
-_(1-3 parágrafos. Quem sofre, o que está sofrendo, com que frequência, com que custo.)_
+_(1-3 parágrafos. Quem sofre, o que está sofrendo, com que frequência, com que custo.)_ <sup>[[ajuda]](prd-helper.md#1-problema--3-exemplos-prontos)</sup>
 
 **Evidência:** _(número, citação de cliente, métrica atual, ticket de suporte recorrente.)_
 

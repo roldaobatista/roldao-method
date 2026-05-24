@@ -35,13 +35,48 @@ Invoque `dev-senior` pra montar:
 - Setup local funcionando (`docker compose up` ou equivalente).
 - 1 endpoint/tela de exemplo pra validar que o ambiente funciona.
 
-## Etapa 4 — Preencher documentos do projeto
+## Etapa 4 — Confirmar a tecnologia que ficou montada (varredura de stack)
 
-Vários arquivos do projeto têm campos marcados com `_(preencher)_`. Preencha:
+Mesma varredura que o `/brownfield` faz na etapa 1 — agora aplicada ao esqueleto que o dev-sênior acabou de montar na Etapa 3 (deduplicação INV-002).
 
-- **`AGENTS.md`** — quem usa, o que o projeto faz, com qual tecnologia.
+Invoque `investigador` e peça pra rodar uma varredura curta:
+
+1. **Linguagem/runtime:** `package.json` → Node/JS/TS, `requirements.txt`/`pyproject.toml` → Python, `Gemfile` → Ruby, `go.mod` → Go, `pom.xml`/`build.gradle` → Java, `Cargo.toml` → Rust.
+2. **Banco de dados:** `prisma/schema.prisma`, `migrations/`, `alembic/`, `db/`, variáveis de ambiente com `DATABASE_URL`.
+3. **Testes:** `__tests__/`, `tests/`, `spec/`, suite usada (vitest, jest, pytest, rspec).
+4. **Deploy:** `Dockerfile`, `.github/workflows/`, `vercel.json`, `fly.toml`, `render.yaml`.
+5. **Integrações marcadas no `package.json`/`requirements.txt`:** Pix, NF-e, eSocial, Stripe, AWS, etc.
+
+**Reportar pro usuário em PT-BR claro, no formato:**
+
+```
+Confirmando a tecnologia montada:
+- Linguagem: Node 20 + TypeScript (vi no package.json)
+- Banco: PostgreSQL com Prisma (vi prisma/schema.prisma)
+- Testes: vitest (vi nos devDependencies)
+- Deploy: Dockerfile pronto, GitHub Actions configurado
+- Integração BR detectada: nenhuma ainda — se for usar Pix/NF-e, rode "npx roldao-method add fintech-br" depois
+
+Está tudo certo? (S/n)
+```
+
+Se o usuário disser que está certo, passe pra Etapa 5. Se algo estiver errado, ajuste a stack antes de seguir.
+
+## Etapa 4b — Preencher documentos do projeto
+
+Vários arquivos do projeto têm campos marcados com `_(preencher)_`. Preencha **aproveitando o que a varredura acabou de descobrir**:
+
+- **`AGENTS.md`** §1 (identidade) e §2 (stack) — use o resultado da Etapa 4 pra preencher a tabela de stack.
+- **`AGENTS.md`** §6 (comandos do projeto) — extrair de `package.json scripts` / `Makefile` / etc.
 - **`REGRAS-INEGOCIAVEIS.md`** — adicionar regras próprias do projeto (se houver alguma específica do seu negócio).
-- **`AGENTS.md` seção 10 ("O que está pendente")** — registrar onde paramos (é o mesmo lugar que o `/retro` atualiza no final do dia).
+- **`AGENTS.md` §10 ("O que está pendente")** — registrar onde paramos (é o mesmo lugar que o `/retro` atualiza no final do dia).
+
+Quando houver `_(preencher)_` em template que não fecha sozinho, abra o helper irmão correspondente:
+- `templates/.specify/templates/prd-helper.md` (PRD)
+- `templates/.specify/templates/story-helper.md` (US)
+- `templates/.specify/templates/adr-helper.md` (ADR)
+- `templates/.specify/templates/product-brief-helper.md` (brief)
+- `templates/.specify/templates/epico-helper.md` (épico)
 
 Reporte "documentos do projeto preenchidos" e siga.
 

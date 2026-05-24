@@ -21,6 +21,8 @@ aprovacoes: []   # audit trail persistente — preenchido pelo /feature, validad
 # US-NNN — _(título curto, máximo 60 caracteres)_
 
 > Story file gerado pelo `/historia`. Vive em disco, não na conversa (INV-001).
+>
+> 💡 **Travou?** Helper irmão: [`story-helper.md`](story-helper.md) (formato de AC testável, decomposição de tasks). Exemplo completo: [`docs/exemplos/US-EXEMPLO.md`](../../docs/exemplos/US-EXEMPLO.md).
 
 ---
 

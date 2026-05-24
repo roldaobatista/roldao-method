@@ -14,6 +14,8 @@ tamanho: G    # M | G | XG — soma das stories
 > Arquivo de épico gerado pelo `/epico`. Vive em disco, não na conversa (INV-001).
 >
 > **Diferença para PRD:** PRD descreve a iniciativa (problema, mercado, escopo, métricas). Épico é a unidade operacional — agrupa stories filhas, declara ordem de execução e ADRs bloqueantes.
+>
+> 💡 **Travou?** Helper irmão: [`epico-helper.md`](epico-helper.md) (critério de pronto + ordem de stories + readiness).
 
 ---
 
