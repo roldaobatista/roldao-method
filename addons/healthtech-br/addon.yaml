@@ -1,0 +1,61 @@
+name: healthtech-br
+version: 0.1.0-draft
+description: Regras e ferramentas pra healthtech BR — ANS (RN 305 prontuario), CFM (telemedicina, e-prescricao), TISS/TUSS, LGPD Art. 11 (dado sensivel), retencao de prontuario 20 anos
+authors:
+  - Roldão Batista
+license: MIT
+status: draft
+revisado-em: 2026-05-24
+
+requires:
+  roldao-method: ">=1.0.0"
+
+provoca:
+  agents:
+    - healthtech-arch
+  commands: []
+  hooks: []
+  skills:
+    - checklist-cfm-telemedicina
+    - validar-cns-cartao-sus
+  templates: []
+
+regras:
+  - id: HEALTH-EXT-001
+    titulo: "Prontuario eletronico segue ANS RN 305 (estrutura) + CFM 1.821/2007 (assinatura/retencao)"
+    descricao: "Todo prontuario eletronico precisa: (a) ser assinado digitalmente com ICP-Brasil (CFM 1.821), (b) ter trilha de auditoria imutavel de acesso/alteracao, (c) retencao minima de 20 anos apos ultima visita do paciente. Sem assinatura ICP, o prontuario nao tem valor legal e nao substitui o de papel."
+  - id: HEALTH-EXT-002
+    titulo: "Telemedicina segue CFM 2.314/2022 — consentimento expresso + identificacao das partes"
+    descricao: "Atendimento por telemedicina exige: (a) consentimento expresso do paciente registrado, (b) identificacao do medico (CRM + UF + foto), (c) gravacao opcional mas sob consentimento, (d) prescricao digital assinada ICP-Brasil. Servico que pula consentimento ou usa assinatura simples nao e telemedicina valida."
+  - id: HEALTH-EXT-003
+    titulo: "Dado de saude e sensivel (LGPD Art. 11) — base legal restrita"
+    descricao: "Coleta de dado de saude exige uma das 7 bases do Art. 11 (consentimento especifico, obrigacao legal, politica publica, estudo por orgao de pesquisa, exercicio regular de direito, protecao da vida, tutela da saude). 'Legitimo interesse' (Art. 7 IX) NAO se aplica a dado de saude. RIPD (LGPD-008) e obrigatorio em escala."
+  - id: HEALTH-EXT-004
+    titulo: "TISS/TUSS — comunicacao com operadora de plano de saude"
+    descricao: "Faturamento, autorizacao e elegibilidade contra operadora de saude usam padrao TISS (Troca de Informacao em Saude Suplementar) + tabela TUSS de procedimentos. Versao TISS vigente publicada pela ANS — feature que comunica com operadora declara versao no ADR."
+  - id: HEALTH-EXT-005
+    titulo: "Receita digital exige assinatura ICP-Brasil (MP 2.200-2/2001)"
+    descricao: "Prescricao eletronica de medicamento controlado (Portaria 344/98) exige assinatura ICP-Brasil A1 ou A3 do prescritor. Sem ICP, farmacia nao dispensa medicamento controlado. Receita comum tambem evolui pra exigencia ICP — recomendacao desde 2020."
+  - id: HEALTH-EXT-006
+    titulo: "CNS (Cartao SUS) — 15 digitos com algoritmo proprio"
+    descricao: "CNS (Cartao Nacional de Saude) tem 15 digitos com algoritmo de validacao especifico (modulo 11). Feature que coleta CNS valida o algoritmo, nao so o tamanho. Skill `validar-cns-cartao-sus` cobre."
+
+requisitos:
+  - "projeto que trata dado de saude (prontuario, telemedicina, agenda medica, receita, exame)"
+  - "DPO designado (LGPD Art. 11 exige base legal documentada por tratamento)"
+  - "certificado digital ICP-Brasil do prescritor disponivel (pra e-prescricao)"
+
+non-goals:
+  - "substituir consultoria juridica em saude"
+  - "ser certificador ANS/CFM"
+  - "garantir conformidade ANVISA (medicamento) ou CFM (etica medica)"
+  - "validar prontuario contra padrao internacional (HL7 FHIR fica fora)"
+
+aviso-importante: |
+  Este addon esta em STATUS DRAFT (v0.1.0) — esqueleto inicial liberado na auditoria 10-agentes
+  de 2026-05-24. Antes de usar em producao com dado real de paciente:
+  - Validar conformidade com advogado especializado em saude/LGPD
+  - Validar versoes TISS/ANS RN vigentes na data
+  - Conferir CFM/ANVISA aplicavel ao caso
+
+  Issue de evolucao: criar quando comecar uso real do addon.
