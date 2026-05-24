@@ -249,12 +249,17 @@ function isUserOwned(relPath) {
   return USER_OWNED.has(norm);
 }
 
-// Garante bit de execucao em scripts shell. npm pack / copyFileSync nao
+// Garante bit de execucao em scripts shell/Node. npm pack / copyFileSync nao
 // preservam +x de forma confiavel — sem isso o Claude Code nao consegue
 // invocar os hooks e o cliente Unix fica com TODOS os bloqueadores inertes.
+// Pos v1.0 (EP-001), hooks sao .js Node puro — chmod ainda necessario porque
+// settings.json chama `node hook.js` (ok sem +x) mas hooks rodam tambem via
+// shebang em ambiente que respeita (Unix). Cobre .sh por compatibilidade com
+// addons legados que ainda usam bash.
 function ensureExecutable(dest) {
   if (process.platform === 'win32') return;
-  if (!/\.sh$/.test(dest)) return;
+  if (!/\.(sh|js)$/.test(dest)) return;
+  if (!dest.includes(`${path.sep}.claude${path.sep}hooks${path.sep}`)) return;
   try { fs.chmodSync(dest, 0o755); } catch { /* best effort */ }
 }
 
