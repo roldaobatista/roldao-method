@@ -1,15 +1,15 @@
 ---
-description: Walkthrough guiado de uma mudança (PR, branch, commit) antes de subir pra produção. Audita propósito, riscos e contexto.
-argument-hint: "[branch | PR-N | commit-sha]"
+description: Walkthrough guiado de uma mudança (proposta de junção, ramo, ou gravação isolada) antes de subir pra produção. Audita propósito, riscos e contexto. Termos técnicos no jargão: PR=proposta de junção, branch=ramo, commit=gravação, merge=junção.
+argument-hint: "[ramo | proposta-N | identificador-da-gravação]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(mkdir:*), Write, Task
 ---
 
-# /checkpoint — review humano de mudança antes de merge
+# /checkpoint — revisão humana antes de juntar a mudança
 
-Use ANTES de subir pra produção ou abrir PR. Garante que a mudança faz sentido isoladamente e que riscos estão mapeados.
+Use ANTES de subir pra produção ou abrir proposta de junção. Garante que a mudança faz sentido isoladamente e que riscos estão mapeados.
 
-`$ARGUMENTS` = referência da mudança (branch atual por default, ou nome de branch, PR ou SHA).
+`$ARGUMENTS` = referência da mudança (ramo atual por default, ou nome de ramo, número da proposta, ou identificador da gravação isolada).
 
 ## Etapa 1 — Coletar (investigador)
 
@@ -129,7 +129,7 @@ Marker vazio (criado por `touch` puro) é rejeitado — exit 2. **Sem bypass mec
 
 ## Importante
 
-- **NUNCA aprovar PR com auditor BLOQUEADO** sem autorização explícita do usuário.
+- **NUNCA aprovar proposta de junção com auditor BLOQUEADO** sem autorização explícita do usuário.
 - **Apresentar sumário em PT-BR** — sem stack trace, sem stack de testes inteiro.
 - Salvar como `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md`.
 - **Hook mecânico:** `require-checkpoint-before-merge.js` bloqueia commit/merge/push em sessão `/feature` ativa enquanto o marker não existir.

@@ -202,6 +202,32 @@ function hookPrefix(level, name) {
 }
 
 // ---------------------------------------------------------------------------
+// failClosedMessage — formata mensagem de fail-closed PT-BR leiga (T-318/K6).
+// Usado por hooks que precisam abortar por erro interno (parse falhou,
+// ferramenta externa quebrou, ambiente suspeito) sem expor stack trace
+// ao usuario nao-programador.
+//
+// Uso (tipico no catch final):
+//   .catch((err) => {
+//     process.stderr.write(failClosedMessage('meu-hook', err));
+//     process.exit(2);
+//   });
+// ---------------------------------------------------------------------------
+function failClosedMessage(hookName, err) {
+  const errMsg = err && err.message ? err.message : String(err || 'erro nao especificado');
+  return [
+    `${hookPrefix('block', hookName)} erro interno ao validar a operacao.`,
+    `Efeito: a operacao foi RECUSADA por seguranca (fail-closed).`,
+    `Causa: o sistema de protecao do framework nao conseguiu rodar normalmente.`,
+    `Proximo passo:`,
+    `  - Tentar de novo (pode ser falha temporaria de leitura/escrita).`,
+    `  - Se persistir, peca pro agente Claude diagnosticar com 'npx roldao-method doctor'.`,
+    `  - Pra desenvolvedor: detalhe tecnico → ${errMsg}`,
+    ``,
+  ].join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // recordMetric — appenda 1 evento em .claude/.runtime/metrics.jsonl.
 // Formato JSONL: {"ts","kind","label","reason"}.
 // Best-effort: silencia erros (disco cheio, permissao).
@@ -257,6 +283,7 @@ module.exports = {
   posixToJsRegex,
   hookBlockHeader,
   hookPrefix,
+  failClosedMessage,
   recordMetric,
   readStdinJson,
 };

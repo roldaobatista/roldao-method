@@ -1,10 +1,12 @@
 # CLAUDE.local.md — preferências pessoais (NÃO versionar)
 
 > Copie este arquivo para `CLAUDE.local.md` no mesmo diretório. Já está no `.gitignore` — o conteúdo aqui é só do seu setup, não do time.
+>
+> **T-309 (E4):** quando você roda `npx roldao-method install`, os 3 campos abaixo já vêm preenchidos automaticamente (lidos de `git config user.name`, `process.platform`, branch atual). Você só precisa editar o resto.
 
 ## Tua identidade
 
-- **Nome:** _(seu nome — o agente vai te chamar assim)_
+- **Nome:** `<auto-preenchido: git config user.name || $USER>` _(o agente vai te chamar assim)_
 - **Papel no projeto:** _(dono de produto / dev / DPO / contador / outro)_
 - **Domínio que conhece bem:** _(ex.: fiscal NF-e, integração bancária, UX mobile)_
 - **Domínio onde precisa de tradução:** _(ex.: Git, infra, deploy)_
@@ -22,9 +24,13 @@
 
 ## Ambiente local
 
-- **OS:** _(Windows 11 / macOS / Linux)_
+- **OS:** `<auto-preenchido: detectado via process.platform>` _(Windows / macOS / Linux)_
 - **Editor preferido:** _(VS Code, Cursor, etc.)_
-- **Stack pessoal:** _(node 20, python 3.12, etc.)_
+- **Stack pessoal:** `<auto-preenchido: lido de package.json + node --version>` _(node 20, python 3.12, etc.)_
+
+## Branch padrão de trabalho
+
+`<auto-preenchido: git rev-parse --abbrev-ref HEAD>` _(o agente usa este como default em comandos /feature, /bug, /hotfix; sobrescreva se diferente)_
 
 ## Coisas que sempre esqueço
 
