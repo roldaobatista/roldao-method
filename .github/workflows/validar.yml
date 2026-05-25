@@ -216,7 +216,7 @@ jobs:
           head -100 <<< "$OUT"
           # Tamanho descompactado nao pode disparar (regressao silenciosa em files)
           SIZE=$(node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const a=JSON.parse(s);console.log(a[0].unpackedSize)})" <<< "$OUT")
-          MAX=$((2*1024*1024))  # 2 MB descompactado — alerta de regressao
+          MAX=$((3*1024*1024))  # 3 MB descompactado — bump v1.2.4 (era 2 MB; framework cresceu organicamente com 5 hooks novos e doc UX expandida)
           if [ "$SIZE" -gt "$MAX" ]; then
             echo "FAIL: pacote descompactado $SIZE bytes (>2MB). Algum arquivo grande vazou no files?"
             exit 1

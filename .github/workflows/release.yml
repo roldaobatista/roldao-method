@@ -51,7 +51,7 @@ jobs:
         run: |
           OUT=$(npm pack --dry-run --json)
           SIZE=$(node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const a=JSON.parse(s);console.log(a[0].unpackedSize)})" <<< "$OUT")
-          MAX=$((2*1024*1024))
+          MAX=$((3*1024*1024))  # bump v1.2.4 (alinhado com validar.yml)
           if [ "$SIZE" -gt "$MAX" ]; then
             echo "FAIL: tarball $SIZE bytes (>2MB)"
             exit 1

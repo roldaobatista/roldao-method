@@ -9,7 +9,10 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const S = path.join(ROOT, 'templates', '.claude', 'skills');
-const PIS = path.join(ROOT, 'addons', 'esocial-completo', '.claude', 'skills', 'validar-pis-pasep');
+// validar-pis-pasep foi promovida pro core na v1.1.0 (era do addon esocial-completo).
+// Apontar pra templates/.claude/skills/ — o teste vinha falhando no CI porque o
+// path antigo nao existe mais.
+const PIS = path.join(ROOT, 'templates', '.claude', 'skills', 'validar-pis-pasep');
 
 function pythonBin() {
   // python3/python: Unix + Windows Store/python.org.

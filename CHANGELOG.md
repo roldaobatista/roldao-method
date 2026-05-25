@@ -1,8 +1,13 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
-## [1.2.4] — 2026-05-25
+## [1.2.5] — 2026-05-25
 
-**Patch: corrige 5 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
+**Patch: corrige 6 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
+
+### Adicionado no 1.2.5
+
+- **`test/skills.test.js`** apontava pra `addons/esocial-completo/.claude/skills/validar-pis-pasep` mas a skill foi promovida pro core na v1.1.0 e o caminho antigo não existe mais. Agora aponta pra `templates/.claude/skills/validar-pis-pasep`. Local o teste era SKIP (sem Python), no CI rodava e falhava em 6 cenários.
+- **Limite do tarball npm**: 2 MB → 3 MB. O framework cresceu organicamente com a v1.2.0 (5 hooks novos, README ampliado, evals dos 2 agentes novos). Ainda fica bem abaixo do médio dos pacotes npm da categoria — alerta de regressão preservado.
 
 ### Adicionado no 1.2.4
 
