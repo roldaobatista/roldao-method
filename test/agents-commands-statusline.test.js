@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * test/agents-commands-statusline.test.js — valida frontmatter dos 15 agentes
- * (+ docs auxiliares) e 26 commands em templates/.claude/, e smoke do statusline.js.
+ * test/agents-commands-statusline.test.js — valida frontmatter dos 17 agentes
+ * (+ docs auxiliares) e 28 commands em templates/.claude/, e smoke do statusline.js.
  *
  * Auditoria 10-agentes 2026-05-24 identificou que 41 .md críticos (agents+commands)
  * NÃO tinham teste — frontmatter quebrado ou referência cruzada inválida passava
@@ -47,7 +47,7 @@ const agentFiles = fs.readdirSync(AGENTS_DIR).filter((f) => {
   // Pula arquivos com letras maiúsculas (docs auxiliares).
   return !/[A-Z]/.test(f.replace(/\.md$/, ''));
 });
-check('15 agentes invocáveis em templates/.claude/agents/', agentFiles.length === 15, `achou ${agentFiles.length}`);
+check('17 agentes invocáveis em templates/.claude/agents/', agentFiles.length === 17, `achou ${agentFiles.length}`);
 
 for (const file of agentFiles) {
   const fm = readFrontmatter(path.join(AGENTS_DIR, file));
