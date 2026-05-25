@@ -16,6 +16,7 @@ provoca:
   commands: []
   hooks:
     - validate-webhook-signature
+    - pix-idempotency-check
   skills:
     - gerar-br-code-typescript
     - validar-webhook-pix
@@ -29,7 +30,7 @@ regras:
   - id: PIX-EXT-001
     aplica: PIX-001
     titulo: "Implementacao da idempotencia por TxId"
-    descricao: "Concretiza PIX-001 do core: TxId deterministico + Idempotency-Key + lock + UNIQUE. Skill: validar-webhook-pix."
+    descricao: "Concretiza PIX-001 do core: TxId deterministico + Idempotency-Key + lock + UNIQUE. Hook pix-idempotency-check.js bloqueia criacao de cobranca com menos de 2 das 4 camadas. Skill validar-webhook-pix ajuda no handler."
   - id: PIX-EXT-002
     aplica: PIX-002
     titulo: "Validacao HMAC do webhook na primeira linha"
@@ -37,7 +38,7 @@ regras:
   - id: PIX-EXT-003
     aplica: PIX-003
     titulo: "EndToEndId em coluna indexada"
-    descricao: "Concretiza PIX-003 do core. Agente pix-arch desenha schema com indice UNIQUE."
+    descricao: "Concretiza PIX-003 do core. Hook pix-idempotency-check.js bloqueia schema com coluna EndToEndId sem indice + matching por nome+valor (anti-padrao). Agente pix-arch desenha schema."
   - id: PIX-EXT-004
     aplica: novo  # nao tem equivalente no core — e novidade Open Finance
     titulo: "Open Finance via FAPI + mTLS"
