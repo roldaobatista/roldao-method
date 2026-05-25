@@ -53,6 +53,8 @@ const PATTERNS = [
   { re: /dd\s+if=/i, desc: 'escrever raw em disco (dd if=)' },
   { re: /curl.*\|\s*(bash|sh)/i, desc: 'baixar e executar script da internet (curl | bash)' },
   { re: /wget.*\|\s*(bash|sh)/i, desc: 'baixar e executar script da internet (wget | bash)' },
+  { re: /base64\s+(-d|--decode|-D)\s*[^|]*\|\s*(bash|sh)/i, desc: 'decodificar base64 e executar (base64 -d | bash) — bypass clássico' },
+  { re: /\|\s*(bash|sh)\s*$/i, desc: 'piping para bash/sh — comando opaco, exige rever em texto claro' },
   { re: /DROP\s+TABLE/i, desc: 'apagar tabela do banco (DROP TABLE)' },
   { re: /TRUNCATE\s+TABLE/i, desc: 'esvaziar tabela do banco (TRUNCATE TABLE)' },
   { re: /DROP\s+DATABASE/i, desc: 'apagar banco inteiro (DROP DATABASE)' },
@@ -68,8 +70,17 @@ const PATTERNS = [
 
   // Fail-closed: se parse falhou mas ha input cru, escaneia o input. Sai 0 so
   // se realmente vazio. Equivale ao `if [ -z "$CMD" ]; then if [ -n "$INPUT" ]` no .sh.
-  const cmd = input?.tool_input?.command || '';
-  if (!cmd) process.exit(0);
+  const rawCmd = input?.tool_input?.command || '';
+  if (!rawCmd) process.exit(0);
+
+  // Normaliza pra detectar bypass por escape backslash/quote (ex: `r\m -rf /`, `r""m -rf /`).
+  // Shell aceita `r\m`/`r"m"` como `rm`. Removemos backslashes que escapam letras E quotes
+  // vazias intercaladas dentro de palavras. Usado APENAS pra matching — passamos `rawCmd`
+  // pra mensagem de erro pra mostrar o original ao usuario.
+  const cmd = rawCmd
+    .replace(/\\([A-Za-z])/g, '$1')           // r\m -> rm, c\url -> curl
+    .replace(/([A-Za-z])["']{2}([A-Za-z])/g, '$1$2') // r""m -> rm, r''m -> rm
+    .replace(/(["'])\1/g, '');                // remove "" e '' isoladas
 
   // Whitelist de rm -rf safe: aceita 1 OU MAIS alvos, todos na whitelist.
   // Ex: `rm -rf node_modules dist coverage` — libera porque todos sao regeneraveis.
@@ -98,7 +109,7 @@ const PATTERNS = [
   for (const { re, desc } of PATTERNS) {
     if (re.test(cmd)) {
       process.stderr.write(`[block-destructive] BLOQUEADO: comando irreversível detectado.\n\n`);
-      process.stderr.write(`Comando: ${cmd}\n`);
+      process.stderr.write(`Comando: ${rawCmd}\n`);
       process.stderr.write(`O que detectamos: ${desc}\n\n`);
       process.stderr.write(`Por que bloqueia (SEC-002, INV-AGENT-005): operação destrutiva exige confirmação explícita do dono do projeto.\n\n`);
       process.stderr.write(`Como destravar (se for intencional):\n`);
