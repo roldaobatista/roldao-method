@@ -97,13 +97,42 @@ function formatar(prefixo, numero, padding) {
   return `${prefixo}-${String(numero).padStart(padding, '0')}`;
 }
 
+function printHelp() {
+  process.stdout.write(`next-id.js — devolve o próximo ID disponível pra US/PRD/EP/ADR/T.
+
+Uso:
+  node .specify/scripts/next-id.js <tipo> [storyId-se-t]
+
+Tipos:
+  us    próximo US-NNN (varre docs/stories/)
+  prd   próximo PRD-NNN (varre docs/prd/)
+  ep    próximo EP-NNN (varre docs/epicos/)
+  adr   próximo ADR-NNN (varre docs/decisions/)
+  t     próximo T-NNN dentro da story informada (T é local por story)
+
+Exemplos:
+  node .specify/scripts/next-id.js us              # -> US-115
+  node .specify/scripts/next-id.js adr             # -> ADR-019
+  node .specify/scripts/next-id.js t US-042        # -> T-005 (próximo task da US-042)
+
+Saída: 1 linha só com o ID formatado, pronto pra outro script consumir:
+  NEW_ID=$(node .specify/scripts/next-id.js us)
+
+INV-004 — IDs rastreáveis.
+
+ATENÇÃO: este script NÃO é atômico em chamadas paralelas. Duas execuções
+simultâneas devolvem o mesmo ID. Se rodar em paralelo (CI, multi-agente),
+faça lock externo ou serialize as chamadas.
+`);
+}
+
 function main() {
   const tipo = (process.argv[2] || '').toLowerCase();
   const arg2 = process.argv[3] || '';
 
-  if (!tipo) {
-    process.stderr.write('Uso: node next-id.js <us|prd|ep|adr|t> [storyId-se-t]\n');
-    process.exit(1);
+  if (!tipo || tipo === '--help' || tipo === '-h' || tipo === 'help') {
+    printHelp();
+    process.exit(tipo ? 0 : 1);
   }
 
   if (tipo === 't') {
@@ -113,7 +142,7 @@ function main() {
 
   const cfg = TIPOS[tipo];
   if (!cfg) {
-    process.stderr.write(`Tipo desconhecido: ${tipo}. Use: us, prd, ep, adr, t.\n`);
+    process.stderr.write(`Tipo desconhecido: ${tipo}. Use: us, prd, ep, adr, t. Veja --help.\n`);
     process.exit(1);
   }
 

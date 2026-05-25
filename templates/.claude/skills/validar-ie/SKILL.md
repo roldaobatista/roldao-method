@@ -1,6 +1,6 @@
 ---
 name: validar-ie
-description: Valida Inscricao Estadual brasileira (formato + digito verificador por UF) e normaliza pra so digitos. Use ao receber IE de cadastro de empresa, importacao fiscal, integracao com SEFAZ ou geracao de NF-e. Cada UF tem algoritmo proprio.
+description: Valida Inscricao Estadual brasileira (formato + digito verificador) e normaliza pra so digitos. Cobertura DV completa em 6 UFs (SP, RJ, RS, PR, SC, BA); outras 21 UFs retornam `valido:false` com aviso pra consultar SINTEGRA/SEFAZ. Use ao receber IE de cadastro de empresa, importacao fiscal, integracao com SEFAZ ou geracao de NF-e.
 allowed-tools: Bash(python3:*), Bash(python:*), Bash(py:*)
 owner: framework
 revisado-em: 2026-05-22

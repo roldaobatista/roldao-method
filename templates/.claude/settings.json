@@ -67,8 +67,6 @@
       "Bash(stat *)",
       "Bash(du -*)",
       "Bash(df -*)",
-      "Bash(env)",
-      "Bash(printenv*)",
       "Bash(uname*)",
       "Bash(whoami)",
       "Bash(hostname)",
@@ -272,6 +270,8 @@
       "Bash(realpath *)"
     ],
     "ask": [
+      "Bash(env)",
+      "Bash(printenv*)",
       "Bash(git push*)",
       "Bash(git tag*)",
       "Bash(gh release create*)",

@@ -23,6 +23,8 @@ Moldes prontos pra **spec-driven development** (INV-002).
 | `decision-log.md` | Log cronológico de decisões pequenas/médias |
 | `headless-schemas.md` | Referência do contrato de frontmatter (espelha templates + hooks) |
 | `adr-contingencia-fiscal.md` | ADR obrigatório pra feature de emissão fiscal (FISCAL-004 contingência) |
+| `release-notes.md` | Release notes (`docs/releases/vX.Y.Z.md`) — usado por `/release` |
+| `postmortem.md` | Postmortem (`docs/postmortems/`) — usado por `/incident-postmortem`, prazo 48h, LGPD-006/72h |
 
 ADR padrão continua em `.claude/skills/gerar-adr-pt-br/templates/adr.md` (gravado em `docs/decisions/`); o ADR de contingência fiscal acima é especialização.
 

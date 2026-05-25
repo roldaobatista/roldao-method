@@ -8,6 +8,14 @@ status: stable
 
 Cada modo do agente `tech-writer` tem template fixo. Camila preenche os placeholders `<...>` e mantem o resto.
 
+## Quando preencher cada secao
+
+**Regra de cobertura** (round 11):
+
+- **Seção "O que muda pra voce (não-programador)"** é **obrigatória em release minor e major** (X.Y.0 e X.0.0). Releases patch (X.Y.Z) podem omitir SE forem apenas housekeeping interno (refactor invisível, bump de versão, fix de teste). Patch que muda comportamento visível ao usuário (mensagem de erro, fluxo, nova validação) DEVE incluir a seção.
+- Patch sem efeito visível → escrever `### O que muda pra voce (nao-programador)` + `- Nada visível. Mudança interna do framework.` (ainda preencher a seção, mas dizendo explicitamente que não há efeito).
+- **Justificativa:** dono de produto não-programador lê o CHANGELOG pra saber se precisa avisar a equipe ou os clientes. Patch silencioso engana. Auditoria de 2026-05-25 achou 35 versões patch sem essa seção — política agora documentada.
+
 ## CHG — bloco no CHANGELOG.md
 
 ```markdown
