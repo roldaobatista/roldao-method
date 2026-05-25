@@ -29,9 +29,12 @@ const PATTERNS = [
   { re: /rm\s+-[A-Za-z]*r[A-Za-z]*f/i, desc: 'apagar pasta inteira recursivamente (rm -rf)' },
   { re: /rm\s+-[A-Za-z]*f[A-Za-z]*r/i, desc: 'apagar pasta inteira recursivamente (rm -fr)' },
   { re: /rm\s+-[A-Za-z]*r(\s|$)/i, desc: 'apagar recursivamente (rm -r)' },
-  { re: /rm\s+-[fr][A-Za-z]*\s*[-./~"'$*]/i, desc: 'rm com alvo perigoso (path absoluto, home, ou wildcard)' },
+  // Alvo perigoso: path absoluto (/), home (~), wildcard glob (*), variavel ($).
+  // Atencao: NAO casa `rm -f arquivo.log` (ponto no nome de 1 arquivo e benigno).
+  { re: /rm\s+-[fr][A-Za-z]*\s+["']?[/~*$]/i, desc: 'rm com alvo perigoso (path absoluto, home, wildcard ou variavel)' },
+  { re: /rm\s+-[fr][A-Za-z]*\s+["']?\.\.\//i, desc: 'rm com path traversal (../)' },
   { re: /rm\s+.*--recursive/i, desc: 'apagar recursivamente (rm --recursive)' },
-  { re: /rm\s+.*--force/i, desc: 'apagar sem perguntar (rm --force)' },
+  { re: /rm\s+.*--force\b/i, desc: 'apagar sem perguntar (rm --force longo — use -f curto pra single file)' },
   { re: /rm\s+.*--no-preserve-root/i, desc: 'apagar a raiz do sistema (rm --no-preserve-root)' },
   { re: /find\s+.*-delete/i, desc: 'apagar arquivos varridos por find' },
   { re: /find\s+.*-exec\s+rm/i, desc: 'find + rm em massa' },
@@ -68,16 +71,24 @@ const PATTERNS = [
   const cmd = input?.tool_input?.command || '';
   if (!cmd) process.exit(0);
 
-  // Whitelist de rm -rf safe: se for `rm -[rf flags] <whitelist>` puro (1 alvo,
-  // sem traversal, sem $HOME), libera silenciosamente.
+  // Whitelist de rm -rf safe: aceita 1 OU MAIS alvos, todos na whitelist.
+  // Ex: `rm -rf node_modules dist coverage` — libera porque todos sao regeneraveis.
   const rmMatch = cmd.match(/^\s*rm\s+-[a-zA-Z]*[rf][a-zA-Z]*\s+(.+?)\s*$/);
   if (rmMatch) {
-    let target = rmMatch[1].trim();
-    target = target.replace(/^["']/, '').replace(/["']$/, '');
-    const dangerous = / |\.\.|^\/$|^~$|^~\/|^\$HOME|^\/etc|^\/usr|^\/var|^\/home/.test(target);
-    if (!dangerous) {
-      const stripped = target.replace(/^\.\//, '');
-      if (SAFE_RM_TARGETS.test(stripped)) {
+    const rawTargets = rmMatch[1].trim();
+    // Bloqueia presenca de tokens perigosos GLOBAIS no comando (variavel, drives Windows)
+    const globalDanger = /\$HOME|\$\{HOME|%USERPROFILE%|%TEMP%|^\/|\\|[A-Za-z]:[\\/]/.test(rawTargets);
+    if (!globalDanger) {
+      // Split por espaco (ignora quotes simples e duplas em volta de cada alvo)
+      const targets = rawTargets.split(/\s+/).map((t) => t.replace(/^["']|["']$/g, ''));
+      const todosWhitelisted = targets.length > 0 && targets.every((t) => {
+        if (!t) return false;
+        const dangerous = /\.\.|^\/$|^~$|^~\/|^\$|^\/etc|^\/usr|^\/var|^\/home/.test(t);
+        if (dangerous) return false;
+        const stripped = t.replace(/^\.\//, '');
+        return SAFE_RM_TARGETS.test(stripped);
+      });
+      if (todosWhitelisted) {
         process.exit(0);
       }
     }

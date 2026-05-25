@@ -28,6 +28,11 @@ const PATTERNS = [
 
 const LEGIT_RE = /\bnpm publish\b|\bdrop (table|database)\b|\bgit push --force\b|\brm -rf\b|\breset --hard\b|\brotacion(ar|ado) credencial|\bdeletar (producao|prod|dados)\b|\bcobrar\b|\bgastar\b|\bpagar\b|\bcredencial\b|\bgastos com terceiros\b/i;
 
+// Exceção adicional: walkthrough de checkpoint, retrospectiva e clarificações sao
+// fluxos de aprovacao humana legitimos onde a pergunta de confirmacao FAZ parte do
+// processo (Roldão é o aprovador). Hook ignora contexto que cita checkpoint/retro/clarificar.
+const APPROVAL_WORKFLOW_RE = /\b(checkpoint|walkthrough|retro(spectiva)?|clarificar|escalar (humano|usuario|roldao))\b/i;
+
 (async () => {
   const input = await readStdinJson();
   let resp = input?.response || input?.message || '';
@@ -54,6 +59,9 @@ const LEGIT_RE = /\bnpm publish\b|\bdrop (table|database)\b|\bgit push --force\b
     const ctxStart = Math.max(0, i - 3);
     const ctx = lines.slice(ctxStart, i + 1).join('\n');
     if (LEGIT_RE.test(ctx)) continue;
+    // Excecao: workflow de aprovacao humana (checkpoint walkthrough, retro, clarificar)
+    // onde a pergunta É o processo, nao empurrar decisao.
+    if (APPROVAL_WORKFLOW_RE.test(ctx)) continue;
     const hitMatch = line.match(hitPat);
     const hit = hitMatch ? hitMatch[0] : '';
     violations.push(`pergunta de confirmacao: '${hit}' -> ${line}`);

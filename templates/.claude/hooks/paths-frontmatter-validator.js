@@ -3,14 +3,14 @@
 // Hook PreToolUse, matcher: Write|Edit. INV-004.
 
 const path = require('path');
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const DOC_MD_RE = /docs\/.*\.(md|MD)$/;
 const CANONICAL_NAMES = new Set(['README.md', 'INDICE.md', 'CONVENCOES-DOC.md', 'QUICKSTART.md', 'PUBLICAR.md']);
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (!filePath) process.exit(0);
   if (!DOC_MD_RE.test(filePath)) process.exit(0);
 

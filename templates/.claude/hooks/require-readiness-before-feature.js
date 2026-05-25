@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|ROADMAP|test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.json$|\.ya?ml$|\.toml$|\.ini$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
@@ -21,7 +21,7 @@ function firstMatchFile(dir, predicate) {
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (!filePath) process.exit(0);
   if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
   if (!CODE_EXT_RE.test(filePath)) process.exit(0);

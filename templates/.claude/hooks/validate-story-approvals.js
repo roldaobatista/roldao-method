@@ -52,13 +52,17 @@ function extractEtapaBlock(content, etapa) {
     missing.push("tech-lead (pode ser 'dispensado' para features triviais)");
   }
 
-  // T-025 (J10): valida audit_sha nas etapas que auditam diff
+  // T-025 (J10): valida audit_sha nas etapas que auditam diff.
+  // Aceita `status: aprovado` E variantes com sufixo (`aprovado-retroativo`,
+  // `aprovado-com-ressalva`) — todas exigem audit_sha porque sao "aprovado" em
+  // alguma forma. Antes do fix da auditoria 10-agentes, a regex era strict e
+  // 7 stories com "aprovado-retroativo" escapavam o gate (audit_sha fantasma).
   const missingSha = []; // {etapa, motivo}
+  const APROVADO_RE = /^\s*status:\s*aprovado(-[a-z-]+)?\s*$/im;
   for (const etapa of REQUIRE_AUDIT_SHA) {
     const block = extractEtapaBlock(content, etapa);
     if (!block) continue; // ja flagrado em REQUIRED se faltar
-    // status: aprovado exige audit_sha; status: dispensado/reprovado/bloqueado nao
-    if (!/^\s*status:\s*aprovado\s*$/m.test(block)) continue;
+    if (!APROVADO_RE.test(block)) continue;
     const shaMatch = block.match(/^\s*audit_sha:\s*([a-f0-9]+)\s*$/im);
     if (!shaMatch) {
       missingSha.push({ etapa, motivo: 'campo "audit_sha" ausente' });

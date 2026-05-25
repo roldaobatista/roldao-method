@@ -11,14 +11,17 @@ const TIPOS = 'feat|fix|refactor|chore|docs|test|perf|build|ci|revert';
 const TIPOS_STYLE = TIPOS + '|style';
 
 function extractMessages(cmd) {
+  // Normaliza CRLF Windows → LF antes de qualquer regex
+  const normalized = cmd.replace(/\r\n/g, '\n');
   const parts = [];
   const reShort = /-m\s+(["'])(.*?)\1/gs;
   let m;
-  while ((m = reShort.exec(cmd)) !== null) parts.push(m[2]);
+  while ((m = reShort.exec(normalized)) !== null) parts.push(m[2]);
   const reLong = /--message[=\s]+(["'])(.*?)\1/gs;
-  while ((m = reLong.exec(cmd)) !== null) parts.push(m[2]);
-  const reHeredoc = /<<\s*'?(\w+)'?\s*\n([\s\S]*?)\n\1/;
-  const hd = cmd.match(reHeredoc);
+  while ((m = reLong.exec(normalized)) !== null) parts.push(m[2]);
+  // Heredoc com EOL tolerante (\r?\n) — Git Bash for Windows pode injetar CRLF
+  const reHeredoc = /<<\s*'?(\w+)'?\s*\r?\n([\s\S]*?)\r?\n\1\b/;
+  const hd = normalized.match(reHeredoc);
   if (hd) parts.push(hd[2]);
   return parts.join('\n');
 }
@@ -35,9 +38,11 @@ function extractMessages(cmd) {
   const isAmend = /--amend/.test(cmd);
   if (!hasInline && !isAmend) process.exit(0);
 
-  // Extrai mensagem. Fail-closed: se parser falhar, usa CMD inteiro pra evitar bypass.
-  let msg = extractMessages(cmd);
-  if (!msg) msg = cmd;
+  // Extrai mensagem. Se parser falhar (heredoc malformado, encoding raro), exit 0
+  // ao inves de validar CMD inteiro. Validar CMD causava falso positivo cronico
+  // em Windows com CRLF.
+  const msg = extractMessages(cmd);
+  if (!msg) process.exit(0);
 
   const primeiraLinha = msg.split(/\r?\n/)[0];
   const violations = [];
@@ -47,26 +52,25 @@ function extractMessages(cmd) {
     violations.push(`primeira linha tem ${primeiraLinha.length} caracteres (maximo 72): ${primeiraLinha}`);
   }
 
-  // Regra 2: nao misturar prefixos (declarcao com `:`)
-  const tiposDeclRe = new RegExp(`\\b(${TIPOS})(\\([^)]*\\))?!?:`, 'gi');
-  const seg = primeiraLinha.match(/^([^:]{0,40}):/);
-  const segText = seg ? seg[1] : '';
-  const segTipos = new Set();
+  // Identifica tipo declarado no formato `tipo(escopo)?: ...` (1a ocorrencia)
+  const prefixDeclMatch = primeiraLinha.match(/^([a-zA-Z]+)(?:\(([^)]*)\))?\s*!?:/);
+  const tipoDeclarado = prefixDeclMatch ? prefixDeclMatch[1].toLowerCase() : '';
+  const prefixos = tipoDeclarado ? new Set([tipoDeclarado]) : new Set();
+
+  // Regra 2: nao misturar prefixos NO HEADER (ex: "feat: fix: ..." ou "feat:fix:").
+  // Antes: acumulava qualquer mencao de outro tipo no corpo da primeira linha —
+  // "feat(US-014): refactor do modulo X" virava feat+refactor (falso positivo).
+  // Agora so olha o segText (parte ANTES do primeiro `:`).
+  const segText = primeiraLinha.split(':')[0] || '';
   const segMatchRe = new RegExp(`\\b(${TIPOS})\\b`, 'gi');
+  const segTipos = new Set();
   let sm;
   while ((sm = segMatchRe.exec(segText)) !== null) segTipos.add(sm[1].toLowerCase());
-  const declTipos = new Set();
-  let dm;
-  while ((dm = tiposDeclRe.exec(primeiraLinha)) !== null) declTipos.add(dm[1].toLowerCase());
-  const prefixos = new Set([...declTipos, ...segTipos]);
-  if (prefixos.size > 1) {
-    violations.push(`commit mistura prefixos: ${[...prefixos].join(' ')} — separe em commits atomicos (INV-AGENT-005)`);
+  if (segTipos.size > 1) {
+    violations.push(`commit mistura prefixos: ${[...segTipos].join(' ')} — separe em commits atomicos (INV-AGENT-005)`);
   }
 
   // Regra 3a: tipo declarado deve estar na lista canonica
-  const tipoDeclMatch = primeiraLinha.match(/^([a-zA-Z]+)(?:\([^)]*\))?\s*:/);
-  let tipoDeclarado = '';
-  if (tipoDeclMatch) tipoDeclarado = tipoDeclMatch[1].toLowerCase();
   if (tipoDeclarado) {
     const validos = new Set(TIPOS_STYLE.split('|'));
     if (!validos.has(tipoDeclarado)) {
@@ -75,7 +79,7 @@ function extractMessages(cmd) {
   }
 
   // Regra 3b: warning sem prefixo (nao bloqueia)
-  if (prefixos.size === 0 && !tipoDeclarado) {
+  if (!tipoDeclarado) {
     process.stderr.write(`[commit-message-validator] AVISO: sem prefixo (feat/fix/refactor/chore/docs/test): ${primeiraLinha}\n`);
   }
 

@@ -87,6 +87,12 @@ const COMBINED_RE = new RegExp(JARGON_TERMS.join('|'), 'gi');
     // pra exigir contexto explicito de jargao/tecnico.
     if (/block-jargon-pt-br|INV-AGENT-001|hook que bloqueia jarg|tabela de jarg/i.test(ctx)) continue;
     if (/tabela de tradu[cç][aã]o[^.]{0,80}(jarg|tecnic|t[eé]cnic)/i.test(ctx)) continue;
+    // Auditoria 10-agentes pos-correcao: contexto de CHANGELOG/release/checkpoint/postmortem
+    // sao docs tecnicos onde os termos sao descritivos (estao narrando o que mudou).
+    if (/^#{1,4}\s*(Adicionado|Mudado|Corrigido|Removido|Preservado|Deprecado|Seguranca)\b/i.test(ctx)) continue;
+    if (/CHANGELOG\.md|docs\/releases\/|docs\/checkpoints\/|docs\/postmortems\//i.test(ctx)) continue;
+    // Doc tecnico citando ID rastreavel (ADR-NN, US-NN, EP-NN, PRD-NN, T-NN).
+    if (/\b(ADR|US|EP|PRD|T)-\d+/i.test(ctx)) continue;
     violations.push(`jargao sem traducao: '${m}' em -> ${ctx}`);
   }
 

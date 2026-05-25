@@ -81,12 +81,20 @@ function git(args, cwd) {
   } catch { /* best-effort */ }
 
   // ----- 2. State machine-readable -----
+  // PERSISTENTES (sobrevivem a --continue/--resume): markers de workflow multi-sessao.
+  // Antes (auditoria 10-agentes): TUDO era persistido, incluindo markers efemeros do
+  // pipeline FT (sofia-done, detetive-done, etc), gerando loop session-cleanup/restore
+  // — limpava efemeros e o restore os recriava obsoletos na sessao seguinte.
+  // Agora persistimos apenas o que faz sentido cruzar sessao.
   const PATTERNS = [
-    'feature-active-', 'bug-active-', 'readiness-passed-', 'auditor-',
-    'investigator-invoked-', 'sofia-invoked-', 'rafael-invoked-', 'rafael-skipped-',
-    'checkpoint-done-',
+    'readiness-passed-',   // valido pro epico inteiro, persiste entre stories
+    'prd-active-',         // modo PRD multi-sessao
+    'brownfield-active-',  // modo BROWNFIELD multi-sessao
+    'ar-active-',          // modo AR multi-sessao
   ];
-  const SUFFIX_PATTERNS = [/-done-/, /-skipped-/];
+  // SUFFIX_PATTERNS removidos: -done-/-skipped- sao efemeros do pipeline atual,
+  // session-cleanup limpa e nao devem ressurgir na proxima sessao.
+  const SUFFIX_PATTERNS = [];
   let allMarkers = [];
   try {
     const entries = fs.readdirSync(runtime);

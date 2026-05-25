@@ -5,7 +5,7 @@
 // Port Node do .sh. Detecta CPF formatado, CPF nao-formatado (com DV valido),
 // email de provedor real, telefone BR formatado.
 
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const FIXTURE_PATH_RE = /fixture|seed|mock-?data|test-?data|sample|\.test\.|\.spec\.|test\/|tests\/|spec\/|specs\//;
 const EXCEPTION_RE = /TST-004-exception|sintetico|synthetic|fake-data/;
@@ -41,7 +41,7 @@ const SYNTHETIC_PHONES = new Set(['11999999999']);
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (!FIXTURE_PATH_RE.test(filePath)) process.exit(0);
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';

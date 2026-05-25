@@ -2,7 +2,7 @@
 // block-mock-in-integration.js — bloqueia mock em arquivo de integration/e2e.
 // Hook PreToolUse, matcher: Write|Edit. TST-003.
 
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const INTEGRATION_PATH_RE = /integration|e2e|end-to-end/i;
 
@@ -24,7 +24,7 @@ const EXCEPTION_RE = /TST-003-exception|justificativa-mock/;
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (!INTEGRATION_PATH_RE.test(filePath)) process.exit(0);
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';

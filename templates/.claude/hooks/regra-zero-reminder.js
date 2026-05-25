@@ -6,7 +6,21 @@ const fs = require('fs');
 const path = require('path');
 const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir } = require('./_lib.js');
 
-const TRIGGERS = /\b(bug|erro|problema|n[aã]o\s+funciona|n[aã]o\s+sai|n[aã]o\s+aparece|n[aã]o\s+salva|tela\s+errada|c[aá]lculo\s+errado|valor\s+errado|deveria|esperava|estranho|travou|quebrou)\b/i;
+// Gatilhos: termos fortes de bug (bug, erro, problema, travou, quebrou, "nao funciona")
+// disparam por si só. Gatilhos fracos (deveria, esperava, estranho) precisam de
+// contexto adicional pra evitar falso positivo em pedido de feature/refactor.
+// Antes (auditoria 10-agentes): "implementar X que deveria validar Y" disparava o reminder
+// e armava bug-trigger, bloqueando dev-senior no meio de /feature legítimo.
+const TRIGGERS_FORTES = /\b(bug|erro|problema|n[aã]o\s+funciona|n[aã]o\s+sai|n[aã]o\s+aparece|n[aã]o\s+salva|tela\s+errada|c[aá]lculo\s+errado|valor\s+errado|travou|quebrou|crash(ou|ando)?|exception|stack\s*trace|reportou\s+que|cliente\s+disse|comportamento\s+errado)\b/i;
+const TRIGGERS_FRACOS = /\b(deveria|esperava|estranho|inesperad[oa]|comportamento\s+(errad|estranh))\b/i;
+// Contexto adicional pra trigger fraco virar bug-trigger: alguma evidencia de produção/usuário/dados reais.
+const CTX_BUG = /\b(produc[aã]o|prod\b|usu[aá]ri[oa]|cliente|banco|log|payload|console|tela|formul[aá]rio|relat[oó]rio|emiss[aã]o|exporta[cç][aã]o|impress[aã]o|reporto?u)\b/i;
+
+function isBugPrompt(text) {
+  if (TRIGGERS_FORTES.test(text)) return true;
+  if (TRIGGERS_FRACOS.test(text) && CTX_BUG.test(text)) return true;
+  return false;
+}
 
 const REMINDER = `
 [ROLDAO-METHOD — REGRA #0 ativada]
@@ -30,7 +44,7 @@ Aplica regras: INV-006, INV-AGENT-002.
   const input = await readStdinJson();
   const prompt = input?.prompt || '';
   if (!prompt) process.exit(0);
-  if (!TRIGGERS.test(prompt)) process.exit(0);
+  if (!isBugPrompt(prompt)) process.exit(0);
 
   let projdir;
   try {

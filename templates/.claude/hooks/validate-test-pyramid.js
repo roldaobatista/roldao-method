@@ -4,11 +4,13 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, recordMetric } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const E2E_PATH_RE = /e2e\/|e2e-tests\/|end-to-end\/|\.e2e\.|playwright\/|cypress\/integration\//;
 const E2E_DIR_RE = /\/(e2e|e2e-tests|end-to-end|playwright|cypress|cypress\/integration)$/;
-const UNSAFE_PATH_RE = /\.\.|^\/|^[A-Za-z]:\\/;
+// UNSAFE: path traversal OU path absoluto. Cobre absoluto Unix (/), Windows (C:/, C:\),
+// e Git Bash mount (/c/). Path normalizado tem so `/`, entao C:\foo vira C:/foo.
+const UNSAFE_PATH_RE = /\.\.|^\/|^[A-Za-z]:\//;
 
 const UNIT_TEST_EXTS = new Set([
   '.test.js', '.test.ts', '.test.jsx', '.test.tsx',
@@ -44,12 +46,12 @@ function walkDir(dir, onFile) {
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (!filePath) process.exit(0);
   if (!E2E_PATH_RE.test(filePath)) process.exit(0);
 
   // Identifica modulo: sobe um nivel se MODULE_DIR termina em /e2e, /cypress, etc.
-  let moduleDir = path.dirname(filePath);
+  let moduleDir = normalizeFilePath(path.dirname(filePath));
   if (E2E_DIR_RE.test(moduleDir)) moduleDir = path.dirname(moduleDir);
 
   // Sanitizacao: rejeita .., path absoluto/windows
