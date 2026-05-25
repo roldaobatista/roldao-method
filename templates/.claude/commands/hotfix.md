@@ -27,10 +27,13 @@ Mesmo em emergencia, o investigador roda. A diferenca pro `/bug` e:
 
 ## Fluxo (mantenha esta ordem)
 
-1. **Sessao + marker.** Cria `.claude/.runtime/hotfix-active-<sess>` pra hook anti-mascaramento saber.
+1. **Sessao + marker.** Marca a sessao como bug-trigger (mesmo marker que `/bug` usa — hook `require-investigador-before-fix` arma sobre isso). Marker `hotfix-active-*` adicional é doc-only — nenhum hook consome, serve so de breadcrumb visivel:
    ```bash
    SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
-   mkdir -p .claude/.runtime && touch .claude/.runtime/hotfix-active-${SESSION_HASH}
+   mkdir -p .claude/.runtime
+   touch .claude/.runtime/bug-trigger-${SESSION_HASH}     # arma require-investigador-before-fix
+   touch .claude/.runtime/bug-active-${SESSION_HASH}      # arma GATE 2 (shape JSON)
+   touch .claude/.runtime/hotfix-active-${SESSION_HASH}   # breadcrumb (so visivel; sem hook consumindo)
    ```
 
 2. **Investigador (5-10 min).** Le banco/log/payload. Reporta:
@@ -48,7 +51,11 @@ Mesmo em emergencia, o investigador roda. A diferenca pro `/bug` e:
    - Nao introduz novo bug obvio.
    - Commit com `T-NNN` rastreavel + tag `hotfix:` no prefixo.
 
-5. **Marker de pos-incidente.** Cria `.claude/.runtime/needs-postmortem-<sess>`. Este marker BLOQUEIA proximo `/release` ate `/incident-postmortem` rodar.
+5. **Marker de pos-incidente (doc-only).** Cria `.claude/.runtime/needs-postmortem-<sess>` como **breadcrumb visivel**. Atencao: hoje nenhum hook do core consome esse marker — o gate de "rodar postmortem em 48h" depende de DISCIPLINA, nao de bloqueio mecanico. Se voce quer enforcement automatico, instale o addon `lgpd-compliance` que adiciona `require-postmortem-before-release.js`.
+
+   ```bash
+   touch .claude/.runtime/needs-postmortem-${SESSION_HASH}
+   ```
 
 ## Apos o fix em producao
 
@@ -58,7 +65,7 @@ Mesmo em emergencia, o investigador roda. A diferenca pro `/bug` e:
 - Documentacao do incidente em `docs/incidentes/INC-NNN-*.md`.
 - Acao corretiva com `T-NNN` rastreavel (nao "anota mentalmente").
 
-Se passar de 48h sem postmortem, hook `require-checkpoint-before-merge` bloqueia novo merge na main ate fechar o ciclo.
+Atencao: o **gate de 48h** e disciplinar, nao mecanico no core. `require-checkpoint-before-merge.js` valida o checkpoint do diff atual, nao o postmortem. Para enforcement automatico de postmortem (LGPD-006 + ciclo de 48h), instale o addon `lgpd-compliance`.
 
 ## Saida final do `/hotfix`
 

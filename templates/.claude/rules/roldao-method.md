@@ -1,6 +1,11 @@
 ---
 description: ROLDAO-METHOD — regras unificadas. No Claude Code, os 26 hooks bloqueadores codificam tudo isto. Este arquivo é referência rápida para revisar contrato sem abrir cada hook.
-paths: ["**/*"]
+paths:
+  - "docs/**"
+  - ".claude/**"
+  - "REGRAS-INEGOCIAVEIS.md"
+  - "AGENTS.md"
+  - "CLAUDE.md"
 status: stable
 owner: framework
 revisado-em: 2026-05-24

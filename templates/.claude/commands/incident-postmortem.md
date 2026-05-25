@@ -33,7 +33,13 @@ Reporta:
 **Se houver indicio de vazamento ou comprometimento de dado pessoal:**
 
 - Acione o agente `auditor-seguranca` no modo "incidente LGPD-006".
-- Skill `responder-incidente-anpd` gera o draft de comunicacao para ANPD (Art. 48 LGPD + Resolucao CD/ANPD 15/2024).
+- Verifique se a skill `responder-incidente-anpd` esta disponivel (vem com o addon `lgpd-compliance`). Se sim, use; se nao, gere o draft de comunicacao manualmente seguindo Art. 48 LGPD + Resolucao CD/ANPD 15/2024 — campos minimos: descricao do incidente, dados afetados, numero de titulares, medidas adotadas, riscos relevantes, medidas de mitigacao em andamento.
+
+  Para instalar o addon (recomendado se o projeto trata dado pessoal):
+  ```
+  npx roldao-method add lgpd-compliance
+  ```
+
 - Prazo: ANPD em ate **72h** apos ciencia. Comunicacao aos titulares idem.
 - Decisao **NAO POSSO TOMAR SOZINHO** — usuario/DPO precisa aprovar antes do envio.
 
