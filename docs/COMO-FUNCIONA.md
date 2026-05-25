@@ -6,12 +6,19 @@ status: stable
 
 # Como funciona — fluxos e estrutura
 
-> **TL;DR**
-> 1. **`/inicio` ou `/brownfield`** → produz `AGENTS.md` + 1ª story.
-> 2. **`/feature US-NNN`** → Sofia → Detetive → Rafael → Bruno → Revisor → 3 auditores (paralelo) → Checkpoint → Commit.
-> 3. **`/bug`** sempre começa pelo Detetive (REGRA #0 — hook bloqueia).
-> 4. **3 camadas de proteção:** hooks (exit 2 imediato) + agentes (papel humano) + workflows (sequência).
-> 5. **Commit rastreável:** `feat(escopo): X (US-NNN T-NNN)`.
+> **Resumo (TL;DR — sigla de "muito longo, não vou ler"):**
+>
+> O framework instala **3 camadas de proteção** no seu assistente de IA:
+> - **Freios automáticos** (`hooks`) que param a ação errada na hora — ex.: tentar apagar o banco, vazar senha, mexer em nota fiscal já emitida.
+> - **15+2 especialistas com persona PT-BR** (`agents`) — cada um cuida de uma etapa. Sofia escreve a história do que vai ser feito; Detetive lê o código antes de mexer; Rafael decide arquitetura; Bruno implementa; Inês revisa; Caio/Júlia/Pedro auditam.
+> - **Roteiros prontos** (`workflows` / `slash commands`) — você digita `/feature "cadastrar cliente"` ou `/bug "boleto saiu com valor errado"` e o assistente segue a sequência certa.
+>
+> **Onde começar:**
+> - **Projeto novo do zero:** rode `/inicio` no Claude Code.
+> - **Já tem código rodando:** rode `/brownfield` — o Detetive lê o que existe e gera os documentos.
+> - **Já configurado e quer pedir algo:** `/feature` (coisa nova), `/bug` (corrigir), `/hotfix` (urgente em produção). Lista completa: `/help`.
+>
+> **Salvar mudança no histórico do projeto** (o que o desenvolvedor chama de "commit"): a mensagem é registrada no formato `feat(US-042 T-003): cadastra cliente` — o número da história e da tarefa ficam visíveis pra rastreabilidade.
 
 Para aprender pelo exemplo: [`EXEMPLO-FEATURE-COMPLETA.md`](EXEMPLO-FEATURE-COMPLETA.md). Para resolver problemas: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
 
@@ -25,10 +32,10 @@ seu-projeto/
 ├── .claude/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
-│   ├── agents/                    <- 15 especialistas
-│   ├── hooks/                     <- 37 hooks (28 validadores + 8 lifecycle + 1 utilitário _lib.js)
+│   ├── agents/                    <- 17 especialistas
+│   ├── hooks/                     <- 40 hooks (29 bloqueadores + 4 soft warnings + 7 lifecycle + 1 utilitário _lib.js)
 │   ├── commands/                  <- 28 workflows
-│   ├── skills/                    <- 13 skills BR core (+18 em addons)
+│   ├── skills/                    <- 19 skills BR core (+17 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
 ├── .specify/

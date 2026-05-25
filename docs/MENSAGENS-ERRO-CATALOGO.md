@@ -1,12 +1,17 @@
 ---
 owner: tech-writer
-revisado-em: 2026-05-24
+revisado-em: 2026-05-25
 status: stable
+publico-alvo: desenvolvedor
 ---
 
 # Catálogo de mensagens de bloqueio dos hooks
 
-> **Pra quem é este arquivo:** quem vai criar hook novo, ou quem precisa entender o que o framework bloqueou e por quê. Cada mensagem segue um **padrão fixo** pra ficar previsível e em PT-BR claro.
+> **⚠️ Documento técnico — pra desenvolvedor.**
+>
+> Se você é dono de produto e quer entender por que o assistente recusou alguma coisa, vá pra [`docs/PARA-DONO-DE-PRODUTO.md`](PARA-DONO-DE-PRODUTO.md) ou [`docs/COMO-PEDIR-AJUDA.md`](COMO-PEDIR-AJUDA.md).
+>
+> **Pra quem é este arquivo:** quem vai criar hook novo, ou quem precisa entender o que o framework bloqueou e por quê (em termos técnicos). Cada mensagem segue um **padrão fixo** pra ficar previsível e em PT-BR claro.
 >
 > Catalogado em US-114 T-017 (G8) a partir de varredura nos 21 hooks bloqueadores.
 

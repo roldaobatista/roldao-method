@@ -1,16 +1,16 @@
 # ROLDAO-METHOD
 
-> **Manual de operação em português pro seu assistente de IA (Claude, Cursor, etc).** Você descreve em PT-BR o que quer ("quero cadastrar cliente", "o boleto saiu errado") e ele segue um roteiro pronto: investiga antes de mexer, valida CPF/CNPJ, respeita LGPD, te avisa em PT-BR claro — sem siglas. Pensado pra dono de produto que **não programa**, no contexto brasileiro (NF-e, Pix, eSocial).
+> **Manual em português pro seu assistente de IA (Claude, Cursor, etc).** Você descreve em PT-BR o que quer ("quero cadastrar cliente", "o boleto saiu errado") e ele segue um roteiro pronto: investiga antes de mexer, valida CPF/CNPJ, respeita LGPD, te avisa em PT-BR claro — sem siglas. Pensado pra dono de produto que **não programa**, no contexto brasileiro (NF-e, Pix, eSocial).
 
 ## Para quem é (e pra quem NÃO é)
 
-**É pra você se:** você quer que IA gere código pro seu produto e você **não é programador** (ou tem dev terceirizado/aspirante a empresa), opera no Brasil (precisa LGPD/NF-e/Pix/SEFAZ), e cansou de saída em inglês com jargão. Você conduz, o assistente executa.
+**É pra você se:** você quer que a IA gere código pro seu produto e você **não é programador** (ou contrata desenvolvedor por fora), opera no Brasil (precisa LGPD/NF-e/Pix/SEFAZ), e cansou de resposta em inglês cheia de sigla. Você conduz, o assistente executa.
 
-**NÃO é pra você se:** você é dev sênior que prefere convenção em vez de bloqueio mecânico, prefere fluxo livre sem hook, ou seu produto não toca dado brasileiro (LGPD/fiscal/Pix). Esse framework otimizou pra dono de produto BR que precisa de proteção embutida — pra outros perfis há ferramentas melhores.
+**NÃO é pra você se:** você é desenvolvedor sênior que prefere combinar regra com a equipe em vez de o sistema barrar mecanicamente, prefere fluxo livre sem freio automático, ou seu produto não toca dado brasileiro (LGPD/fiscal/Pix). Esse framework otimizou pra dono de produto BR — pra outros perfis há ferramentas melhores.
 
-[![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
-[![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Verificação automática](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
+[![Versão publicada](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
+[![Licença grátis e aberta (MIT)](https://img.shields.io/badge/Licen%C3%A7a-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Português](https://img.shields.io/badge/idioma-pt--br-green.svg)](#)
 
 ## Experimente em 30 segundos (sem instalar nada)
@@ -19,9 +19,11 @@
 npx roldao-method demo
 ```
 
-Roda 3 verificações reais: bloqueia um `rm -rf /`, pega uma credencial AWS num arquivo, reprova um CPF inválido. Sem precisar de Claude Code, sem chave de API, sem cadastro.
+> 💡 **`npx` é o comando que vem com o Node.js** (o motor que roda o framework). Você instala o Node uma vez em [nodejs.org](https://nodejs.org); a partir daí qualquer projeto seu pode usar.
 
-> 💡 **Roda `npx roldao-method` sem nada** e ele te mostra o menu com as 4 opções principais (demo, install, tutorial, doctor).
+Roda 3 verificações reais ali na hora: barra um comando que apaga a pasta (`rm -rf /`), pega uma senha vazada num arquivo, reprova um CPF inválido. Sem precisar de Claude Code, sem chave paga, sem cadastro.
+
+> 💡 **Roda `npx roldao-method` sem nada** e ele te mostra o menu com as 4 opções principais (experimentar, instalar, tutorial guiado, diagnosticar).
 
 ## Instalar no seu projeto
 
@@ -30,11 +32,11 @@ npx roldao-method install        # copia o framework pra pasta atual
 npx roldao-method tutorial       # 5 perguntas em PT-BR preenchem o resto por você
 ```
 
-Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 28 roteiros. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
+Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código rodando). `/help` lista os 28 roteiros disponíveis. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Nunca abriu o terminal? [`docs/ABRIR-TERMINAL.md`](docs/ABRIR-TERMINAL.md) explica.
 
-### Vindo da v1.x?
+### Vindo da versão 1.x?
 
-`npx roldao-method@latest update` faz tudo. Detalhes da migração em [`docs/MIGRACAO-V1.md`](docs/MIGRACAO-V1.md) (3 breaking changes, todos absorvidos pelo update). Se algo der errado: `npx roldao-method rollback`.
+`npx roldao-method@latest update` faz tudo. Detalhes do que muda em [`docs/MIGRACAO-V1.md`](docs/MIGRACAO-V1.md) (3 quebras de compatibilidade, todas absorvidas pelo `update`). Se algo der errado: `npx roldao-method rollback` volta pra versão anterior.
 
 ### Descoberta — como achar o que existe
 
@@ -42,31 +44,31 @@ Não decora comando. Use uma das 3 portas de entrada:
 
 | Quando você quer... | Use |
 |---|---|
-| Saber qual roteiro existe pra cada situação | `/help` (no Claude) — tabela "Comando \| Pra quê \| Quando usar" + skills + addons |
-| Achar comando/skill/addon por frase natural em PT-BR | `npx roldao-method search "preciso reportar bug"` → sugere `/bug` |
+| Saber qual roteiro existe pra cada situação | `/help` (no Claude) — tabela "Comando \| Pra quê \| Quando usar" + skills + extensões |
+| Achar comando/skill/extensão por frase natural em PT-BR | `npx roldao-method search "preciso reportar bug"` → sugere `/bug` |
 | Saber o primeiro dia de uso | [`docs/PRIMEIRO-DIA.md`](docs/PRIMEIRO-DIA.md) — 30 minutos guiados |
-| Ver exemplos preenchidos de PRD/ADR/US | [`docs/exemplos/`](docs/exemplos/) — 5 casos brasileiros completos |
+| Ver exemplos preenchidos | [`docs/exemplos/`](docs/exemplos/) — 5 casos brasileiros completos |
 | Diagnosticar instalação ou descobrir campos vazios | `npx roldao-method doctor` |
 
 ---
 
 ## O diferencial em uma linha
 
-**O sistema barra a ação perigosa antes dela acontecer** — `rm -rf`, senha vazada no código, teste escondendo erro, jargão técnico com cliente, bug "consertado" sem investigar o banco/log. Não é convenção que o dev pode ignorar: o framework recusa a operação na hora. Detalhe técnico (como funciona) em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
+**O sistema barra a ação perigosa antes dela acontecer** — comando que apaga pasta, senha vazada no código, teste escondendo erro, jargão técnico com o cliente, bug "consertado" sem investigar o banco/log. Não é combinado verbal que o desenvolvedor pode esquecer: o framework recusa a operação na hora. Detalhe técnico (como funciona por dentro) em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
 
 ### Métrica de sucesso
 
-**Não é "100% de cobertura" nem "0 bugs".** É **5 tarefas-tipo que o dono de produto (que não programa) executa sozinho, sem chamar dev**. Detalhe em [`docs/METRICA-OFICIAL.md`](docs/METRICA-OFICIAL.md).
+**Não é "100% de cobertura" nem "0 bugs".** É **5 tarefas-tipo que o dono de produto (que não programa) executa sozinho, sem precisar chamar desenvolvedor**. Detalhe em [`docs/METRICA-OFICIAL.md`](docs/METRICA-OFICIAL.md).
 
-### Por que importa pra dev BR
+### Por que importa pra desenvolvedor BR
 
-Ferramentas de IA pra desenvolvimento são quase todas em inglês e otimizadas pra realidade gringa. Dev brasileiro perde nuance e ainda adapta exemplos pra LGPD/NF-e/Pix/Receita Federal. O ROLDAO entrega:
+Ferramentas de IA pra programar são quase todas em inglês e otimizadas pra realidade dos Estados Unidos. Desenvolvedor brasileiro perde tempo adaptando exemplos pra LGPD/NF-e/Pix/Receita Federal. O ROLDAO entrega:
 
-- 🇧🇷 **PT-BR nativo** — não tradução. Tabela de jargão pra usuário não-programador.
-- 🛡️ **37 verificações automáticas** — 28 validam ações do agente (a maioria bloqueia, algumas só avisam), 8 cuidam de manutenção automática (formatação, snapshot, auditoria, sugestão de addon, orçamento de contexto), 1 utilitário interno compartilhado (`_lib.js`). Rodam em Windows puro desde a v1.0. Detalhe em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
-- 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
-- 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 7 addons verticais.
-- 🧪 **3 auditores especializados** — segurança, qualidade, produto em paralelo, bloqueando commit se reprovado.
+- 🇧🇷 **PT-BR nativo** — não é tradução automática. Tabela pronta pra traduzir jargão técnico pro usuário final.
+- 🛡️ **40 verificações automáticas** — 29 barram a ação errada (apagar pasta, vazar senha, mascarar teste falho, etc.), 4 só avisam (lembretes LGPD), 7 cuidam de manutenção (formatar, salvar histórico da sessão, sugerir extensão), 1 biblioteca interna compartilhada (`_lib.js`). Rodam em Windows puro desde a versão 1.0. Detalhe em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
+- 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em roteiro `/bug` + freio automático.
+- 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (julho/2026), Reforma Tributária 2026-2033 + 7 extensões por área (`addons`).
+- 🧪 **3 auditores especializados** — segurança, qualidade, produto em paralelo, barrando salvamento ("commit") se reprovado.
 
 ## Instalação
 

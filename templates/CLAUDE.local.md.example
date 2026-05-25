@@ -1,36 +1,36 @@
-# CLAUDE.local.md — preferências pessoais (NÃO versionar)
+# CLAUDE.local.md — preferências pessoais (NÃO compartilhar)
 
-> Copie este arquivo para `CLAUDE.local.md` no mesmo diretório. Já está no `.gitignore` — o conteúdo aqui é só do seu setup, não do time.
+> Copie este arquivo para `CLAUDE.local.md` no mesmo diretório. Já está marcado pra não ser compartilhado com o time (`.gitignore`) — o conteúdo aqui é só do seu computador.
 >
-> **T-309 (E4):** quando você roda `npx roldao-method install`, os 3 campos abaixo já vêm preenchidos automaticamente (lidos de `git config user.name`, `process.platform`, branch atual). Você só precisa editar o resto.
+> Os 3 campos com `(detectado automaticamente)` vêm preenchidos quando você roda `npx roldao-method install`. Você só precisa editar o resto.
 
 ## Tua identidade
 
-- **Nome:** `<auto-preenchido: git config user.name || $USER>` _(o agente vai te chamar assim)_
-- **Papel no projeto:** _(dono de produto / dev / DPO / contador / outro)_
+- **Nome:** _(detectado automaticamente — o assistente vai te chamar assim)_
+- **Papel no projeto:** _(dono de produto / desenvolvedor / DPO / contador / outro)_
 - **Domínio que conhece bem:** _(ex.: fiscal NF-e, integração bancária, UX mobile)_
-- **Domínio onde precisa de tradução:** _(ex.: Git, infra, deploy)_
+- **Domínio onde precisa de tradução:** _(ex.: termos técnicos de programação, infraestrutura, lançamento de versão)_
 
 ## Como prefere receber resposta
 
-- **Verbosidade:** curto / médio / detalhado.
-- **Mostrar diff/código:** sempre / só quando pedir / nunca.
+- **Tamanho:** curto / médio / detalhado.
+- **Mostrar código:** sempre / só quando pedir / nunca.
 - **Tradução de jargão:** total / parcial / não preciso.
 
 ## Atalhos pessoais
 
 - **Comandos de uso frequente:** _(ex.: `/feature US-042` toda manhã)_
-- **Branch padrão de trabalho:** _(ex.: `main`, `develop`, `feature/sprint-9`)_
+- **Linha do projeto onde trabalha:** _(equivale a "branch padrão" — ex.: `main`, `develop`, `feature/sprint-9`)_
 
 ## Ambiente local
 
-- **OS:** `<auto-preenchido: detectado via process.platform>` _(Windows / macOS / Linux)_
+- **Sistema operacional:** _(detectado automaticamente — Windows / macOS / Linux)_
 - **Editor preferido:** _(VS Code, Cursor, etc.)_
-- **Stack pessoal:** `<auto-preenchido: lido de package.json + node --version>` _(node 20, python 3.12, etc.)_
+- **Versões instaladas:** _(detectado automaticamente — Node, Python, etc.)_
 
-## Branch padrão de trabalho
+## Linha de trabalho padrão
 
-`<auto-preenchido: git rev-parse --abbrev-ref HEAD>` _(o agente usa este como default em comandos /feature, /bug, /hotfix; sobrescreva se diferente)_
+_(detectado automaticamente — o assistente usa essa linha como default em `/feature`, `/bug`, `/hotfix`; troque se for diferente)_
 
 ## Coisas que sempre esqueço
 

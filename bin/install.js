@@ -605,15 +605,15 @@ async function install() {
   const tools = detectTools();
   const adapters = resolveAdapters();
   if (tools.length === 0) {
-    log(`${c.yellow}nenhuma IDE/CLI detectada${c.reset} — instalando ${c.bold}Claude Code${c.reset} (padrao).`);
-    log(`${c.dim}para outros adapters use --adapters=cursor,windsurf ou --all-adapters${c.reset}`);
+    log(`${c.yellow}nenhum assistente de IA detectado${c.reset} — instalando ${c.bold}Claude Code${c.reset} (padrao).`);
+    log(`${c.dim}para outros assistentes use --adapters=cursor,windsurf ou --all-adapters${c.reset}`);
   } else {
     log(`detectado: ${c.green}${tools.join(', ')}${c.reset}`);
   }
-  log(`adapters a instalar: ${c.cyan}${adapters.join(', ')}${c.reset}`);
+  log(`assistentes que vao receber o framework: ${c.cyan}${adapters.join(', ')}${c.reset}`);
   const nonClaude = adapters.filter((a) => a !== 'claude-code');
   if (nonClaude.length > 0) {
-    log(`${c.dim}nota: em ${nonClaude.join(', ')}, hooks/skills/slash do Claude Code nao rodam — disciplina vem por prompt.${c.reset}`);
+    log(`${c.dim}nota: em ${nonClaude.join(', ')}, os freios automaticos (hooks) e os atalhos (slash commands) do Claude Code nao rodam — a disciplina vem por instrucao no proprio prompt.${c.reset}`);
   }
 
   if (!fs.existsSync(TEMPLATES_DIR)) {
@@ -696,8 +696,8 @@ async function install() {
   console.log(`${c.bold}Proximos passos (do mais simples pro mais avancado):${c.reset}`);
   console.log(`  ${c.cyan}1.${c.reset} ${c.green}npx roldao-method tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce (2 minutos)${c.reset}`);
   console.log(`  ${c.cyan}2.${c.reset} no Claude Code (ou outro assistente): ${c.green}/inicio${c.reset} pra criar a primeira funcionalidade`);
-  console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(se ja tem codigo existente)${c.reset} ${c.green}/brownfield${c.reset} pra adotar no projeto atual`);
-  console.log(`  ${c.cyan}4.${c.reset} ${c.dim}(opcional)${c.reset} addons BR: ${c.cyan}npx roldao-method search${c.reset}`);
+  console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(se seu projeto ja tem codigo rodando)${c.reset} ${c.green}/brownfield${c.reset} pra adotar no projeto atual`);
+  console.log(`  ${c.cyan}4.${c.reset} ${c.dim}(opcional)${c.reset} extensoes BR (addons): ${c.cyan}npx roldao-method search${c.reset}`);
   console.log('');
   console.log(`${c.bold}Nao programa? Comece aqui:${c.reset}`);
   console.log(`  ${c.cyan}->${c.reset} ${c.green}docs/PARA-DONO-DE-PRODUTO.md${c.reset}  ${c.dim}— manual pro dono de produto que nao escreve codigo${c.reset}`);
