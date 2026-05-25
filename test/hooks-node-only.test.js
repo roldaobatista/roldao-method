@@ -183,6 +183,16 @@ assertExit('fiscal-004: emissao sem contingencia bloqueia', 'fiscal-br-validator
 assertExit('fiscal-004: emissao com FISCAL-004 SVC-AN libera', 'fiscal-br-validator',
   JSON.stringify({ tool_input: { file_path: '/proj/src/emissor.ts', content: '// FISCAL-004: SVC-AN\nfunction emitirNFe(payload) { return ws.nfeAutorizacao(payload); }' } }), 0);
 
+// enforce-pipeline-completion — Stop hook, libera quando nao ha feature-active marker
+assertExit('enforce-pipeline: sem feature ativa libera', 'enforce-pipeline-completion',
+  JSON.stringify({ hook_event_name: 'Stop' }), 0);
+
+// require-postmortem-after-hotfix — libera commit normal quando nao ha marker vencido
+assertExit('require-postmortem: commit sem marker hotfix libera', 'require-postmortem-after-hotfix',
+  JSON.stringify({ tool_input: { command: 'git commit -m "feat: nova feature"' } }), 0);
+assertExit('require-postmortem: commit nao-git libera', 'require-postmortem-after-hotfix',
+  JSON.stringify({ tool_input: { command: 'npm test' } }), 0);
+
 // no-log-pix-key
 assertExit('pix-log: console.log cpf bloqueia', 'no-log-pix-key',
   JSON.stringify({ tool_input: { file_path: '/proj/src/pix.ts', content: 'console.log("cpf:", cpf);' } }), 2);

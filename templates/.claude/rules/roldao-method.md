@@ -86,7 +86,7 @@ Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***
 | Projeto manuseia PII sem canal do titular / DPO declarado (LGPD-009) | `lgpd-dpo-canal-reminder.js` | 0 (soft warning) |
 | Lembrete REGRA #0 antes de bug — UserPromptSubmit | `regra-zero-reminder.js` | 0 (soft warning) |
 
-**Total:** 31 hooks validadores (26 bloqueiam via `exit 2` ou JSON `decision:block`; 4 soft warnings — `regra-zero-reminder.js`, `lgpd-base-legal-reminder.js`, `lgpd-esquecimento-reminder.js`, `lgpd-trilha-auditoria-reminder.js`) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário interno (`_lib.js`) = **40 arquivos** em `.claude/hooks/`.
+**Total:** 35 hooks validadores (28 bloqueiam via `exit 2` ou JSON `decision:block`; 7 soft warnings — `regra-zero-reminder.js`, `lgpd-base-legal-reminder.js`, `lgpd-esquecimento-reminder.js`, `lgpd-trilha-auditoria-reminder.js`, `lgpd-minimizacao-reminder.js`, `lgpd-transferencia-internacional-reminder.js`, `lgpd-dpo-canal-reminder.js`) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário interno (`_lib.js`) = **44 arquivos** em `.claude/hooks/`.
 
 ## Spec-driven (INV-002)
 

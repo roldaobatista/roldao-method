@@ -80,7 +80,7 @@ const ASCII_ONLY = flags.has('--ascii') || process.env.ROLDAO_ASCII === '1' || N
 const c = require('./lib/colors').makeColors({ noColor: NO_COLOR, isTTY: process.stdout.isTTY });
 const g = require('./lib/glyphs').makeGlyphs({ noUnicode: ASCII_ONLY });
 const { makeSpinner } = require('./lib/spinner');
-const { USER_OWNED, isCustomizable } = require('./lib/user-owned');
+const { USER_OWNED, isCustomizable, isUserOwned } = require('./lib/user-owned');
 const snapshotLib = require('./lib/snapshot');
 const registry = require('./lib/registry');
 
@@ -240,13 +240,9 @@ function fileHash(file) {
   }
 }
 
-function isUserOwned(relPath) {
-  const norm = relPath.split(path.sep).join('/');
-  // Tudo sob .specify/overrides/ e customizacao do projeto: NUNCA sobrescrever
-  // no update. Permite ajustar template/regra sem fork do framework.
-  if (norm === '.specify/overrides' || norm.startsWith('.specify/overrides/')) return true;
-  return USER_OWNED.has(norm);
-}
+// Auditoria 2026-05-25 (instalador, regra #48): funcao isUserOwned local
+// duplicava a logica de bin/lib/user-owned.js. Agora reusa o helper canonico,
+// que ja cobre USER_OWNED_PREFIXES (.specify/overrides/) alem da Set base.
 
 // Garante bit de execucao em scripts shell/Node. npm pack / copyFileSync nao
 // preservam +x de forma confiavel — sem isso o Claude Code nao consegue
@@ -281,15 +277,42 @@ function safeCopy(src, dest, rel) {
 // morrer no meio, o original fica intacto (rename e operacao atomica em
 // POSIX/NTFS). Antes, settings.json corrompia se Ctrl+C cai entre o write
 // e o flush — e settings.json corrompido quebra o Claude Code inteiro do projeto.
+//
+// Auditoria 2026-05-25 (instalador, regra #50): rename em Windows pode falhar
+// com EPERM/EBUSY quando Defender ou outro AV trava o arquivo por alguns ms.
+// Antes, falha sem retry deixava settings.json corrompido. Agora: 3 tentativas
+// com backoff 50/100/200ms; se ainda falhar, restaura .bak se existir e propaga
+// o erro pra cima.
 function atomicWriteJson(filePath, obj) {
   const dir = path.dirname(filePath);
   const base = path.basename(filePath);
-  // O sufixo aleatorio evita colisao quando 2 addons aplicam patch em paralelo
-  // (raro em uso interativo, mas possivel em CI rodando `add a && add b`).
   const tmp = path.join(dir, `.${base}.tmp.${process.pid}.${Date.now()}`);
   const payload = JSON.stringify(obj, null, 2) + '\n';
   fs.writeFileSync(tmp, payload, 'utf8');
-  fs.renameSync(tmp, filePath);
+
+  const backoffsMs = [0, 50, 100, 200];
+  let lastErr;
+  for (const wait of backoffsMs) {
+    if (wait > 0) {
+      const until = Date.now() + wait;
+      while (Date.now() < until) { /* busy-wait curto (sync) */ }
+    }
+    try {
+      fs.renameSync(tmp, filePath);
+      return;
+    } catch (e) {
+      lastErr = e;
+      if (e.code !== 'EPERM' && e.code !== 'EBUSY' && e.code !== 'EEXIST') break;
+    }
+  }
+  // Limpa .tmp orfao
+  try { fs.unlinkSync(tmp); } catch { /* */ }
+  // Se ha .bak do destino, restaura — destino corrompido e pior que nao escrever
+  const bak = `${filePath}.bak`;
+  if (fs.existsSync(bak)) {
+    try { fs.copyFileSync(bak, filePath); } catch { /* best effort */ }
+  }
+  throw lastErr;
 }
 
 function copyFile(src, dest, mode) {
@@ -1283,7 +1306,14 @@ async function tasksToIssues() {
       tasks.push({ id, title: title || id, story: f });
     }
   }
-  const pending = tasks.filter((t) => !map[t.id]);
+  // Inclui tasks com entrada {status:"pending"} no mapa (falha anterior do gh).
+  // Operador pode forcar pulo apagando a entrada do mapa manualmente.
+  const pending = tasks.filter((t) => {
+    const v = map[t.id];
+    if (!v) return true;
+    if (typeof v === 'object' && v.status === 'pending') return true;
+    return false;
+  });
   if (pending.length === 0) {
     log(`nenhuma task nova. ${Object.keys(map).length} ja exportada(s), ${tasks.length} no projeto.`);
     return;
@@ -1296,20 +1326,35 @@ async function tasksToIssues() {
     if (!isYes(a)) { log('cancelado.'); return; }
   }
   let created = 0;
+  // Auditoria 2026-05-25 (instalador, regra #49): mapa era persistido SO no
+  // final do loop. Se gh API caisse (rate-limit, 403) no meio, issues criadas
+  // viravam orfas — proximo run duplicava porque o mapa nao tinha registrado.
+  // Agora grava ANTES de chamar gh (titulo+story salvos, num "pending") e
+  // ATUALIZA com o numero apos sucesso.
+  fs.mkdirSync(path.dirname(mapFile), { recursive: true });
+  function persistMap() {
+    fs.writeFileSync(mapFile, JSON.stringify(map, null, 2) + '\n');
+  }
   for (const t of pending) {
     const body = `Task ${t.id} — origem: docs/stories/${t.story}\n\nExportada por \`roldao-method tasks-to-issues\` (rastreabilidade US→AC→T-NNN→issue).`;
+    // Marca como "pending" antes de chamar gh — se cair no meio, proximo run
+    // ve o marker e nao tenta criar de novo (pra nao duplicar).
+    map[t.id] = { status: 'pending', story: t.story, since: Date.now() };
+    persistMap();
     try {
       const out = execFileSync('gh', ['issue', 'create', '--title', `${t.id}: ${t.title}`, '--body', body], { cwd: CWD, stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
       const num = (out.match(/\/issues\/(\d+)/) || [])[1] || out;
       map[t.id] = num;
+      persistMap();
       created++;
       console.log(`  ${c.green}${g.ok}${c.reset} ${t.id} ${g.arrow} issue ${num}`);
     } catch (e) {
       err(`falhou criar issue de ${t.id}: ${((e.stderr || e.message || '') + '').trim()}`);
+      // Mantem o marker "pending" no mapa — operador resolve manualmente:
+      // edita o arquivo .specify/.tasks-to-issues.json trocando pelo numero
+      // real da issue (caso ja exista) ou removendo a entrada (pra recriar).
     }
   }
-  fs.mkdirSync(path.dirname(mapFile), { recursive: true });
-  fs.writeFileSync(mapFile, JSON.stringify(map, null, 2) + '\n');
   ok(`${created} issue(s) criada(s). Mapa em .specify/.tasks-to-issues.json (rode de novo = so o que falta).`);
 }
 
