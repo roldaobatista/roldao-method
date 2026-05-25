@@ -1,5 +1,23 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [1.2.1] — 2026-05-25
+
+**Patch: corrige 2 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
+
+### O que muda pra voce (nao-programador)
+
+- Nada visível. Correção interna do framework — quem usa via `npx roldao-method` não sente diferença.
+- Efeito real: a próxima publicação no npm (quando você configurar `NPM_TOKEN` no GitHub Settings) vai conseguir rodar até o fim, em vez de travar nos passos de verificação.
+
+### Corrigido
+
+- **`tools/sincronizar-dogfood.js`** falhava no CI/clone recém-feito porque o "dogfood" (`.claude/` e `.specify/` na raiz) é gitignored — gerado por `npx roldao-method install` no fluxo normal de dev local. Agora detecta quando nenhuma pasta dogfood existe e libera (exit 0) em vez de marcar drift inexistente. Em ambiente de dev com dogfood presente, a verificação byte-a-byte continua igual.
+- **`.github/workflows/validar.yml` + `release.yml`** usavam `cache: 'npm'` no `setup-node` mas o repo não tinha `package-lock.json` versionado. Resultado: setup-node abortava antes de rodar qualquer teste. Agora `package-lock.json` está versionado (1 dependência só: `prettier ^3.3.0` em `devDependencies`), o cache do CI funciona, e a suite roda.
+
+### Preservado
+
+- Nenhum hook, agente, skill, command ou regra muda. Compatibilidade total com 1.2.0.
+
 ## [1.2.0] — 2026-05-25
 
 **Segunda auditoria 10-agentes em 1 semana — 50 achados endereçados em 4 ondas (segurança, UX, regras BR operacionais, qualidade interna). Framework ganha 5 hooks novos, README sem jargão pro não-programador, FISCAL-004 e PIX-001/003 saem da doutrina e viram bloqueio mecânico.**

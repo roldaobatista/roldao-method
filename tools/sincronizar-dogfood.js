@@ -63,6 +63,17 @@ function relPosix(abs, base) {
   return path.relative(base, abs).split(path.sep).join('/');
 }
 
+// Em CI ou clone recém-feito, o dogfood na raiz (.claude/, .specify/) ainda
+// não existe (sao gitignored — gerados por `npx roldao-method install` no
+// fluxo normal de dev local). Nesse cenario o tool nao deve falhar: e o
+// estado esperado, nao drift. Detectamos isso checando se NENHUMA pasta
+// dogfood existe — ai pulamos a verificacao com mensagem clara.
+const NENHUM_DOGFOOD = PARES.every((par) => !fs.existsSync(path.join(ROOT, par.dst)));
+if (NENHUM_DOGFOOD && !WRITE) {
+  if (!QUIET) console.log('[sincronizar-dogfood] OK — dogfood ausente (CI ou clone recem-feito). Rode `--write` localmente pra gerar.');
+  process.exit(0);
+}
+
 const drifts = [];
 const apenasNoSrc = [];
 const apenasNoDst = [];
