@@ -113,7 +113,9 @@ def gerar(
     partes.append(_emv_field("58", "BR"))        # Country code
     partes.append(_emv_field("59", nome_norm))
     partes.append(_emv_field("60", cidade_norm))
-    partes.append(_emv_field("62", _emv_field("05", txid_norm)))  # 62 = Additional Data Field; 05 = Reference Label
+    # Manual Pix Bacen v2.5.2: tag 62.05 (Reference Label / TxId) <= 25 chars alfanumericos.
+    txid_truncado = txid_norm[:25]
+    partes.append(_emv_field("62", _emv_field("05", txid_truncado)))  # 62 = Additional Data Field; 05 = Reference Label
 
     payload = "".join(partes)
     crc_input = payload + "6304"

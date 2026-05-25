@@ -76,7 +76,9 @@ def _dv_mod11(num: str) -> int:
         soma += int(ch) * pesos[i % len(pesos)]
     resto = soma % 11
     dv = 11 - resto
-    return 0 if dv in (0, 10, 11) else dv
+    # FEBRABAN: quando o DV cai em {0, 10, 11}, o valor canonico e 1 (nao 0).
+    # Regra documentada no Manual de Cobranca FEBRABAN (modulo 11 bancario).
+    return 1 if dv in (0, 10, 11) else dv
 
 
 def _linha_para_barras_bancario(linha47: str) -> str:
