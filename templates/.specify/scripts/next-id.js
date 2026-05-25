@@ -2,6 +2,17 @@
 /**
  * next-id.js — devolve o próximo ID disponível pra US/PRD/EP/ADR/T.
  *
+ * Duas variantes vivem no framework — propósitos diferentes, evite confundir:
+ *   - `.specify/scripts/next-id.js`  (ESTE arquivo) → CLI standalone.
+ *     Use em scripts shell e em agentes que rodam via Bash: aceita t/us/adr
+ *     em minúsculo, varia raiz buscando docs/, é o caminho documentado em
+ *     templates e instalado pelo update.
+ *   - `.claude/lib/next-id.js`       → biblioteca importável (`exports.nextId`).
+ *     Use em hooks/tools Node nativos do framework via `require()`.
+ *
+ * Se você está editando aqui, edite também `templates/.claude/lib/next-id.js`
+ * (lógica equivalente). O teste oficial é `test/lib-next-id.test.js`.
+ *
  * Uso:
  *   node .specify/scripts/next-id.js us           # próximo US-NNN (varre docs/stories/)
  *   node .specify/scripts/next-id.js prd          # próximo PRD-NNN (docs/prd/)

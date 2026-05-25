@@ -2,6 +2,10 @@
 // next-id.js — helper unico que descobre o proximo ID rastreavel (INV-004)
 // por tipo (US, EP, T, ADR, PRD, CHK) escaneando docs/ do projeto.
 //
+// Esta e a BIBLIOTECA (exports.nextId) consumida por hooks/tools Node via require().
+// Para uso em shell scripts ou agentes via Bash, use o CLI standalone em
+// .specify/scripts/next-id.js (logica equivalente, sintaxe shell-amigavel).
+//
 // T-301 (E1) / PRD-003 US-114.
 //
 // Uso programatico:

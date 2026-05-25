@@ -1,28 +1,28 @@
 ---
-owner: <preencher>
-revisado-em: <YYYY-MM-DD>
+owner: {{preencher}}
+revisado-em: {{YYYY-MM-DD}}
 status: proposta
 ---
 
-# ADR-<NNNN> — <título da decisão>
+# ADR-{{NNNN}} — {{título da decisão}}
 
 ## Contexto
 
-<Descreva a situação atual e por que essa decisão precisa ser tomada agora. 2-4 frases.>
+{{Descreva a situação atual e por que essa decisão precisa ser tomada agora. 2-4 frases.}}
 
 ## Decisão
 
-<O que foi decidido. 1-3 frases diretas.>
+{{O que foi decidido. 1-3 frases diretas.}}
 
 ## Consequências
 
 **Positivas:**
-- <ponto>
-- <ponto>
+- {{ponto}}
+- {{ponto}}
 
 **Negativas (custo aceito):**
-- <ponto>
-- <ponto>
+- {{ponto}}
+- {{ponto}}
 
 **Neutras:**
 - <ponto>

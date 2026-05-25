@@ -31,7 +31,12 @@ const PARES = [
   { src: 'templates/.claude/output-styles', dst: '.claude/output-styles', tipo: 'dir' },
   { src: 'templates/.specify/templates',    dst: '.specify/templates',    tipo: 'dir' },
   { src: 'templates/.specify/schemas',      dst: '.specify/schemas',      tipo: 'dir' },
+  { src: 'templates/.specify/checklists',   dst: '.specify/checklists',   tipo: 'dir' },
+  { src: 'templates/.specify/data',         dst: '.specify/data',         tipo: 'dir' },
+  { src: 'templates/.specify/memory',       dst: '.specify/memory',       tipo: 'dir' },
+  { src: 'templates/.specify/scripts',      dst: '.specify/scripts',      tipo: 'dir' },
 ];
+// Nota: .specify/overrides/ NAO entra no sync — sao customizacoes do projeto, nao do framework.
 
 function hash(buf) {
   return crypto.createHash('sha1').update(buf).digest('hex');

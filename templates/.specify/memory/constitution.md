@@ -82,13 +82,13 @@ Cada princípio acima tem contraparte **citável** em `REGRAS-INEGOCIAVEIS.md` (
 
 | Princípio | ID em `REGRAS-INEGOCIAVEIS.md` | Hook que barra |
 |---|---|---|
-| 1 — Documento é estado | `INV-001` | `paths-frontmatter-validator.sh` |
-| 2 — Spec gera código | `INV-002` | `require-readiness-before-feature.sh` |
-| 3 — Conciso vence completo | `INV-005` | `context-budget.sh` (aviso) |
+| 1 — Documento é estado | `INV-001` | `paths-frontmatter-validator.js` |
+| 2 — Spec gera código | `INV-002` | `require-readiness-before-feature.js` |
+| 3 — Conciso vence completo | `INV-005` | `context-budget.js` (aviso) |
 | 4 — Non-goals explícitos | `INV-003` | — (revisão / `/clarificar`) |
-| 5 — IDs rastreáveis | `INV-004` | `commit-message-validator.sh`, `paths-frontmatter-validator.sh`, `validate-story-approvals.sh` |
-| 6 — Negócio vence conveniência do agente | `INV-AGENT-001..006` | `block-confirmation-questions.sh` |
-| Regra #0 — causa raiz, investigar antes | `INV-006`, `INV-AGENT-003` | `require-investigador-before-fix.sh`, `regra-zero-reminder.sh` |
+| 5 — IDs rastreáveis | `INV-004` | `commit-message-validator.js`, `paths-frontmatter-validator.js`, `validate-story-approvals.js` |
+| 6 — Negócio vence conveniência do agente | `INV-AGENT-001..006` | `block-confirmation-questions.js` |
+| Regra #0 — causa raiz, investigar antes | `INV-006`, `INV-AGENT-003` | `require-investigador-before-fix.js`, `regra-zero-reminder.js` |
 
 > **Como usar:** ao escrever um commit ou ADR que materializa um princípio, cite o ID — ex.: `fix: valida CPF antes de salvar (INV-002)`. O manifesto explica o *porquê*; o ID dá rastreabilidade; o hook garante que não passa batido.
 
