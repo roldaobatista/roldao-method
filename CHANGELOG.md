@@ -1,5 +1,70 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [1.1.0] — 2026-05-25
+
+**Auditoria round 11 (10 agentes) — todo o débito técnico crítico/alto/médio/baixo endereçado em 1 sessão. Framework ganha 2 especialistas (QA E2E + SRE on-call), 6 skills BR novas, 3 hooks novos (NF-e imutável + 2 lembretes LGPD), lib comum CPF/CNPJ e Prettier.**
+
+### O que muda pra você (não-programador)
+
+- **2 especialistas novos no time virtual:** **Bia 🤖** escreve o "robô que simula o usuário" pra testar fluxo completo (cadastro → confirmação) — antes ninguém escrevia, agora o framework cobre. **Marcos 🚨** é o primeiro a chegar quando algo quebra em produção: lê logs, classifica gravidade, escala pra quem resolve.
+- **6 validadores brasileiros novos:** título de eleitor, CNH, RENAVAM, conta bancária (BB/Santander/Caixa/Bradesco/Itaú + bancos digitais), PIS/PASEP/NIS (saiu de "addon do eSocial" pro core porque é universal), e um helper que mascara CPF/email/cartão/chave Pix antes de qualquer log — agora dado pessoal não vaza por descuido.
+- **3 trincos novos contra erro caro:** UPDATE em NF-e já emitida bloqueia automaticamente (alterar nota autorizada é incidente de fiscalização); criar tabela com CPF sem prever exclusão lembra do "direito ao esquecimento" da LGPD; código que exibe dado pessoal sem registrar acesso lembra da trilha de auditoria obrigatória.
+- **Mensagens de erro mais limpas:** comando `r\m -rf` (que escapa pra apagar pasta) deixou de passar pelos hooks; senha em comentário de exemplo (`// password = ...`) deixou de bloquear escrita por engano.
+- **Comando `dry-run` agora mostra contagem real** (era "0 arquivos" enganoso, agora mostra "176 arquivos seriam criados").
+- **Dois moldes novos pra release** — release notes e postmortem (relatório pós-incidente com prazo LGPD de 72h pra ANPD).
+
+### Adicionado
+
+- **Agentes (2):**
+  - `qa-automation` (Bia 🤖) — E2E com Playwright/Cypress. Princípios: selector semântico, teste independente, flaky é bug, pirâmide respeitada, fixture real (TST-003).
+  - `sre-on-call` (Marcos 🚨) — primeiro respondente. Triagem em 5 min, 5W na primeira mensagem, LGPD-006 (DPO em 1h, ANPD em 72h).
+- **Skills (6 novas no core + 1 movida):**
+  - `validar-titulo-eleitor` (TSE, 12 dígitos, 2 DVs mod 11, tabela UF 01-28).
+  - `validar-cnh` (Denatran, 11 dígitos, algoritmo oficial).
+  - `validar-renavam` (Denatran, 11 dígitos, mod 11, zfill < 11).
+  - `validar-conta-bancaria` (BB/Santander/Caixa/Bradesco/Itaú + 6 digitais sem DV).
+  - `mascarar-dado-pessoal` (12 tipos + `mascarar_auto` pra texto livre).
+  - `validar-pis-pasep` movida do addon `esocial-completo` pro core (PIS é universal: folha, FGTS, INSS).
+- **Lib comum:** `.claude/skills/_lib/cpf_cnpj.py` — algoritmo CPF/CNPJ (com alfanumérico FISCAL-005) extraído do triplicado. `validar-cpf-cnpj`, `validar-pix` e `gerar-test-fixture-br` importam de fonte única.
+- **Hooks (3):**
+  - `nfe-imutavel.js` (bloqueador, exit 2) — UPDATE/DELETE em tabela NF-e/NFS-e/CT-e/MDF-e/SAT-CF-e emitida OU Write/Edit em XML autorizado bloqueia. Cobertura Bash + Write + Edit. 10 testes regressivos.
+  - `lgpd-esquecimento-reminder.js` (soft warning) — cria tabela/modelo com dado pessoal sem caminho de exclusão lembra LGPD-002.
+  - `lgpd-trilha-auditoria-reminder.js` (soft warning) — handler exibindo dado pessoal sem `audit_log` lembra LGPD-004.
+- **Templates spec (2):** `.specify/templates/release-notes.md` e `.specify/templates/postmortem.md` (com seção LGPD-006/72h + tabela ações corretivas).
+- **Tooling:**
+  - `tools/sincronizar-plugin-manifest.js` — regenera `.claude-plugin/plugin.json` a partir do filesystem. Plugado em `npm test` pra impedir regressão da divergência de versão/contagem.
+  - Prettier mínimo (devDep, zero deps runtime mantido) + `npm run format` + `npm run format:check`.
+- **CLI:**
+  - `dry-run` mostra contagem real (`criados: 176 (seriam criados)` em vez de `0`).
+  - `next-id.js` responde a `--help` com uso completo + aviso de não-atomicidade.
+
+### Corrigido
+
+- **`block-destructive.js`** — fecha bypass por escape backslash (`r\m -rf /` agora bloqueia) e quote vazia (`r""m -rf /`). Adiciona detector de `base64 -d | bash` e pipe genérico pra bash/sh.
+- **`secrets-scanner.js`** — senha em linha de comentário (`// password = ...`) deixou de bloquear escrita por engano. Token real (AKIA, sk-, github_pat_) continua bloqueado em qualquer linha.
+- **`bin/install.js`** — `dry-run` em diretório vazio mostrava `criados: 0` enganoso; agora soma `detalhes.criados` quando DRY_RUN.
+- **4 docs com contagens desatualizadas** (`CONSULTORIA.md`, `FAQ.md`, `PUBLICAR-NPM.md`, `QUICKSTART.md`) sincronizadas com filesystem real (37/28/13 → 39/28/19).
+- **`maestro.md`** dizia "5 modos" listando 6.
+- **12 agentes** padronizaram chave YAML `comunicacao` (ASCII) — antes 13 com cedilha, 4 sem.
+- **`investigador.md`** perdeu `Bash(touch/mkdir/printf/tee)` — contradizia princípio "NUNCA escreve código". Marker é responsabilidade do maestro.
+- **Settings:** `Bash(env)` e `Bash(printenv*)` moveram de `allow` pra `ask` (expunham `GITHUB_TOKEN`/`NPM_TOKEN` ao contexto).
+
+### Mudado
+
+- **Política CHANGELOG explícita** em `tech-writer-output-templates.md`: seção "O que muda pra você" é **obrigatória em minor/major**, opcional em patch sem efeito visível.
+- **Plugin manifest auto-gerado** — `.claude-plugin/plugin.json` deixa de ser editado à mão. `npm test` falha se ficar fora de paridade.
+- **`validar-ie` SKILL.md** — description honesta: DV completo em 6 UFs (SP/RJ/RS/PR/SC/BA), outras 21 retornam `valido:false` com aviso pra consultar SINTEGRA/SEFAZ.
+
+### Preservado
+
+- Zero deps runtime (Prettier vai em devDependencies).
+- Suite verde em Windows puro (179 OK, 0 FAIL).
+- Compatibilidade com projetos instalados em versões anteriores — `update` mantém customizações em `.specify/overrides/` e `AGENTS.md`/`CLAUDE.md`/`REGRAS-INEGOCIAVEIS.md`.
+
+### Refactor adiado (consciência registrada no ROADMAP)
+
+- **Modularizar `bin/install.js`** (1879 linhas) ficou pra v1.1.x. Marcadores `// MODULARIZE-v1.1:` plantados nas 7 funções de comando + plano detalhado no ROADMAP (ordem: doctor → uninstall → removeAddon → install/update). Risco de quebrar 25+ testes em sessão única foi avaliado e adiado.
+
 ## [1.0.5] — 2026-05-24
 
 **Sessão autônoma fechou todos os débitos da US-114 (100%) e da US-116 (95% — falta só execução ao vivo do Roldão).**

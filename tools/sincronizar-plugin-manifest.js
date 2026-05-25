@@ -19,7 +19,14 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const PLUGIN_FILE = path.join(ROOT, '.claude-plugin', 'plugin.json');
+// Dois destinos: raiz (dogfood) + templates/ (canônico distribuído via npm).
+// Ambos precisam ficar em paridade — validar-templates.js verifica os dois.
+const PLUGIN_FILES = [
+  path.join(ROOT, '.claude-plugin', 'plugin.json'),
+  path.join(ROOT, 'templates', '.claude-plugin', 'plugin.json'),
+];
+// Mantido pra compatibilidade interna (escrita usa o array).
+const PLUGIN_FILE = PLUGIN_FILES[0];
 const PKG_FILE = path.join(ROOT, 'package.json');
 const AGENTS_DIR = path.join(ROOT, 'templates', '.claude', 'agents');
 const COMMANDS_DIR = path.join(ROOT, 'templates', '.claude', 'commands');
@@ -111,23 +118,31 @@ function main() {
 
   const generated = buildManifest();
   const generatedStr = JSON.stringify(generated, null, 2) + '\n';
-  const current = fs.existsSync(PLUGIN_FILE) ? fs.readFileSync(PLUGIN_FILE, 'utf8') : '';
 
-  if (current === generatedStr) {
-    if (!quiet) console.log('[sincronizar-plugin-manifest] OK — plugin.json já em paridade.');
+  // Verifica TODOS os destinos
+  const fora = PLUGIN_FILES.filter((file) => {
+    const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+    return current !== generatedStr;
+  });
+
+  if (fora.length === 0) {
+    if (!quiet) console.log('[sincronizar-plugin-manifest] OK — plugin.json em paridade nos 2 destinos.');
     process.exit(0);
   }
 
   if (check) {
-    console.error('[sincronizar-plugin-manifest] FAIL — plugin.json fora de paridade com filesystem.');
+    console.error('[sincronizar-plugin-manifest] FAIL — plugin.json fora de paridade:');
+    for (const f of fora) console.error(`  - ${path.relative(ROOT, f)}`);
     console.error('Rode: node tools/sincronizar-plugin-manifest.js');
     process.exit(1);
   }
 
-  fs.mkdirSync(path.dirname(PLUGIN_FILE), { recursive: true });
-  fs.writeFileSync(PLUGIN_FILE, generatedStr, 'utf8');
+  for (const file of PLUGIN_FILES) {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, generatedStr, 'utf8');
+  }
   console.log(
-    `[sincronizar-plugin-manifest] regravado: ${generated.agents.length} agentes, ` +
+    `[sincronizar-plugin-manifest] regravado nos 2 destinos: ${generated.agents.length} agentes, ` +
       `${generated.commands.length} commands, ${generated.skills.length} skills, ` +
       `${generated.addons.length} addons, v${generated.version}.`,
   );

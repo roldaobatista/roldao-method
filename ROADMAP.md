@@ -8,7 +8,7 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v1.0.5 (mai/2026)
+## Versão atual: v1.1.0 (mai/2026)
 
 Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do projeto): hooks, agentes, comandos, skills, docs, templates, testes, addons, CLI/instalador, consistência cruzada — **todos os achados endereçados**. Highlights:
 

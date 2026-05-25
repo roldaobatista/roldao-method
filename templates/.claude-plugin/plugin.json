@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "roldao-method",
-  "version": "1.0.5",
-  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 15 agentes, 26 hooks bloqueadores (gates mecânicos pra readiness/sequência de agentes/dependências/escopo de quick-dev/REGRA #0/jargão PT-BR/pergunta de confirmação/pipeline incompleto/chave Pix em log), 28 workflows, 13 skills BR core + 18 em addons (inclui Reforma Tributária 2026-2033), 9 checklists, 7 KBs, 7 addons BR (6 stable + healthtech-br beta). Para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
+  "version": "1.1.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 17 agentes, 40 hooks Node puros (bloqueadores + soft warnings + lifecycle), 28 workflows, 19 skills BR core + 17 em addons = 36 skills, 7 addons BR. Para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
   "author": "Roldão Batista",
   "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",
@@ -20,69 +20,83 @@
   ],
   "agents": [
     "agents/analista.md",
-    "agents/gerente-produto.md",
-    "agents/ux-designer.md",
-    "agents/tech-lead.md",
-    "agents/investigador.md",
-    "agents/dev-senior.md",
-    "agents/revisor.md",
-    "agents/auditor-seguranca.md",
-    "agents/auditor-qualidade.md",
     "agents/auditor-produto.md",
-    "agents/fiscal-br.md",
+    "agents/auditor-qualidade.md",
+    "agents/auditor-seguranca.md",
     "agents/dba-dados.md",
+    "agents/dev-senior.md",
     "agents/devops-infra.md",
+    "agents/fiscal-br.md",
+    "agents/gerente-produto.md",
+    "agents/investigador.md",
+    "agents/maestro.md",
+    "agents/qa-automation.md",
+    "agents/revisor.md",
+    "agents/sre-on-call.md",
+    "agents/tech-lead.md",
     "agents/tech-writer.md",
-    "agents/maestro.md"
+    "agents/ux-designer.md"
   ],
   "commands": [
-    "commands/inicio.md",
-    "commands/brownfield.md",
-    "commands/prd.md",
-    "commands/epico.md",
-    "commands/historia.md",
-    "commands/feature.md",
-    "commands/quick-dev.md",
-    "commands/bug.md",
-    "commands/refactor.md",
-    "commands/qa.md",
+    "commands/agentes.md",
+    "commands/auditoria-reversa.md",
     "commands/auditoria.md",
-    "commands/retro.md",
-    "commands/replanejar.md",
-    "commands/sprint.md",
-    "commands/status.md",
+    "commands/brownfield.md",
+    "commands/bug.md",
     "commands/checkpoint.md",
-    "commands/release.md",
-    "commands/readiness.md",
-    "commands/help.md",
-    "commands/shard.md",
     "commands/clarificar.md",
     "commands/consistencia.md",
+    "commands/epico.md",
+    "commands/explicar-para-cliente.md",
+    "commands/feature.md",
+    "commands/help.md",
+    "commands/historia.md",
     "commands/hotfix.md",
     "commands/incident-postmortem.md",
-    "commands/auditoria-reversa.md",
-    "commands/explicar-para-cliente.md"
+    "commands/inicio.md",
+    "commands/o-que-aconteceu.md",
+    "commands/prd.md",
+    "commands/qa.md",
+    "commands/quick-dev.md",
+    "commands/readiness.md",
+    "commands/refactor.md",
+    "commands/release.md",
+    "commands/replanejar.md",
+    "commands/retro.md",
+    "commands/shard.md",
+    "commands/sprint.md",
+    "commands/status.md"
   ],
   "skills": [
-    "skills/gerar-adr-pt-br",
-    "skills/traduzir-jargao",
     "skills/brainstormar-ideia",
-    "skills/gerar-test-fixture-br",
+    "skills/checklist-lgpd",
+    "skills/gerar-adr-pt-br",
     "skills/gerar-br-code",
-    "skills/validar-cpf-cnpj",
-    "skills/validar-chave-acesso-nfe",
-    "skills/validar-codigo-municipio-ibge",
-    "skills/validar-pix",
-    "skills/validar-cep",
-    "skills/validar-ie",
+    "skills/gerar-test-fixture-br",
+    "skills/mascarar-dado-pessoal",
+    "skills/traduzir-jargao",
     "skills/validar-boleto",
-    "skills/checklist-lgpd"
+    "skills/validar-cep",
+    "skills/validar-chave-acesso-nfe",
+    "skills/validar-cnh",
+    "skills/validar-codigo-municipio-ibge",
+    "skills/validar-conta-bancaria",
+    "skills/validar-cpf-cnpj",
+    "skills/validar-ie",
+    "skills/validar-pis-pasep",
+    "skills/validar-pix",
+    "skills/validar-renavam",
+    "skills/validar-titulo-eleitor"
   ],
   "hooks": "hooks/",
   "settings": "settings.json",
   "requires": {
     "claude-code": ">=2.0.0",
-    "platform": ["win32-gitbash", "darwin", "linux"]
+    "platform": [
+      "win32-gitbash",
+      "darwin",
+      "linux"
+    ]
   },
   "addons": [
     {
@@ -90,20 +104,24 @@
       "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/electron-br"
     },
     {
-      "name": "fiscal-br-completo",
-      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/fiscal-br-completo"
-    },
-    {
-      "name": "lgpd-compliance",
-      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/lgpd-compliance"
+      "name": "esocial-completo",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/esocial-completo"
     },
     {
       "name": "fintech-br",
       "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/fintech-br"
     },
     {
-      "name": "esocial-completo",
-      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/esocial-completo"
+      "name": "fiscal-br-completo",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/fiscal-br-completo"
+    },
+    {
+      "name": "healthtech-br",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/healthtech-br"
+    },
+    {
+      "name": "lgpd-compliance",
+      "url": "https://github.com/roldaobatista/roldao-method/tree/main/addons/lgpd-compliance"
     },
     {
       "name": "varejo-pdv-br",
