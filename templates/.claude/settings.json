@@ -401,6 +401,11 @@
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-auditors-pass-before-commit.js\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/nfe-imutavel.js\"",
+            "timeout": 5
           }
         ]
       },
@@ -450,6 +455,11 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/fiscal-br-validator.js\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/nfe-imutavel.js\"",
             "timeout": 5
           },
           {
@@ -508,6 +518,16 @@
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-format-on-write.js\"",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-esquecimento-reminder.js\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-trilha-auditoria-reminder.js\"",
+            "timeout": 5
           }
         ]
       }

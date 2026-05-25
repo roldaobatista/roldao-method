@@ -28,13 +28,15 @@ const SUITES = [
 const IGNORE = new Set([
   '_lib.js',
   'auto-format-on-write.js',
-  'auto-frontmatter.js',           // PreToolUse soft warning (sempre exit 0)
+  'auto-frontmatter.js',                       // PreToolUse soft warning (sempre exit 0)
   'session-snapshot.js',
   'session-snapshot-restore.js',
-  'session-cleanup.js',             // SessionEnd lifecycle
+  'session-cleanup.js',                        // SessionEnd lifecycle
   'subagent-handoff-audit.js',
-  'suggest-addon-on-keywords.js',   // SessionStart best-effort
+  'suggest-addon-on-keywords.js',              // SessionStart best-effort
   'regra-zero-reminder.js',
+  'lgpd-esquecimento-reminder.js',             // PostToolUse soft warning (LGPD-002)
+  'lgpd-trilha-auditoria-reminder.js',         // PostToolUse soft warning (LGPD-004)
 ]);
 
 function main() {

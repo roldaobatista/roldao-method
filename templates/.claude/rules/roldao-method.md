@@ -75,10 +75,13 @@ Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***
 | Story marcada entregue sem audit trail | `validate-story-approvals.js` | 2 |
 | Frontmatter de spec sem campos obrigatórios | `paths-frontmatter-validator.js` | 2 |
 | Chave Pix logada em texto puro (PIX-004) | `no-log-pix-key.js` | 2 |
+| UPDATE/DELETE em tabela de NF-e/NFS-e/CT-e emitida ou XML autorizado (FISCAL-001) | `nfe-imutavel.js` | 2 |
 | Código toca dado pessoal sem base legal declarada (LGPD-001/007) | `lgpd-base-legal-reminder.js` | 0 (soft warning) |
+| Criação de tabela/modelo com dado pessoal sem caminho de exclusão (LGPD-002) | `lgpd-esquecimento-reminder.js` | 0 (soft warning) |
+| Leitura/exibição de dado pessoal sem log de auditoria (LGPD-004) | `lgpd-trilha-auditoria-reminder.js` | 0 (soft warning) |
 | Lembrete REGRA #0 antes de bug — UserPromptSubmit | `regra-zero-reminder.js` | 0 (soft warning) |
 
-**Total:** 28 hooks validadores (a maioria bloqueia via `exit 2` ou JSON `decision:block`; 2 são soft warnings — `regra-zero-reminder.js` e `lgpd-base-legal-reminder.js`) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário interno (`_lib.js`) = **37 arquivos** em `.claude/hooks/`.
+**Total:** 31 hooks validadores (26 bloqueiam via `exit 2` ou JSON `decision:block`; 4 soft warnings — `regra-zero-reminder.js`, `lgpd-base-legal-reminder.js`, `lgpd-esquecimento-reminder.js`, `lgpd-trilha-auditoria-reminder.js`) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário interno (`_lib.js`) = **40 arquivos** em `.claude/hooks/`.
 
 ## Spec-driven (INV-002)
 
