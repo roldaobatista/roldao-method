@@ -53,6 +53,9 @@ async function tutorial({ cwd, colors, glyphs, force = false }) {
   if (!process.stdin.isTTY) {
     console.error(`${c.red}[tutorial] precisa de terminal interativo (TTY).${c.reset}`);
     console.error(`Abra um terminal normal (cmd, PowerShell, bash) e rode de novo.`);
+    console.error(`Em CI/pipeline (sem TTY), pule o tutorial: o AGENTS.md ja foi instalado com placeholders;`);
+    console.error(`preencha manualmente as secoes 1, 2 e 6 (Identidade / Stack / Comandos do projeto)`);
+    console.error(`ou rode ${c.cyan}npx roldao-method doctor${c.reset} pra ver o que falta.`);
     return 2;
   }
 

@@ -662,6 +662,14 @@ async function install() {
   if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
   // Registra projeto no registry global pra `update --all` poder achar depois.
   try { registry.addProject(CWD); } catch { /* best effort */ }
+  // Grava versao instalada pra /status saber qual versao do framework foi aplicada
+  // mesmo em projeto que nao declarar `roldao-method` em package.json.
+  try {
+    const pkg = require(path.join(FRAMEWORK_ROOT, 'package.json'));
+    const versaoFile = path.join(CWD, '.specify', '.installed-version');
+    fs.mkdirSync(path.dirname(versaoFile), { recursive: true });
+    fs.writeFileSync(versaoFile, pkg.version + '\n', 'utf8');
+  } catch { /* best effort */ }
   ok('instalei o framework no seu projeto.');
   console.log(`  ${c.dim}— o que mudou: ${counters.criados} arquivos novos do framework, seus arquivos foram preservados${c.reset}`);
   console.log('');
@@ -723,7 +731,15 @@ async function update() {
   log('update concluido.');
   log('arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, settings.local.json).');
   log(`pra desfazer este update: ${c.cyan}npx roldao-method rollback${c.reset}`);
-  if (!DRY_RUN) try { registry.markUpdated(CWD); } catch { /* best effort */ }
+  if (!DRY_RUN) {
+    try { registry.markUpdated(CWD); } catch { /* best effort */ }
+    try {
+      const pkg = require(path.join(FRAMEWORK_ROOT, 'package.json'));
+      const versaoFile = path.join(CWD, '.specify', '.installed-version');
+      fs.mkdirSync(path.dirname(versaoFile), { recursive: true });
+      fs.writeFileSync(versaoFile, pkg.version + '\n', 'utf8');
+    } catch { /* best effort */ }
+  }
   currentSnapshot = null;
   await updateCheckP;
 }
@@ -1654,14 +1670,23 @@ async function statusProjeto() {
     }
   } catch { /* skip */ }
 
-  // Versao do framework
+  // Versao do framework — preferencia: arquivo .specify/.installed-version
+  // (gravado por install/update). Fallback: package.json do projeto.
   let versaoFramework = '?';
-  const pkgFile = path.join(CWD, 'package.json');
-  if (fs.existsSync(pkgFile)) {
+  const versaoFile = path.join(CWD, '.specify', '.installed-version');
+  if (fs.existsSync(versaoFile)) {
     try {
-      const pkgData = JSON.parse(fs.readFileSync(pkgFile, 'utf8'));
-      versaoFramework = pkgData.dependencies?.['roldao-method'] || pkgData.devDependencies?.['roldao-method'] || pkgData.version || '?';
+      versaoFramework = fs.readFileSync(versaoFile, 'utf8').trim() || '?';
     } catch { /* skip */ }
+  }
+  if (versaoFramework === '?') {
+    const pkgFile = path.join(CWD, 'package.json');
+    if (fs.existsSync(pkgFile)) {
+      try {
+        const pkgData = JSON.parse(fs.readFileSync(pkgFile, 'utf8'));
+        versaoFramework = pkgData.dependencies?.['roldao-method'] || pkgData.devDependencies?.['roldao-method'] || pkgData.version || '?';
+      } catch { /* skip */ }
+    }
   }
 
   console.log(`${c.bold}Estado do projeto:${c.reset}\n`);
