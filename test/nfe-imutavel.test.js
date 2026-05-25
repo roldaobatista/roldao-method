@@ -4,7 +4,9 @@
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 
-const HOOK = path.join(__dirname, '..', '.claude', 'hooks', 'nfe-imutavel.js');
+// Aponta pra templates/.claude/ (canonico versionado). Antes apontava pra
+// .claude/ raiz (dogfood, gitignored), quebrando em CI.
+const HOOK = path.join(__dirname, '..', 'templates', '.claude', 'hooks', 'nfe-imutavel.js');
 
 function call(input) {
   return spawnSync(process.execPath, [HOOK], {

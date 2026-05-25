@@ -5,7 +5,10 @@
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 
-const HOOK = path.join(__dirname, '..', '.claude', 'hooks', 'block-destructive.js');
+// Aponta pra templates/.claude/ (canonico versionado). Antes apontava pra
+// .claude/ da raiz (dogfood, gitignored), o que quebrava o teste em CI/clone
+// limpo onde a raiz nao existe.
+const HOOK = path.join(__dirname, '..', 'templates', '.claude', 'hooks', 'block-destructive.js');
 
 const CASES = [
   // Bypass por backslash escape

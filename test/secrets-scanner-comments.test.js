@@ -10,7 +10,9 @@
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 
-const HOOK = path.join(__dirname, '..', '.claude', 'hooks', 'secrets-scanner.js');
+// Aponta pra templates/.claude/ (canonico versionado). Antes apontava pra
+// .claude/ raiz (dogfood, gitignored), quebrando em CI.
+const HOOK = path.join(__dirname, '..', 'templates', '.claude', 'hooks', 'secrets-scanner.js');
 const P = 'pass' + 'word';
 const S = 'sen' + 'ha';
 

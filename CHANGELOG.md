@@ -1,8 +1,12 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
-## [1.2.3] — 2026-05-25
+## [1.2.4] — 2026-05-25
 
-**Patch: corrige 4 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
+**Patch: corrige 5 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
+
+### Adicionado no 1.2.4
+
+- **3 testes que apontavam pra `.claude/` da raiz** (`block-destructive-bypass.test.js`, `nfe-imutavel.test.js`, `secrets-scanner-comments.test.js`) agora apontam pra `templates/.claude/`. A raiz é gitignored (dogfood gerado por `install`) — só o template está versionado e disponível no CI. Antes davam `node:internal/modules/cjs/loader:1210` em ambiente limpo.
 
 ### Adicionado no 1.2.3
 
