@@ -15,23 +15,27 @@ const { sanitizeProjdir, sanitizeSessionHash, gitSafeEnv } = require('./_lib.js'
 const SUGESTOES = [
   {
     addon: 'fiscal-br-completo',
-    descricao: 'NF-e, NFC-e, NFS-e, CT-e, MDF-e, Reforma Tributaria',
-    keywords: /\b(nfe?|nfse?|nfce?|cte?|mdfe?|sped|sefaz|reforma\s+tributari|cbs|ibs|split\s+payment)\b/i,
+    descricao: 'NF-e, NFC-e, NFS-e nacional (ABRASF), CT-e, MDF-e, Reforma Tributaria (LC 214/2025), split payment, obrigacao acessoria mensal',
+    // FISCAL-006/007/008/009/010 — keywords expandidas na auditoria 2026-05-25
+    // para cobrir transporte (CT-e/MDF-e/transportadora/frota), obrigacao acessoria
+    // (SPED Fiscal, ECF, ECD, REINF), NFS-e padrao nacional (ABRASF) e Reforma
+    // Tributaria (CBS/IBS/imposto seletivo/split payment).
+    keywords: /\b(nfe?|nfse?|nfce?|cte?|mdfe?|sped(?:_fiscal|_contribuicoes)?|ecf|ecd|sefaz|abrasf|reforma\s+tributari|cbs|ibs|imposto\s+seletivo|split\s+payment|transportadora|frota|carga|operador\s+logistico)\b/i,
   },
   {
     addon: 'fintech-br',
-    descricao: 'Pix completo (BR Code, webhook HMAC), Open Finance',
-    keywords: /\b(pix|endtoendid|txid|psp|open\s+finance|bacen|sicoob|itau\s+pix)\b/i,
+    descricao: 'Pix completo (BR Code, webhook HMAC, idempotencia TxId), Open Finance',
+    keywords: /\b(pix|endtoendid|e2eid|txid|psp|open\s+finance|bacen|sicoob|itau\s+pix|cobranca\s+pix|dict)\b/i,
   },
   {
     addon: 'lgpd-compliance',
-    descricao: 'DPO, RIPD, canal do titular, plano de incidente 72h',
-    keywords: /\b(lgpd|anpd|titular|dpo|ripd|base\s+legal|incidente\s+dados)\b/i,
+    descricao: 'DPO, RIPD, canal do titular, plano de incidente 72h, decisao automatizada (Art. 20)',
+    keywords: /\b(lgpd|anpd|titular|dpo|ripd|base\s+legal|incidente\s+dados|decisao\s+automatizada|art\.?\s*20|transferencia\s+internacional)\b/i,
   },
   {
     addon: 'esocial-completo',
-    descricao: 'Eventos S-1000 a S-3000, CIPA, NRs',
-    keywords: /\bs(-)?1000\b|\bs(-)?2200\b|\besocial\b|\bcaepf\b|\breinf\b/i,
+    descricao: 'Eventos S-1000 a S-3000, CIPA, NRs, REINF',
+    keywords: /\bs(-)?1000\b|\bs(-)?2200\b|\bs(-)?3000\b|\besocial\b|\bcaepf\b|\breinf\b/i,
   },
   {
     addon: 'electron-br',

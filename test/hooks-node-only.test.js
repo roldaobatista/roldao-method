@@ -177,6 +177,11 @@ assertExit('fiscal: tpAmb=1 hardcoded bloqueia', 'fiscal-br-validator',
   JSON.stringify({ tool_input: { file_path: '/proj/src/nfe.ts', content: 'const tpAmb = 1;' } }), 2);
 assertExit('fiscal: tpAmb com env libera', 'fiscal-br-validator',
   JSON.stringify({ tool_input: { file_path: '/proj/src/nfe.ts', content: 'const tpAmb = process.env.SEFAZ_TPAMB;' } }), 0);
+// FISCAL-004 — contingencia SEFAZ obrigatoria (auditoria 2026-05-25)
+assertExit('fiscal-004: emissao sem contingencia bloqueia', 'fiscal-br-validator',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/emissor.ts', content: 'function emitirNFe(payload) { return ws.nfeAutorizacao(payload); }' } }), 2);
+assertExit('fiscal-004: emissao com FISCAL-004 SVC-AN libera', 'fiscal-br-validator',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/emissor.ts', content: '// FISCAL-004: SVC-AN\nfunction emitirNFe(payload) { return ws.nfeAutorizacao(payload); }' } }), 0);
 
 // no-log-pix-key
 assertExit('pix-log: console.log cpf bloqueia', 'no-log-pix-key',

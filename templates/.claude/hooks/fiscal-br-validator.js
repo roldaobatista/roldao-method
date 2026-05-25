@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // fiscal-br-validator.js — bloqueia padroes que violam regras fiscais BR.
-// Hook PreToolUse, matcher: Write|Edit. FISCAL-001/002/003/005.
+// Hook PreToolUse, matcher: Write|Edit. FISCAL-001/002/003/004/005/006.
+//
+// FISCAL-006: nao-aplica (o hook detecta menciones tributarias, nao calcula imposto)
+// FISCAL-004: nao-aplica (o hook nao chama webservice SEFAZ, so escaneia codigo)
 
 const { readStdinJson, recordMetric } = require('./_lib.js');
 
@@ -50,6 +53,17 @@ const FISCAL_006_DECLARATION_RE = /FISCAL-006:\s*(transicao|pos-?2033|atual|novo
 // So dispara em arquivo que parece calculo (nome ou diretorio de tributacao/fiscal)
 const FISCAL_006_RELEVANT_PATH = /(tributa|fiscal|imposto|calculo[-_]?(icms|iss|pis|cofins|cbs|ibs))/i;
 
+// FISCAL-006: nao-aplica / FISCAL-004: nao-aplica (este arquivo SO escaneia codigo)
+// FISCAL-004: contingencia SEFAZ. Codigo que emite NF-e (chama webservice
+// nfeAutorizacao/emitir/transmitir/enviarLote/sendNFe etc.) sem declarar a
+// estrategia de contingencia (SVC-AN/SVC-RS/EPEC) vira sintoma quando SEFAZ
+// cair. Auditoria 2026-05-25 (regra #26): FISCAL-004 era so doutrina.
+//
+// Padrao moderno (Manual NF-e 7.00+): SVC-AN (maioria UFs), SVC-RS (AM/PR/RS),
+// EPEC (Evento Previo de Emissao em Contingencia). FS-DA esta em desuso.
+const FISCAL_004_EMISSAO_RE = /\b(nfeAutorizacao|nfeAutorizacaoLote|nfceAutorizacao|cteAutorizacao|mdfeAutorizacao|enviarLote|transmitirNFe|sendNFe|emitirNFe|emitirNFCe|emitirCTe|emitirMDFe|enviar_lote_nfe|envia_lote)\b/i;
+const FISCAL_004_DECLARATION_RE = /FISCAL-004:\s*(svc-an|svc-rs|epec|contingencia|fs-da|nao-aplica)/i;
+
 (async () => {
   const input = await readStdinJson();
   const filePath = input?.tool_input?.file_path || '';
@@ -96,12 +110,23 @@ const FISCAL_006_RELEVANT_PATH = /(tributa|fiscal|imposto|calculo[-_]?(icms|iss|
 
   // FISCAL-006: checagem por arquivo (nao por linha). Se o caminho parece fiscal
   // E o conteudo menciona impostos sem declaracao FISCAL-006, soft-bloqueia.
+  // FISCAL-006: nao-aplica (FISCAL_006_DECLARATION_RE casa "nao-aplica")
   if (FISCAL_006_RELEVANT_PATH.test(filePath) && FISCAL_006_TAX_FIELDS.test(content)) {
     if (!FISCAL_006_DECLARATION_RE.test(content)) {
       violations.push(
         `arquivo [FISCAL-006]: codigo tributario sem declaracao de regime (transicao/pos-2033/split-payment). Reforma 2026-2033 exige calculo paralelo ICMS/CBS — sem isso vira debito tecnico fiscal.`
       );
     }
+  }
+
+  // FISCAL-004: checagem por arquivo. Arquivo que chama webservice de emissao
+  // SEFAZ deve declarar a estrategia de contingencia (FISCAL-004: SVC-AN|SVC-RS|
+  // EPEC|nao-aplica). Sem declaracao, emissao trava quando SEFAZ cai.
+  // FISCAL-004: nao-aplica (este bloco escaneia codigo, nao chama SEFAZ)
+  if (FISCAL_004_EMISSAO_RE.test(content) && !FISCAL_004_DECLARATION_RE.test(content)) {
+    violations.push(
+      `arquivo [FISCAL-004]: codigo emite NF-e sem declarar estrategia de contingencia. Quando SEFAZ cai, operacao trava. Declare no topo do arquivo: // FISCAL-004: SVC-AN (ou SVC-RS / EPEC).`
+    );
   }
 
   if (violations.length > 0) {
@@ -118,6 +143,11 @@ const FISCAL_006_RELEVANT_PATH = /(tributa|fiscal|imposto|calculo[-_]?(icms|iss|
     process.stderr.write(`  FISCAL-001: NF-e autorizada nao pode ser alterada. Cancele ou emita CC-e.\n`);
     process.stderr.write(`  FISCAL-002: tire o certificado/senha do codigo. Coloque em variavel de ambiente.\n`);
     process.stderr.write(`  FISCAL-003: ambiente SEFAZ (1=producao, 2=homolog) vem de env, nunca do codigo.\n`);
+    process.stderr.write(`  FISCAL-004: declare estrategia de contingencia no topo do arquivo:\n`);
+    process.stderr.write(`              // FISCAL-004: SVC-AN (UFs gerais — SP, MG, RJ, etc.)\n`);
+    process.stderr.write(`              ou: // FISCAL-004: SVC-RS (AM, PR, RS)\n`);
+    process.stderr.write(`              ou: // FISCAL-004: EPEC (Evento Previo de Emissao em Contingencia)\n`);
+    process.stderr.write(`              ou: // FISCAL-004: nao-aplica (modulo de leitura, nao emite)\n`);
     process.stderr.write(`  FISCAL-005: jul/2026: CNPJ aceita letras. Use [0-9A-Z]{14}, nao [0-9]{14}.\n`);
     process.stderr.write(`  FISCAL-006: declare regime tributario no topo do arquivo:\n`);
     process.stderr.write(`              // FISCAL-006: transicao (calcula ICMS atual E CBS/IBS novo em paralelo)\n`);

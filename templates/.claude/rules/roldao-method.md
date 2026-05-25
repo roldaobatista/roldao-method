@@ -60,7 +60,8 @@ Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***
 | TODO sem ID rastreável | `block-todo-without-issue.js` | 2 |
 | Test fixture com CPF/email/telefone real | `no-test-data-in-fixtures.js` | 2 |
 | URL SEFAZ/Pix/gateway hardcoded | `no-hardcoded-env-urls.js` | 2 |
-| Ambiente SEFAZ=1 hardcoded | `fiscal-br-validator.js` | 2 |
+| Ambiente SEFAZ=1 hardcoded (FISCAL-003) | `fiscal-br-validator.js` | 2 |
+| Emissão NF-e sem declarar contingência SVC-AN/SVC-RS/EPEC (FISCAL-004) | `fiscal-br-validator.js` | 2 |
 | `git commit --amend` após push | `no-amend-after-push.js` | 2 |
 | MCP fora da allowlist | `mcp-validator.js` | 2 |
 | Pirâmide de teste invertida (E2E sem unit) | `validate-test-pyramid.js` | 2 |
