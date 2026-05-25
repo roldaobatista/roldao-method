@@ -1,12 +1,12 @@
 ---
 description: Catálogo dos workflows do ROLDAO-METHOD com códigos curtos e quando usar cada um.
-argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | HF | IPM | RF | QA | AU | AR | CN | EC | RT | RP | SP | ST | CK | RL | RD | HP | SH]"
+argument-hint: "[codigo opcional: IN | BF | PRD | EP | US | CL | FT | QD | BG | HF | IPM | RF | QA | AU | AR | CN | EC | RT | RP | SP | ST | CK | RL | RD | HP | SH | AG | OQ]"
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep
 model: haiku
 ---
 
-# /help — catálogo dos 26 workflows
+# /help — catálogo dos 28 workflows
 
 Se `$ARGUMENTS` é vazio, mostre PRIMEIRO a árvore de decisão abaixo, DEPOIS o catálogo. Se `$ARGUMENTS` é um código (ex: `BG`), mostre só detalhes do workflow correspondente (pule a árvore).
 
@@ -82,6 +82,8 @@ Você tem um pedido. Que tipo de pedido é?
 | `/readiness` | Confere se o pacote tá pronto pra começar (sinal verde) | Antes do `/feature` no épico |
 | `/help` | Este comando — catálogo dos workflows | Não sei o que rodar |
 | `/shard` | Fatia PRD/ARQ longo em pedaços menores | Documento ficou grande demais |
+| `/agentes` | Mapa visual dos 15 especialistas (quem faz o quê) | Quer entender quem está executando seu pedido |
+| `/o-que-aconteceu` | Resumo PT-BR do que mudou desde a última sessão | Voltou no projeto depois de dias/semanas |
 
 > Detalhe de cada agente envolvido: `.claude/agents/MAPA-VISUAL.md` ou `.claude/agents/<nome>.md`.
 
@@ -189,5 +191,5 @@ Exemplos:
 
 ## Importante
 
-- Este help cobre só os 26 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
+- Este help cobre só os 28 workflows ROLDAO-METHOD (slash commands do framework). Comandos nativos do Claude Code (`/clear`, `/config`, etc.) ficam fora.
 - **Códigos curtos** servem pra falar rápido ("vamos rodar BG agora"), não substituem o comando completo.

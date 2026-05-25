@@ -1,5 +1,5 @@
 ---
-description: ROLDAO-METHOD — regras unificadas. No Claude Code, os 26 hooks bloqueadores codificam tudo isto. Este arquivo é referência rápida para revisar contrato sem abrir cada hook.
+description: ROLDAO-METHOD — regras unificadas. No Claude Code, os 28 hooks validadores codificam tudo isto. Este arquivo é referência rápida para revisar contrato sem abrir cada hook.
 paths:
   - "docs/**"
   - ".claude/**"
@@ -13,7 +13,7 @@ revisado-em: 2026-05-24
 
 # ROLDAO-METHOD — regras unificadas
 
-> No Claude Code os hooks em `.claude/hooks/` codificam estas regras mecanicamente. Bloqueio acontece de 2 jeitos: `exit 2` (PreToolUse) ou JSON `{"decision":"block"}` (PostToolUse/Stop). Este arquivo é referência rápida para auditar o contrato sem abrir os 34 scripts.
+> No Claude Code os hooks em `.claude/hooks/` codificam estas regras mecanicamente. Bloqueio acontece de 2 jeitos: `exit 2` (PreToolUse) ou JSON `{"decision":"block"}` (PostToolUse/Stop). Este arquivo é referência rápida para auditar o contrato sem abrir os 37 scripts.
 
 ## REGRA #0 — Investigar antes de mexer em lógica de negócio
 
@@ -78,7 +78,7 @@ Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***
 | Código toca dado pessoal sem base legal declarada (LGPD-001/007) | `lgpd-base-legal-reminder.js` | 0 (soft warning) |
 | Lembrete REGRA #0 antes de bug — UserPromptSubmit | `regra-zero-reminder.js` | 0 (soft warning) |
 
-**Total:** 26 hooks bloqueadores (23 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação (`auto-format-on-write`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `subagent-handoff-audit`) + 1 utilitário interno (`_lib.js`) = **34 arquivos** em `.claude/hooks/`.
+**Total:** 28 hooks validadores (a maioria bloqueia via `exit 2` ou JSON `decision:block`; 2 são soft warnings — `regra-zero-reminder.js` e `lgpd-base-legal-reminder.js`) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário interno (`_lib.js`) = **37 arquivos** em `.claude/hooks/`.
 
 ## Spec-driven (INV-002)
 

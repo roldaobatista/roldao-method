@@ -13,8 +13,8 @@ status: stable
 Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do projeto): hooks, agentes, comandos, skills, docs, templates, testes, addons, CLI/instalador, consistência cruzada — **todos os achados endereçados**. Highlights:
 
 - 15 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila.
-- 26 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`).
-- 26 hooks bloqueadores (23 via `exit 2` + 3 via JSON `decision:block`) + 2 soft warnings + 5 lifecycle/automação + 1 utilitário (`_lib.js`) = **34 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
+- 28 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`).
+- 28 hooks validadores (a maioria bloqueia via `exit 2` ou JSON `decision:block`; 2 são soft warnings) + 8 lifecycle/manutenção + 1 utilitário (`_lib.js`) = **37 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
 - 13 skills BR no core + 18 nos addons = **31 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
 - 8 checklists + 7 knowledge bases.
 - **7 addons** (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta).
@@ -135,6 +135,6 @@ O que **NÃO** está no plano:
 - ❌ Não vamos virar runtime de IA — somos framework, dependemos de Claude Code / Cursor / Windsurf.
 - ❌ Não vamos virar editor / IDE.
 - ❌ Não vamos cobrar pelo core — sempre será MIT.
-- ❌ Não vamos virar consultoria — framework é produto, consultoria é outra empresa.
+- ❌ Não vamos virar consultoria full-time de desenvolvimento. Auditoria/setup pontual e suporte SLA para empresas continuam disponíveis (ver `docs/CONSULTORIA.md`) — o produto principal segue sendo o framework MIT.
 - ❌ Não vamos suportar idiomas além de PT-BR no core (addons podem traduzir).
 - ❌ Não vamos certificar conformidade legal — orientamos, não certificamos.

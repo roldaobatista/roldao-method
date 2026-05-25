@@ -45,8 +45,8 @@ Resumo:
 bin/install.js              ← CLI
 templates/                  ← o que vai pra .claude/ e .specify/ do projeto do usuário
   .claude/agents/           ← 15 agentes com identity + menu + skills
-  .claude/commands/         ← 26 workflows slash
-  .claude/hooks/            ← 26 bloqueadores + 2 soft warnings + 5 lifecycle + 1 utilitário (_lib.js) = 34 hooks Node puros
+  .claude/commands/         ← 28 workflows slash
+  .claude/hooks/            ← 28 validadores + 8 lifecycle/manutenção + 1 utilitário (_lib.js) = 37 hooks Node puros
   .claude/skills/           ← 13 skills BR core
   .specify/templates/       ← 12 templates de spec
   .specify/checklists/      ← 8 checklists

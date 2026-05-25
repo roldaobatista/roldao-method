@@ -132,7 +132,7 @@ O agente segue o roteiro automaticamente: investiga antes de mexer, pede confirm
 ## O que você NÃO precisa entender pra começar
 
 - O que é "hook", "agent", "pipeline" — internalia técnica, agente cuida.
-- O que cada um dos 26 commands faz — o `/help` te guia.
+- O que cada um dos 28 commands faz — o `/help` te guia.
 - Sintaxe de YAML, JSON, regex — assistente cuida.
 - Como funciona o Git — assistente cuida, te avisa em PT-BR quando precisa de decisão sua.
 

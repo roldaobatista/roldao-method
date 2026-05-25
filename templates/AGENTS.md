@@ -122,6 +122,8 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/checkpoint` | Walkthrough antes do merge | (sem agente — walkthrough) |
 | `/release` | Fechar marco: versão, CHANGELOG, tag, nota PT-BR | tech-writer |
 | `/retro` | Retrospectiva pós-marco | (sem agente específico — 4L) |
+| `/agentes` | Mapa visual dos 15 especialistas (quem faz o quê) | (sem agente — índice) |
+| `/o-que-aconteceu` | Resumo PT-BR do que mudou no projeto desde a última sessão | (sem agente — git log + diff) |
 
 ---
 

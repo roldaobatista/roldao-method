@@ -23,8 +23,8 @@ Confirme com `s`. O comando copia:
 - `.specify/templates/` — moldes de PRD, story, architecture, decision-log.
 - `.agent/CURRENT.md` — estado da sessão.
 - `.claude/agents/` — 15 especialistas (analista, PM, UX, tech-lead, investigador, dev-senior, revisor, 3 auditores, fiscal-BR, tech-writer, DBA/dados, devops-infra).
-- `.claude/hooks/` — 26 bloqueadores + 2 soft warnings + 5 lifecycle + 1 utilitário (`_lib.js`) = **34 hooks core** em Node.js puro.
-- `.claude/commands/` — 26 workflows.
+- `.claude/hooks/` — 28 validadores + 8 lifecycle/manutenção + 1 utilitário (`_lib.js`) = **37 hooks core** em Node.js puro.
+- `.claude/commands/` — 28 workflows.
 - `.claude/skills/` — 13 skills BR core (CPF/CNPJ alfanum, chave NF-e, codigo IBGE de municipio, Pix, CEP, IE, boleto, BR Code, LGPD, ADR, traduzir jargão, brainstorming, fixture BR). Addons trazem +16.
 - `.claude/output-styles/pt-br-conciso.md`.
 - `.claude/settings.json` — permissões + hooks.
@@ -49,7 +49,7 @@ Esse arquivo é a **fonte da verdade** que todo agente lê primeiro. Bem preench
 npx roldao-method doctor
 ```
 
-Confere que os 34 hooks estão instalados e com permissão de execução. Funciona em qualquer máquina com Node 18+ instalado (não precisa Git Bash, não precisa Python). Se acusar problema, abra issue.
+Confere que os 37 hooks estão instalados e com permissão de execução. Funciona em qualquer máquina com Node 18+ instalado (não precisa Git Bash, não precisa Python). Se acusar problema, abra issue.
 
 **Opcional (perfil dev):** se quiser rodar a suite completa de 59 cenários adversariais:
 

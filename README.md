@@ -6,7 +6,7 @@
 
 **É pra você se:** você quer que IA gere código pro seu produto e você **não é programador** (ou tem dev terceirizado/aspirante a empresa), opera no Brasil (precisa LGPD/NF-e/Pix/SEFAZ), e cansou de saída em inglês com jargão. Você conduz, o assistente executa.
 
-**NÃO é pra você se:** você é dev sênior que prefere convenção em vez de bloqueio mecânico, prefere fluxo livre sem hook, ou seu produto não toca dado brasileiro (LGPD/fiscal/Pix). Continue com BMAD, AGENT-CLI, ou seu próprio fluxo — esse framework optimizou pra dono de produto BR que precisa de proteção embutida.
+**NÃO é pra você se:** você é dev sênior que prefere convenção em vez de bloqueio mecânico, prefere fluxo livre sem hook, ou seu produto não toca dado brasileiro (LGPD/fiscal/Pix). Esse framework otimizou pra dono de produto BR que precisa de proteção embutida — pra outros perfis há ferramentas melhores.
 
 [![CI](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml/badge.svg)](https://github.com/roldaobatista/roldao-method/actions/workflows/validar.yml)
 [![npm](https://img.shields.io/npm/v/roldao-method.svg)](https://www.npmjs.com/package/roldao-method)
@@ -21,11 +21,6 @@ npx roldao-method demo
 
 Roda 3 verificações reais: bloqueia um `rm -rf /`, pega uma credencial AWS num arquivo, reprova um CPF inválido. Sem precisar de Claude Code, sem chave de API, sem cadastro.
 
-<!-- TODO J12 (T-019): adicionar GIF/video de 90s do demo rodando.
-     Asset esperado em docs/assets/demo.gif (Roldao grava via Loom/OBS).
-     Linha pronta pra ativar quando asset existir:
-     ![demo](docs/assets/demo.gif) -->
-
 > 💡 **Roda `npx roldao-method` sem nada** e ele te mostra o menu com as 4 opções principais (demo, install, tutorial, doctor).
 
 ## Instalar no seu projeto
@@ -35,11 +30,11 @@ npx roldao-method install        # copia o framework pra pasta atual
 npx roldao-method tutorial       # 5 perguntas em PT-BR preenchem o resto por você
 ```
 
-Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 26 roteiros. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
+Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código). `/help` lista os 28 roteiros. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Novidades em [`CHANGELOG.md`](CHANGELOG.md).
 
 ### Vindo da v1.x?
 
-`npx roldao-method@latest update` faz tudo. Detalhes da migração em [`docs/migrations/MIGRATION-v2.md`](docs/migrations/MIGRATION-v2.md) (3 breaking changes, todos absorvidos pelo update). Se algo der errado: `npx roldao-method rollback`.
+`npx roldao-method@latest update` faz tudo. Detalhes da migração em [`docs/MIGRACAO-V1.md`](docs/MIGRACAO-V1.md) (3 breaking changes, todos absorvidos pelo update). Se algo der errado: `npx roldao-method rollback`.
 
 ### Descoberta — como achar o que existe
 
@@ -68,7 +63,7 @@ Não decora comando. Use uma das 3 portas de entrada:
 Ferramentas de IA pra desenvolvimento são quase todas em inglês e otimizadas pra realidade gringa. Dev brasileiro perde nuance e ainda adapta exemplos pra LGPD/NF-e/Pix/Receita Federal. O ROLDAO entrega:
 
 - 🇧🇷 **PT-BR nativo** — não tradução. Tabela de jargão pra usuário não-programador.
-- 🛡️ **34 verificações automáticas** — 26 barram operação perigosa na hora, 2 mandam aviso, 5 cuidam de manutenção automática (formatação, snapshot, auditoria), 1 ferramenta interna. Rodam em Windows puro desde a v1.0. Detalhe em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
+- 🛡️ **37 verificações automáticas** — 28 validam ações do agente (a maioria bloqueia, algumas só avisam), 8 cuidam de manutenção automática (formatação, snapshot, auditoria, sugestão de addon, orçamento de contexto), 1 utilitário interno compartilhado (`_lib.js`). Rodam em Windows puro desde a v1.0. Detalhe em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
 - 🔍 **Investigação obrigatória em bug** — REGRA #0 codificada em workflow `/bug` + hook mecânico.
 - 🧾 **Cobertura BR real** — LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico (jul/2026), Reforma Tributária 2026-2033 + 7 addons verticais.
 - 🧪 **3 auditores especializados** — segurança, qualidade, produto em paralelo, bloqueando commit se reprovado.
@@ -99,7 +94,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 
 - **15 especialistas virtuais com personalidade** — Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Lucas (DevOps/infra), Inês (revisor), Caio/Julia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). Catálogo em [`.claude/agents/MAPA-VISUAL.md`](templates/.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
 - **28 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
-- **26 hooks bloqueadores + 2 soft warnings + 5 lifecycle + 1 infra (`_lib.js`) = 34 hooks Node** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
+- **28 hooks validadores + 8 lifecycle/manutenção + 1 utilitário (`_lib.js`) = 37 hooks Node** — tabela completa em [`.claude/rules/roldao-method.md`](templates/.claude/rules/roldao-method.md). Inclui: destrutivo, secrets, mascaramento, mock em integration, TODO sem ID, dado real em fixture, URLs hardcoded, chave Pix em log, fix sem investigação, readiness, sequência de agentes, escopo /quick-dev, checkpoint antes de merge, 3 auditores antes de commit, jargão PT-BR, pergunta de confirmação, pipeline incompleto.
 - **13 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-codigo-municipio-ibge (DV modulo 10), validar-pix, validar-cep, validar-ie (27 UFs), validar-boleto, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +18 nos addons = **31 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025 e `validar-cns-cartao-sus` pra SUS).
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).
 - **8 checklists auditáveis** + **7 knowledge bases** + **7 addons verticais BR**.
@@ -153,8 +148,8 @@ Hooks Node puros rodam **só no Claude Code** (único IDE que expõe o ciclo Pre
 | Feature | Claude Code | Cursor | Windsurf | Continue | Cline | Roo | Aider | Gemini | Codex |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | Agentes (15) | ✅ exec | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto |
-| Hooks bloqueadores (26) | ✅ exit 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Comandos (26) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Hooks bloqueadores (28) | ✅ exit 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Comandos (28) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Skills (13 core) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Spec-driven + PT-BR | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
@@ -175,7 +170,7 @@ Usa Cursor/Windsurf/etc. e quer hooks mecânicos? Rode o Claude Code em paralelo
 - [Quickstart](docs/QUICKSTART.md) — do zero ao primeiro `/feature` em 5 min
 - [Como funciona](docs/COMO-FUNCIONA.md) — estrutura + fluxo
 - [Exemplo de feature completa](docs/EXEMPLO-FEATURE-COMPLETA.md) — transcrição realista
-- [Exemplos materializados](docs/examples/README.md) — story preenchida (US-001) com campos vivos
+- [Exemplos materializados](docs/exemplos/README-materializados.md) — story preenchida (US-001) com campos vivos
 - [Estendendo o framework](docs/EXTENDENDO.md) — criar agente, hook, skill ou addon
 - [Plan mode + sessões](docs/PLAN-MODE-E-SESSOES.md) — revisar antes de tocar disco, retomar sessão
 - [FAQ](docs/FAQ.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)

@@ -26,8 +26,8 @@ seu-projeto/
 │   ├── settings.json              <- permissões + hooks (versionado)
 │   ├── settings.local.json        <- pessoal (não versionar)
 │   ├── agents/                    <- 15 especialistas
-│   ├── hooks/                     <- 34 hooks (26 bloqueadores + 2 soft + 5 lifecycle + 1 utilitário _lib.js)
-│   ├── commands/                  <- 26 workflows
+│   ├── hooks/                     <- 37 hooks (28 validadores + 8 lifecycle + 1 utilitário _lib.js)
+│   ├── commands/                  <- 28 workflows
 │   ├── skills/                    <- 13 skills BR core (+18 em addons)
 │   ├── output-styles/
 │   └── rules/                     <- regras com paths: (criar quando precisar)
@@ -48,7 +48,7 @@ seu-projeto/
     └── retros/                    <- AAAA-MM-DD-marco.md
 ```
 
-## Os 26 workflows
+## Os 28 workflows
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
