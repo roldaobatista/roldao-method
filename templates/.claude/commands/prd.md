@@ -56,13 +56,27 @@ Se a iniciativa tem telas/forms/fluxos visiveis, invocar `ux-designer`:
 
 Pular se for backend puro / integracao / fiscal.
 
-## Etapa 6 — Decomposicao em stories
+## Etapa 6 — Fechamento do PRD
 
-Mesmo PM (Modo DECOMP):
-- Olha o PRD.
-- Quebra em stories filhas (US-NNN, US-NNN+1, ...).
-- Atualiza secao 4 do PRD.
-- Para cada story, criar arquivo skeleton em `docs/stories/US-NNN-slug.md`.
+PRD esta no disco com:
+- Identidade do problema, hipoteses, criterios de sucesso.
+- Stack/arquitetura sinalizadas pelo tech-lead.
+- (se aplicavel) wireframes do ux-designer.
+
+**Parar aqui.** A decomposicao em stories filhas (US-NNN) e responsabilidade
+do workflow `/epico`, nao do `/prd`. Isso evita sobreposicao auditada na
+auditoria 10-agentes (regra #46): antes o `/prd` invocava o PM em "Modo
+DECOMP" e o `/epico` repetia o mesmo trabalho — fluxo confuso pro dono.
+
+**Proximo passo recomendado pro usuario:**
+
+```
+/epico <PRD-NNN ou link pro arquivo>
+```
+
+O `/epico` le este PRD, gera o epico EP-NNN e ai sim decompoe em stories filhas
+US-NNN. Se o PRD ja indica claramente uma unica story, pula `/epico` e usa
+`/historia` direto.
 
 ## Saida final
 

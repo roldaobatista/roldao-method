@@ -73,6 +73,7 @@ Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***
 | Commit feat/fix sem T-NNN | `commit-message-validator.js` | 2 |
 | Commit/merge sem checkpoint | `require-checkpoint-before-merge.js` | 2 |
 | Commit sem 3 auditores aprovados | `require-auditors-pass-before-commit.js` | 2 |
+| Commit nao-emergencial > 48h apos /hotfix sem postmortem (LGPD-006) | `require-postmortem-after-hotfix.js` | 2 |
 | Story marcada entregue sem audit trail | `validate-story-approvals.js` | 2 |
 | Frontmatter de spec sem campos obrigatórios | `paths-frontmatter-validator.js` | 2 |
 | Chave Pix logada em texto puro (PIX-004) | `no-log-pix-key.js` | 2 |

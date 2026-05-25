@@ -404,6 +404,11 @@
           },
           {
             "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-postmortem-after-hotfix.js\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/nfe-imutavel.js\"",
             "timeout": 5
           }
