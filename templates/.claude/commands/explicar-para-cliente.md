@@ -2,7 +2,7 @@
 description: Pega o último output técnico (erro, log, diff, plano) e traduz pra linguagem que o cliente/dono-de-produto entende — sem jargão, sem stack trace cru.
 argument-hint: "[texto opcional — se omitido, usa o último output desta sessão]"
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Bash(git log:*)
+allowed-tools: Read, Glob, Grep, Bash(git log:*), Task
 model: haiku
 ---
 
