@@ -2,7 +2,7 @@
 description: Onboarding de projeto legado. Investigador varre o codigo/banco/docs existentes e preenche os campos vazios do AGENTS.md + cria docs/arquitetura/ARQ-001.md. Use ao adotar ROLDAO-METHOD em projeto que já existe.
 argument-hint: "[contexto-opcional-do-projeto]"
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(ls:*), Write, Edit, Task
+allowed-tools: Read, Glob, Grep, Bash(git log:*), Bash(git diff:*), Bash(git status:*), Bash(git show:*), Bash(ls:*), Write, Edit, Task
 ---
 
 # /brownfield — adotar ROLDAO-METHOD em projeto existente

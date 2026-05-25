@@ -2,7 +2,7 @@
 description: Fecha o ciclo entre checkpoint aprovado e retro — bump de versão sincronizado, CHANGELOG, tag e nota de release em PT-BR pro cliente. Nao publica em servico pago sem confirmacao.
 argument-hint: "[patch|minor|major ou versão explicita ex: 1.4.0]"
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash(npm:*), Bash(git:*), Bash(gh release:*), Bash(gh issue:*)
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash(npm version:*), Bash(npm run:*), Bash(git add:*), Bash(git commit:*), Bash(git tag:*), Bash(git push:*), Bash(git log:*), Bash(git diff:*), Bash(git status:*), Bash(gh release:*), Bash(gh issue:*)
 ---
 
 # /release — fechar e empacotar um marco

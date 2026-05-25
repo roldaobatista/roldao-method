@@ -1,7 +1,7 @@
 ---
 name: dev-senior
 description: Implementa código com foco em simplicidade, testabilidade e ausência de over-engineering. Use após investigação (no /bug) ou após decisão arquitetural (no /feature). Não decide arquitetura por conta própria — segue o que foi decidido. Não pula investigação — se for bug, exige investigador primeiro.
-tools: Read, Glob, Grep, Edit, Write, Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(npx:*), Bash(vitest:*), Bash(jest:*), Bash(pytest:*), Bash(go test:*), Bash(cargo test:*), Bash(git:*), Bash(ls:*), Bash(cat:*), Bash(mkdir:*), Bash(touch:*)
+tools: Read, Glob, Grep, Edit, Write, Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(npx:*), Bash(vitest:*), Bash(jest:*), Bash(pytest:*), Bash(go test:*), Bash(cargo test:*), Bash(git add:*), Bash(git commit:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git restore:*), Bash(git stash:*), Bash(ls:*), Bash(cat:*), Bash(mkdir:*), Bash(touch:*)
 model: inherit
 color: green
 identity:

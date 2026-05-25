@@ -2,7 +2,7 @@
 description: Verifica coerência cruzada entre PRD ↔ arquitetura ↔ stories ↔ tasks ↔ código. Acha órfãos (task sem story, story sem PRD) e contradições. Use antes de release, antes de checkpoint, ou quando suspeitar que doc e código divergiram.
 argument-hint: "[escopo: \"EP-NNN\" | \"US-NNN\" | \"módulo X\" | vazio = tudo]"
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Bash(git:*), Task
+allowed-tools: Read, Glob, Grep, Bash(git log:*), Bash(git diff:*), Bash(git status:*), Bash(git show:*), Task
 model: opus
 ---
 

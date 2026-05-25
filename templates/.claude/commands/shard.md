@@ -2,7 +2,7 @@
 description: Quebra documento longo (PRD/ARQ/CHANGELOG) em chunks navegáveis com índice raiz. Evita estourar contexto do agente.
 argument-hint: "[caminho/do/documento.md]"
 disable-model-invocation: true
-allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash(mkdir:*), Bash(git:*)
+allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash(mkdir:*), Bash(git add:*), Bash(git status:*), Bash(git diff:*)
 ---
 
 # /shard — quebra documento grande em chunks navegáveis
