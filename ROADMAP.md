@@ -92,7 +92,7 @@ Sinais de tração (dependem da comunidade — separados pra não bloquear relea
 > Achados que não cabiam em 1 release, viraram débito rastreável.
 
 ### Refactors arquiteturais
-- [ ] **Modularizar `bin/install.js`** (1879 linhas hoje). Quebrar em `bin/lib/commands/{install,update,doctor,uninstall,add,remove,tutorial}.js`. Habilita teste unitário por comando + reduz risco. **Alvo: v1.1**.
+- [ ] **Modularizar `bin/install.js`** (1879 linhas hoje). Quebrar em `bin/lib/commands/{install,update,doctor,uninstall,add,remove,tasks-to-issues}.js`. **Estado atual:** marcadores `// MODULARIZE-v1.1:` adicionados nas 7 funções de comando — guia o refactor preservando contexto. **Por que adiamos:** as funções compartilham 30+ helpers (`safeCopy`, `walkAndCopy`, `resumo`, `counters`, `detalhes`, `c`, `log`, etc.) e refactor exige extrair contexto + injeção de dependência. 25 testes cobrem comportamento — refactor pode quebrar sem regredir teste se a interface mudar. Plano: extrair `doctor()` primeiro (mais isolada, só lê filesystem), validar com testes, depois `uninstall`, depois `removeAddon`, por último `install` e `update`. **Alvo: v1.1**.
 - [ ] **Extrair algoritmo CPF/CNPJ pra módulo único**. Hoje triplicado em `validar-cpf-cnpj/scripts/validar.py`, `validar-pix/scripts/validar-pix.py`, `gerar-test-fixture-br/scripts/gerar.py`. Divergência futura é questão de tempo. Solução: lib `.claude/skills/_lib/cpf_cnpj.py` importada pelas 3.
 - [ ] **Sem linter/formatter** — adicionar Prettier mínimo (zero config) sobre `.js`/`.json`/`.md`. Mantém zero deps runtime (Prettier vai em devDependencies).
 

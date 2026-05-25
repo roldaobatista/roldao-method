@@ -575,6 +575,7 @@ function loadProfiles() {
   }
 }
 
+// MODULARIZE-v1.1: extrair para bin/lib/commands/install.js (auditoria round 11)
 async function install() {
   banner();
   log(`instalando ROLDAO-METHOD em: ${c.bold}${CWD}${c.reset}`);
@@ -698,6 +699,7 @@ async function install() {
   await updateCheckP;
 }
 
+// MODULARIZE-v1.1: extrair para bin/lib/commands/update.js
 async function update() {
   // Flag --all itera todos os projetos no registry global.
   if (rawArgs.includes('--all')) return updateAll();
@@ -1030,6 +1032,7 @@ function addonDescription(name) {
 // remove <addon> — tira do projeto so os arquivos que ESTE addon trouxe,
 // preservando o framework core e os demais addons. Operacao destrutiva
 // localizada: pede confirmacao (salvo --yes/--force).
+// MODULARIZE-v1.1: extrair para bin/lib/commands/remove.js
 async function removeAddon(name) {
   if (isDangerousCwd()) {
     err(`recusando: pasta sensivel ${CWD}`);
@@ -1231,6 +1234,7 @@ function searchCommand(term) {
 // tasks-to-issues — varre docs/stories/*.md por linhas com T-NNN e cria
 // uma GitHub Issue por task ainda nao exportada. Idempotente: o mapa
 // T-NNN->numero fica em .specify/.tasks-to-issues.json.
+// MODULARIZE-v1.1: extrair para bin/lib/commands/tasks-to-issues.js
 async function tasksToIssues() {
   const { execFileSync } = require('child_process');
   try {
@@ -1348,6 +1352,7 @@ async function listCommand() {
   console.log('');
 }
 
+// MODULARIZE-v1.1: extrair para bin/lib/commands/doctor.js (mais isolada — boa primeira)
 function doctor() {
   banner();
   log(`diagnostico em: ${c.bold}${CWD}${c.reset}`);
@@ -1501,6 +1506,7 @@ function doctor() {
   ok('instalacao OK.');
 }
 
+// MODULARIZE-v1.1: extrair para bin/lib/commands/uninstall.js
 async function uninstall() {
   log(`removendo ROLDAO-METHOD de: ${CWD}`);
   if (!YES && !FORCE) {
