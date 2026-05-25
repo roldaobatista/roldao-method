@@ -8,13 +8,13 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v1.0.0 (mai/2026)
+## Versão atual: v1.0.5 (mai/2026)
 
 Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do projeto): hooks, agentes, comandos, skills, docs, templates, testes, addons, CLI/instalador, consistência cruzada — **todos os achados endereçados**. Highlights:
 
 - 15 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila.
 - 28 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`).
-- 28 hooks validadores (a maioria bloqueia via `exit 2` ou JSON `decision:block`; 2 são soft warnings) + 8 lifecycle/manutenção + 1 utilitário (`_lib.js`) = **37 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
+- 28 hooks validadores (26 bloqueadores via `exit 2` ou JSON `decision:block`; 2 soft warnings) + 8 lifecycle/manutenção + 1 utilitário (`_lib.js`) = **37 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
 - 13 skills BR no core + 18 nos addons = **31 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
 - 8 checklists + 7 knowledge bases.
 - **7 addons** (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta).
@@ -86,6 +86,35 @@ Sinais de tração (dependem da comunidade — separados pra não bloquear relea
 - [ ] 10+ contribuidores externos com PR merged.
 - [ ] Discord ativo (>500 membros).
 - [ ] 1 conferência apresentando o método (The Developers Conference, BrasilJS, RustConf BR).
+
+## Débito técnico identificado na auditoria 10-agentes round 11 (2026-05-25)
+
+> Achados que não cabiam em 1 release, viraram débito rastreável.
+
+### Refactors arquiteturais
+- [ ] **Modularizar `bin/install.js`** (1879 linhas hoje). Quebrar em `bin/lib/commands/{install,update,doctor,uninstall,add,remove,tutorial}.js`. Habilita teste unitário por comando + reduz risco. **Alvo: v1.1**.
+- [ ] **Extrair algoritmo CPF/CNPJ pra módulo único**. Hoje triplicado em `validar-cpf-cnpj/scripts/validar.py`, `validar-pix/scripts/validar-pix.py`, `gerar-test-fixture-br/scripts/gerar.py`. Divergência futura é questão de tempo. Solução: lib `.claude/skills/_lib/cpf_cnpj.py` importada pelas 3.
+- [ ] **Sem linter/formatter** — adicionar Prettier mínimo (zero config) sobre `.js`/`.json`/`.md`. Mantém zero deps runtime (Prettier vai em devDependencies).
+
+### Skills sem teste automatizado
+- [ ] `brainstormar-ideia`, `checklist-lgpd`, `gerar-adr-pt-br`, `traduzir-jargao` — prompt-only sem script. Plano: eval LLM live no CI cobrindo "skill foi acionada com prompt X, devolveu resposta com elemento Y".
+
+### Skills BR faltando
+- [ ] `validar-titulo-eleitor` (12 dígitos, mod 11) — onboarding/KYC.
+- [ ] `validar-cnh` (11 dígitos, Detran) — frota, seguro auto.
+- [ ] `validar-renavam` (11 dígitos).
+- [ ] `validar-conta-bancaria` (agência+conta por banco) — TED/Pix.
+- [ ] `mascarar-dado-pessoal` (CPF, email, telefone, chave Pix) — sustenta LGPD-004 e PIX-004.
+- [ ] Mover `validar-pis-pasep` do addon `esocial-completo` pro core (PIS é universal).
+
+### Hooks faltantes vs REGRAS-INEGOCIAVEIS.md
+- [ ] FISCAL-001 — bloquear UPDATE em XML/tabela `nfe_emitida`.
+- [ ] LGPD-002 — detectar feature de coleta sem caminho de exclusão.
+- [ ] LGPD-004 — warning quando handler toca CPF sem log de acesso.
+
+### Agentes faltantes pra pipeline completa
+- [ ] `qa-automation` — escreve E2E (Playwright/Cypress); hoje validate-test-pyramid bloqueia ausência mas ninguém escreve.
+- [ ] `sre-on-call` — detecta incidente em logs/Sentry/alertas; hoje cai no investigador genérico.
 
 ## Pendências contínuas (sem versão alvo)
 

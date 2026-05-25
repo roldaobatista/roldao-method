@@ -17,7 +17,7 @@ status: stable
 Para squads que querem adotar agentic com guard-rails e ainda **não** trabalham com IA generativa no fluxo de dev.
 
 - **Quando contratar:** time de 3-15 devs, primeira adoção de agentic na empresa, contexto BR (LGPD, NF-e, Pix, eSocial).
-- **Conteúdo:** instalação ROLDAO + 15 agentes + 26 hooks + workflow `/feature` ponta-a-ponta usando um problema real do cliente.
+- **Conteúdo:** instalação ROLDAO + 15 agentes + 37 hooks + workflow `/feature` ponta-a-ponta usando um problema real do cliente.
 - **Entrega:** ao fim, o time consegue rodar o ciclo completo sozinho. Material PT-BR.
 - **Investimento típico:** R$ 5-15k por turma (depende de tamanho e remoto/presencial).
 
@@ -73,7 +73,7 @@ Resposta típica em até 2 dias úteis.
 
 ## Política
 
-- **Core ROLDAO é MIT puro e seguirá assim** — quem não contrata nada continua tendo o framework completo (15 agentes, 26 hooks bloqueadores, 13 skills core, 26 workflows, 7 addons, 12 templates).
+- **Core ROLDAO é MIT puro e seguirá assim** — quem não contrata nada continua tendo o framework completo (15 agentes, 37 hooks, 13 skills core + 18 em addons, 28 workflows, 7 addons, 18 templates spec).
 - **Não há licença comercial obrigatória pra usar em produto fechado.** Empresa pode rodar ROLDAO num SaaS comercial sem pagar nada.
 - **Apoio profissional é opcional** — pra quem quer adoção mais rápida, suporte SLA, ou auditoria com entregável formal.
 - **Recusa de engajamento por conflito de interesse:** se o cliente concorre diretamente com outro cliente atual ou patrocinador, o engajamento pode ser recusado.

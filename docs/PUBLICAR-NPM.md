@@ -80,7 +80,7 @@ Deve mostrar a versão atual do `package.json`. Também aparece em https://www.n
 ## O que estamos publicando
 
 - Tamanho exato: rode `npm pack --dry-run` antes (o job `empacotamento` no CI também valida que descompactado < 2 MB).
-- CLI + 28 hooks core (+5 em addons) + 12 agentes + 22 commands + 22 skills (8 core + 14 addons) + 6 addons + docs.
+- CLI + 37 hooks core (+5 em addons) + 15 agentes + 28 commands + 31 skills (13 core + 18 addons) + 7 addons + docs.
 - Zero dependências runtime (só Node + bash + perl no PC do usuário; Python só pra skills).
 - Licença MIT.
 
