@@ -87,8 +87,18 @@ def _dv_pr(num: str) -> bool:
 
 
 def _dv_ba(num: str) -> bool:
-    # IE-BA 8 ou 9 digitos. Algoritmo varia com 1o digito. Modulo 10 pra digitos
-    # iniciais 0,1,2,3,4,5,8 e modulo 11 pra 6,7,9. Implementacao minima.
+    # IE-BA 8 ou 9 digitos. Algoritmo oficial SINTEGRA-BA.
+    #
+    # Determinante do modulo: PRIMEIRO digito do bloco (NAO inclui DVs).
+    #   - Modulo 10 quando primeiro digito ∈ {0, 1, 2, 3, 4, 5, 8}
+    #   - Modulo 11 quando primeiro digito ∈ {6, 7, 9}
+    #
+    # Regra de DV (diferente entre modulos — auditoria 2026-05-25 corrigiu):
+    #   - Modulo 10: DV = 0 SE resto == 0, senao DV = (10 - resto)
+    #   - Modulo 11: DV = 0 SE resto < 2 (resto 0 ou 1), senao DV = (11 - resto)
+    #
+    # DV2 calcula PRIMEIRO (sobre os digitos do bloco base).
+    # DV1 calcula DEPOIS, incluindo o DV2 ja calculado no final do bloco.
     if len(num) not in (8, 9):
         return False
     base = num[:-2]
@@ -98,17 +108,21 @@ def _dv_ba(num: str) -> bool:
     primeiro = int(base[0])
     modulo = 10 if primeiro in {0, 1, 2, 3, 4, 5, 8} else 11
 
+    def _aplica_dv_ba(resto: int) -> int:
+        if modulo == 10:
+            return 0 if resto == 0 else 10 - resto
+        # modulo 11
+        return 0 if resto < 2 else 11 - resto
+
     pesos2 = list(range(len(base) + 1, 1, -1))  # [n+1, n, ..., 2]
     soma2 = sum(int(base[i]) * pesos2[i] for i in range(len(base)))
-    resto2 = soma2 % modulo
-    dv2 = 0 if resto2 < 2 else modulo - resto2
+    dv2 = _aplica_dv_ba(soma2 % modulo)
     if dv2 != dv2_esperado:
         return False
 
     pesos1 = list(range(len(base) + 2, 2, -1))  # [n+2, n+1, ..., 3]
     soma1 = sum(int(base[i]) * pesos1[i] for i in range(len(base))) + dv2 * 2
-    resto1 = soma1 % modulo
-    dv1 = 0 if resto1 < 2 else modulo - resto1
+    dv1 = _aplica_dv_ba(soma1 % modulo)
     return dv1 == dv1_esperado
 
 

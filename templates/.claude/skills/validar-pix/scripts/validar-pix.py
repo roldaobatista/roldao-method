@@ -42,12 +42,27 @@ def valida_email(s: str) -> tuple[bool, str]:
 
 
 # ===== Telefone E.164 =====
+# DICT/Bacen so aceita celular como chave Pix telefone — fixo (10 digitos) e
+# proibido. Padrao BR pos-2012: DDD (2) + 9 + 8 digitos = 11 digitos depois do +55.
+# Auditoria 2026-05-25 (regra #35): antes aceitavamos 10-11 (fixo+celular) — fixo
+# falha no cadastro do PSP, melhor rejeitar local.
 
 def valida_telefone_e164(s: str) -> tuple[bool, str]:
     s = s.strip()
+    # Estrutura E.164 BR: +55 + DDD(2) + numero(8 ou 9)
     if not re.fullmatch(r"\+55\d{10,11}", s):
         return False, "telefone deve estar em E.164 BR (+55DDNNNNNNNNN)"
-    return True, "chave telefone"
+    # DICT exige celular: DDD + 9 + 8 digitos = 11 digitos depois do +55
+    # Aceita formato pre-2012 (10 digitos) so se 1o digito apos DDD for 9 (celular
+    # nao-normalizado). Caso contrario rejeita como "fixo".
+    apos_ddd = s[5:]  # tira "+55" + 2 do DDD
+    if len(apos_ddd) == 8:
+        # so 8 digitos apos DDD = fixo. Rejeita.
+        return False, "DICT/Bacen so aceita celular como chave Pix telefone — fixo nao e aceito"
+    # 9 digitos apos DDD: primeiro deve ser 9 (celular com nono digito).
+    if not apos_ddd.startswith("9"):
+        return False, "celular brasileiro tem 9 no inicio (DDD+9+8 digitos). Fixo nao e aceito pelo DICT"
+    return True, "chave telefone (celular)"
 
 
 # ===== UUID v4 =====
