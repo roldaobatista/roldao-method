@@ -429,12 +429,20 @@ function walkAndCopy(src, dest, mode, sp) {
 }
 
 function resumo() {
+  // Em DRY_RUN, copyFile() registra em `detalhes.*` mas NAO incrementa `counters.*`
+  // (counters refletem mutacoes reais). Pro resumo nao enganar com zeros, usa
+  // detalhes quando dry-run. Achado da auditoria round 11.
+  const cri = DRY_RUN ? detalhes.criados.length : counters.criados;
+  const atu = DRY_RUN ? detalhes.atualizados.length : counters.atualizados;
+  const pre = DRY_RUN ? detalhes.preservados.length : counters.preservados;
+  const pul = DRY_RUN ? detalhes.pulados.length : counters.pulados;
+  const prefixo = DRY_RUN ? '[dry-run] ' : '';
   console.log('');
-  console.log(`${c.bold}--- resumo ---${c.reset}`);
-  console.log(`  ${c.green}criados:${c.reset}      ${counters.criados}`);
-  console.log(`  ${c.cyan}atualizados:${c.reset}  ${counters.atualizados}`);
-  console.log(`  ${c.magenta}preservados:${c.reset}  ${counters.preservados} ${c.dim}(customizacao do usuario)${c.reset}`);
-  console.log(`  ${c.dim}pulados:${c.reset}      ${counters.pulados}`);
+  console.log(`${c.bold}--- ${prefixo}resumo ---${c.reset}`);
+  console.log(`  ${c.green}criados:${c.reset}      ${cri}${DRY_RUN ? ` ${c.dim}(seriam criados)${c.reset}` : ''}`);
+  console.log(`  ${c.cyan}atualizados:${c.reset}  ${atu}${DRY_RUN ? ` ${c.dim}(seriam atualizados)${c.reset}` : ''}`);
+  console.log(`  ${c.magenta}preservados:${c.reset}  ${pre} ${c.dim}(customizacao do usuario)${c.reset}`);
+  console.log(`  ${c.dim}pulados:${c.reset}      ${pul}`);
   if (counters.erros > 0) console.log(`  ${c.red}erros:${c.reset}        ${counters.erros}`);
   console.log('');
 }
