@@ -1,0 +1,79 @@
+{
+  "name": "auditores-maestro-comportamento",
+  "descricao": "Valida comportamento PT-BR dos 3 auditores (Caio, Júlia, Pedro) e do orquestrador Maestro. Property-based — não chama LLM, valida o doc do agente que é a fonte de comportamento. Auditoria 2026-05-25 (regra #42): agent-behavior tinha cobertura de 1/15 agentes.",
+  "origem": "Onda 4 — auditoria 10-agentes",
+  "criterios": [
+    {
+      "id": "A1",
+      "descricao": "Cada auditor tem seção '## Correções que VOCÊ aplica sem pedir' (INV-AGENT-003)",
+      "tipo": "regex-presente",
+      "padrao": "Correções que VOCÊ aplica sem pedir|aplica sem pedir|aplica fix trivial",
+      "alvos": [
+        "templates/.claude/agents/auditor-seguranca.md",
+        "templates/.claude/agents/auditor-qualidade.md",
+        "templates/.claude/agents/auditor-produto.md"
+      ],
+      "esperado": "1+"
+    },
+    {
+      "id": "A2",
+      "descricao": "Auditores passam no hook block-jargon-pt-br (sem jargão sem tradução)",
+      "tipo": "hook-bloqueia",
+      "hook": ".claude/hooks/block-jargon-pt-br.js",
+      "alvos": [
+        "templates/.claude/agents/auditor-seguranca.md",
+        "templates/.claude/agents/auditor-qualidade.md",
+        "templates/.claude/agents/auditor-produto.md"
+      ],
+      "esperado": "exit-0"
+    },
+    {
+      "id": "A3",
+      "descricao": "Auditor-seguranca menciona LGPD, SEC ou regras de segurança",
+      "tipo": "regex-presente",
+      "padrao": "LGPD-\\d+|SEC-\\d+|secret|criptografia|OWASP",
+      "alvos": ["templates/.claude/agents/auditor-seguranca.md"],
+      "esperado": "1+"
+    },
+    {
+      "id": "A4",
+      "descricao": "Auditor-qualidade menciona TST-* (anti-mascaramento)",
+      "tipo": "regex-presente",
+      "padrao": "TST-\\d+|mascaramento|mock|cobertura",
+      "alvos": ["templates/.claude/agents/auditor-qualidade.md"],
+      "esperado": "1+"
+    },
+    {
+      "id": "A5",
+      "descricao": "Auditor-produto menciona INV-003 (non-goals) ou aderência ao pedido",
+      "tipo": "regex-presente",
+      "padrao": "INV-003|non-goals?|aderência|aderencia|pedido",
+      "alvos": ["templates/.claude/agents/auditor-produto.md"],
+      "esperado": "1+"
+    },
+    {
+      "id": "M1",
+      "descricao": "Maestro tem sequência mecânica Sofia → Detetive → Rafael → Bruno → Inês → 3 auditores",
+      "tipo": "regex-presente",
+      "padrao": "Sofia.*Detetive.*Rafael.*Bruno.*Inês|Sofia.*Detetive.*Rafael.*Bruno.*Ines",
+      "alvos": ["templates/.claude/agents/maestro.md"],
+      "esperado": "1+"
+    },
+    {
+      "id": "M2",
+      "descricao": "Maestro tem regra de auditores em paralelo (1 mensagem com 3 Task tools)",
+      "tipo": "regex-presente",
+      "padrao": "paralelo|paralela|paralelos|simultane",
+      "alvos": ["templates/.claude/agents/maestro.md"],
+      "esperado": "1+"
+    },
+    {
+      "id": "M3",
+      "descricao": "Maestro respeita INV-AGENT-006 (executa, não passa pro usuário)",
+      "tipo": "regex-presente",
+      "padrao": "INV-AGENT-006|sem perguntar|sem pedir permissão|sem pedir permissao",
+      "alvos": ["templates/.claude/agents/maestro.md"],
+      "esperado": "1+"
+    }
+  ]
+}
