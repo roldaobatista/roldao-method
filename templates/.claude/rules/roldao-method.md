@@ -80,6 +80,9 @@ Logs do projeto nunca devem ter chave Pix completa em texto puro. Mascarar (`***
 | Código toca dado pessoal sem base legal declarada (LGPD-001/007) | `lgpd-base-legal-reminder.js` | 0 (soft warning) |
 | Criação de tabela/modelo com dado pessoal sem caminho de exclusão (LGPD-002) | `lgpd-esquecimento-reminder.js` | 0 (soft warning) |
 | Leitura/exibição de dado pessoal sem log de auditoria (LGPD-004) | `lgpd-trilha-auditoria-reminder.js` | 0 (soft warning) |
+| Migration que adiciona coluna de PII sem justificativa (LGPD-003) | `lgpd-minimizacao-reminder.js` | 0 (soft warning) |
+| Provedor cloud externo sem região BR / DPA assinado (LGPD-005) | `lgpd-transferencia-internacional-reminder.js` | 0 (soft warning) |
+| Projeto manuseia PII sem canal do titular / DPO declarado (LGPD-009) | `lgpd-dpo-canal-reminder.js` | 0 (soft warning) |
 | Lembrete REGRA #0 antes de bug — UserPromptSubmit | `regra-zero-reminder.js` | 0 (soft warning) |
 
 **Total:** 31 hooks validadores (26 bloqueiam via `exit 2` ou JSON `decision:block`; 4 soft warnings — `regra-zero-reminder.js`, `lgpd-base-legal-reminder.js`, `lgpd-esquecimento-reminder.js`, `lgpd-trilha-auditoria-reminder.js`) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário interno (`_lib.js`) = **40 arquivos** em `.claude/hooks/`.
