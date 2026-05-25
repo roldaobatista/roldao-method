@@ -1,5 +1,76 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [1.2.0] — 2026-05-25
+
+**Segunda auditoria 10-agentes em 1 semana — 50 achados endereçados em 4 ondas (segurança, UX, regras BR operacionais, qualidade interna). Framework ganha 5 hooks novos, README sem jargão pro não-programador, FISCAL-004 e PIX-001/003 saem da doutrina e viram bloqueio mecânico.**
+
+### O que muda pra você (não-programador)
+
+- **README e Quickstart finalmente sem siglas técnicas pesadas:** antes a primeira página explicava o framework usando "CI", "MIT", "npm", "addon", "endpoint", "rm -rf" sem traduzir. Agora cada termo técnico vem com a tradução em PT-BR ("Verificação automática", "Licença grátis e aberta", "comando que apaga a pasta"). Existe agora **`docs/QUICKSTART-DONO.md`** pra você que não programa e **`docs/ABRIR-TERMINAL.md`** explicando como abrir o terminal em Windows/Mac/Linux antes do primeiro comando.
+- **5 trincos novos contra erro caro em projeto BR:**
+  - Sistema que emite nota fiscal precisa declarar **plano de contingência** (o que fazer quando a SEFAZ cai). Antes era documentação. Agora bloqueia o salvamento do código se faltar.
+  - Cobrança Pix precisa de **defesa contra duplicação** (mesmo Pix sendo cobrado 2x do cliente). Antes era doutrina. Agora bloqueia se faltarem as proteções.
+  - **3 lembretes LGPD novos** que avisam (sem travar): coluna nova com CPF sem justificativa? lembra de minimizar coleta. Servidor estrangeiro guardando dado brasileiro? lembra de declarar a base legal. Projeto manuseando dado pessoal sem canal do encarregado (DPO)? lembra do canal obrigatório por lei.
+  - **Postmortem obrigatório em 48h** depois de uma correção urgente em produção. Antes era confiar no time. Agora o sistema barra o próximo salvamento (não-urgente) até o postmortem estar escrito.
+- **Validadores brasileiros mais corretos:**
+  - Chave Pix tipo telefone: o sistema **rejeita telefone fixo** (o Banco Central só aceita celular). Antes deixava passar e o cadastro ia falhar depois no banco.
+  - Validação de Inscrição Estadual da Bahia: corrigido cálculo do dígito verificador (estava liberando inscrição inválida e barrando válida em alguns casos raros).
+- **`/explicar-para-cliente` e `/retro` agora podem chamar a tech-writer** pra traduzir/polir o texto antes de mostrar. Antes não tinham permissão.
+
+### Adicionado
+
+- **5 hooks novos** (Onda 3 e 4):
+  - **`fiscal-br-validator.js` estendido com FISCAL-004:** detecta chamadas a webservice de emissão (NF-e/NFC-e/CT-e/MDF-e) sem declaração `// FISCAL-004: SVC-AN|SVC-RS|EPEC|nao-aplica`. Bloqueio mecânico do que antes era doutrina.
+  - **`pix-idempotency-check.js`** (no addon `fintech-br`): bloqueia criação de cobrança Pix sem combinar 2 das 4 camadas de defesa (Idempotency-Key, TxId determinístico, UNIQUE(txid), lock distribuído) E bloqueia matching por nome+valor e EndToEndId sem índice (PIX-001/003).
+  - **`lgpd-minimizacao-reminder.js`** (soft warning): coluna PII nova em migration sem justificativa (LGPD-003).
+  - **`lgpd-transferencia-internacional-reminder.js`** (soft warning): provedor cloud externo sem região BR ou DPA (LGPD-005).
+  - **`lgpd-dpo-canal-reminder.js`** (soft warning): projeto manuseia PII sem canal do titular nem DPO declarado (LGPD-009).
+  - **`require-postmortem-after-hotfix.js`**: gate 48h pós-/hotfix saiu do addon `lgpd-compliance` pro core. Bloqueia commits não-emergenciais.
+- **Hook `block-destructive.js` protege `.claude/.runtime/`:** qualquer `rm` em marker de pipeline (feature-active, auditor-*-pass, checkpoint-done, bug-active, investigator-invoked, investigation-*.json, quick-dev-files) bloqueia. Fecha o bypass que estava documentado nas próprias mensagens de erro.
+- **2 evals novos** (`qa-automation.eval.md`, `sre-on-call.eval.md`) — 17/17 agentes agora têm cenários testáveis.
+- **Eval comportamental dos 3 auditores + maestro** em `evals/agent-behavior/auditores-maestro-comportamento.eval.json` — 8 critérios property-based (sem chamar LLM).
+- **Helper `gitSafeEnv()` em `_lib.js`** + uso em 7 chamadas a `git`: `GIT_CONFIG_GLOBAL=/dev/null` neutraliza ataque de `.git/config` adversarial em CWD (família CVE-2022-39253).
+- **Override consciente em `mcp-validator.js`**: `ROLDAO_METHOD_MCP_ALLOW_UNKNOWN=1` libera MCP fora da allowlist após aviso (era exit 0 silencioso, agora é exit 2 + override explícito).
+- **Override consciente em `auto-format-on-write.js`**: `ROLDAO_METHOD_FORMAT_ALLOW_GLOBAL=1` libera uso de prettier/eslint do PATH global (default agora exige `node_modules/.bin`).
+- **Detecção por valor em `no-log-pix-key.js`:** CPF formatado, email, UUID, EndToEndId, CPF cru entre aspas em string literal dentro de log. Antes só pegava por nome de variável (renomear escapava).
+- **Detecção de `-F arquivo.txt` e `--file=arquivo.txt` em `commit-message-validator.js`** — lê o arquivo e valida T-NNN.
+- **Sugestão de addon `fiscal-br-completo` expandida**: cobre transporte (CT-e/MDF-e), obrigação acessória (SPED/ECF/ECD/REINF), NFS-e nacional (ABRASF), split payment.
+- **`docs/QUICKSTART-DONO.md`** (30 linhas pra não-programador) e **`docs/QUICKSTART-DEV.md`** (técnico completo). `QUICKSTART.md` virou página de bifurcação.
+- **`docs/ABRIR-TERMINAL.md`** (50 linhas) — passo zero pra leigo: Windows/Mac/Linux.
+
+### Corrigido
+
+- **`mascarar.py`:** regex cega de 11 dígitos removida de `PADROES_AUTO` — antes mascarava CNH/RENAVAM/número de pedido como se fossem CPF em texto livre. RG agora preserva 2 dígitos finais (era 3, doc dizia 2).
+- **`validar-pix`:** chave Pix telefone fixo (10 dígitos depois do +55) é rejeitada — DICT/Bacen só aceita celular (DDD + 9 + 8 dígitos).
+- **`validar-ie` BA:** algoritmo do dígito verificador respeita as regras diferentes entre módulo 10 (DV = 0 quando resto = 0; senão 10 - resto) e módulo 11 (DV = 0 quando resto < 2; senão 11 - resto). Antes aplicava o mesmo critério a ambos, gerando falso-negativo em IE com resto = 1 no módulo 10.
+- **`mcp-validator.js`:** declarava `exit 2` na tabela do `rules/roldao-method.md` mas o código fazia `exit 0` silencioso quando havia MCP fora da allowlist. Agora bloqueia de verdade.
+- **`auto-format-on-write.js`:** permitia supply-chain via shim em `~/.local/bin/prettier`. Agora exige `node_modules/.bin/prettier` por padrão.
+- **`enforce-pipeline-completion.js` e `validate-quick-dev-scope.js`:** as mensagens de erro documentavam `rm <marker>` como caminho de escape. Texto reescrito sem ensinar bypass.
+- **`commit-message-validator.js`:** não detectava `git commit -F arquivo.txt` nem `--file=arquivo.txt` — commit sem T-NNN passava por essa rota. Agora lê o conteúdo e valida.
+- **`atomicWriteJson` no instalador:** EPERM/EBUSY do Windows (Defender/AV travando arquivo) deixava `settings.json` corrompido sem fallback. Agora 3 retries com backoff + restore de `.bak`.
+- **`tasks-to-issues`:** mapa só persistia no final do loop — falha do `gh` no meio criava issues órfãs e duplicava no próximo run. Agora persiste antes da chamada (`{status:"pending"}`) e atualiza após sucesso.
+- **`isUserOwned` duplicado em `bin/install.js`** removido — agora reusa o helper canônico de `bin/lib/user-owned.js`.
+- **`/prd` deixou de decompor stories** — agora para no fechamento do PRD e aponta `/epico` como próximo passo. Antes `/prd` Etapa 6 e `/epico` faziam o mesmo trabalho.
+- **`/explicar-para-cliente` e `/retro` ganharam `Task`** em `allowed-tools` (faltava — não conseguiam invocar tech-writer).
+- **AGENTS.md §4 e MAPA-VISUAL.md** atualizados: Bia e Marcos formalizados (eram órfãos do contrato canônico desde a v1.1.0).
+- **`tech-writer.md`** resolveu contradição entre `model: inherit` e comentário que justificava `sonnet` — agora declara `model: sonnet`.
+- **`maestro.md`** restringiu `Bash(rm:*)` para `Bash(rm .claude/.runtime/*:*)` — fecha superfície destrutiva.
+- **`validar-cobertura-hooks.js` endurecido:** scaneia todas as suites em `test/*.test.js` e exige chamada real (`assertExit`/`assertBlockDecision`/`spawnSync`/path direto do `.js`), não só literal solta em comentário. Cobertura passa de 27/27 (com brechas) pra 28/28 reais.
+
+### Mudado
+
+- **Contagens canônicas sincronizadas em ROADMAP/CLAUDE.md/README/AGENTS/MAPA-VISUAL/rules/package.json:** 17 agentes, 44 hooks (28 bloqueadores + 7 soft warnings + 8 lifecycle + 1 utilitário), 19 skills core + 17 em addons = 36 skills, 28 workflows.
+- **`docs/COMO-FUNCIONA.md`** TL;DR reescrito em PT-BR: "freios automáticos = hooks", "especialistas = agents", "roteiros = workflows".
+- **`docs/MENSAGENS-ERRO-CATALOGO.md`** ganhou `publico-alvo: desenvolvedor` no frontmatter + banner redirecionando dono de produto pros docs certos.
+- **`bin/install.js` output sem jargão**: "IDE/CLI detectada" → "assistente de IA detectado"; "adapters" → "assistentes que vão receber o framework"; "addons BR" → "extensões BR (addons)".
+- **`templates/CLAUDE.local.md.example`** sem tags técnicas visíveis (`<auto-preenchido: process.platform>` virou "(detectado automaticamente)").
+
+### Preservado
+
+- **Compatibilidade total com v1.1.0:** todos os hooks/skills/agentes/commands continuam funcionando. Update em projeto existente preserva customizações em `.specify/overrides/`, `AGENTS.md`, `CLAUDE.md`, `CLAUDE.local.md`, `REGRAS-INEGOCIAVEIS.md`, `.claude/settings.local.json`, `.mcp.json` (USER_OWNED canônico).
+- **Comportamento dos hooks legados** (anti-mascaramento, block-destructive, secrets-scanner, etc.): mesmas regras, com adições explícitas declaradas acima.
+- **Override sem fork** continua via `.specify/overrides/<area>/<nome>.md` — `update` nunca toca.
+
 ## [1.1.0] — 2026-05-25
 
 **Auditoria round 11 (10 agentes) — todo o débito técnico crítico/alto/médio/baixo endereçado em 1 sessão. Framework ganha 2 especialistas (QA E2E + SRE on-call), 6 skills BR novas, 3 hooks novos (NF-e imutável + 2 lembretes LGPD), lib comum CPF/CNPJ e Prettier.**
