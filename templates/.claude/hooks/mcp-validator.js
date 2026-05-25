@@ -67,15 +67,25 @@ const ALLOWLIST = [
   }
 
   if (desconhecidos.length > 0) {
-    process.stderr.write(`[mcp-validator] AVISO: MCP servers fora da allowlist conhecida.\n\nServers nao reconhecidos:\n`);
+    process.stderr.write(`[mcp-validator] BLOQUEADO: MCP servers fora da allowlist conhecida.\n\nServers nao reconhecidos:\n`);
     for (const d of desconhecidos) process.stderr.write(`  - ${d}\n`);
-    process.stderr.write(`\nRisco: MCP de terceiros pode receber prompt completo + chamadas de ferramenta.\n`);
+    process.stderr.write(`\nRisco: MCP de terceiros recebe prompt completo + chamadas de ferramenta.\n`);
     process.stderr.write(`Antes de continuar, confirme:\n`);
     process.stderr.write(`  1. Voce confia no autor do MCP?\n`);
     process.stderr.write(`  2. O server e oficial / open source verificado?\n`);
     process.stderr.write(`  3. As permissoes necessarias estao OK?\n\n`);
+    process.stderr.write(`Pra autorizar mesmo assim (consciente do risco), defina:\n`);
+    process.stderr.write(`  ROLDAO_METHOD_MCP_ALLOW_UNKNOWN=1\n\n`);
     process.stderr.write(`Doc: docs/MCP-GUIA-BR.md.\n`);
+    if (process.env.ROLDAO_METHOD_MCP_ALLOW_UNKNOWN === '1') {
+      process.stderr.write(`[mcp-validator] override ROLDAO_METHOD_MCP_ALLOW_UNKNOWN=1 ativo — prosseguindo.\n`);
+      process.exit(0);
+    }
+    // Tabela em .claude/rules/roldao-method.md promete exit 2 — auditoria
+    // 2026-05-25 (hook #1) corrigiu: era exit 0 silencioso. SessionStart com
+    // exit 2 impede inicio da sessao no Claude Code.
+    process.exit(2);
   }
 
-  process.exit(0); // SessionStart nao bloqueia
+  process.exit(0);
 })().catch(() => process.exit(0));

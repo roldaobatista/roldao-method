@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir } = require('./_lib.js');
+const { sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir, gitSafeEnv } = require('./_lib.js');
 
 function listFiles(dir, prefixes) {
   let entries;
@@ -30,7 +30,7 @@ function head1(file) {
 
 function git(args, cwd) {
   try {
-    return execFileSync('git', args, { cwd, stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }).toString().trim();
+    return execFileSync('git', args, { cwd, stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000, env: gitSafeEnv() }).toString().trim();
   } catch { return ''; }
 }
 

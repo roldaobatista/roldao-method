@@ -79,11 +79,11 @@ def mascarar_chave_pix(chave: str) -> str:
 
 
 def mascarar_rg(rg: str) -> str:
-    """RG: **.***.**N-N (preserva ultimos 2)."""
+    """RG: **.***.***N-N (preserva ultimos 2)."""
     s = re.sub(r"[^0-9Xx]", "", rg).upper()
     if len(s) < 5:
         return "*" * len(s)
-    return f"**.***.**{s[-3:-1]}-{s[-1]}"
+    return f"**.***.***{s[-2]}-{s[-1]}"
 
 
 def mascarar_ie(ie: str) -> str:
@@ -120,12 +120,13 @@ def mascarar_cartao(c: str) -> str:
     return f"**** **** **** {d[-4:]}"
 
 
-# Padroes pra deteccao automatica em texto livre
+# Padroes pra deteccao automatica em texto livre — apenas formatos com pontuacao
+# canonica. Regex cega de \d{11} ou \d{14} foi removida em 2026-05-25 por
+# falso-positivo grave (mascarava CNH/RENAVAM/numero de pedido como se fosse
+# CPF/CNPJ). Pra mascarar CPF/CNPJ cru, chame mascarar_cpf/mascarar_cnpj direto.
 PADROES_AUTO = [
     (re.compile(r"\b\d{3}\.\d{3}\.\d{3}-\d{2}\b"), mascarar_cpf),
-    (re.compile(r"\b\d{11}\b"), mascarar_cpf),  # CPF cru — atencao: pode pegar CNH/RENAVAM tambem
     (re.compile(r"\b\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}\b"), mascarar_cnpj),
-    (re.compile(r"\b\d{14}\b"), mascarar_cnpj),
     (re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"), mascarar_email),
     (re.compile(r"\+\d{12,14}\b"), mascarar_telefone),
 ]

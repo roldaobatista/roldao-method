@@ -37,6 +37,17 @@ const TEMPLATES_DIR = path.join(FRAMEWORK_ROOT, 'templates');
 const ADDONS_DIR = path.join(FRAMEWORK_ROOT, 'addons');
 const CWD = process.cwd();
 
+// Env neutralizado pra chamadas git — anula config global/sistema pra evitar
+// que .git/config malicioso em CWD adversarial execute hooks/aliases arbitrarios
+// (CVE-2022-39253 family). Auditoria 2026-05-25 (seguranca #7).
+const GIT_SAFE_ENV = {
+  ...process.env,
+  GIT_CONFIG_GLOBAL: '/dev/null',
+  GIT_CONFIG_SYSTEM: '/dev/null',
+  GIT_CONFIG_NOSYSTEM: '1',
+  GIT_TERMINAL_PROMPT: '0',
+};
+
 const rawArgs = process.argv.slice(2);
 // --help/--version/-h/-v sao reconhecidos como COMANDO (nao flag) — antes
 // caiam no filtro `positional = !startsWith('-')` e nunca chegavam ao switch,
@@ -1565,8 +1576,8 @@ async function undo() {
   let coAuthored = false;
   try {
     const { execFileSync } = require('child_process');
-    ultimoHash = execFileSync('git', ['-C', CWD, 'rev-parse', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
-    ultimoMsg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s%n%b'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    ultimoHash = execFileSync('git', ['-C', CWD, 'rev-parse', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
+    ultimoMsg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s%n%b'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
     coAuthored = /Co-Authored-By: Claude/i.test(ultimoMsg);
   } catch {
     err('nao consegui ler git log. Voce esta numa pasta com repositorio git?');
@@ -1617,7 +1628,7 @@ async function undo() {
 
   try {
     const { execFileSync } = require('child_process');
-    execFileSync('git', ['-C', CWD, 'revert', '--no-edit', 'HEAD'], { stdio: 'inherit' });
+    execFileSync('git', ['-C', CWD, 'revert', '--no-edit', 'HEAD'], { stdio: 'inherit', env: GIT_SAFE_ENV });
     ok('undo concluido. Nova gravacao criada desfazendo a anterior.');
     console.log(`${c.dim}Pra ver: git log -2 --oneline${c.reset}`);
   } catch (e) {
@@ -1663,8 +1674,8 @@ async function statusProjeto() {
   let ultimoCommit = 'nao identificado';
   let diasDesde = '?';
   try {
-    const tsStr = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%ai'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
-    const msg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    const tsStr = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%ai'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
+    const msg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
     if (tsStr) {
       const ts = new Date(tsStr);
       const agora = new Date();
@@ -1677,7 +1688,7 @@ async function statusProjeto() {
   let pendente = false;
   let arquivosPendentes = 0;
   try {
-    const status = execFileSync('git', ['-C', CWD, 'status', '--porcelain'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    const status = execFileSync('git', ['-C', CWD, 'status', '--porcelain'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
     if (status) {
       pendente = true;
       arquivosPendentes = status.split('\n').filter(Boolean).length;

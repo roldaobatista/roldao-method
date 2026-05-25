@@ -15,14 +15,14 @@
 // PRD-003 → US-114 → T-302 (E2+E8).
 
 const { execFileSync } = require('child_process');
-const { readStdinJson } = require('./_lib.js');
+const { readStdinJson, gitSafeEnv } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /(^|\/)(templates|\.specify\/templates)\/|\.example(\.[a-z]+)?$|\.template\.[a-z]+$/i;
 const TARGET_EXT_RE = /\.md$/i;
 
 function gitUserName() {
   try {
-    return execFileSync('git', ['config', 'user.name'], { stdio: ['ignore', 'pipe', 'ignore'] })
+    return execFileSync('git', ['config', 'user.name'], { stdio: ['ignore', 'pipe', 'ignore'], env: gitSafeEnv() })
       .toString().trim();
   } catch { return ''; }
 }

@@ -110,9 +110,10 @@ Antes de encerrar, rode o restante do pipeline (auditores + checkpoint) — ou d
   Task subagent_type=maestro prompt="Modo FT continuacao: ${usId}, retomar do ponto atual ate checkpoint."
 
 Encerrar agora deixa US-NNN sem audit trail (viola INV-002 + INV-AGENT-004).
-Se voce REALMENTE quer abortar (decisao consciente), apague o marker:
-  rm .claude/.runtime/feature-active-${sess}
-e rode Stop de novo.`;
+
+Aborto consciente: o maestro tem ferramenta pra encerrar pipeline com motivo
+documentado (Modo FT: "abortar US-NNN, motivo X"). Use isso ao inves de mexer
+em markers manualmente — o hook block-destructive bloqueia rm em .claude/.runtime/.`;
 
   process.stdout.write(JSON.stringify({ decision: 'block', reason }));
   process.exit(0);

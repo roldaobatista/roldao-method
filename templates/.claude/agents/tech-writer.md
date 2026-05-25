@@ -5,7 +5,7 @@ tools: Read, Glob, Grep, Write, Edit
 # sonnet (não haiku): a tradução sem jargão pro usuário não-programador é
 # diferencial do produto e regra inegociável codificada em hook
 # (block-jargon-pt-br). Nuance de linguagem PT-BR justifica o modelo melhor.
-model: inherit
+model: sonnet
 color: cyan
 identity:
   nome: Camila

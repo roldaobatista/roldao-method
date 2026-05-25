@@ -8,7 +8,14 @@ const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { readStdinJson, sanitizeProjdir } = require('./_lib.js');
 
+// Auditoria 2026-05-25 (seguranca #8): hasCommand antes aceitava qualquer
+// binario do PATH global. Atacante com write em ~/.local/bin/prettier conseguia
+// rodar codigo arbitrario a cada Write/Edit. Agora so libera global quando o
+// usuario opta explicitamente via ROLDAO_METHOD_FORMAT_ALLOW_GLOBAL=1.
+const ALLOW_GLOBAL_FORMATTERS = process.env.ROLDAO_METHOD_FORMAT_ALLOW_GLOBAL === '1';
+
 function hasCommand(cmd) {
+  if (!ALLOW_GLOBAL_FORMATTERS) return false;
   try { execFileSync(process.platform === 'win32' ? 'where' : 'which', [cmd], { stdio: 'ignore' }); return true; }
   catch { return false; }
 }

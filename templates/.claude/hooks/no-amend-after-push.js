@@ -6,11 +6,11 @@
 // (upstream tracking) — mais robusto que exigir `git fetch` recente.
 
 const { execFileSync } = require('child_process');
-const { sanitizeProjdir, readStdinJson, recordMetric } = require('./_lib.js');
+const { sanitizeProjdir, readStdinJson, recordMetric, gitSafeEnv } = require('./_lib.js');
 
 function git(args, opts = {}) {
   try {
-    return execFileSync('git', args, { stdio: ['ignore', 'pipe', 'ignore'], ...opts }).toString().trim();
+    return execFileSync('git', args, { stdio: ['ignore', 'pipe', 'ignore'], env: gitSafeEnv(), ...opts }).toString().trim();
   } catch {
     return '';
   }
@@ -20,7 +20,7 @@ function git(args, opts = {}) {
 // fail-open silencioso — auditoria 10-agentes 3ª passada 2026-05-24).
 function gitInstalled() {
   try {
-    execFileSync('git', ['--version'], { stdio: 'ignore' });
+    execFileSync('git', ['--version'], { stdio: 'ignore', env: gitSafeEnv() });
     return true;
   } catch {
     return false;
@@ -75,7 +75,7 @@ function gitInstalled() {
       } else {
         // merge-base --is-ancestor: exit 0 se LOCAL e ancestral de UPSTREAM
         try {
-          execFileSync('git', ['merge-base', '--is-ancestor', localSha, upstreamSha], { stdio: 'ignore', cwd: projdir });
+          execFileSync('git', ['merge-base', '--is-ancestor', localSha, upstreamSha], { stdio: 'ignore', cwd: projdir, env: gitSafeEnv() });
           pushedTo = upstream;
         } catch { /* nao e ancestral */ }
       }

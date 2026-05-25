@@ -12,19 +12,20 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric, gitSafeEnv } = require('./_lib.js');
 
 // computeDiffShas — retorna { sha256, gitBlobSha } do diff HEAD atual.
 // Marker e valido se audit_sha bater em qualquer dos dois formatos.
 // Resolve staleness em Windows com core.autocrlf=true sem quebrar markers legados.
 function computeDiffShas(projdir) {
   try {
-    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], { stdio: 'ignore' });
-    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] });
+    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], { stdio: 'ignore', env: gitSafeEnv() });
+    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'], env: gitSafeEnv() });
     const sha256 = crypto.createHash('sha256').update(diff).digest('hex');
     const gitBlobSha = execFileSync('git', ['hash-object', '--stdin'], {
       input: diff || Buffer.alloc(0),
       stdio: ['pipe', 'pipe', 'ignore'],
+      env: gitSafeEnv(),
     }).toString().trim();
     return { sha256, gitBlobSha };
   } catch {

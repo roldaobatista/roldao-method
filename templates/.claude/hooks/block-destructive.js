@@ -105,6 +105,26 @@ const PATTERNS = [
     }
   }
 
+  // Marker de pipeline / auditoria — apagar = anular toda a engenharia de gates.
+  // Auditoria 2026-05-25 (hook #2-3): enforce-pipeline-completion e validate-quick-dev-scope
+  // documentavam nas mensagens de erro o caminho `rm marker` pra escapar do bloqueio.
+  // Agora qualquer tentativa de remover marker dispara aqui antes.
+  const RUNTIME_MARKER_RE = /(^|\s)rm\s+[^|]*\.claude[/\\]\.runtime[/\\](feature-active|auditor-.*-pass|checkpoint-done|bug-active|bug-trigger|investigator-invoked|investigation-.*\.json|quick-dev-files)/i;
+  if (RUNTIME_MARKER_RE.test(cmd)) {
+    process.stderr.write(`[block-destructive] BLOQUEADO: tentativa de remover marker de pipeline.\n\n`);
+    process.stderr.write(`Comando: ${rawCmd}\n`);
+    process.stderr.write(`Motivo: markers em .claude/.runtime/ representam estado de gates do framework\n`);
+    process.stderr.write(`(pipeline /feature, auditores, checkpoint, investigador, /bug, /quick-dev).\n`);
+    process.stderr.write(`Apagar manualmente anula todo o controle do framework.\n\n`);
+    process.stderr.write(`Como destravar legitimamente:\n`);
+    process.stderr.write(`- Pipeline travado em etapa errada: rode o agente da etapa pendente.\n`);
+    process.stderr.write(`- Auditor reprovou: corrija o achado e re-rode o auditor.\n`);
+    process.stderr.write(`- Sessao corrompida: 'session-cleanup' (lifecycle) limpa no proximo SessionEnd.\n`);
+    process.stderr.write(`\nAplica regras: SEC-002, INV-AGENT-005.\n`);
+    recordMetric('block', 'block-destructive', 'tentativa de rm em marker .claude/.runtime');
+    process.exit(2);
+  }
+
   // Padroes destrutivos: primeiro match bloqueia.
   for (const { re, desc } of PATTERNS) {
     if (re.test(cmd)) {

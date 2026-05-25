@@ -10,7 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
+const { sanitizeProjdir, sanitizeSessionHash, gitSafeEnv } = require('./_lib.js');
 
 const SUGESTOES = [
   {
@@ -43,11 +43,12 @@ const SUGESTOES = [
 function buscarKeyword(projdir, re, max = 5) {
   try {
     const out = execFileSync('git', [
+      '-c', 'protocol.file.allow=never',
       '-C', projdir, 'grep', '-l', '-iE', re.source,
       '--',
       '*.js', '*.ts', '*.tsx', '*.jsx', '*.py', '*.go', '*.rb', '*.php', '*.java',
       '*.md', '*.sql', '*.json',
-    ], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }).toString().trim();
+    ], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000, env: gitSafeEnv() }).toString().trim();
     if (!out) return [];
     return out.split('\n').slice(0, max);
   } catch { return []; }

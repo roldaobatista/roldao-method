@@ -10,6 +10,22 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = re
 const TIPOS = 'feat|fix|refactor|chore|docs|test|perf|build|ci|revert';
 const TIPOS_STYLE = TIPOS + '|style';
 
+function extractFromFileArg(normalized) {
+  // Auditoria 2026-05-25 (hook #9): antes ignorava `git commit -F arquivo.txt`
+  // e `--file=arquivo.txt` — commit sem T-NNN passava silencioso.
+  // Agora: detecta o arg, le o arquivo, devolve conteudo pra validar.
+  const reFileShort = /(?:^|\s)-F\s+(\S+)/;
+  const reFileLong = /--file[=\s]+(\S+)/;
+  const m = normalized.match(reFileShort) || normalized.match(reFileLong);
+  if (!m) return '';
+  const filePath = m[1].replace(/^["']|["']$/g, '');
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch {
+    return '';
+  }
+}
+
 function extractMessages(cmd) {
   // Normaliza CRLF Windows → LF antes de qualquer regex
   const normalized = cmd.replace(/\r\n/g, '\n');
@@ -23,6 +39,9 @@ function extractMessages(cmd) {
   const reHeredoc = /<<\s*'?(\w+)'?\s*\r?\n([\s\S]*?)\r?\n\1\b/;
   const hd = normalized.match(reHeredoc);
   if (hd) parts.push(hd[2]);
+  // -F arquivo.txt / --file=arquivo.txt
+  const fromFile = extractFromFileArg(normalized);
+  if (fromFile) parts.push(fromFile);
   return parts.join('\n');
 }
 
@@ -32,9 +51,10 @@ function extractMessages(cmd) {
   if (!cmd) process.exit(0);
   if (!cmd.includes('git commit')) process.exit(0);
 
-  // Aplica: -m/--message OU --amend. Commit via editor (sem -m): exit 0 (COMMIT_EDITMSG
-  // nao existe ainda em PreToolUse).
-  const hasInline = /-m\s/.test(cmd) || /--message[=\s]/.test(cmd);
+  // Aplica: -m/--message/-F/--file OU --amend. Commit via editor sem nenhum
+  // desses (sem -m): exit 0 (COMMIT_EDITMSG nao existe em PreToolUse).
+  const hasInline = /-m\s/.test(cmd) || /--message[=\s]/.test(cmd)
+    || /(?:^|\s)-F\s/.test(cmd) || /--file[=\s]/.test(cmd);
   const isAmend = /--amend/.test(cmd);
   if (!hasInline && !isAmend) process.exit(0);
 

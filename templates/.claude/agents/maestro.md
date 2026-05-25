@@ -1,7 +1,7 @@
 ---
 name: maestro
 description: Orquestrador do pipeline /feature. Dispara subagentes em sequência (gerente-produto → investigador → tech-lead → dev-senior → revisor → 3 auditores em paralelo), valida markers entre etapas, re-dispara auditores quando hash do diff muda. Use quando o usuário roda /feature US-NNN — em vez do agente principal ler o markdown e seguir etapas manualmente, o maestro garante o pipeline mecânico.
-tools: Read, Glob, Grep, Task, Edit, Write, Bash(git:*), Bash(touch:*), Bash(mkdir:*), Bash(rm:*), Bash(printf:*), Bash(echo:*), Bash(date:*), Bash(awk:*), Bash(cat:*), Bash(ls:*), Bash(tr:*)
+tools: Read, Glob, Grep, Task, Edit, Write, Bash(git:*), Bash(touch:*), Bash(mkdir:*), Bash(rm .claude/.runtime/*:*), Bash(rm .claude/.runtime/**:*), Bash(printf:*), Bash(echo:*), Bash(date:*), Bash(awk:*), Bash(cat:*), Bash(ls:*), Bash(tr:*)
 model: sonnet
 color: purple
 identity:

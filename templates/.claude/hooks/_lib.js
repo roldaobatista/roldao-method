@@ -363,6 +363,24 @@ function normalizeFilePath(fp) {
   return fp.replace(/\\/g, '/');
 }
 
+// ---------------------------------------------------------------------------
+// gitSafeEnv — env neutralizado pra chamadas execFileSync/spawnSync('git', ...).
+// Anula GIT_CONFIG_GLOBAL/SYSTEM pra evitar que .git/config malicioso em CWD
+// adversarial (CVE-2022-39253 family) execute hooks/aliases arbitrarios via
+// core.sshCommand, core.fsmonitor, hooksPath etc.
+// Auditoria 2026-05-25 (seguranca #7) — usar SEMPRE ao invocar git de hooks.
+// ---------------------------------------------------------------------------
+function gitSafeEnv(extra) {
+  return {
+    ...process.env,
+    GIT_CONFIG_GLOBAL: '/dev/null',
+    GIT_CONFIG_SYSTEM: '/dev/null',
+    GIT_CONFIG_NOSYSTEM: '1',
+    GIT_TERMINAL_PROMPT: '0',
+    ...(extra || {}),
+  };
+}
+
 module.exports = {
   sanitizeProjdir,
   sanitizeSessionHash,
@@ -379,4 +397,5 @@ module.exports = {
   failClosedMessage,
   recordApproval,
   normalizeFilePath,
+  gitSafeEnv,
 };
