@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
   "version": "1.0.5",
-  "description": "Framework agentic em PT-BR. 15 agentes, 26 hooks bloqueadores em Node puro + 2 soft warnings + 8 lifecycle/manutenção + 1 utilitário (_lib.js) = 37 hooks total, 28 workflows, 31 skills BR (13 core + 18 em addons; CNPJ alfanumérico 2026, chave de acesso NF-e, Reforma Tributária 2026-2033, Pix, LGPD, fiscal, eSocial, CFM telemedicina, CNS/SUS), 7 addons especializados (6 stable + healthtech-br beta), 9 checklists. 46 regras inegociáveis (INV/SEC/TST/LGPD/FISCAL/PIX/INV-AGENT). Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
+  "description": "Framework agentic em PT-BR. 17 agentes, 27 hooks bloqueadores + 4 soft warnings + 8 lifecycle/manutenção = 39 hooks em Node puro, 28 workflows, 36 skills BR (19 core + 17 em addons; CPF/CNPJ alfanumérico 2026, chave de acesso NF-e, validador IE/CEP/CNH/RENAVAM/titulo-eleitor/conta-bancaria/PIS/Pix, mascarar dado pessoal LGPD, NF-e imutavel FISCAL-001, Reforma Tributária 2026-2033, eSocial, CFM telemedicina, CNS/SUS), 7 addons especializados (6 stable + healthtech-br beta), 9 checklists. 46 regras inegociáveis (INV/SEC/TST/LGPD/FISCAL/PIX/INV-AGENT). Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
     "claude-code",
@@ -36,6 +36,8 @@
   ],
   "scripts": {
     "validar": "node tools/validar-templates.js",
+    "format": "npx prettier --write \"**/*.{js,json}\"",
+    "format:check": "npx prettier --check \"**/*.{js,json}\"",
     "validar:ids": "node tools/validar-ids-rastreaveis.js",
     "validar:cobertura-hooks": "node tools/validar-cobertura-hooks.js",
     "lint:self-masking": "node tools/validar-self-masking.js",
@@ -98,6 +100,9 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.0"
   },
   "repository": {
     "type": "git",

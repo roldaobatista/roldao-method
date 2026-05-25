@@ -1,0 +1,46 @@
+# Prettier ignore — auditoria round 11 (2026-05-25)
+node_modules
+dist
+build
+coverage
+*.log
+.cache
+.parcel-cache
+
+# Dogfood (gerado por install — fonte canonica vive em templates/)
+/.claude/
+/.specify/
+/.claude-plugin/
+/AGENTS.md
+/CLAUDE.md
+/REGRAS-INEGOCIAVEIS.md
+
+# Adapters auto-gerados
+/.cursor/
+/.windsurf/
+/.clinerules
+/.roorules
+/.aider.conf.yml
+/.codex/
+/GEMINI.md
+/.continue/
+
+# CHANGELOG e ROADMAP grandes — formatacao manual
+/CHANGELOG.md
+/ROADMAP.md
+
+# Conteudo de addon que tem dono separado
+/addons/
+
+# Templates de spec — placeholders `_(preencher)_` quebram com proseWrap
+/.specify/templates/
+/templates/.specify/templates/
+
+# Skills Python — tem ruff/black proprio
+**/scripts/*.py
+
+# Test fixtures que precisam manter formato exato
+/test/fixtures/
+
+# Evals — markdown estruturado, preserva
+/evals/
