@@ -1,6 +1,14 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
-## [1.2.2] — 2026-05-25
+## [1.2.3] — 2026-05-25
+
+**Patch: corrige 4 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
+
+### Adicionado no 1.2.3
+
+- **`tools/sincronizar-plugin-manifest.js` em modo `--check`** tolera destino ausente (raiz gitignored em CI/clone limpo). Antes marcava drift falso. Em modo escrita, ainda regenera todos os destinos.
+
+## [1.2.2] — 2026-05-25 (descartada — substituída por 1.2.3)
 
 **Patch: corrige 3 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
 

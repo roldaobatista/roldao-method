@@ -119,9 +119,13 @@ function main() {
   const generated = buildManifest();
   const generatedStr = JSON.stringify(generated, null, 2) + '\n';
 
-  // Verifica TODOS os destinos
+  // Em CI/clone recem-feito, o destino raiz (.claude-plugin/plugin.json) e
+  // gitignored — nao existe. Verificar contra '' marcava drift falso. Em
+  // modo --check, destinos ausentes sao tolerados; em modo escrita (default),
+  // ainda sao criados/sobrescritos.
   const fora = PLUGIN_FILES.filter((file) => {
-    const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+    if (!fs.existsSync(file)) return !check; // ausente: ok em --check, regrava em escrita
+    const current = fs.readFileSync(file, 'utf8');
     return current !== generatedStr;
   });
 
