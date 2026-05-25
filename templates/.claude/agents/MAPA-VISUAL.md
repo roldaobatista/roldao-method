@@ -4,7 +4,7 @@ revisado-em: 2026-05-24
 status: stable
 ---
 
-# Mapa visual dos 15 agentes
+# Mapa visual dos 17 agentes
 
 Quem chamar pra cada tipo de tarefa. **Você não invoca os agentes diretamente** — os workflows (`/feature`, `/bug`, etc.) cuidam disso. Este mapa é referência rápida.
 
@@ -33,6 +33,10 @@ DESENVOLVIMENTO
 
 INFRA / ENTREGA
 └─ Lucas (devops-infra)          → CI/CD, deploy, IaC, observabilidade, secrets, cloud BR
+
+QUALIDADE / CONFIABILIDADE (novos na v1.1.0)
+├─ Bia (qa-automation)           → testes E2E, cenários de carga e regressão, antes do release
+└─ Marcos (sre-on-call)          → resposta a incidente, runbook, plantão, postmortem
 
 REVISÃO E AUDITORIA
 ├─ Inês (revisor)                → aderência à US + anti-padrões no diff
@@ -79,7 +83,7 @@ COMUNICAÇÃO
 | `/agentes` | (sem agente — índice) |
 | `/o-que-aconteceu` | (sem agente — git log + diff) |
 
-## Identidade dos 15
+## Identidade dos 17
 
 | Ícone | Nome | Papel | Modelo |
 |---|---|---|---|
@@ -92,11 +96,13 @@ COMUNICAÇÃO
 | 💻 | Bruno | Dev Sênior | inherit |
 | 🗄️ | Helena | DBA / Dados | sonnet |
 | 🚀 | Lucas | DevOps / Infra | sonnet |
+| 🧪 | Bia | QA Automation | sonnet |
+| 🚨 | Marcos | SRE On-Call | sonnet |
 | ✅ | Inês | Revisor | inherit |
 | 🛡️ | Caio | Auditor Segurança | inherit |
 | 🧪 | Júlia | Auditor Qualidade | inherit |
 | 🎯 | Pedro | Auditor Produto | inherit |
 | 🧾 | Dona Marta | Fiscal BR | inherit |
-| 📝 | Camila | Tech Writer | inherit |
+| 📝 | Camila | Tech Writer | sonnet |
 
 > Para detalhes de cada agente: leia `.claude/agents/<nome>.md`.

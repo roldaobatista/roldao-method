@@ -84,6 +84,11 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 - `devops-infra` — CI/CD, deploy (rolling/blue-green/canário), IaC (Terraform/Pulumi), observabilidade (golden signals + SLI/SLO), gestão de secrets (KMS/Vault), cloud BR (sa-east-1, southamerica-east1, brazilsouth). Use ao desenhar pipeline, escolher estratégia de rollout, revisar Terraform antes de apply, ou estruturar observabilidade.
 
+**Qualidade / Confiabilidade (novos na v1.1.0):**
+
+- `qa-automation` (Bia) — testes end-to-end automatizados, validação de fluxo do usuário, cenários de carga e regressão. Use ao desenhar suíte de E2E, escolher framework de teste, ou cobrir cenário crítico antes do release.
+- `sre-on-call` (Marcos) — resposta a incidente, runbook, observabilidade ativa, escalonamento, postmortem. Use quando o sistema cai/lentidão em produção ou pra estruturar plantão.
+
 **Documentação:**
 
 - `tech-writer` — CHANGELOG, README, release notes, tradução de mensagem técnica pra PT-BR claro. Usado por `/status`, `/replanejar`, releases.

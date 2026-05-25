@@ -1,5 +1,5 @@
 ---
-description: ROLDAO-METHOD — regras unificadas. No Claude Code, os 28 hooks validadores codificam tudo isto. Este arquivo é referência rápida para revisar contrato sem abrir cada hook.
+description: ROLDAO-METHOD — regras unificadas. No Claude Code, 29 hooks bloqueadores + 4 soft warnings codificam estas regras. Este arquivo é referência rápida para revisar contrato sem abrir cada hook.
 paths:
   - "docs/**"
   - ".claude/**"

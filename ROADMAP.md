@@ -12,10 +12,10 @@ status: stable
 
 Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do projeto): hooks, agentes, comandos, skills, docs, templates, testes, addons, CLI/instalador, consistência cruzada — **todos os achados endereçados**. Highlights:
 
-- 15 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila.
+- 17 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila + **Bia (qa-automation)** e **Marcos (sre-on-call)** novos na v1.1.0.
 - 28 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`).
-- 28 hooks validadores (26 bloqueadores via `exit 2` ou JSON `decision:block`; 2 soft warnings) + 8 lifecycle/manutenção + 1 utilitário (`_lib.js`) = **37 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
-- 13 skills BR no core + 18 nos addons = **31 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
+- 33 hooks validadores (29 bloqueadores via `exit 2` ou JSON `decision:block`; 4 soft warnings) + 7 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário (`_lib.js`) = **40 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
+- 19 skills BR no core + 17 nos addons = **36 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
 - 8 checklists + 7 knowledge bases.
 - **7 addons** (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta).
 - 12 templates de spec PT-BR.
