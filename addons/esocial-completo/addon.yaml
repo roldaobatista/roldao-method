@@ -20,7 +20,8 @@ provoca:
     - validate-esocial-prazo
   skills:
     - emitir-evento-esocial
-    - validar-pis-pasep
+    # validar-pis-pasep movida pro core na v1.0.5 (PIS eh universal — folha, FGTS,
+    # INSS, nao so eSocial). Auditoria round 11 (2026-05-25).
   commands: []
   templates:
     - eventos-esocial-cobertos.md

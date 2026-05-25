@@ -86,7 +86,10 @@ for (const file of listDir(hooksDir)) {
 
 // Skills
 const skillsDir = path.join(TEMPLATES, '.claude/skills');
+// _lib/ eh diretorio de bibliotecas compartilhadas (cpf_cnpj.py, etc.) — nao eh skill.
+const SKILL_DIR_IGNORE = new Set(['_lib']);
 for (const skill of listDir(skillsDir)) {
+  if (SKILL_DIR_IGNORE.has(skill)) continue;
   const skillPath = path.join(skillsDir, skill);
   if (!fs.statSync(skillPath).isDirectory()) continue;
   const skillMd = path.join(skillPath, 'SKILL.md');

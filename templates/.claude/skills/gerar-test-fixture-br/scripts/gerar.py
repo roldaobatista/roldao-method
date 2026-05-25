@@ -3,52 +3,40 @@
 """Gera dados sintéticos brasileiros válidos por algoritmo.
 
 Stdlib pura. Saída no stdout, 1 por linha.
+
+Auditoria round 11 (2026-05-25): algoritmo CPF/CNPJ extraido pra
+`.claude/skills/_lib/cpf_cnpj.py`. Esta skill agora usa as funcoes
+`gerar_cpf`/`gerar_cnpj` da lib comum em vez de duplicar.
 """
 
+import os
 import sys
 
-# Força UTF-8 no I/O para evitar corrupção de acentos em Windows (cp1252).
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+_LIB = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "_lib"))
+sys.path.insert(0, _LIB)
+
+from cpf_cnpj import gerar_cpf as _lib_gerar_cpf, gerar_cnpj as _lib_gerar_cnpj
+
 
 # ===== CPF =====
-
-def _cpf_dv(parcial: str) -> str:
-    pesos = list(range(len(parcial) + 1, 1, -1))
-    soma = sum(int(d) * p for d, p in zip(parcial, pesos))
-    resto = soma % 11
-    return "0" if resto < 2 else str(11 - resto)
-
 
 def gerar_cpf(seq: int) -> str:
     # Bases sequenciais a partir de 012345678 — obviamente sintéticas, nunca
     # colidem com o CPF público 123.456.789-09 nos intervalos de seq usados.
     base = f"{12345678 + seq:09d}"[-9:]
-    dv1 = _cpf_dv(base)
-    dv2 = _cpf_dv(base + dv1)
-    full = base + dv1 + dv2
+    full = _lib_gerar_cpf(base)
     return f"{full[:3]}.{full[3:6]}.{full[6:9]}-{full[9:]}"
 
 
 # ===== CNPJ numérico =====
 
-_PESOS_CNPJ_1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
-_PESOS_CNPJ_2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
-
-
-def _cnpj_dv(parcial: str, pesos: list) -> str:
-    soma = sum((ord(c.upper()) - 48) * p for c, p in zip(parcial, pesos))
-    resto = soma % 11
-    return "0" if resto < 2 else str(11 - resto)
-
-
 def gerar_cnpj(seq: int) -> str:
     base = f"123456{(78 + seq) % 100:02d}0001"  # 12 dígitos (radical + filial 0001)
-    dv1 = _cnpj_dv(base, _PESOS_CNPJ_1)
-    dv2 = _cnpj_dv(base + dv1, _PESOS_CNPJ_2)
-    full = base + dv1 + dv2
+    full = _lib_gerar_cnpj(base)
     return f"{full[:2]}.{full[2:5]}.{full[5:8]}/{full[8:12]}-{full[12:]}"
 
 
@@ -56,9 +44,7 @@ def gerar_cnpj_alfa(seq: int) -> str:
     """CNPJ alfanumérico pós-jul/2026 (IN RFB 2.229/2024)."""
     radicais = ["12ABC34501", "AB1CD2345Z", "XY9ZW87654", "DEFGH00012", "QRSTUVABCD"]
     base = f"{radicais[seq % len(radicais)]}DE"  # 12 alfanuméricos
-    dv1 = _cnpj_dv(base, _PESOS_CNPJ_1)
-    dv2 = _cnpj_dv(base + dv1, _PESOS_CNPJ_2)
-    full = base + dv1 + dv2
+    full = _lib_gerar_cnpj(base)
     return f"{full[:2]}.{full[2:5]}.{full[5:8]}/{full[8:12]}-{full[12:]}"
 
 

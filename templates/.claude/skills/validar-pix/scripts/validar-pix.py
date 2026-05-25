@@ -2,75 +2,23 @@
 # -*- coding: utf-8 -*-
 """Valida chaves Pix (CPF, CNPJ, email, telefone E.164, UUID) e identificadores (E2EID, TxId).
 
-v0.5.0: validação CPF/CNPJ embutida (sem sys.path frágil). Skill é standalone.
+Auditoria round 11 (2026-05-25): logica CPF/CNPJ extraida pra
+`.claude/skills/_lib/cpf_cnpj.py` (era triplicada em 3 skills). Esta skill
+agora importa o algoritmo canonico em vez de manter copia propria.
 """
 
+import os
 import re
 import sys
 
-# Força UTF-8 no I/O para evitar corrupção de acentos em Windows (cp1252).
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+_LIB = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "_lib"))
+sys.path.insert(0, _LIB)
 
-def _digitos(s: str) -> str:
-    return "".join(c for c in s if c.isdigit())
-
-
-# ===== CPF =====
-
-def _cpf_dv(parcial: str) -> str:
-    pesos = list(range(len(parcial) + 1, 1, -1))
-    soma = sum(int(d) * p for d, p in zip(parcial, pesos))
-    resto = soma % 11
-    return "0" if resto < 2 else str(11 - resto)
-
-
-def valida_cpf(s: str) -> tuple[bool, str]:
-    d = _digitos(s)
-    if len(d) != 11:
-        return False, "CPF precisa ter 11 dígitos"
-    if d == d[0] * 11:
-        return False, "CPF inválido (todos dígitos iguais)"
-    if _cpf_dv(d[:9]) != d[9] or _cpf_dv(d[:10]) != d[10]:
-        return False, "DV de CPF inválido"
-    return True, "CPF válido"
-
-
-# ===== CNPJ (numérico + alfanumérico jul/2026) =====
-
-_PESOS_CNPJ_1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
-_PESOS_CNPJ_2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
-
-
-def _cnpj_char_valor(c: str) -> int:
-    """Valor numérico do char no CNPJ alfanumérico (IN RFB 2.229/2024):
-    dígitos 0-9 valem 0-9, letras A-Z valem 17-42 (ord(c) - 48)."""
-    return ord(c.upper()) - 48
-
-
-def _cnpj_dv(parcial: str, pesos: list) -> str:
-    soma = sum(_cnpj_char_valor(c) * p for c, p in zip(parcial, pesos))
-    resto = soma % 11
-    return "0" if resto < 2 else str(11 - resto)
-
-
-def valida_cnpj(s: str) -> tuple[bool, str]:
-    """Aceita CNPJ numérico (14 dígitos) ou alfanumérico (12 alfanum + 2 dígitos DV).
-    Letras válidas: A-Z (não diferencia case). Símbolos . / - são removidos."""
-    raw = re.sub(r"[./\-\s]", "", s).upper()
-    if len(raw) != 14:
-        return False, "CNPJ precisa ter 14 caracteres"
-    if not re.fullmatch(r"[A-Z0-9]{12}\d{2}", raw):
-        return False, "CNPJ alfanumérico: 12 alfanum + 2 dígitos DV"
-    if raw[:12] == raw[0] * 12:
-        return False, "CNPJ inválido (base repetida)"
-    if _cnpj_dv(raw[:12], _PESOS_CNPJ_1) != raw[12]:
-        return False, "primeiro DV de CNPJ inválido"
-    if _cnpj_dv(raw[:13], _PESOS_CNPJ_2) != raw[13]:
-        return False, "segundo DV de CNPJ inválido"
-    return True, "CNPJ válido"
+from cpf_cnpj import valida_cpf, valida_cnpj, so_digitos as _digitos
 
 
 def _validar_cpf_ou_cnpj(valor: str) -> tuple[bool, str]:
@@ -79,7 +27,7 @@ def _validar_cpf_ou_cnpj(valor: str) -> tuple[bool, str]:
         return valida_cpf(raw)
     if len(raw) == 14:
         return valida_cnpj(raw)
-    return False, "não parece CPF nem CNPJ"
+    return False, "nao parece CPF nem CNPJ"
 
 
 # ===== Email =====
