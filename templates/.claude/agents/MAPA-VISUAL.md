@@ -52,17 +52,32 @@ COMUNICAÇÃO
 | Workflow | Cadeia de agentes |
 |---|---|
 | `/inicio` | Sofia → Rafael → Bruno |
-| `/brownfield` | Detetive → Rafael → Sofia → Caio |
-| `/prd` | Mariana → Sofia → Rafael → Lia → Sofia (decomp) |
+| `/brownfield` | Maestro orquestra: Detetive → Rafael → Sofia → Caio |
+| `/prd` | Maestro orquestra: Mariana → Sofia → Rafael → Lia → Sofia (decomp) |
+| `/epico` | Mariana → Sofia → Rafael |
+| `/historia` | Sofia → Detetive |
+| `/clarificar` | Sofia (+ usuário via perguntas) |
 | `/feature` | Maestro orquestra: Sofia → Detetive → Rafael → Bruno → Inês → Caio+Júlia+Pedro (paralelo) |
 | `/bug` | **Detetive (obrigatório)** → Bruno → Inês |
+| `/hotfix` | Detetive (rápido) → Bruno → Inês → `/incident-postmortem` em 48h |
+| `/incident-postmortem` | Detetive → Caio+Júlia+Pedro (paralelo) → Camila |
 | `/refactor` | Rafael → Bruno → Inês |
 | `/qa` | Detetive → Júlia → Bruno → Inês |
 | `/auditoria` | Caio + Júlia + Pedro (paralelo) |
+| `/auditoria-reversa` | Maestro orquestra: Detetive → Caio+Júlia+Pedro → Camila |
 | `/consistencia` | Detetive → Caio + Júlia + Pedro |
+| `/explicar-para-cliente` | Camila (+ skill traduzir-jargao) |
 | `/quick-dev` | Bruno → Inês |
-| `/release` | Camila |
+| `/readiness` | Detetive → Rafael |
+| `/shard` | (sem agente — fatiamento) |
+| `/sprint` | Sofia |
+| `/replanejar` | Sofia → Camila |
 | `/status` | Camila |
+| `/checkpoint` | (sem agente — walkthrough) |
+| `/release` | Camila |
+| `/retro` | (sem agente específico — 4L) |
+| `/agentes` | (sem agente — índice) |
+| `/o-que-aconteceu` | (sem agente — git log + diff) |
 
 ## Identidade dos 15
 
