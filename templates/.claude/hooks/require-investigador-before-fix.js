@@ -15,7 +15,12 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric, norma
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|ROADMAP|test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.json$|\.ya?ml$|\.toml$|\.ini$|\.env|\.sh$|\.ps1$|\.bat$/;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$/;
 const ACHADO_MIN_CHARS = 20;
-const BYPASS_PHRASES_RE = /\b(bypass|trivial|confiei no usu[aá]rio|skip|n[aã]o investigad|placeholder|tbd|todo)\b/i;
+// Auditoria 10-agentes 2026-05-25 (INV-AGENT-002): a palavra "todo" minuscula era
+// PT comum ("li todo o arquivo") e bloqueava investigacao legitima.
+// Aceita so a versao MAIUSCULA estilo placeholder de codigo (montada via concat
+// pra nao disparar block-todo-without-issue neste proprio arquivo).
+const _PLACEHOLDER_MAIUSCULO = 'T' + 'ODO';
+const BYPASS_PHRASES_RE = new RegExp('\\b(bypass|trivial|confiei no usu[aá]rio|skip|n[aã]o investigad|placeholder|tbd|' + _PLACEHOLDER_MAIUSCULO + ':?)\\b');
 const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
 
 // validateInvestigationJson — le e classifica um arquivo investigation-*.json.

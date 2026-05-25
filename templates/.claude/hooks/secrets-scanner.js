@@ -8,7 +8,7 @@
 // (b) sempre escaneia o conteudo contra a lista canonica de patterns
 //     (incluindo em arquivos de exemplo — segredo real ali ainda bloqueia).
 
-const { readStdinJson, secretTokenRegexes, recordMetric } = require('./_lib.js');
+const { readStdinJson, secretTokenRegexes, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 // Sufixos que liberam APENAS a checagem de path (conteudo continua escaneado).
 const ALLOWED_SUFFIXES_RE = /\.(example|sample|template|tpl|dist)$/;
@@ -40,7 +40,7 @@ const PWD_BARE_RE = new RegExp(
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   let content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
 
   // Fail-closed parcial: se JSON parse falhou mas ha texto cru, escaneia

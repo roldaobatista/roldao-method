@@ -2,7 +2,7 @@
 // block-todo-without-issue.js — barra TODO/FIXME/XXX/HACK sem referencia rastreavel.
 // Hook PreToolUse, matcher: Write|Edit. INV-004.
 
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const SKIP_PATH_RE = /\.md$|\.mdx$|CHANGELOG|\.txt$/;
 const TODO_RE = /\b(TODO|FIXME|XXX|HACK)\b/;
@@ -10,7 +10,7 @@ const ID_RE = /(#[0-9]+|US-[0-9]+|T-[0-9]+|AC-[0-9]+|INV-[0-9]+|SEC-[0-9]+|TST-[
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (SKIP_PATH_RE.test(filePath)) process.exit(0);
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';

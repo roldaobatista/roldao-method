@@ -93,6 +93,10 @@ const COMBINED_RE = new RegExp(JARGON_TERMS.join('|'), 'gi');
     if (/CHANGELOG\.md|docs\/releases\/|docs\/checkpoints\/|docs\/postmortems\//i.test(ctx)) continue;
     // Doc tecnico citando ID rastreavel (ADR-NN, US-NN, EP-NN, PRD-NN, T-NN).
     if (/\b(ADR|US|EP|PRD|T)-\d+/i.test(ctx)) continue;
+    // Auditoria 10-agentes 2026-05-25: contextos PT comuns onde "branch" e "deploy"
+    // sao usados em sentido coloquial (nao "branch git" / "deploy CI"). Evita falso
+    // positivo em frases como "branch da empresa" ou "deploy em sentido figurado".
+    if (/\bbranch(es|ar|ado)?\s+(da|do|de|para|pra)\s+(empresa|escrit[oó]rio|filial|loja|unidade)\b/i.test(ctx)) continue;
     violations.push(`jargao sem traducao: '${m}' em -> ${ctx}`);
   }
 

@@ -2,7 +2,7 @@
 // no-log-pix-key.js — bloqueia chave Pix em texto puro em log/print/console.
 // Hook PreToolUse, matcher: Write|Edit. PIX-004 + LGPD-001/004.
 
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.env|\.example|README|\.md$|\/docs\/|\/test\/|\/tests\/|\/__tests__\/|\/spec\/|\/specs\/|\/e2e\/|\.test\.|\.spec\.|\.e2e\.|\/fixtures\/|\/mocks\/|\/__mocks__\/|\.json$|\.ya?ml$/;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift)$/;
@@ -13,7 +13,7 @@ const MASKING_RE = /mascarar|mask|redact|\*\*\*|PIX-004-exception/i;
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
   if (!CODE_EXT_RE.test(filePath)) process.exit(0);
 

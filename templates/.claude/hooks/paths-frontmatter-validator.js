@@ -2,6 +2,7 @@
 // paths-frontmatter-validator.js — exige frontmatter em docs novos da pasta docs/.
 // Hook PreToolUse, matcher: Write|Edit. INV-004.
 
+const fs = require('fs');
 const path = require('path');
 const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
@@ -17,7 +18,22 @@ const CANONICAL_NAMES = new Set(['README.md', 'INDICE.md', 'CONVENCOES-DOC.md', 
   const base = path.basename(filePath);
   if (CANONICAL_NAMES.has(base)) process.exit(0);
 
-  const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
+  // Em Edit, `new_string` e' o trecho substituido — nao serve pra checar frontmatter.
+  // Estrategia: Write usa `content` (arquivo todo); Edit em arquivo existente le do disco
+  // (estado pos-edit); Edit que cria arquivo novo cai no `new_string` (arquivo todo nesse caso).
+  let content = input?.tool_input?.content;
+  if (!content) {
+    try {
+      const abs = path.isAbsolute(filePath) ? filePath : path.resolve(filePath);
+      if (fs.existsSync(abs)) {
+        content = fs.readFileSync(abs, 'utf8');
+      } else {
+        content = input?.tool_input?.new_string || '';
+      }
+    } catch {
+      content = input?.tool_input?.new_string || '';
+    }
+  }
   if (!content) process.exit(0);
 
   // Strip BOM + linhas em branco iniciais antes de exigir '---'
