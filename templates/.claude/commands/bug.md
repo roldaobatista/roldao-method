@@ -21,16 +21,25 @@ Invoque `investigador`:
 
 **Não pule. Não substitua.** Se o investigador marcar `pendencias[]` no JSON com `impacto: comportamento-visivel`, **dispare `AskUserQuestion` automaticamente** usando as opções já listadas no JSON. Caso contrário, escolha o default (INV-AGENT-006). Nunca jogar pergunta de texto livre pro Roldão — sempre opções pré-formuladas pelo investigador.
 
-**Ao terminar a investigação (MECÂNICO — destrava o hook):** o hook `require-investigador-before-fix.js` bloqueia todo Edit/Write em código de negócio até existir o marcador `investigator-invoked-${SESSION_HASH}` com o MESMO hash que os hooks usam (CLAUDE_SESSION_ID só com caracteres alfanuméricos). Sem este passo o dev-senior fica travado para sempre. Crie o marcador:
+**Ao terminar a investigação (MECÂNICO — destrava o hook):** o hook `require-investigador-before-fix.js` exige 2 markers + 1 JSON pra liberar Edit/Write em código de negócio em sessão de bug:
+
+1. `bug-active-${SESSION_HASH}` — sinaliza que ESTA sessão está em fluxo `/bug` (gate de ativação do GATE 2 do hook). Sem ele o GATE 2 nunca arma e a prova mecânica vira teatro.
+2. `investigator-invoked-${SESSION_HASH}` — sinaliza que o Detetive foi chamado (gate 1).
+3. `investigation-<ref>.json` — JSON canônico com `lido[]` array não-vazio + `achado` ≥20 chars descrevendo causa raiz (gate 2, shape).
+
+Sem qualquer um dos 3, dev-senior fica travado. Crie os markers ao iniciar a investigação (bug-active + investigator-invoked) e o JSON ao concluir (investigation-*.json):
 
 ```bash
 SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
 [ -z "$SESSION_HASH" ] && SESSION_HASH=default
 mkdir -p .claude/.runtime
+touch ".claude/.runtime/bug-active-${SESSION_HASH}"
 touch ".claude/.runtime/investigator-invoked-${SESSION_HASH}"
 ```
 
-Só crie o marcador DEPOIS que o investigador reportou causa raiz — criar antes é furar a própria REGRA #0.
+Ao concluir, o Detetive grava `.claude/.runtime/investigation-<ref>.json` (shape: ver `agents/investigador.md`). Sem esse JSON com shape válido (lido[] não-vazio, achado ≥20 chars), o GATE 2 bloqueia o dev-senior.
+
+Só crie os markers DEPOIS que o investigador foi de fato chamado — criar antes é furar a própria REGRA #0.
 
 ## Etapa 2 — Confirmação com usuário (automática, baseada em `pendencias[]`)
 

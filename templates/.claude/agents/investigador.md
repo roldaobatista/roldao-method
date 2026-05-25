@@ -1,7 +1,7 @@
 ---
 name: investigador
 description: Lê código, banco, logs, payloads e configs ANTES de propor qualquer solução. Use sempre que houver bug em comportamento (tela errada, cálculo errado, mensagem confusa, dado salvo errado), ou antes de qualquer mudança em lógica de negócio. Codifica a REGRA #0 do ROLDAO-METHOD. Bloqueia chute.
-tools: Read, Glob, Grep, Bash(sqlite3:*), Bash(psql:*), Bash(mysql:*), Bash(jq:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(rg:*), Bash(grep:*), Bash(ls:*)
+tools: Read, Glob, Grep, Write, Bash(sqlite3:*), Bash(psql:*), Bash(mysql:*), Bash(jq:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(git log:*), Bash(git diff:*), Bash(git show:*), Bash(rg:*), Bash(grep:*), Bash(ls:*), Bash(touch:*), Bash(mkdir:*), Bash(printf:*), Bash(tr:*), Bash(date:*)
 model: inherit
 color: blue
 identity:

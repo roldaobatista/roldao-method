@@ -13,6 +13,27 @@ const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
+// computeDiffShas — retorna { sha256, gitBlobSha } do diff HEAD atual.
+// Marker do auditor pode trazer audit_sha em qualquer dos dois formatos.
+// Decisao (auditoria 10-agentes): em Windows com core.autocrlf=true, crypto.sha256
+// sobre `git diff HEAD` produz hashes diferentes entre sessoes; git hash-object
+// e cross-platform. Aceitar ambos resolve staleness sem quebrar markers legados.
+// Retorna { sha256:'', gitBlobSha:'' } se git nao disponivel.
+function computeDiffShas(projdir) {
+  try {
+    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], { stdio: 'ignore' });
+    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] });
+    const sha256 = crypto.createHash('sha256').update(diff).digest('hex');
+    const gitBlobSha = execFileSync('git', ['hash-object', '--stdin'], {
+      input: diff || Buffer.alloc(0),
+      stdio: ['pipe', 'pipe', 'ignore'],
+    }).toString().trim();
+    return { sha256, gitBlobSha };
+  } catch {
+    return { sha256: '', gitBlobSha: '' };
+  }
+}
+
 const SKIP_PREFIXES_RE = /(docs|chore|ci|build|style):/;
 const REQUIRED_FIELDS = ['session', 'agent', 'audit_sha', 'timestamp', 'lido_de'];
 const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
@@ -25,8 +46,9 @@ const LABELS = {
 
 // validateMarker — le um marker de auditor e classifica.
 // Retorna { state, audit_sha } onde state ∈ {ok, missing, empty, malformed, missing-field, stale, legacy}.
+// `currentShas` = { sha256, gitBlobSha } — marker e valido se audit_sha bater em qualquer um.
 // Em LEGACY_MODE: marker vazio vira {state: 'legacy', audit_sha: ''} (passa com warning).
-function validateMarker(passMark, currentSha) {
+function validateMarker(passMark, currentShas) {
   if (!fs.existsSync(passMark)) return { state: 'missing', audit_sha: '' };
 
   let txt;
@@ -56,8 +78,12 @@ function validateMarker(passMark, currentSha) {
   }
 
   // audit_sha valido — compara com diff atual (staleness check).
-  if (currentSha && j.audit_sha !== currentSha) {
-    return { state: 'stale', audit_sha: j.audit_sha };
+  // Aceita match em sha256 (legado) OU git hash-object (cross-platform).
+  const cs = currentShas || { sha256: '', gitBlobSha: '' };
+  const hasAtLeastOne = cs.sha256 || cs.gitBlobSha;
+  if (hasAtLeastOne) {
+    const bate = (j.audit_sha === cs.sha256) || (j.audit_sha === cs.gitBlobSha);
+    if (!bate) return { state: 'stale', audit_sha: j.audit_sha };
   }
 
   return { state: 'ok', audit_sha: j.audit_sha };
@@ -78,13 +104,9 @@ function validateMarker(passMark, currentSha) {
 
   if (!fs.existsSync(markFeature)) process.exit(0);
 
-  // Hash do diff atual pra validar staleness de pass markers
-  let currentSha = '';
-  try {
-    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], { stdio: 'ignore' });
-    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
-    currentSha = crypto.createHash('sha256').update(diff).digest('hex');
-  } catch { /* sem git, currentSha fica vazio — skip de staleness check */ }
+  // Hash do diff atual em 2 formatos (sha256 legado + git hash-object cross-platform).
+  // Marker e valido se audit_sha bater em QUALQUER um dos dois.
+  const currentShas = computeDiffShas(projdir);
 
   const blocked = [];
   const missing = [];
@@ -103,7 +125,7 @@ function validateMarker(passMark, currentSha) {
       continue;
     }
 
-    const r = validateMarker(passMark, currentSha);
+    const r = validateMarker(passMark, currentShas);
     switch (r.state) {
       case 'ok': break;
       case 'missing': missing.push(LABELS[key]); break;

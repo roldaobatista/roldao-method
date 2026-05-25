@@ -14,6 +14,24 @@ const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric } = require('./_lib.js');
 
+// computeDiffShas — retorna { sha256, gitBlobSha } do diff HEAD atual.
+// Marker e valido se audit_sha bater em qualquer dos dois formatos.
+// Resolve staleness em Windows com core.autocrlf=true sem quebrar markers legados.
+function computeDiffShas(projdir) {
+  try {
+    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], { stdio: 'ignore' });
+    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] });
+    const sha256 = crypto.createHash('sha256').update(diff).digest('hex');
+    const gitBlobSha = execFileSync('git', ['hash-object', '--stdin'], {
+      input: diff || Buffer.alloc(0),
+      stdio: ['pipe', 'pipe', 'ignore'],
+    }).toString().trim();
+    return { sha256, gitBlobSha };
+  } catch {
+    return { sha256: '', gitBlobSha: '' };
+  }
+}
+
 const SKIP_PREFIXES_RE = /(docs|chore|ci|build|style):/;
 const REQUIRED_FIELDS = ['session', 'checkpoint_path', 'audit_sha', 'timestamp', 'us'];
 const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
@@ -21,7 +39,7 @@ const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
 // validateCheckpointMarker — le marker e classifica.
 // Retorna { state, reason } onde state ∈
 //   {ok, missing, empty, malformed, missing-field, file-not-found, stale, legacy}.
-function validateCheckpointMarker(markPath, projdir, currentSha) {
+function validateCheckpointMarker(markPath, projdir, currentShas) {
   if (!fs.existsSync(markPath)) return { state: 'missing' };
 
   let txt;
@@ -47,9 +65,14 @@ function validateCheckpointMarker(markPath, projdir, currentSha) {
     return { state: 'file-not-found', reason: j.checkpoint_path };
   }
 
-  // Staleness: audit_sha do checkpoint deve casar com diff atual
-  if (currentSha && j.audit_sha !== currentSha) {
-    return { state: 'stale', reason: `audit_sha=${j.audit_sha.slice(0, 12)} vs atual=${currentSha.slice(0, 12)}` };
+  // Staleness: audit_sha do checkpoint deve casar com sha256 OU git hash-object atual.
+  const cs = currentShas || { sha256: '', gitBlobSha: '' };
+  const hasAtLeastOne = cs.sha256 || cs.gitBlobSha;
+  if (hasAtLeastOne) {
+    const bate = (j.audit_sha === cs.sha256) || (j.audit_sha === cs.gitBlobSha);
+    if (!bate) {
+      return { state: 'stale', reason: `audit_sha=${j.audit_sha.slice(0, 12)} vs atual sha256=${cs.sha256.slice(0, 12)} / gitBlob=${cs.gitBlobSha.slice(0, 12)}` };
+    }
   }
 
   return { state: 'ok' };
@@ -71,14 +94,9 @@ function validateCheckpointMarker(markPath, projdir, currentSha) {
 
   if (!fs.existsSync(markFeature)) process.exit(0);
 
-  let currentSha = '';
-  try {
-    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], { stdio: 'ignore' });
-    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
-    currentSha = crypto.createHash('sha256').update(diff).digest('hex');
-  } catch { /* sem git, currentSha fica vazio */ }
+  const currentShas = computeDiffShas(projdir);
 
-  const r = validateCheckpointMarker(markCheckpoint, projdir, currentSha);
+  const r = validateCheckpointMarker(markCheckpoint, projdir, currentShas);
 
   if (r.state === 'ok') process.exit(0);
   if (r.state === 'legacy') {

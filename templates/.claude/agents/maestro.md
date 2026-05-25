@@ -1,7 +1,7 @@
 ---
 name: maestro
 description: Orquestrador do pipeline /feature. Dispara subagentes em sequência (gerente-produto → investigador → tech-lead → dev-senior → revisor → 3 auditores em paralelo), valida markers entre etapas, re-dispara auditores quando hash do diff muda. Use quando o usuário roda /feature US-NNN — em vez do agente principal ler o markdown e seguir etapas manualmente, o maestro garante o pipeline mecânico.
-tools: Read, Glob, Grep, Task, Edit, Write, Bash(git:*), Bash(touch:*), Bash(mkdir:*), Bash(rm:*), Bash(printf:*), Bash(echo:*), Bash(date:*), Bash(awk:*), Bash(shasum:*), Bash(sha256sum:*), Bash(cat:*), Bash(ls:*), Bash(tr:*)
+tools: Read, Glob, Grep, Task, Edit, Write, Bash(git:*), Bash(touch:*), Bash(mkdir:*), Bash(rm:*), Bash(printf:*), Bash(echo:*), Bash(date:*), Bash(awk:*), Bash(cat:*), Bash(ls:*), Bash(tr:*)
 model: sonnet
 color: purple
 identity:
@@ -139,15 +139,21 @@ Task subagent_type=auditor-produto   prompt=<diff + US + AC + non-goals>
 
 Cada auditor já aplica fix trivial sozinho (INV-AGENT-006) e reporta veredito.
 
-Calcule `audit_sha = sha256(git diff HEAD)`. Para cada auditor que **passou**, grave:
+Calcule `audit_sha = git hash-object` do diff (cross-platform — Git Bash for Windows não tem sha256sum/shasum). Para cada auditor que **passou**, grave marker JSON com **5 campos canônicos (ADR-020)**: `session`, `agent`, `audit_sha`, `timestamp`, `lido_de` (array de arquivos lidos):
 
 ```bash
-AUDIT_SHA=$(git diff HEAD | { shasum -a 256 2>/dev/null || sha256sum; } | awk '{print $1}')
+AUDIT_SHA=$(git diff HEAD | git hash-object --stdin)
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-printf '{"audit_sha":"%s","auditor":"seg","ts":"%s"}\n' "$AUDIT_SHA" "$TS" \
-  > "$RUNTIME/auditor-seg-pass-${SESSION_HASH}"
-# análogo pra qual e prod
+# Substitua LIDO_DE pela lista real de arquivos que o auditor leu (vem do veredito).
+LIDO_DE='["src/foo.js","docs/stories/US-NNN.md"]'
+
+cat > "$RUNTIME/auditor-seg-pass-${SESSION_HASH}" <<EOF
+{"session":"${SESSION_HASH}","agent":"auditor-seguranca","audit_sha":"${AUDIT_SHA}","timestamp":"${TS}","lido_de":${LIDO_DE}}
+EOF
+# análogo pra qual ("auditor-qualidade") e prod ("auditor-produto"); mesmos 5 campos.
 ```
+
+Marker vazio (criado por `touch` puro) é rejeitado pelo hook `require-auditors-pass-before-commit` — sem bypass.
 
 Se 1+ bloqueou: volte pra Etapa 4 com o veredito. Após correção, **o hash do diff muda** — re-rode os 3 auditores (não só o que bloqueou; outros podem regredir).
 

@@ -43,21 +43,31 @@ function sanitizeProjdir(candidate) {
 }
 
 // ---------------------------------------------------------------------------
-// sanitizeSessionHash — gera hash da sessao com persistencia.
+// sanitizeSessionHash — gera hash da sessao com persistencia POR WORKTREE.
 // Strip-a tudo que nao e [a-zA-Z0-9]. Se vazio, usa "default" pra evitar
 // marcadores genericos.
 //
 // Persistencia: le .claude/.runtime/.session-hash se existir (preserva hash
 // entre --continue/--resume); senao gera novo e persiste best-effort.
+//
+// IMPORTANTE: o arquivo .session-hash vive DENTRO do projdir/.claude/.runtime,
+// entao cada worktree (que tem seu proprio projdir) tem seu proprio hash —
+// nao ha colisao entre worktrees paralelos. Em workflow de worktree (projdir
+// diferente), markers ficam naturalmente isolados.
+//
+// Defesa adicional: se CLAUDE_SESSION_ID estiver vazio, mistura um sufixo
+// derivado do projdir (8 chars de hash) ao inves de cair em "default" global.
+// Evita que duas sessoes paralelas no MESMO projdir sem CLAUDE_SESSION_ID
+// (raro mas possivel) colidam num hash "default" identico.
 // ---------------------------------------------------------------------------
 function sanitizeSessionHash(raw, projdir) {
-  const candidate = raw ?? process.env.CLAUDE_SESSION_ID ?? 'default';
+  const candidate = raw ?? process.env.CLAUDE_SESSION_ID ?? '';
   let resolvedProjdir = projdir;
   if (!resolvedProjdir) {
     try { resolvedProjdir = sanitizeProjdir(); } catch { resolvedProjdir = ''; }
   }
 
-  // Tenta ler hash persistido primeiro
+  // Tenta ler hash persistido primeiro (preserva entre --continue/--resume)
   if (resolvedProjdir) {
     const hashFile = path.join(resolvedProjdir, '.claude', '.runtime', '.session-hash');
     try {
@@ -67,7 +77,20 @@ function sanitizeSessionHash(raw, projdir) {
   }
 
   let hash = String(candidate).replace(/[^a-zA-Z0-9]/g, '');
-  if (!hash) hash = 'default';
+  if (!hash) {
+    // CLAUDE_SESSION_ID vazio — deriva sufixo do projdir pra isolar de "default" global.
+    // Hash crypto curto (8 chars) e estavel por projdir.
+    try {
+      const crypto = require('crypto');
+      const projHash = crypto.createHash('sha256')
+        .update(resolvedProjdir || process.cwd())
+        .digest('hex')
+        .slice(0, 8);
+      hash = `default${projHash}`;
+    } catch {
+      hash = 'default';
+    }
+  }
 
   // Persiste pra proxima sessao (best-effort)
   if (resolvedProjdir) {
@@ -329,6 +352,17 @@ function recordApproval(agente, refStory, auditSha, status, motivo) {
   }));
 }
 
+// ---------------------------------------------------------------------------
+// normalizeFilePath — normaliza file_path pra usar `/` em vez de `\`.
+// Necessario em Windows: o Claude Code as vezes envia path com `\`, e regex
+// hardcoded com `/test\/` ou `/docs\//` falham. Normalizar antes de testar
+// elimina toda essa classe de bug cross-platform.
+// ---------------------------------------------------------------------------
+function normalizeFilePath(fp) {
+  if (!fp || typeof fp !== 'string') return '';
+  return fp.replace(/\\/g, '/');
+}
+
 module.exports = {
   sanitizeProjdir,
   sanitizeSessionHash,
@@ -344,4 +378,5 @@ module.exports = {
   parseFrontmatter,
   failClosedMessage,
   recordApproval,
+  normalizeFilePath,
 };

@@ -2,7 +2,7 @@
 description: Walkthrough guiado de uma mudança (proposta de junção, ramo, ou gravação isolada) antes de subir pra produção. Audita propósito, riscos e contexto. Termos técnicos no jargão: PR=proposta de junção, branch=ramo, commit=gravação, merge=junção.
 argument-hint: "[ramo | proposta-N | identificador-da-gravação]"
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(mkdir:*), Write, Task
+allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git hash-object:*), Bash(mkdir:*), Bash(printf:*), Bash(tr:*), Bash(date:*), Bash(cat:*), Write, Task
 ---
 
 # /checkpoint — revisão humana antes de juntar a mudança
@@ -74,7 +74,7 @@ Saída em PT-BR estruturada:
 - [ ] Escalar pra humano (decisão fora do escopo do agente)
 ```
 
-## Etapa 4 — Mudanças mensuráveis (T-517 / J17)
+## Etapa 3.5 — Mudanças mensuráveis (T-517 / J17)
 
 ANTES da decisão, mostre números concretos do diff em PT-BR pro Roldão:
 
@@ -95,18 +95,18 @@ Mudanças mensuráveis:
 
 Salvar o diff bruto em `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.diff` (artefato persistente — auditoria pode revisar meses depois).
 
-## Etapa 5 — Decisão
+## Etapa 4 — Decisão
 
 - Se **todos auditores aprovados** → recomendar merge e executar (não perguntar).
 - Se **ressalvas não-bloqueantes** → aplicar fix e re-checkpoint.
 - Se **ressalva bloqueante** → reverter pra dev, listar correções.
 - Se **decisão fora do escopo** (ex: aprovação jurídica de LGPD) → escalar ao usuário com pergunta clara.
 
-## Etapa 4.5 — Checklist de release (obrigatório antes de fechar)
+## Etapa 5 — Checklist de release (obrigatório antes de fechar)
 
 Antes de marcar como pronto pra mergear, rode `.specify/checklists/release-readiness.md` (ou o override do projeto). Qualquer item essencial reprovado → volta pra Dev Sênior, não fecha o checkpoint.
 
-## Etapa 5 — Marcar checkpoint concluído (mecânico)
+## Etapa 6 — Marcar checkpoint concluído (mecânico)
 
 Após salvar `docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md` e tomar decisão (merge / corrigir / escalar), escreva o marker JSON canônico (não basta `touch`).
 
@@ -122,21 +122,29 @@ O marker é um arquivo JSON com **5 campos obrigatórios** (contrato derivado de
 }
 ```
 
-Para gerar (via Bash):
+Para gerar (via Bash — cross-platform, usa `git hash-object` em vez de `sha256sum` que não existe em Git Bash for Windows). Antes de rodar, defina as variáveis `CHK_PATH` (caminho do CHK que você acabou de salvar) e `US_REF` (US-NNN da story em curso — leia de `.claude/.runtime/feature-active-${SESSION_HASH}` ou da story alvo):
 
 ```bash
 SESSION_HASH=$(printf '%s' "${CLAUDE_SESSION_ID:-default}" | tr -cd 'a-zA-Z0-9')
 [ -z "$SESSION_HASH" ] && SESSION_HASH=default
-AUDIT_SHA=$(git diff HEAD | sha256sum | cut -d' ' -f1)
+
+# US_REF: leia do marker feature-active OU pegue do contexto da story
+US_REF=$(head -n1 ".claude/.runtime/feature-active-${SESSION_HASH}" 2>/dev/null | grep -oE 'US-[0-9]+' | head -n1)
+[ -z "$US_REF" ] && US_REF="US-NNN"  # fallback — substituir antes de rodar
+
+# CHK_PATH: caminho real do CHK que voce acabou de salvar
+CHK_PATH="docs/checkpoints/CHK-$(date -u +%Y-%m-%d)-<slug>.md"  # substituir <slug>
+
+AUDIT_SHA=$(git diff HEAD | git hash-object --stdin)
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 mkdir -p .claude/.runtime
 cat > .claude/.runtime/checkpoint-done-${SESSION_HASH} <<EOF
 {
   "session": "${SESSION_HASH}",
-  "checkpoint_path": "docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md",
+  "checkpoint_path": "${CHK_PATH}",
   "audit_sha": "${AUDIT_SHA}",
   "timestamp": "${TS}",
-  "us": "US-NNN"
+  "us": "${US_REF}"
 }
 EOF
 ```

@@ -31,6 +31,8 @@ menu:
     skill: traduzir-jargao
   - codigo: ANN
     descricao: Anuncio pra comunidade (Discord, X, LinkedIn) em PT-BR
+  - codigo: CHK
+    descricao: Gera walkthrough do diff pra `/checkpoint` (docs/checkpoints/CHK-AAAA-MM-DD-<slug>.md)
 skills:
   - traduzir-jargao
 ---
