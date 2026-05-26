@@ -1,5 +1,36 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [1.3.0] — 2026-05-25
+
+**Robô vigia externo que cuida da memória do Claude pra você: quando a conversa enche, ele salva o estado, fecha o Claude com cuidado e abre uma sessão nova continuando de onde parou — em loop, sem você precisar intervir.**
+
+### O que muda pra voce (nao-programador)
+
+- **Novo comando `npx roldao-method session-relay`:** abra o terminal, rode esse comando uma vez, e deixe rodando. Ele abre o Claude pra você, fica vigiando a conversa e, quando a memória passa da metade (ajustável), pede pro Claude salvar o estado, fecha essa sessão com cuidado e abre uma sessão nova continuando de onde parou. Repete em loop até você apertar `Ctrl+C`. Mensagens todas em PT-BR claro: "abri o Claude pra voce", "vigiando a conversa", "passou da metade da memoria", "pedi pro Claude salvar", "salvou. fechando essa sessao", "abri sessao nova continuando de onde parou", "ok, voce pediu pra parar".
+- **Por que isso resolve um problema real:** sessão longa de trabalho com Claude eventualmente esbarra no limite de memória da conversa. Antes você tinha que perceber, mandar `/checkpoint` no momento certo e abrir sessão nova manualmente — fluxo quebrado, com risco de perder contexto. Agora é automático. Você foca no produto; o robô vigia a memória.
+- **Zero risco de mexer no que já funciona:** o session-relay é um comando novo, separado. Quem não usa nem percebe. Quem usa pode ajustar o threshold (`--threshold=0.7` espera 70% antes de salvar) e o modelo (`--model=opus`, `--model=sonnet`).
+
+### Adicionado
+
+- **Comando `session-relay`** (`bin/session-relay.js` + `lib/session-relay/*` — 537 linhas de biblioteca testável):
+  - **Detecção de processo Claude** (`discovery.js`): localiza o binário do Claude Code instalado no sistema, lida com Windows/Mac/Linux.
+  - **Monitor de threshold** (`threshold-watcher.js`): polling não-intrusivo do estado da conversa, dispara handoff quando passa do limite configurado (default 50%).
+  - **Orquestrador de checkpoint** (`checkpoint-orchestrator.js`): manda `/checkpoint` pro Claude, aguarda o arquivo `session-snapshot.md` ser atualizado + o git commit acontecer, confirma persistência antes de fechar.
+  - **Loop de ciclo de sessão** (`relay-loop.js`): fecha o Claude com SIGTERM (graceful, não SIGKILL), abre a próxima com `claude --continue` (continua de onde parou), trata `Ctrl+C` do usuário pra encerrar limpo.
+  - **Modo `--dry-run`** pra testar a configuração sem abrir o Claude de verdade.
+- **`docs/decisions/ADR-022-session-relay-wrapper-externo.md`:** documenta a decisão arquitetural + 5 alternativas rejeitadas (hook PreCompact, script Bash/PowerShell, node-pty, Computer Use API da Anthropic, polling de API interna). Base: consulta a 10 agentes claude-code-guide confirmou que Claude Code não expõe % de contexto a hooks/subagentes, sessões são isoladas, e hook tentando spawnar `claude --continue` recursivamente causa deadlock. Wrapper externo é a única abordagem viável hoje.
+- **Story `docs/stories/US-117-session-relay-wrapper-externo.md`** com critérios de aceite e racional do produto.
+- **38 testes verdes** cobrindo session-relay: 7 de discovery, 20 de threshold-watcher, 9 de checkpoint-orchestrator, 2 de dry-run.
+
+### Mudado
+
+- Nada visível ao usuário em código existente. `session-relay` é comando aditivo — não muda comportamento de `install`, `update`, `doctor`, `add`, `rollback`, `search`.
+
+### Preservado
+
+- Todos os 17 agentes, 44 arquivos em `.claude/hooks/`, 28 slash commands, 36 skills BR, 46 regras inegociáveis, 9 IDEs suportadas — tudo da v1.2.5 continua funcionando idêntico. Compatibilidade total com 1.2.x.
+- Zero dependência runtime nova: Node puro >=14, sem `npm install` de pacote adicional.
+
 ## [1.2.5] — 2026-05-25
 
 **Patch: corrige 6 falhas pré-existentes do CI (validar.yml e release.yml) que vinham travando publicação automática desde a v1.0. Nada muda no produto.**
