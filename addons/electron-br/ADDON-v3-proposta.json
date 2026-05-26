@@ -1,0 +1,73 @@
+{
+  "name": "electron-br",
+  "version": "1.0.0",
+  "framework_compat": ">=3.0.0",
+  "description": "Padroes Electron BR — preload seguro, IPC tipado por dominio, cofre de secrets em 3 camadas (safeStorage → keytar → AES-GCM), builder production-ready (asarUnpack, hardened runtime Mac, NSIS Win), MCPs locais embarcados, anti-zumbi Windows. Primeiro addon do framework com estrutura completa (agentes/hooks/skills/templates/rules).",
+  "instalavel_em": ["projeto-electron"],
+  "deteccao_automatica": {
+    "package_json_dep": "electron",
+    "diretorios_indicativos": ["electron/", "src/main/", "src/preload/"]
+  },
+  "instala": {
+    "agents": 2,
+    "hooks": 5,
+    "skills": 7,
+    "templates": 8,
+    "rules": 1
+  },
+  "agents": [
+    {
+      "name": "electron-architect",
+      "descricao_curta": "Decide main/preload/renderer, IPC contract, externalize de natives"
+    },
+    {
+      "name": "electron-security",
+      "descricao_curta": "Audita CSP, custom protocols, asar config, signing/notarization BR"
+    }
+  ],
+  "hooks": [
+    "block-electron-insecure-webprefs.js",
+    "require-context-bridge-preload.js",
+    "block-window-open-without-handler.js",
+    "require-single-instance-lock.js",
+    "require-csp-meta.js"
+  ],
+  "skills": [
+    "gerar-ipc-handler",
+    "gerar-preload-seguro",
+    "validar-csp-electron",
+    "gerar-secrets-vault-electron",
+    "gerar-migration-sqlite-segura",
+    "gerar-mcp-local-electron",
+    "windows-line-endings-check"
+  ],
+  "templates": [
+    "electron-builder.yml.example",
+    "preload-secure.ts.example",
+    "main-index.ts.example",
+    "entitlements.mac.plist.example",
+    "tsconfig-project-references.json",
+    "package-json-com-gates.json",
+    "db/migration-template.ts",
+    "db/schema-template-pii.sql"
+  ],
+  "rules": ["electron-br.md"],
+  "namespace": "electron-br",
+  "conflito_com": [],
+  "lgpd_aware": true,
+  "fiscal_aware": false,
+  "pix_aware": false,
+  "regulamentacao_br_tocada": [
+    "LGPD-002",
+    "LGPD-004",
+    "LGPD-011",
+    "SEC-001",
+    "SEC-007",
+    "INV-007",
+    "INV-AGENT-011"
+  ],
+  "criado_em": "2026-05-26",
+  "mantenedor": "framework-core",
+  "repositorio": "https://github.com/roldaobatista/roldao-method",
+  "documentacao": "addons/electron-br/README.md"
+}
