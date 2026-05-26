@@ -1,7 +1,9 @@
 ---
 owner: tech-lead
-revisado-em: 2026-05-24
-status: proposta
+revisado-em: 2026-05-26
+status: aceito
+decidido-em: 2026-05-26
+decidido-por: Roldao Batista
 ---
 
 # ADR-019 — Maestro multi-modo (PRD/BROWNFIELD/AR) estendendo o agente unico
