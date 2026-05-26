@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Dicionario PT-BR de codigos de erro (US-117 AC-117-7). Hook translate-errors-ptbr.js consulta este dicionario via regex + mapping pra traduzir stderr cru antes de mostrar ao usuario nao-programador. Cada entrada tem padrao a casar + texto PT-BR claro + categoria. Conteudo expansivel — Camila adiciona novos conforme aparecerem.",
+  "version": 1,
+  "atualizado_em": "2026-05-26",
+  "entries": [
+    {
+      "pattern": "ENOENT",
+      "ptbr": "Arquivo nao encontrado",
+      "categoria": "filesystem",
+      "explicacao": "O sistema procurou o arquivo no caminho indicado, mas ele nao existe la.",
+      "como_arrumar": "Conferir se o nome do arquivo esta correto e se o caminho aponta pra pasta certa."
+    },
+    {
+      "pattern": "EACCES",
+      "ptbr": "Sem permissao pra acessar",
+      "categoria": "permissao",
+      "explicacao": "O usuario que esta rodando o comando nao tem permissao pra ler/escrever esse arquivo.",
+      "como_arrumar": "No Windows, rodar terminal como administrador. No Mac/Linux, ajustar permissao com `chmod` ou rodar com `sudo`."
+    },
+    {
+      "pattern": "EPIPE",
+      "ptbr": "Conexao foi cortada antes de terminar",
+      "categoria": "ipc",
+      "explicacao": "Um processo (geralmente subprocesso) foi fechado antes de terminar de receber dados.",
+      "como_arrumar": "Geralmente significa que o processo que recebia os dados morreu. Verificar se outro programa nao matou o subprocesso."
+    },
+    {
+      "pattern": "EADDRINUSE",
+      "ptbr": "Porta ja esta sendo usada",
+      "categoria": "rede",
+      "explicacao": "Outro programa ja esta ouvindo nessa porta — geralmente um servidor de dev que ficou rodando.",
+      "como_arrumar": "Fechar o programa que ja esta usando a porta. No Mac/Linux: `lsof -i :PORTA` + `kill PID`. No Windows: `netstat -ano | findstr :PORTA` + `taskkill /PID NNN`."
+    },
+    {
+      "pattern": "ENOTDIR",
+      "ptbr": "Caminho esperava ser pasta mas e arquivo",
+      "categoria": "filesystem",
+      "explicacao": "Voce passou o caminho de um arquivo em um lugar que esperava uma pasta.",
+      "como_arrumar": "Conferir o caminho — provavelmente faltou um pedaco depois do nome do arquivo."
+    },
+    {
+      "pattern": "EISDIR",
+      "ptbr": "Caminho esperava ser arquivo mas e pasta",
+      "categoria": "filesystem",
+      "explicacao": "Oposto do ENOTDIR — passou pasta onde precisava de arquivo.",
+      "como_arrumar": "Conferir se o caminho aponta pro arquivo certo dentro da pasta."
+    },
+    {
+      "pattern": "EEXIST",
+      "ptbr": "Arquivo/pasta ja existe",
+      "categoria": "filesystem",
+      "explicacao": "Voce tentou criar algo que ja existe nesse caminho.",
+      "como_arrumar": "Apagar o existente OU criar com nome diferente OU usar opcao de sobrescrita explicita."
+    },
+    {
+      "pattern": "ECONNREFUSED",
+      "ptbr": "Conexao recusada pelo servidor",
+      "categoria": "rede",
+      "explicacao": "Voce tentou conectar em um endereco/porta, mas nada esta escutando ali.",
+      "como_arrumar": "Verificar se o servidor que voce esta tentando alcançar esta rodando OU se o endereco/porta estao corretos."
+    },
+    {
+      "pattern": "EAI_AGAIN",
+      "ptbr": "Servidor DNS nao respondeu a tempo",
+      "categoria": "rede",
+      "explicacao": "O sistema nao conseguiu resolver o nome do dominio (provavelmente internet instavel).",
+      "como_arrumar": "Verificar conexao com internet. Tentar de novo em alguns segundos."
+    },
+    {
+      "pattern": "ETIMEDOUT",
+      "ptbr": "Conexao demorou demais e foi cancelada",
+      "categoria": "rede",
+      "explicacao": "Servidor demorou pra responder e o sistema desistiu.",
+      "como_arrumar": "Verificar se servidor esta online. Pode ser sobrecarga temporaria — tentar de novo."
+    },
+    {
+      "pattern": "ENOSPC",
+      "ptbr": "Sem espaco em disco",
+      "categoria": "filesystem",
+      "explicacao": "O disco esta cheio.",
+      "como_arrumar": "Apagar arquivos antigos OU mover arquivos pra disco externo OU contratar mais espaco no servidor."
+    },
+    {
+      "pattern": "MODULE_NOT_FOUND",
+      "ptbr": "Pacote nao foi encontrado",
+      "categoria": "node",
+      "explicacao": "Um pacote (biblioteca) que o codigo esta tentando usar nao esta instalado.",
+      "como_arrumar": "Rodar `npm install` ou `pnpm install` na pasta do projeto."
+    },
+    {
+      "pattern": "ERR_REQUIRE_ESM",
+      "ptbr": "Pacote moderno em codigo antigo",
+      "categoria": "node",
+      "explicacao": "O codigo esta usando uma forma antiga de importar (`require`) mas o pacote so funciona com forma nova (`import`).",
+      "como_arrumar": "Trocar `require('x')` por `import x from 'x'` OU mudar o tipo do projeto pra `module` no package.json."
+    },
+    {
+      "pattern": "SyntaxError",
+      "ptbr": "Erro de sintaxe no codigo",
+      "categoria": "javascript",
+      "explicacao": "Tem um erro de digitacao ou estrutura errada em algum arquivo .js/.ts.",
+      "como_arrumar": "Ver a linha indicada no erro e procurar parenteses/chaves nao fechados, virgulas faltando, etc."
+    },
+    {
+      "pattern": "TypeError: Cannot read",
+      "ptbr": "Tentou ler propriedade de coisa que nao existe",
+      "categoria": "javascript",
+      "explicacao": "Codigo tentou acessar `objeto.propriedade` mas o objeto e null/undefined.",
+      "como_arrumar": "Conferir que o objeto existe antes de acessar (usar optional chaining `?.` ou verificacao previa)."
+    },
+    {
+      "pattern": "Unhandled promise rejection",
+      "ptbr": "Erro em operacao assincrona nao tratado",
+      "categoria": "javascript",
+      "explicacao": "Uma operacao que demora (rede, leitura de arquivo) deu erro e ninguem tratou.",
+      "como_arrumar": "Adicionar `.catch()` no fim da Promise OU `try { await ... } catch (e) { ... }`."
+    },
+    {
+      "pattern": "exit code 137",
+      "ptbr": "Processo foi morto por falta de memoria",
+      "categoria": "sistema",
+      "explicacao": "O sistema operacional matou o programa porque consumiu memoria demais.",
+      "como_arrumar": "Reduzir uso de memoria do programa OU aumentar memoria disponivel (especialmente em Docker)."
+    },
+    {
+      "pattern": "exit code 130",
+      "ptbr": "Voce cancelou (Ctrl+C)",
+      "categoria": "sistema",
+      "explicacao": "Voce apertou Ctrl+C e o programa foi interrompido.",
+      "como_arrumar": "Nada a fazer — foi cancelamento intencional."
+    },
+    {
+      "pattern": "git: not found",
+      "ptbr": "Git nao esta instalado",
+      "categoria": "ferramenta",
+      "explicacao": "O comando `git` nao foi encontrado no sistema.",
+      "como_arrumar": "Instalar Git: https://git-scm.com/downloads. No Windows, geralmente Git Bash."
+    },
+    {
+      "pattern": "node: not found",
+      "ptbr": "Node.js nao esta instalado",
+      "categoria": "ferramenta",
+      "explicacao": "O comando `node` nao foi encontrado no sistema.",
+      "como_arrumar": "Instalar Node.js LTS: https://nodejs.org. Versao 20+ recomendada."
+    },
+    {
+      "pattern": "fatal: not a git repository",
+      "ptbr": "Pasta atual nao e um repositorio git",
+      "categoria": "git",
+      "explicacao": "Voce rodou comando git em pasta que nao tem `.git` dentro.",
+      "como_arrumar": "Verificar que voce esta na pasta certa OU iniciar repositorio com `git init`."
+    },
+    {
+      "pattern": "Merge conflict",
+      "ptbr": "Conflito ao juntar duas versoes de um arquivo",
+      "categoria": "git",
+      "explicacao": "Voce e outra pessoa (ou outra branch) mudaram a mesma parte do arquivo — git nao consegue decidir qual fica.",
+      "como_arrumar": "Abrir o arquivo, ver as marcas `<<<<<<<` e `=======` e `>>>>>>>`, decidir o que fica, salvar, e rodar `git add` + `git commit`."
+    },
+    {
+      "pattern": "Permission denied \\(publickey\\)",
+      "ptbr": "Chave SSH nao foi aceita pelo servidor",
+      "categoria": "git",
+      "explicacao": "Voce tentou push/pull via SSH mas a chave SSH nao esta configurada ou nao foi adicionada na conta.",
+      "como_arrumar": "Verificar se ssh-agent tem sua chave (`ssh-add -l`). Adicionar chave publica no GitHub/GitLab settings."
+    },
+    {
+      "pattern": "SQLITE_BUSY",
+      "ptbr": "Banco esta ocupado, outro processo segura ele",
+      "categoria": "banco",
+      "explicacao": "SQLite nao deixa dois processos escreverem ao mesmo tempo. Algum outro processo travou o banco.",
+      "como_arrumar": "Verificar se outro programa (talvez DBeaver, talvez outro terminal) esta com banco aberto. Fechar."
+    },
+    {
+      "pattern": "SQLITE_CORRUPT",
+      "ptbr": "Arquivo de banco corrompido",
+      "categoria": "banco",
+      "explicacao": "O arquivo do banco SQLite esta danificado (geralmente por interrupcao no meio de uma escrita).",
+      "como_arrumar": "Restaurar backup recente. Sem backup: `sqlite3 banco.db .dump > dump.sql` + `sqlite3 banco-novo.db < dump.sql`."
+    }
+  ]
+}
