@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-24
+revisado-em: 2026-05-26
 status: stable
 ---
 
@@ -8,13 +8,19 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v1.1.0 (mai/2026)
+## Versão atual: v1.3.0 (mai/2026)
 
-Marco de estabilidade. Pós auditoria **10-agentes interna** (área a área do projeto): hooks, agentes, comandos, skills, docs, templates, testes, addons, CLI/instalador, consistência cruzada — **todos os achados endereçados**. Highlights:
+Marco "session-relay" — robô vigia externo da memória do Claude (US-117, ADR-022). Versões anteriores entregues:
 
-- 17 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila + **Bia (qa-automation)** e **Marcos (sre-on-call)** novos na v1.1.0.
+- **v1.3.0** (atual) — session-relay (wrapper externo de ciclo de sessão Claude).
+- **v1.2.x** — fix path skills.test, ajuste tarball 2→3 MB, sincronização de manifest, /sincronizar-plugin tolera destino ausente em CI.
+- **v1.1.0** — Bia (qa-automation) + Marcos (sre-on-call); auditoria 10-agentes interna; todos os achados endereçados.
+
+Highlights consolidados:
+
+- 17 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila + Bia (qa-automation) + Marcos (sre-on-call).
 - 28 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`).
-- 33 hooks validadores (29 bloqueadores via `exit 2` ou JSON `decision:block`; 4 soft warnings) + 7 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário (`_lib.js`) = **40 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
+- 35 hooks validadores (28 bloqueadores via `exit 2` ou JSON `decision:block`; 7 soft warnings) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário (`_lib.js`) = **44 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
 - 19 skills BR no core + 17 nos addons = **36 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
 - 8 checklists + 7 knowledge bases.
 - **7 addons** (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta).

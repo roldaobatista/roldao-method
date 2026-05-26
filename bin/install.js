@@ -804,6 +804,18 @@ async function updateAll() {
   for (const proj of projects) {
     console.log('');
     log(`${c.bold}=> ${proj.path}${c.reset}`);
+    // SEC-003: valida que o path do registry ainda aponta pra um projeto roldao-method real
+    // antes de spawnar processo com cwd controlado. Defende contra registry adulterado.
+    try {
+      const projPath = path.resolve(proj.path);
+      const stat = fs.statSync(projPath);
+      if (!stat.isDirectory()) throw new Error('nao e diretorio');
+      if (!fs.existsSync(path.join(projPath, '.specify'))) throw new Error('nao tem .specify/ — nao parece projeto roldao-method');
+    } catch (e) {
+      failCount++;
+      err(`pulado ${proj.path}: ${e.message}`);
+      continue;
+    }
     const { spawnSync } = require('child_process');
     const args = [__filename, 'update', '--yes'];
     if (FORCE) args.push('--force');

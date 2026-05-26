@@ -25,9 +25,11 @@ A chave de acesso identifica unicamente um documento fiscal eletronico no Brasil
 | 21-22 | 2  | Modelo                 | 55 = NF-e, 65 = NFC-e, 57 = CT-e, 58 = MDF-e, 59 = SAT/CF-e, 67 = CT-e OS |
 | 23-25 | 3  | Serie                  | serie do documento |
 | 26-34 | 9  | Numero                 | numero sequencial do documento |
-| 35    | 1  | tpEmis                 | 1=Normal, 2=Contingencia FS-IA, 3=SCAN, 4=DPEC, 5=FS-DA, 6=SVC-AN, 7=SVC-RS, 9=Contingencia offline NFC-e |
+| 35    | 1  | tpEmis                 | 1=Normal, 2=Contingencia FS-IA (legado), 3=SCAN (descontinuado), 4=DPEC (descontinuado), 5=FS-DA (em desuso desde 2023), 6=SVC-AN, 7=SVC-RS, 9=Contingencia offline NFC-e |
 | 36-43 | 8  | cNF                    | codigo numerico que compoe a chave (anti-colisao) |
 | 44    | 1  | DV                     | digito verificador modulo 11 |
+
+> **Observacao FISCAL-004:** tpEmis = 5 (FS-DA), 2 (FS-IA), 3 (SCAN) e 4 (DPEC) sao **modos de contingencia em desuso** (FS-DA descontinuado em 2023 pelo Manual NF-e 7.00; SCAN e DPEC ja substituidos por SVC-AN/SVC-RS/EPEC). A chave continua matematicamente valida, mas a skill emite warning quando encontra um desses — feature nova deve usar SVC-AN, SVC-RS ou EPEC. Ver REGRAS-INEGOCIAVEIS.md FISCAL-004.
 
 > **Observacao FISCAL-005:** a chave de acesso continua **100% numerica** mesmo apos o CNPJ alfanumerico entrar em vigor (2026-07). Posicoes 7-20 vao continuar aceitando so digitos — o CNPJ alfanumerico **nao** entra na chave de acesso (decisao da SEFAZ/RFB).
 

@@ -15,11 +15,14 @@ def _so_digitos(s: str) -> str:
 
 
 def mascarar_cpf(cpf: str) -> str:
-    """CPF: ***.***.NNN-NN (preserva ultimos 5 digitos)."""
+    """CPF: ***.***.***-NN (LGPD-003 minimizacao — preserva so o DV).
+
+    Padrao canonico do framework, alinhado com validar-cpf-cnpj e validar-pix.
+    """
     d = _so_digitos(cpf)
     if len(d) != 11:
         return "***.***.***-**"
-    return f"***.***.{d[6:9]}-{d[9:11]}"
+    return f"***.***.***-{d[9:11]}"
 
 
 def mascarar_cnpj(cnpj: str) -> str:

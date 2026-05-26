@@ -1,8 +1,8 @@
 ---
 tipo: product-brief
 versao: 1.0
-data: AAAA-MM-DD
-autor: _(nome)_
+owner: _(nome)_
+revisado-em: AAAA-MM-DD
 status: draft
 relacionado-prd: _(opcional)_
 ---

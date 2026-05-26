@@ -33,6 +33,26 @@ Ex.: se o projeto exige um campo "Centro de custo" em todo PRD, copie `.specify/
 - **Não edite** os arquivos em `.specify/templates/`, `.specify/checklists/`, `.specify/data/` direto — `update` sobrescreve e você perde a mudança.
 - **Não use override pra desligar regra inegociável.** Override é pra adaptar artefato ao domínio, não pra burlar `REGRAS-INEGOCIAVEIS.md`. Hook não lê override.
 
+## Como agente/script resolve a precedencia
+
+O resolvedor canonico fica em `.specify/scripts/resolver-template.js` e e usado
+tanto como CLI quanto como lib Node:
+
+```bash
+# CLI — devolve o caminho efetivo (override OU core)
+node .specify/scripts/resolver-template.js templates prd.md
+node .specify/scripts/resolver-template.js --list checklists
+```
+
+```javascript
+// Lib — em hook/tool/agente Node nativo
+const { resolveTemplate } = require('./.specify/scripts/resolver-template.js');
+const caminho = resolveTemplate('templates', 'prd.md');
+```
+
+Areas validas: `templates`, `checklists`, `data`, `schemas`, `memory`.
+Teste de precedencia: `test/resolver-template.test.js` (rodado em `npm test`).
+
 ## Verificar
 
 `/consistencia` aponta se um override divergiu do core a ponto de quebrar rastreabilidade.

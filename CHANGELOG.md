@@ -1,5 +1,45 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [1.3.1] — 2026-05-26
+
+**Auditoria interna 10-agentes — 12 achados endereçados sem mudança de comportamento pro cliente.**
+
+### O que muda pra você (não-programador)
+
+- A documentação agora bate com a realidade: README, ROADMAP, manifesto do plugin e regras dizem o mesmo número de validações automáticas (44 no total). Antes, cada arquivo dizia um número diferente — quem lia ficava sem saber em qual confiar.
+- Você pode adaptar os moldes de documento (PRD, checklist, base de conhecimento) ao seu negócio sem precisar mexer no framework: basta colocar a sua versão em `.specify/overrides/` e ela passa a valer no lugar da original. Antes era promessa na documentação; agora funciona de verdade.
+- Mensagens que mascaram CPF ficam mais protegidas: passam a mostrar só os 2 últimos dígitos (`***.***.***-09`), alinhado com a lei de proteção de dados. Antes mostrava 5 dígitos.
+- Quando alguém validar uma nota fiscal eletrônica emitida em modo de contingência antigo (já descontinuado pela SEFAZ), o sistema avisa e recomenda o modo atual. Evita susto na hora de emitir.
+- O pacote que você baixa do framework ficou um pouco menor (de 821 kB pra 783 kB) — tira arquivos de teste que só serviam pra equipe interna.
+
+### Adicionado
+
+- Mecanismo de override de moldes virou funcionalidade real, com ferramenta de linha de comando pra resolver qual versão usar (a sua, em `.specify/overrides/`, ou a padrão do framework) e 12 testes garantindo a regra de precedência.
+- Aviso novo na verificação de chave de acesso de NF-e: se a chave foi emitida em modo de contingência descontinuado (FS-DA, FS-IA, SCAN, DPEC), aparece sugestão pra usar os modos atuais (SVC-AN, SVC-RS, EPEC) — alinhado com FISCAL-004.
+- 4 validações automáticas que o framework entrega pros clientes agora estão ativas também no próprio framework: a regra que cobra postmortem depois de correção urgente, e 3 lembretes de proteção de dados (minimização, transferência internacional, encarregado e canal do titular).
+- Teste da regra de imutabilidade de NF-e (FISCAL-001) entrou na bateria automática do `npm test` — antes existia mas não era executado.
+
+### Corrigido
+
+- README, ROADMAP, package.json, plugin.json, lockfile, continue.yaml e o guia de regras agora dizem o mesmo número de validações automáticas: 44 (28 que bloqueiam + 7 avisos suaves + 8 de manutenção + 1 utilitário). Antes apareciam 40, 43 e 44 espalhados em arquivos diferentes.
+- ROADMAP estava marcado em v1.1.0 enquanto o framework já estava em v1.3.0 — atualizado.
+- Moldes de PRFAQ, brief de produto e desenho de UX tinham campos com nome errado no cabeçalho (`autor`/`data`) que travavam a validação automática ao virar documento real. Renomeados pra `owner`/`revisado-em`.
+- Instalador valida o caminho do projeto antes de iniciar processo nele (confere se existe, se é pasta e se tem estrutura esperada). Proteção contra registro adulterado (SEC-003).
+- AGENTS.md ganhou aviso explicando que os campos `_(preencher)_` são intencionais — é o molde que cada instalação personaliza.
+
+### Mudado
+
+- Mascaramento de CPF na ferramenta de proteção de dado pessoal passa de 5 dígitos visíveis pra 2 (só os do dígito verificador). Alinha com as outras 2 ferramentas equivalentes do framework e com a regra de minimização de dado.
+- Pacote enviado pro npm ficou 38 kB menor — removida a pasta de testes (que serve só pra equipe interna do framework) e corrigida a sintaxe do arquivo de exclusão.
+
+### Preservado
+
+- Todos os 28 hooks bloqueadores continuam ativos, com o mesmo comportamento.
+- Todos os 17 agentes especialistas continuam disponíveis.
+- Todos os 28 comandos (`/feature`, `/bug`, `/release`, etc.) continuam funcionando do mesmo jeito.
+- Skills BR (validar CPF/CNPJ, validar chave Pix, mascarar dado pessoal, validar chave de NF-e, etc.) continuam disponíveis — só a forma de mascarar CPF ficou mais segura.
+- Nenhum molde existente em projeto que já usa o framework é afetado: o mecanismo de override é opt-in (só vale se você criar `.specify/overrides/`).
+
 ## [1.3.0] — 2026-05-25
 
 **Robô vigia externo que cuida da memória do Claude pra você: quando a conversa enche, ele salva o estado, fecha o Claude com cuidado e abre uma sessão nova continuando de onde parou — em loop, sem você precisar intervir.**

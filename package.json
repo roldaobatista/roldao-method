@@ -1,7 +1,7 @@
 {
   "name": "roldao-method",
-  "version": "1.3.0",
-  "description": "Framework agentic em PT-BR. 17 agentes, 28 hooks bloqueadores + 7 soft warnings + 7 lifecycle/manutenção + 1 utilitário = 43 hooks em Node puro, 28 workflows, 36 skills BR (19 core + 17 em addons; CPF/CNPJ alfanumérico 2026, chave de acesso NF-e, validador IE/CEP/CNH/RENAVAM/titulo-eleitor/conta-bancaria/PIS/Pix, mascarar dado pessoal LGPD, NF-e imutavel FISCAL-001, contingência SEFAZ FISCAL-004, idempotência Pix PIX-001/003, Reforma Tributária 2026-2033, eSocial, CFM telemedicina, CNS/SUS), 7 addons especializados (6 stable + healthtech-br beta), 9 checklists. 46 regras inegociáveis (INV/SEC/TST/LGPD/FISCAL/PIX/INV-AGENT). Spec-driven com adapters pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
+  "version": "1.3.1",
+  "description": "Framework agentic em PT-BR. 17 agentes, 28 hooks bloqueadores (+ 7 soft warnings + 8 lifecycle + 1 utilitário = 44 hooks Node puro), 28 workflows, 36 skills BR (19 core + 17 em addons), 7 addons (6 stable + healthtech-br beta), 46 regras inegociáveis (INV/SEC/TST/LGPD/FISCAL/PIX). Cobre LGPD, NF-e/NFC-e, eSocial, Pix, CNPJ alfanumérico 2026, Reforma Tributária 2026-2033. Spec-driven; adapta pra Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Continue, Gemini CLI, Codex CLI.",
   "keywords": [
     "ai",
     "claude-code",
@@ -58,6 +58,8 @@
     "test:lib-next-id": "node test/lib-next-id.test.js",
     "test:skills": "node test/skills.test.js",
     "test:addons": "node test/addons.test.js",
+    "test:nfe-imutavel": "node test/nfe-imutavel.test.js",
+    "test:resolver-template": "node test/resolver-template.test.js",
     "test:adapters": "node test/adapters.test.js",
     "test:adapter-drift": "node tools/sincronizar-adapters.js --check --quiet",
     "test:plugin-manifest-drift": "node tools/sincronizar-plugin-manifest.js --check --quiet",
@@ -70,7 +72,7 @@
     "test:session-relay-threshold": "node test/session-relay-threshold.test.js",
     "test:session-relay-checkpoint-trigger": "node test/session-relay-checkpoint-trigger.test.js",
     "test:session-relay-dry-run": "node test/session-relay-dry-run.test.js",
-    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:dogfood-sync && npm run test:plugin-manifest-drift && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:block-destructive-bypass && npm run test:secrets-scanner-comments && npm run test:auditors-pass && npm run test:checkpoint-marker && npm run test:investigador-gate2 && npm run test:anti-mascaramento-extra && npm run test:mensagens-leigas && npm run test:jargon-expanded && npm run test:session-cleanup && npm run test:audit-sha-story && npm run test:confirmation-extra && npm run test:lib-next-id && npm run test:skills && npm run test:addons && npm run test:adapters && npm run test:agents-commands-statusline && npm run test:session-relay-detect-transcript && npm run test:session-relay-threshold && npm run test:session-relay-checkpoint-trigger && npm run test:session-relay-dry-run",
+    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:dogfood-sync && npm run test:plugin-manifest-drift && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:block-destructive-bypass && npm run test:secrets-scanner-comments && npm run test:auditors-pass && npm run test:checkpoint-marker && npm run test:investigador-gate2 && npm run test:anti-mascaramento-extra && npm run test:mensagens-leigas && npm run test:jargon-expanded && npm run test:session-cleanup && npm run test:audit-sha-story && npm run test:confirmation-extra && npm run test:lib-next-id && npm run test:skills && npm run test:addons && npm run test:nfe-imutavel && npm run test:resolver-template && npm run test:adapters && npm run test:agents-commands-statusline && npm run test:session-relay-detect-transcript && npm run test:session-relay-threshold && npm run test:session-relay-checkpoint-trigger && npm run test:session-relay-dry-run",
     "prepublishOnly": "npm test && npm run test:adapter-drift"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",
@@ -90,14 +92,12 @@
     "addons",
     "docs",
     "tools",
-    "test",
     "README.md",
     "CHANGELOG.md",
     "ROADMAP.md",
     "SECURITY.md",
     "CONTRIBUTORS.md",
-    "LICENSE",
-    "!docs/PUBLICAR-NPM.md"
+    "LICENSE"
   ],
   "bugs": {
     "url": "https://github.com/roldaobatista/roldao-method/issues"

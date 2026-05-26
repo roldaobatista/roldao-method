@@ -97,10 +97,22 @@ def validar(raw: str) -> tuple[bool, str]:
     if dv_calculado != dv_informado:
         return False, f"DV errado (calculado {dv_calculado}, informado {dv_informado})"
 
+    # FISCAL-004: contingencias em desuso (FS-DA, FS-IA, SCAN, DPEC).
+    # A chave continua matematicamente valida — emitimos warning, nao erro.
+    aviso_contingencia = ""
+    if tp_emis == "5":
+        aviso_contingencia = " [AVISO FISCAL-004: tpEmis=5 (FS-DA) em desuso desde 2023 — preferir SVC-AN/SVC-RS/EPEC]"
+    elif tp_emis == "2":
+        aviso_contingencia = " [AVISO FISCAL-004: tpEmis=2 (FS-IA) legado — preferir SVC-AN/SVC-RS/EPEC]"
+    elif tp_emis == "3":
+        aviso_contingencia = " [AVISO FISCAL-004: tpEmis=3 (SCAN) descontinuado — preferir SVC-AN/SVC-RS]"
+    elif tp_emis == "4":
+        aviso_contingencia = " [AVISO FISCAL-004: tpEmis=4 (DPEC) descontinuado — preferir EPEC]"
+
     return True, (
         f"{MODELOS[modelo]} UF={UFS_IBGE[uf]} AAMM={aamm} "
         f"CNPJ={cnpj} modelo={modelo} serie={serie} numero={numero} "
-        f"tpEmis={tp_emis} cNF={cnf} DV={dv_informado}"
+        f"tpEmis={tp_emis} cNF={cnf} DV={dv_informado}{aviso_contingencia}"
     )
 
 

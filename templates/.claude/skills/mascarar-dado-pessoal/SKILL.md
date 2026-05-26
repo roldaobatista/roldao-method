@@ -15,7 +15,7 @@ Padroniza mascaramento de dado pessoal BR para exibicao segura. Resolve o proble
 
 | Tipo | Original | Mascarado |
 |---|---|---|
-| CPF | `12345678909` | `***.***.789-09` |
+| CPF | `12345678909` | `***.***.***-09` |
 | CNPJ | `12345678000195` | `**.***.***/0001-95` |
 | Email | `joao.silva@empresa.com.br` | `j***@empresa.com.br` |
 | Telefone E.164 | `+5511987654321` | `+5511*****4321` |

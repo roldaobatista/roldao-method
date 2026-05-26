@@ -2,6 +2,11 @@
 docs/PUBLICAR.md
 docs/PUBLICAR-NPM.md
 
+# Como o array `files` no package.json e whitelist (vence sobre .npmignore),
+# o que importa aqui sao 2 coisas: (1) excluir caminhos DENTRO de pastas que
+# estao no whitelist (ex: docs/PUBLICAR-NPM.md); (2) defesa em camada caso
+# alguem amplie o whitelist no futuro.
+
 # Defesa: nao deve aparecer no whitelist, mas garante.
 **/node_modules
 **/.DS_Store
