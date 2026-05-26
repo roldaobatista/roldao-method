@@ -1802,6 +1802,49 @@ function menu() {
   console.log('');
 }
 
+// ----------------------------------------------------------------------------
+// session-relay (US-117 / ADR-022) — robo externo que orquestra ciclo de sessao
+// Claude: vigia tamanho do transcript .jsonl, dispara /checkpoint antes do
+// limite, fecha a sessao, abre nova com --continue. Loop ate Ctrl+C.
+// Toda logica em bin/lib/session-relay.js. Aqui so o wiring CLI.
+// ----------------------------------------------------------------------------
+
+async function runSessionRelayCmd() {
+  banner();
+  log('iniciando o robo vigia da conversa...');
+  log('aperte Ctrl+C pra parar.');
+  log('');
+  let relay;
+  try {
+    relay = require('./lib/session-relay');
+  } catch (e) {
+    err('nao consegui carregar a biblioteca do robo: ' + e.message);
+    err('confirma a instalacao do framework com: npx roldao-method doctor');
+    process.exit(1);
+  }
+  const opts = relay.parseFlags(rawArgs);
+  // Avisos de flags invalidas (RESS-002 do revisor): Roldao precisa saber
+  // que digitou algo errado, em vez do CLI engolir silencioso.
+  if (opts._warnings && opts._warnings.length > 0) {
+    for (const w of opts._warnings) warn(w);
+  }
+  // Log PT-BR consistente com o resto do CLI
+  opts.log = (msg) => {
+    if (QUIET) return;
+    console.log(`${c.cyan}[robo-relay]${c.reset} ${msg}`);
+  };
+  try {
+    const result = await relay.runRelay(opts);
+    if (result.stoppedByUser) {
+      log(`encerrei depois de ${result.iterations} ciclo(s) de checkpoint. ate logo.`);
+    }
+    process.exit(0);
+  } catch (e) {
+    err('o robo travou: ' + e.message);
+    process.exit(2);
+  }
+}
+
 function help() {
   banner();
   console.log(`${c.bold}Uso:${c.reset}
@@ -1812,6 +1855,7 @@ function help() {
   ${c.cyan}npx roldao-method rollback${c.reset}       [<id>] [--list]                desfaz o ultimo update (volta o snapshot)
   ${c.cyan}npx roldao-method undo${c.reset}           [--yes] [--dry-run]            desfaz ultimo commit via git revert (rede de seguranca pro Roldao)
   ${c.cyan}npx roldao-method status${c.reset}                                          diagnostico PT-BR do projeto (stories abertas, ADRs, ultimo commit, pendente)
+  ${c.cyan}npx roldao-method session-relay${c.reset}  [--threshold N] [--dry-run]      ${c.green}robo vigia da conversa: salva e abre sessao nova quando a memoria do Claude enche${c.reset}
   ${c.cyan}npx roldao-method add <addon>${c.reset}    [--yes]                          instala addon especifico
   ${c.cyan}npx roldao-method remove <addon>${c.reset} [--yes] [--dry-run]              remove um addon (core preservado)
   ${c.cyan}npx roldao-method search [termo]${c.reset}                                   lista/filtra addons disponiveis
@@ -1886,6 +1930,7 @@ const KNOWN_COMMANDS = [
   'install', 'update', 'add', 'remove', 'search', 'find',
   'tasks-to-issues', 'list', 'doctor', 'uninstall', 'demo',
   'tutorial', 'rollback', 'undo', 'status', 'menu', 'help', 'version',
+  'session-relay',
 ];
 
 function suggestCommand(typed) {
@@ -1932,6 +1977,7 @@ function suggestCommand(typed) {
     case 'rollback': await rollback(); break;
     case 'undo': await undo(); break;
     case 'status': await statusProjeto(); break;
+    case 'session-relay': await runSessionRelayCmd(); break;
     case 'menu': menu(); break;
     case 'help': case '--help': case '-h': help(); break;
     case 'version': case '--version': case '-v': version(); break;

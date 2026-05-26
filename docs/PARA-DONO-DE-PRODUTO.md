@@ -100,4 +100,49 @@ Glossário completo em [GLOSSARIO.md](GLOSSARIO.md).
 
 ---
 
+## Robô vigia da conversa (`session-relay`)
+
+> **Pra que serve:** o Claude tem uma "memória" limitada. Conversa muito longa, ele começa a esquecer o começo. Hoje você tem que perceber o sintoma e pedir pra ele salvar (`/checkpoint`) na hora certa. Esse robô faz isso por você.
+
+**Como usar — só 1 comando:**
+
+```
+npx roldao-method session-relay
+```
+
+Pronto. Deixe a janela aberta. O robô vai:
+
+1. Abrir o Claude pra você.
+2. Ficar vigiando a conversa em segundo plano.
+3. Quando a memória estiver pela metade (você não precisa saber disso — ele te avisa em português claro), pede pro Claude salvar tudo automaticamente.
+4. Fecha a sessão atual e abre uma nova continuando de onde parou.
+5. Repete a tarde inteira.
+
+**Pra parar:** aperte `Ctrl+C`. O robô vai fechar o Claude com cuidado e te avisar quando terminou.
+
+**O que aparece na tela (exemplos):**
+
+```
+[robo-relay] abri o Claude pra voce. id da sessao: abc-123
+[robo-relay] vigiando a conversa. vou medir a cada 30s.
+[robo-relay] passou da metade da memoria. vou pedir pro Claude salvar tudo antes de continuar.
+[robo-relay] pedi pro Claude salvar. aguardando ele terminar.
+[robo-relay] salvou. fechando essa sessao.
+[robo-relay] abri sessao nova continuando de onde parou.
+```
+
+**Opções (todas opcionais — se não passar nada, vem default seguro):**
+
+- `--threshold 300000` — pedir pra salvar quando passar de 300 mil "tokens" (default: 500 mil = metade da memória). Quanto menor, mais cedo ele salva (mais seguro, mas mais ciclos por dia).
+- `--check-interval 15` — medir a cada 15 segundos (default: 30). Mínimo: 5.
+- `--dry-run` — só simula, sem abrir o Claude de verdade. Use uma vez antes pra ver como funciona.
+
+**Importante:**
+
+- O robô é **opcional**. Se você prefere abrir o `claude` direto, continua funcionando igual ao antes — nada muda.
+- O robô **não substitui** o `/compact` automático do Claude. Ele atua ANTES, salvando seu trabalho enquanto a memória ainda está saudável.
+- Funciona no Windows, Mac e Linux.
+
+---
+
 _Dúvidas? Abra issue em [github.com/roldaobatista/roldao-method/issues](https://github.com/roldaobatista/roldao-method/issues) — em PT-BR mesmo._
