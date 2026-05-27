@@ -1,5 +1,51 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [2.0.0] — 2026-05-26
+
+**Versão grande que fecha o PRD-003 (Auditoria 10 de 10) — entrega 42 de 44 critérios das stories US-111..US-116. Faz o framework respeitar as próprias regras nas entranhas, não só na vitrine.**
+
+### O que muda pra você (não-programador)
+
+- **Descobrir comando ficou mais fácil:** `npx roldao-method help "preciso reportar bug"` mostra `/bug` no topo, com descrição em PT-BR. Vale pra `/inicio`, `/release`, `/feature`, `/brownfield`, `/hotfix` e qualquer outro — você descreve em palavras suas, o framework acha o comando certo.
+- **Rede de segurança quando algo der errado:** `npx roldao-method undo` desfaz a última gravação do assistente, pede confirmação clara, nunca apaga histórico (usa `git revert`). Antes você precisava chamar dev pra reverter algo.
+- **Diagnóstico do projeto a qualquer hora:** `npx roldao-method status` mostra quantas iniciativas grandes (PRDs) tem, quantas stories estão abertas, quantas decisões pendentes, há quanto tempo foi a última atividade, se tem coisa não gravada. Tudo em PT-BR.
+- **Aprovações de auditor agora têm peso real:** antes, um arquivo vazio fingindo ser aprovação destravava o commit. Agora cada aprovação precisa do "selo" assinado do auditor com a impressão digital do código auditado (`audit_sha`). Se você (ou o assistente) mudar uma linha depois, a aprovação fica marcada como "antiga" e o auditor precisa rodar de novo. Nada de selo de borracha.
+- **Agente que faz pesquisa de mercado (analista) parou de te empurrar perguntas evitáveis:** antes ele devolvia "1-3 perguntas pendentes pro PM responder". Agora ele assume valores razoáveis e marca a premissa no documento — só pergunta se houver conflito real onde nenhuma fonte resolve.
+- **Modelagem de banco (agente dba-dados) parou de pedir "pergunta padrão de acesso esperado":** agora investiga sozinho e assume valores razoáveis pelo contexto (tabela de pedidos = mais escrita inicial + leitura agregada depois). Só pergunta se for genuinamente ambíguo.
+- **Decisão arquitetural ADR-019 (Maestro multi-modo) aceita formalmente:** o orquestrador interno do framework agora estende aos workflows `/prd`, `/brownfield` e `/auditoria-reversa` (não só `/feature`). Cada modo tem marcas próprias por etapa — se a sessão for compactada no meio, dá pra retomar do ponto certo.
+
+### Adicionado
+
+- **`npx roldao-method help "<frase em PT-BR>"`** — busca fuzzy nos slash commands. Top 3 resultados com `/<comando>` + descrição. Cobre 28 slash commands com mapeamento de palavras-chave PT-BR específicas (ex: "urgente cliente parado" → `/hotfix`).
+- **`docs/auditorias/2026-05-24-auditoria-10-agentes/MAPEAMENTO-T-NNN.md`** — 109 itens mapeados (B/A/C/D/E/F/G/H/I/J/K/L do PLANO-AUDITADO → tasks T-NNN das stories). Rastreabilidade ponta a ponta do diagnóstico → entrega.
+- **Testes property-based de comportamento de agente** (`test/integration/agent-premissas.test.js`, `test/integration/prd-etapa-2-askuserquestion.test.js`) — codificam que analista/dba-dados/devops-infra/gerente-produto continuam honrando INV-AGENT-006 (executar, não perguntar) e que `/prd` etapa 2 dispara AskUserQuestion automático a partir das premissas.
+- **ADR-019 aceito** — Maestro multi-modo (PRD/BROWNFIELD/AR) estendendo o agente único existente. Decisão de arquitetura formalmente registrada.
+
+### Corrigido
+
+- **`templates/.claude/agents/dba-dados.md`** — modo MOD não devolve mais "Pergunta padrão de acesso esperado..." (antipattern que cobrava decisão do PM). Agora "Investiga padrão... assume valores razoáveis... pergunta APENAS se input for genuinamente ambíguo" (INV-AGENT-006).
+- **Auditoria de pendências PRD-003 documentada** (`docs/auditorias/2026-05-26-acs-pendentes-prd-003/`) — descobre que a maioria das ACs já estava entregue em caminhos diferentes do que a spec literal pedia (`test/hooks-X.test.js` vs `tests/hooks/X.test.js`). Documentado pra futuro auditor não inflar de novo.
+
+### Mudado
+
+- **`package.json` 1.3.1 → 2.0.0** (major bump). `templates/.claude-plugin/plugin.json` e `templates/.continue/config.yaml` sincronizados.
+- **AC-111-1, 2, 3, 4, 5, 6, 7, 8** da US-111 — entregues (7/8 + 1 amarrado a este bump).
+- **AC-112-1, 2, 3, 4, 5, 6** da US-112 — entregues (6/6).
+- **AC-113-1..7** da US-113 — entregues (7/7).
+- **AC-114-1..8** da US-114 — entregues (8/8).
+- **AC-115-1..7** da US-115 — entregues (7/7).
+- **AC-116-1, 2, 3, 4, 5, 6, 8** da US-116 — entregues (7/8).
+- **AC-116-7 (validação ao vivo das 5 tarefas-tipo com Roldão)** — débito conhecido, agendado pra próxima sessão.
+
+### Preservado (ADR-031 — NUNCA PERDER CAPACIDADE)
+
+- Todos os 28 hooks bloqueadores continuam ativos.
+- Todos os 17 agentes especialistas continuam disponíveis.
+- Todos os 28 comandos continuam funcionando.
+- `npx roldao-method help` sem argumento continua mostrando lista completa (backward compat).
+- Flag `ROLDAO_METHOD_LEGACY_MARKERS=1` aceita markers antigos vazios em projetos que ainda não migraram — janela até v2.2.0 (ADR-021).
+- Nenhum addon foi removido (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta).
+
 ## [1.3.1] — 2026-05-26
 
 **Auditoria interna 10-agentes — 12 achados endereçados sem mudança de comportamento pro cliente.**
