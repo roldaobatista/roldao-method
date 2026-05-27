@@ -1957,6 +1957,108 @@ function suggestCommand(typed) {
   return null;
 }
 
+// AC-115-4 (US-115): busca fuzzy em PT-BR nos slash commands do Claude Code.
+// `npx roldao-method help "preciso reportar bug"` → /bug no topo dos resultados.
+// Fonte canonica: templates/.claude/commands/*.md (frontmatter `description:`).
+// Estrategia: tokenize query em PT-BR + score por presenca em nome ou descricao,
+// peso extra pra palavras-chave reservadas (reportar/erro/bug → /bug etc).
+const HELP_KEYWORDS = {
+  bug: ['bug', 'erro', 'problema', 'comportamento', 'reportar', 'tela errada', 'calculo errado', 'mensagem confusa'],
+  feature: ['feature', 'funcionalidade', 'nova', 'adicionar', 'criar funcao', 'pedir feature'],
+  inicio: ['iniciar', 'comecar', 'projeto novo', 'do zero', 'novo projeto', 'comeco'],
+  brownfield: ['legado', 'adotar', 'projeto existente', 'codigo antigo', 'repo legado'],
+  prd: ['prd', 'iniciativa', 'projeto grande', 'planejar feature grande', 'requisito'],
+  hotfix: ['hotfix', 'urgente', 'producao parou', 'cliente parado', 'emergencia'],
+  release: ['release', 'fechar versao', 'publicar', 'subir versao', 'changelog', 'tag'],
+  auditoria: ['auditoria', 'auditar', 'revisar tudo', 'checar seguranca', 'checar qualidade'],
+  'o-que-aconteceu': ['o que aconteceu', 'resumo da sessao', 'o que mudou', 'historico recente'],
+  status: ['status', 'estado do projeto', 'diagnostico', 'como esta'],
+  retro: ['retrospectiva', 'retro', 'lessons learned', 'aprendizado'],
+  checkpoint: ['checkpoint', 'walkthrough', 'antes do merge', 'revisao final'],
+  refactor: ['refactor', 'refatorar', 'reorganizar', 'limpar codigo'],
+  qa: ['qa', 'testes', 'cobertura', 'verificar testes'],
+  sprint: ['sprint', 'planejar semana', 'proximas stories'],
+  historia: ['story', 'historia', 'user story', 'criar story'],
+  epico: ['epico', 'decompor', 'quebrar prd', 'multiplas stories'],
+  clarificar: ['clarificar', 'ambiguo', 'esclarecer', 'vago'],
+  readiness: ['readiness', 'gate', 'pronto pra dev', 'destravar feature'],
+  'explicar-para-cliente': ['explicar', 'cliente', 'traduzir', 'simplificar', 'leigo'],
+  'quick-dev': ['quick', 'pequeno', 'trivial', 'mudanca pequena'],
+  'incident-postmortem': ['postmortem', 'pos incidente', 'apos incidente', 'analise incidente'],
+  'auditoria-reversa': ['auditoria reversa', 'diagnostico legado', 'descobrir codigo'],
+  consistencia: ['consistencia', 'doc bate com codigo', 'cross check'],
+  shard: ['shard', 'fatiar', 'quebrar doc grande'],
+  replanejar: ['replanejar', 'mudou escopo', 'reordenar'],
+  agentes: ['agentes', 'quem faz o que', 'mapa de agentes', 'lista agentes'],
+  help: ['help', 'ajuda', 'comandos disponiveis'],
+};
+
+function fuzzyHelp(query) {
+  banner();
+  const q = String(query || '').toLowerCase().trim();
+  if (!q) {
+    help();
+    return;
+  }
+  const commandsDir = path.join(FRAMEWORK_ROOT, 'templates', '.claude', 'commands');
+  if (!fs.existsSync(commandsDir)) {
+    err(`nao encontrei templates/.claude/commands/ em ${FRAMEWORK_ROOT}`);
+    process.exit(1);
+  }
+  const arquivos = fs.readdirSync(commandsDir).filter((f) => f.endsWith('.md'));
+  // Tokenize query: separa em palavras, remove stopwords curtas
+  const stopwords = new Set(['o', 'a', 'os', 'as', 'um', 'uma', 'de', 'do', 'da', 'em', 'no', 'na', 'pra', 'pro', 'pelo', 'pela', 'que', 'eu', 'se', 'meu', 'minha', 'isso', 'tudo']);
+  const tokens = q.split(/[\s,!?;.]+/).filter((t) => t.length >= 2 && !stopwords.has(t));
+  if (tokens.length === 0) {
+    log(`nao consegui interpretar a busca '${query}'. Use palavras como 'bug', 'feature', 'release'.`);
+    return;
+  }
+  const resultados = [];
+  for (const arq of arquivos) {
+    const nome = arq.replace(/\.md$/, '');
+    let descricao = '';
+    try {
+      const conteudo = fs.readFileSync(path.join(commandsDir, arq), 'utf8').slice(0, 1500);
+      const match = conteudo.match(/^description:\s*(.+)$/m);
+      if (match) descricao = match[1].trim();
+    } catch { /* skip */ }
+    const keywords = HELP_KEYWORDS[nome] || [];
+    let score = 0;
+    for (const tok of tokens) {
+      // peso 10: token bate exato no nome
+      if (nome === tok) score += 10;
+      // peso 5: token e substring do nome
+      else if (nome.includes(tok)) score += 5;
+      // peso 4: alguma keyword do command contem o token (ou vice-versa)
+      for (const kw of keywords) {
+        if (kw === tok || kw.includes(tok) || tok.includes(kw)) {
+          score += 4;
+          break;
+        }
+      }
+      // peso 2: token aparece na descricao
+      if (descricao.toLowerCase().includes(tok)) score += 2;
+    }
+    if (score > 0) resultados.push({ nome, descricao, score });
+  }
+  resultados.sort((a, b) => b.score - a.score);
+  if (resultados.length === 0) {
+    log(`nao achei comando que case com '${query}'.`);
+    console.log('');
+    console.log(`Tente: ${c.cyan}npx roldao-method help${c.reset} (sem argumentos) pra ver lista completa.`);
+    return;
+  }
+  const top = resultados.slice(0, 3);
+  console.log(`${c.bold}Comandos do Claude Code que casam com '${c.cyan}${query}${c.reset}${c.bold}':${c.reset}\n`);
+  for (const r of top) {
+    console.log(`  ${c.green}/${r.nome}${c.reset}`);
+    if (r.descricao) console.log(`    ${c.dim}${r.descricao}${c.reset}`);
+    console.log('');
+  }
+  console.log(`${c.dim}Esses sao comandos pra rodar dentro do Claude Code (digite /nome no chat).${c.reset}`);
+  console.log(`${c.dim}Pra ver subcomandos do CLI: ${c.cyan}npx roldao-method help${c.dim} (sem argumento).${c.reset}`);
+}
+
 (async () => {
   switch (command) {
     case 'install': await install(); break;
@@ -1991,7 +2093,11 @@ function suggestCommand(typed) {
     case 'status': await statusProjeto(); break;
     case 'session-relay': await runSessionRelayCmd(); break;
     case 'menu': menu(); break;
-    case 'help': case '--help': case '-h': help(); break;
+    case 'help': case '--help': case '-h':
+      // AC-115-4: `help "<frase>"` -> fuzzy search nos slash commands
+      if (subArg) fuzzyHelp(positional.slice(1).join(' '));
+      else help();
+      break;
     case 'version': case '--version': case '-v': version(); break;
     default: {
       err(`comando desconhecido: ${command}`);
