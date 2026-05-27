@@ -20,22 +20,27 @@
   ],
   "agents": [
     "agents/analista.md",
+    "agents/audit-arbiter.md",
     "agents/auditor-produto.md",
     "agents/auditor-qualidade.md",
     "agents/auditor-seguranca.md",
     "agents/dba-dados.md",
     "agents/dev-senior.md",
     "agents/devops-infra.md",
+    "agents/documentation-master.md",
     "agents/fiscal-br.md",
     "agents/gerente-produto.md",
     "agents/investigador.md",
     "agents/maestro.md",
+    "agents/memory-skeptic.md",
+    "agents/meta-cetico.md",
     "agents/qa-automation.md",
     "agents/revisor.md",
     "agents/sre-on-call.md",
     "agents/tech-lead.md",
     "agents/tech-writer.md",
-    "agents/ux-designer.md"
+    "agents/ux-designer.md",
+    "agents/vigia-fluxo.md"
   ],
   "commands": [
     "commands/agentes.md",
