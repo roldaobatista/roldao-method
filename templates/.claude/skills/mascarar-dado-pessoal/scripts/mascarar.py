@@ -34,24 +34,36 @@ def mascarar_cnpj(cnpj: str) -> str:
 
 
 def mascarar_email(email: str) -> str:
-    """Email: primeira letra + *** + @dominio."""
+    """Email: 1 letra local + ** + @ + 1 letra dominio + ** + .tld
+
+    Auditoria 10x1 (B3, 2026-05-27): versao anterior preservava o dominio
+    inteiro (`j***@gmail.com`) — combinacao {1a letra local, dominio cheio}
+    permite re-identificacao trivial com base auxiliar. Padrao novo
+    (alinhado com `mascarar_chave_pix`) mascara dominio tambem.
+    """
     if "@" not in email:
         return "***@***"
     local, _, dominio = email.partition("@")
-    if not local:
-        return f"***@{dominio}"
-    return f"{local[0]}***@{dominio}"
+    local_part = (local[0] if local else "*") + "**"
+    if "." in dominio:
+        prefix_dom, _, tld = dominio.rpartition(".")
+        dom_letra = prefix_dom[0] if prefix_dom else "*"
+        return f"{local_part}@{dom_letra}**.{tld}"
+    return f"{local_part}@***"
 
 
 def mascarar_telefone(tel: str) -> str:
-    """Telefone E.164: preserva DDI+DDD+ultimos 4 (+5511*****4321)."""
+    """Telefone E.164: preserva apenas os 4 ultimos digitos.
+
+    Auditoria 10x1 (B3, 2026-05-27): versao anterior preservava DDI+DDD+4
+    (`+5511*****4321` = 8 de 13 digitos expostos), permitindo segmentacao
+    geografica. Padrao novo preserva so os 4 ultimos.
+    """
     d = _so_digitos(tel)
     if len(d) < 8:
         return "**********"
     prefixo = "+" if tel.startswith("+") else ""
-    if len(d) >= 12:  # +DDI(2) DDD(2) numero(8-9)
-        return f"{prefixo}{d[:4]}{'*' * (len(d) - 8)}{d[-4:]}"
-    return f"{prefixo}{d[:2]}{'*' * (len(d) - 6)}{d[-4:]}"
+    return f"{prefixo}{'*' * (len(d) - 4)}{d[-4:]}"
 
 
 def mascarar_uuid(uuid: str) -> str:

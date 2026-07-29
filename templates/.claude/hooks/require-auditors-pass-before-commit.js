@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric, gitSafeEnv } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric, gitSafeEnv, emitSoftWarning } = require('./_lib.js');
 
 // computeDiffShas — retorna { sha256, gitBlobSha } do diff HEAD atual.
 // Marker do auditor pode trazer audit_sha em qualquer dos dois formatos.
@@ -140,10 +140,21 @@ function validateMarker(passMark, currentShas) {
 
   const totalProblemas = blocked.length + missing.length + empty.length + malformed.length + missingField.length + stale.length;
   if (totalProblemas === 0) {
-    // Avisa sobre markers legacy se houver, mas nao bloqueia.
+    // Auditoria 10x1 (R7, 2026-05-27): visibiliza no stdout (em vez de só
+    // stderr que some) + grava em warnings.jsonl pro /avisos consumir +
+    // recordMetric pra Otavio (meta-cetico) detectar quando o bypass virou
+    // permanente em CI.
     if (legacy.length > 0) {
-      process.stderr.write(`[require-auditors-pass-before-commit] AVISO: ${legacy.length} marker(s) sem JSON canonico — aceito porque ROLDAO_METHOD_LEGACY_MARKERS=1.\n`);
-      process.stderr.write(`Esta tolerancia some em v2.2.0. Rode 'npx roldao-method migrate markers' pra atualizar.\n`);
+      const msg = `[require-auditors-pass-before-commit] AVISO: ${legacy.length} marker(s) sem JSON canonico aceito via ROLDAO_METHOD_LEGACY_MARKERS=1 (deprecated, remove em v2.2.0). Rode 'npx roldao-method migrate markers'.`;
+      process.stdout.write(msg + '\n');
+      process.stderr.write(msg + '\n');
+      emitSoftWarning(
+        'require-auditors-pass-before-commit',
+        'ADR-021',
+        `${legacy.length} marker(s) de auditor passaram pelo bypass legacy (ROLDAO_METHOD_LEGACY_MARKERS=1). Rode migracao.`,
+        '',
+      );
+      recordMetric('legacy-bypass', 'auditors-pass', `count=${legacy.length}`);
     }
     process.exit(0);
   }

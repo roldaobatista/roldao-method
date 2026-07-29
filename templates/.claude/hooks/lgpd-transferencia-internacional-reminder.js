@@ -7,7 +7,7 @@
 // Auditoria 2026-05-25 (regra #32): LGPD-005 (transferencia internacional)
 // era so checklist.
 
-const { readStdinJson, normalizeFilePath } = require('./_lib.js');
+const { readStdinJson, normalizeFilePath, emitSoftWarning } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|\/test\/|\/tests\/|\.test\.|\.spec\.|\/fixtures\/|\/mocks\/|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|sql|prisma|ya?ml|tf|json)$/;
@@ -55,6 +55,13 @@ const PII_USAGE_RE = /\b(cpf|cnpj|email|telefone|endereco|user\.|customer\.|clie
   process.stderr.write(`  (c) Trocar por alternativa BR (provedor nacional)\n\n`);
   process.stderr.write(`Regra: LGPD-005 (REGRAS-INEGOCIAVEIS.md).\n`);
   process.stderr.write(`Addon lgpd-compliance tem skill \`gerar-dpa-fornecedor\` que monta modelo.\n`);
+
+  emitSoftWarning(
+    'lgpd-transferencia-internacional-reminder',
+    'LGPD-005',
+    `Arquivo ${filePath} usa provedor "${provMatch[0]}" com PII sem regiao BR/DPA declarado.`,
+    filePath,
+  );
 
   process.exit(0); // soft warning
 })().catch(() => process.exit(0));

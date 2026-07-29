@@ -31,7 +31,7 @@ Comunicar em **Português (Brasil)**. Tabela de tradução PT-BR canônica em `A
 ├── settings.json          ← permissões + hooks + outputStyle + statusLine (versionado)
 ├── settings.local.json    ← pessoal (NÃO versionar)
 ├── statusline.js          ← status line PT-BR (versão, modelo, branch, agente)
-├── agents/                ← 17 especialistas (+ MAPA-VISUAL.md + PERSONAS.md = 19 arquivos)
+├── agents/                ← 22 especialistas (+ MAPA-VISUAL.md + PERSONAS.md = 24 arquivos)
 ├── hooks/                 ← bloqueadores + auxiliares + lifecycle (PostToolUse, SubagentStop, PreCompact, SessionEnd)
 ├── output-styles/         ← pt-br-conciso, dpo-lgpd, fiscal-br
 ├── commands/              ← 28 slash commands (com `allowed-tools`)

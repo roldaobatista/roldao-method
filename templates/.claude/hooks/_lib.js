@@ -381,6 +381,41 @@ function gitSafeEnv(extra) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// emitSoftWarning — registra UM aviso (severidade soft) em
+// .claude/.runtime/warnings.jsonl, append-only. Lido pela skill `/avisos`.
+//
+// Auditoria 10x1 (B1, 2026-05-27): os 7 reminders LGPD/regra-zero
+// imprimiam só em stderr — sumiam ao fim da sessão e a skill `/avisos`
+// não tinha nada pra ler. Agora persistem.
+//
+// Uso típico (no fim do reminder, antes do `process.exit(0)`):
+//   emitSoftWarning('lgpd-base-legal-reminder', 'LGPD-007',
+//                   'Arquivo X menciona CPF sem ADR de base legal.',
+//                   'src/auth/cadastro.ts');
+//
+// Não bloqueia: nunca lança. Falha de escrita = silenciosa (best-effort).
+// ---------------------------------------------------------------------------
+function emitSoftWarning(hookId, regra, msgPtbr, arquivoRelacionado) {
+  if (process.env.ROLDAO_SKIP_METRICS === '1') return;
+  let projdir;
+  try { projdir = sanitizeProjdir(); } catch { return; }
+  const runtime = path.join(projdir, '.claude', '.runtime');
+  try { fs.mkdirSync(runtime, { recursive: true }); } catch { return; }
+
+  // Hash leve do projdir pra correlação cross-sessão sem expor o path completo.
+  const projetoHash = require('crypto').createHash('sha1').update(projdir).digest('hex').slice(0, 16);
+  const ts = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+
+  const clean = (s) => String(s || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/[\n\t]/g, ' ');
+
+  const line = `{"hook_id":"${clean(hookId)}","severidade":"soft-warning","ts":"${ts}","projeto_hash":"${projetoHash}","msg_ptbr":"${clean(msgPtbr)}","regra":"${clean(regra)}","arquivo_relacionado":"${clean(arquivoRelacionado)}"}\n`;
+  try { fs.appendFileSync(path.join(runtime, 'warnings.jsonl'), line); } catch { /* best-effort */ }
+}
+
 module.exports = {
   sanitizeProjdir,
   sanitizeSessionHash,
@@ -398,4 +433,5 @@ module.exports = {
   recordApproval,
   normalizeFilePath,
   gitSafeEnv,
+  emitSoftWarning,
 };

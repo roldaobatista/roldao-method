@@ -1,13 +1,14 @@
 ---
 tipo: story
-id: US-117
-versao: 1
+id: US-128
+id-anterior: US-117  # renumerada em 2026-05-27 — conflito com US-117 do PRD-004/EP-003 (auditoria 10x1)
+versao: 2
 status: draft
 prd: PRD-002        # modelo-sustentabilidade — relay reduz fricção do Roldão (cliente final)
 epico: EP-002       # v2.0 — auditoria 10/10 (relay é ferramenta de produtividade do dono)
 tamanho: G          # wrapper Node novo + integração com sinais + multiplataforma + testes
 owner: dev-senior
-revisado-em: 2026-05-25
+revisado-em: 2026-05-27
 depende-de: []
 premissas:
   - Nome do subcomando: "roldao-method session-relay" (subcomando do CLI existente, padrão npx).
@@ -20,7 +21,10 @@ premissas:
 aprovacoes: []
 ---
 
-# US-117 — session-relay: ciclo automático de sessão Claude
+# US-128 — session-relay: ciclo automático de sessão Claude
+
+> Renumerada de US-117 em 2026-05-27 (auditoria 10x1 — B6 conflito de ID).
+> Referências históricas no CHANGELOG v1.3.0 e checkpoint CHK-2026-05-25 mantêm "US-117" como audit trail.
 
 > Story gerada pelo /feature (Maestro modo FT) com Roldão como cliente final.
 >
@@ -40,30 +44,30 @@ aprovacoes: []
 
 > Cada AC é independentemente testável. Roldão (não-programador) consegue ler todos.
 
-- **AC-117-1** — Rodar `npx roldao-method session-relay` abre uma sessão Claude (`claude` ou `claude --continue` se já existir handoff anterior) e fica vigiando o tamanho do transcript em disco. **Verificável:** processo iniciado, transcript file detectado em <10s, log do wrapper mostra "vigiando sessão Claude (id=X), arquivo=Y, intervalo=30s".
+- **AC-128-1** — Rodar `npx roldao-method session-relay` abre uma sessão Claude (`claude` ou `claude --continue` se já existir handoff anterior) e fica vigiando o tamanho do transcript em disco. **Verificável:** processo iniciado, transcript file detectado em <10s, log do wrapper mostra "vigiando sessão Claude (id=X), arquivo=Y, intervalo=30s".
 
-- **AC-117-2** — Quando o tamanho do transcript passa do threshold (default 50%, configurável via `--threshold 60`), o wrapper dispara `/checkpoint` na sessão Claude ativa via stdin/pipe. **Verificável:** teste unitário simula transcript crescendo até passar do limite e confirma que o sinal de checkpoint foi enviado.
+- **AC-128-2** — Quando o tamanho do transcript passa do threshold (default 50%, configurável via `--threshold 60`), o wrapper dispara `/checkpoint` na sessão Claude ativa via stdin/pipe. **Verificável:** teste unitário simula transcript crescendo até passar do limite e confirma que o sinal de checkpoint foi enviado.
 
-- **AC-117-3** — Após o `/checkpoint`, o wrapper espera o Claude terminar de processar (detecta mtime de `.claude/.runtime/session-snapshot.md` atualizada, ou novo arquivo em `docs/checkpoints/`) e só então fecha a sessão atual graciosamente (SIGTERM, não kill -9). **Verificável:** integração — sinal de "checkpoint pronto" ocorre ANTES do encerramento da sessão.
+- **AC-128-3** — Após o `/checkpoint`, o wrapper espera o Claude terminar de processar (detecta mtime de `.claude/.runtime/session-snapshot.md` atualizada, ou novo arquivo em `docs/checkpoints/`) e só então fecha a sessão atual graciosamente (SIGTERM, não kill -9). **Verificável:** integração — sinal de "checkpoint pronto" ocorre ANTES do encerramento da sessão.
 
-- **AC-117-4** — Após fechar a sessão antiga, o wrapper abre `claude --continue` que dispara automaticamente `session-snapshot-restore.js` (hook SessionStart já existente no framework) e retoma o trabalho. Roldão vê no terminal: "salvei, abri sessão nova, continuando" (em PT-BR, sem jargão). **Verificável:** sessão nova iniciada, snapshot lido, contexto retomado.
+- **AC-128-4** — Após fechar a sessão antiga, o wrapper abre `claude --continue` que dispara automaticamente `session-snapshot-restore.js` (hook SessionStart já existente no framework) e retoma o trabalho. Roldão vê no terminal: "salvei, abri sessão nova, continuando" (em PT-BR, sem jargão). **Verificável:** sessão nova iniciada, snapshot lido, contexto retomado.
 
-- **AC-117-5** — Loop infinito até Ctrl+C. Cada ciclo é independente — se 1 ciclo falhar (Claude travou, marker não apareceu), wrapper registra erro PT-BR e continua tentando no próximo ciclo, nunca corrompe o Claude por baixo. **Verificável:** simular falha (marker não aparece em 5min) → wrapper avisa em PT-BR e segue, não derruba o Claude.
+- **AC-128-5** — Loop infinito até Ctrl+C. Cada ciclo é independente — se 1 ciclo falhar (Claude travou, marker não apareceu), wrapper registra erro PT-BR e continua tentando no próximo ciclo, nunca corrompe o Claude por baixo. **Verificável:** simular falha (marker não aparece em 5min) → wrapper avisa em PT-BR e segue, não derruba o Claude.
 
-- **AC-117-6** — Funciona em Windows (Git Bash + PowerShell), macOS e Linux. Nenhuma dependência runtime nova (mantém zero-deps do framework). **Verificável:** CI roda em ubuntu-latest e windows-latest; teste smoke verifica spawn do processo Claude em ambos.
+- **AC-128-6** — Funciona em Windows (Git Bash + PowerShell), macOS e Linux. Nenhuma dependência runtime nova (mantém zero-deps do framework). **Verificável:** CI roda em ubuntu-latest e windows-latest; teste smoke verifica spawn do processo Claude em ambos.
 
-- **AC-117-7** — Mensagens do wrapper são traduzidas pro perfil Roldão (sem "stdin", "SIGTERM", "transcript jsonl"). Tabela:
+- **AC-128-7** — Mensagens do wrapper são traduzidas pro perfil Roldão (sem "stdin", "SIGTERM", "transcript jsonl"). Tabela:
   - "salvando o que conversamos até agora" (em vez de "triggering /checkpoint")
   - "abri sessão nova, continuando de onde paramos" (em vez de "claude --continue spawned")
   - "vigiando a conversa (passa a metade da memória, eu salvo)" (em vez de "monitoring transcript size at 50% threshold")
   - "deu erro salvando — vou tentar de novo daqui a pouco" (em vez de "checkpoint failed, retrying")
   **Verificável:** snapshot test compara saída do wrapper contra strings esperadas.
 
-- **AC-117-8** — Wrapper é OPCIONAL. Quem prefere usar `claude` direto continua usando — nenhuma instalação do framework força o wrapper a rodar. **Verificável:** `npm test` passa sem nunca invocar o wrapper; `claude` direto continua funcionando idêntico ao antes da US-117.
+- **AC-128-8** — Wrapper é OPCIONAL. Quem prefere usar `claude` direto continua usando — nenhuma instalação do framework força o wrapper a rodar. **Verificável:** `npm test` passa sem nunca invocar o wrapper; `claude` direto continua funcionando idêntico ao antes da US-117.
 
-- **AC-117-9** — Flag `--dry-run` simula o ciclo sem realmente abrir o Claude (loga o que faria a cada passo). Pra Roldão testar antes de soltar o robô de verdade. **Verificável:** teste de comportamento — flag dry-run produz log esperado sem spawnar processo.
+- **AC-128-9** — Flag `--dry-run` simula o ciclo sem realmente abrir o Claude (loga o que faria a cada passo). Pra Roldão testar antes de soltar o robô de verdade. **Verificável:** teste de comportamento — flag dry-run produz log esperado sem spawnar processo.
 
-- **AC-117-10** — Documentação em `docs/PARA-DONO-DE-PRODUTO.md` (seção nova "robô vigia da conversa") explica em PT-BR claro: o que faz, quando ligar, quando desligar (Ctrl+C), o que aparece na tela.
+- **AC-128-10** — Documentação em `docs/PARA-DONO-DE-PRODUTO.md` (seção nova "robô vigia da conversa") explica em PT-BR claro: o que faz, quando ligar, quando desligar (Ctrl+C), o que aparece na tela.
 
 ---
 
@@ -79,6 +83,7 @@ O que esta story NÃO faz:
 - NÃO altera o comportamento do `claude` quando rodado direto. Wrapper é aditivo.
 - NÃO suporta múltiplas sessões Claude em paralelo no mesmo wrapper (1 wrapper = 1 sessão sequencial). Worktree paralelo = abrir outro wrapper.
 - NÃO é obrigatório no `/feature`, `/bug` ou qualquer workflow. É ferramenta opcional de produtividade.
+- NÃO altera o comportamento já entregue na v1.3.0 sob o ID anterior US-117 (esta renumeração é apenas de catalogação; arquivo de checkpoint e CHANGELOG ficam com referência histórica).
 
 ---
 
@@ -103,18 +108,18 @@ O que esta story NÃO faz:
 
 > Cada task vira 1 commit atômico citando o ID.
 
-- [ ] **T-117-1** — Criar `bin/session-relay.js` com CLI mínimo (parser de flags, help PT-BR).
-- [ ] **T-117-2** — Implementar detecção do transcript file ativo (procura em `~/.claude/projects/<hash-do-cwd>/<session>.jsonl` o mais recentemente modificado).
-- [ ] **T-117-3** — Implementar medição de threshold (tamanho em bytes; conversão pra estimativa de tokens — Rafael define a fórmula).
-- [ ] **T-117-4** — Implementar disparo de `/checkpoint` (estratégia Rafael decide: stdin pipe vs sinal vs arquivo de comando).
-- [ ] **T-117-5** — Implementar detecção de fim-de-checkpoint via mtime de `.claude/.runtime/session-snapshot.md` (atualizada pelo hook SessionEnd) ou novo arquivo em `docs/checkpoints/`.
-- [ ] **T-117-6** — Implementar encerramento gracioso da sessão antiga (SIGTERM com timeout) e spawn da nova com `--continue`.
-- [ ] **T-117-7** — Implementar loop infinito + handler de Ctrl+C (limpa processo filho).
-- [ ] **T-117-8** — Traduzir todas as mensagens pro perfil Roldão (snapshot test).
-- [ ] **T-117-9** — Implementar `--dry-run`.
-- [ ] **T-117-10** — Adicionar entry no `package.json` (campo `bin` ou subcomando do CLI atual — Rafael decide).
-- [ ] **T-117-11** — Smoke test cross-platform (CI ubuntu + windows).
-- [ ] **T-117-12** — Documentar em `docs/PARA-DONO-DE-PRODUTO.md`.
+- [ ] **T-128-1** — Criar `bin/session-relay.js` com CLI mínimo (parser de flags, help PT-BR).
+- [ ] **T-128-2** — Implementar detecção do transcript file ativo (procura em `~/.claude/projects/<hash-do-cwd>/<session>.jsonl` o mais recentemente modificado).
+- [ ] **T-128-3** — Implementar medição de threshold (tamanho em bytes; conversão pra estimativa de tokens — Rafael define a fórmula).
+- [ ] **T-128-4** — Implementar disparo de `/checkpoint` (estratégia Rafael decide: stdin pipe vs sinal vs arquivo de comando).
+- [ ] **T-128-5** — Implementar detecção de fim-de-checkpoint via mtime de `.claude/.runtime/session-snapshot.md` (atualizada pelo hook SessionEnd) ou novo arquivo em `docs/checkpoints/`.
+- [ ] **T-128-6** — Implementar encerramento gracioso da sessão antiga (SIGTERM com timeout) e spawn da nova com `--continue`.
+- [ ] **T-128-7** — Implementar loop infinito + handler de Ctrl+C (limpa processo filho).
+- [ ] **T-128-8** — Traduzir todas as mensagens pro perfil Roldão (snapshot test).
+- [ ] **T-128-9** — Implementar `--dry-run`.
+- [ ] **T-128-10** — Adicionar entry no `package.json` (campo `bin` ou subcomando do CLI atual — Rafael decide).
+- [ ] **T-128-11** — Smoke test cross-platform (CI ubuntu + windows).
+- [ ] **T-128-12** — Documentar em `docs/PARA-DONO-DE-PRODUTO.md`.
 
 ---
 
@@ -157,7 +162,8 @@ O que esta story NÃO faz:
 
 | Data | Quem | Mudança |
 |---|---|---|
-| 2026-05-25 | Sofia (gerente-produto) | criação — Modo STORY rodado pelo Maestro FT |
+| 2026-05-25 | Sofia (gerente-produto) | criação — Modo STORY rodado pelo Maestro FT (ID original US-117) |
+| 2026-05-27 | Auditoria 10x1 (B6) | renumerada US-117 → US-128 por conflito com PRD-004/EP-003 que já reservava US-117..US-127 |
 
 ---
 

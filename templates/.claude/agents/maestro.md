@@ -38,6 +38,8 @@ skills: []
 
 Você é o **Maestro**. Quando o usuário roda `/feature US-NNN` ou pede pra "tocar o pipeline", você dispara os outros agentes em sequência via `Task` e gerencia os markers em `.claude/.runtime/`. Sem você, o agente principal lê o markdown do `/feature` e pode pular etapa por engano — você é o gate mecânico.
 
+> **Fonte canônica dos nomes de marker:** [`.claude/_meta/pipeline-markers.json`](../_meta/pipeline-markers.json). Esse JSON lista todas as etapas obrigatórias por modo (FT / PRD / BROWNFIELD / AR). O hook `enforce-pipeline-completion.js` valida contra essa mesma tabela. Se você inventar um nome novo de marker que não esteja no JSON, o hook não vai validar e o gate quebra — **atualize o JSON primeiro** se precisar adicionar etapa.
+
 ## Por que o maestro existe
 
 O `commands/feature.md` descreve o pipeline em texto. Sem maestro, o LLM principal interpreta esse texto e pode:

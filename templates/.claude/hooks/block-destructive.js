@@ -84,7 +84,9 @@ const PATTERNS = [
 
   // Whitelist de rm -rf safe: aceita 1 OU MAIS alvos, todos na whitelist.
   // Ex: `rm -rf node_modules dist coverage` — libera porque todos sao regeneraveis.
-  const rmMatch = cmd.match(/^\s*rm\s+-[a-zA-Z]*[rf][a-zA-Z]*\s+(.+?)\s*$/);
+  // Auditoria 10x1 (U4, 2026-05-27): aceita tambem rm precedido de `&&`/`;`/`||`
+  // pra cobrir caso comum `cd foo && rm -rf node_modules`.
+  const rmMatch = cmd.match(/(?:^|;|&&|\|\|)\s*rm\s+-[a-zA-Z]*[rf][a-zA-Z]*\s+(.+?)\s*$/);
   if (rmMatch) {
     const rawTargets = rmMatch[1].trim();
     // Bloqueia presenca de tokens perigosos GLOBAIS no comando (variavel, drives Windows)
@@ -120,7 +122,8 @@ const PATTERNS = [
     process.stderr.write(`- Pipeline travado em etapa errada: rode o agente da etapa pendente.\n`);
     process.stderr.write(`- Auditor reprovou: corrija o achado e re-rode o auditor.\n`);
     process.stderr.write(`- Sessao corrompida: 'session-cleanup' (lifecycle) limpa no proximo SessionEnd.\n`);
-    process.stderr.write(`\nAplica regras: SEC-002, INV-AGENT-005.\n`);
+    process.stderr.write(`\nEm linguagem clara: bloqueamos pra evitar perder marcador de auditoria — voce nao consegue mais provar que aquela etapa foi feita.\n`);
+    process.stderr.write(`Regras: SEC-002 (nao executar destrutivo sem confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n`);
     recordMetric('block', 'block-destructive', 'tentativa de rm em marker .claude/.runtime');
     process.exit(2);
   }
@@ -131,7 +134,8 @@ const PATTERNS = [
       process.stderr.write(`[block-destructive] BLOQUEADO: comando irreversível detectado.\n\n`);
       process.stderr.write(`Comando: ${rawCmd}\n`);
       process.stderr.write(`O que detectamos: ${desc}\n\n`);
-      process.stderr.write(`Por que bloqueia (SEC-002, INV-AGENT-005): operação destrutiva exige confirmação explícita do dono do projeto.\n\n`);
+      process.stderr.write(`Em linguagem clara: comando apaga coisa sem volta — precisa ouvir do dono do projeto que e isso mesmo que ele quer.\n`);
+      process.stderr.write(`Regras: SEC-002 (destrutivo exige confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n\n`);
       process.stderr.write(`Como destravar (se for intencional):\n`);
       process.stderr.write(`- Confirme com o usuário o que vai acontecer (em PT-BR claro, sem jargão).\n`);
       process.stderr.write(`- Só depois execute o comando, ou peça pro usuário rodar manualmente.\n`);

@@ -10,7 +10,7 @@ status: stable
 
 ## Versão atual: v1.3.0 (mai/2026)
 
-Marco "session-relay" — robô vigia externo da memória do Claude (US-117, ADR-022). Versões anteriores entregues:
+Marco "session-relay" — robô vigia externo da memória do Claude (US-128, antes US-117, ADR-022). Versões anteriores entregues:
 
 - **v1.3.0** (atual) — session-relay (wrapper externo de ciclo de sessão Claude).
 - **v1.2.x** — fix path skills.test, ajuste tarball 2→3 MB, sincronização de manifest, /sincronizar-plugin tolera destino ausente em CI.

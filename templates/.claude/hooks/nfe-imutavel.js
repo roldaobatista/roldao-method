@@ -26,7 +26,7 @@ const SQL_TABELAS = [
   'sat_?cfe_?emitidos?',
 ];
 const SQL_UPDATE_DELETE_RE = new RegExp(
-  '\\b(UPDATE|DELETE\\s+FROM)\\s+(' + SQL_TABELAS.join('|') + ')\\b',
+  '\\b(UPDATE|DELETE\\s+FROM|TRUNCATE(?:\\s+TABLE)?|DROP\\s+TABLE)\\s+(' + SQL_TABELAS.join('|') + ')\\b',
   'i',
 );
 
@@ -55,7 +55,7 @@ function bloqueia(motivo, contexto) {
     if (!cmd) process.exit(0);
     if (EXCEPTION_RE.test(cmd)) process.exit(0);
     if (SQL_UPDATE_DELETE_RE.test(cmd)) {
-      bloqueia('UPDATE/DELETE em tabela de documento fiscal emitido', cmd.slice(0, 200));
+      bloqueia('UPDATE/DELETE/TRUNCATE/DROP em tabela de documento fiscal emitido', cmd.slice(0, 200));
     }
     process.exit(0);
   }

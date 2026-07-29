@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // require-sefaz-env.js — barra codigo que emite NF-e sem ler SEFAZ_AMBIENTE de env.
 // Hook PreToolUse, matcher: Write|Edit. FISCAL-003.
+// FISCAL-004: nao-aplica (este hook valida codigo de emissao alheio; o hook em si nao emite).
+// FISCAL-006: nao-aplica (validador, nao toca calculo tributario).
 
 function readStdinJson() {
   return new Promise((resolve) => {
@@ -16,10 +18,15 @@ function readStdinJson() {
   });
 }
 
+// FISCAL-004: nao-aplica — este arquivo SO escaneia codigo, nao chama webservice SEFAZ.
+// As constantes abaixo sao regex que detectam padroes de codigo alheio.
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php)$/;
-const NFE_PATH_RE = /nfe|NFe|nf-e|nfse|NFSe|sefaz|SEFAZ|fiscal|emit/;
-const EMIT_RE = /autoriza|enviarLote|sefaz|tpAmb|ambiente.*sefaz|emit.*nfe/i;
-const ENV_RE = /env.*SEFAZ_AMBIENTE|env\.SEFAZ|process\.env\.SEFAZ|os\.environ.*SEFAZ|getenv.*SEFAZ|config.*sefaz|ENV\['SEFAZ/i;
+// Auditoria 10x1 (R4, 2026-05-27): expandido pra eSocial e REINF —
+// FISCAL-003 exige ambiente de homologacao em TODA integracao fiscal,
+// nao so NF-e. eSocial usa tpAmb em S-1000; REINF usa tpAmb em R-1000.
+const NFE_PATH_RE = /nfe|NFe|nf-e|nfse|NFSe|sefaz|SEFAZ|fiscal|emit|esocial|eSocial|reinf|REINF|sped|SPED/;
+const EMIT_RE = /autoriza|enviarLote|sefaz|tpAmb|ambiente.*sefaz|emit.*nfe|esocial.*envio|reinf.*envio/i;
+const ENV_RE = /env.*(SEFAZ_AMBIENTE|ESOCIAL_AMBIENTE|REINF_AMBIENTE)|env\.(SEFAZ|ESOCIAL|REINF)|process\.env\.(SEFAZ|ESOCIAL|REINF)|os\.environ.*(SEFAZ|ESOCIAL|REINF)|getenv.*(SEFAZ|ESOCIAL|REINF)|config.*(sefaz|esocial|reinf)|ENV\['(SEFAZ|ESOCIAL|REINF)/i;
 const EXCEPTION_RE = /NFE-003-exception|FISCAL-003-exception/;
 
 (async () => {

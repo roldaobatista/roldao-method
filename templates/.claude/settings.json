@@ -219,15 +219,15 @@
       "Bash(gh release view*)",
       "Bash(gh release list*)",
       "Bash(gh auth status*)",
-      "Bash(gh api*)",
+      "Bash(gh api -X GET*)",
+      "Bash(gh api /repos/*)",
+      "Bash(gh api repos/*)",
       "Bash(gh workflow list*)",
       "Bash(gh workflow view*)",
 
-      "Bash(curl -s *)",
       "Bash(curl -I *)",
       "Bash(curl -X GET*)",
       "Bash(curl --head *)",
-      "Bash(curl --silent *)",
       "Bash(wget --spider*)",
 
       "Bash(jq *)",
@@ -285,7 +285,17 @@
       "Bash(terraform apply*)",
       "Bash(prisma migrate*)",
       "Bash(alembic upgrade*)",
-      "Bash(alembic downgrade*)"
+      "Bash(alembic downgrade*)",
+      "Bash(curl -s *)",
+      "Bash(curl --silent *)",
+      "Bash(curl -L *)",
+      "Bash(curl -o *)",
+      "Bash(curl -O *)",
+      "Bash(gh api -X DELETE*)",
+      "Bash(gh api -X POST*)",
+      "Bash(gh api -X PUT*)",
+      "Bash(gh api -X PATCH*)",
+      "Bash(gh api*)"
     ],
     "deny": [
       "Bash(rm -rf*)",

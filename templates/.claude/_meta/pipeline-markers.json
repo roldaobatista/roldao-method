@@ -1,0 +1,62 @@
+{
+  "_doc": "Markers do pipeline Maestro — fonte declarativa cross-side (hook enforce-pipeline-completion.js + agentes/maestro.md). Criado na auditoria 10x1 (R6, 2026-05-27) para reduzir acoplamento oculto entre regex no hook e prosa no maestro.md. Se uma etapa for renomeada, mudar AQUI primeiro e os 2 lados continuam alinhados.",
+  "_versao": 1,
+  "_revisado_em": "2026-05-27",
+  "modos": {
+    "feature-active": {
+      "descricao": "Modo FT — pipeline /feature (Sofia -> Detetive -> Rafael -> Bruno -> Ines -> 3 auditores -> checkpoint)",
+      "marker_ativacao": "feature-active",
+      "marker_final": "checkpoint-done",
+      "etapas_obrigatorias_em_ordem": [
+        "sofia-done",
+        "detetive-done",
+        "tech-lead-done",
+        "dev-done",
+        "revisor-done",
+        "auditor-seg-pass",
+        "auditor-qual-pass",
+        "auditor-prod-pass",
+        "checkpoint-done"
+      ],
+      "etapas_opcionais": ["ux-done", "ux-skipped"]
+    },
+    "prd-active": {
+      "descricao": "Modo PRD — pipeline /prd (Analista -> Sofia PRD -> Rafael -> Lia opcional -> Sofia DECOMP)",
+      "marker_ativacao": "prd-active",
+      "marker_final": "decomp-done",
+      "etapas_obrigatorias_em_ordem": [
+        "analista-done",
+        "pm-prd-done",
+        "tech-lead-done",
+        "decomp-done"
+      ],
+      "etapas_opcionais": ["ux-done", "ux-skipped"]
+    },
+    "brownfield-active": {
+      "descricao": "Modo BROWNFIELD — pipeline /brownfield (Detetive inventario -> Rafael ADRs -> Sofia AGENTS.md -> Caio scan)",
+      "marker_ativacao": "brownfield-active",
+      "marker_final": "audit-seg-done",
+      "etapas_obrigatorias_em_ordem": [
+        "inventario-done",
+        "tech-lead-done",
+        "pm-onboarding-done",
+        "audit-seg-done"
+      ]
+    },
+    "ar-active": {
+      "descricao": "Modo AR — pipeline /auditoria-reversa (Detetive -> 3 auditores em paralelo)",
+      "marker_ativacao": "ar-active",
+      "marker_final": "auditor-prod-pass",
+      "etapas_obrigatorias_em_ordem": [
+        "inventario-done",
+        "auditor-seg-pass",
+        "auditor-qual-pass",
+        "auditor-prod-pass"
+      ]
+    }
+  },
+  "_uso": {
+    "hook": "enforce-pipeline-completion.js le markers atomicamente do disco (.claude/.runtime/<marker>-<session-hash>). Mudancas de nomenclatura DEVEM atualizar este JSON + maestro.md no mesmo commit.",
+    "maestro": "agents/maestro.md escreve markers ao concluir etapa. Estrutura de nomes vem deste JSON — nao inventar marker novo sem registrar aqui."
+  }
+}

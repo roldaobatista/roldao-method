@@ -33,6 +33,12 @@ A chave de acesso identifica unicamente um documento fiscal eletronico no Brasil
 
 > **Observacao FISCAL-005:** a chave de acesso continua **100% numerica** mesmo apos o CNPJ alfanumerico entrar em vigor (2026-07). Posicoes 7-20 vao continuar aceitando so digitos — o CNPJ alfanumerico **nao** entra na chave de acesso (decisao da SEFAZ/RFB).
 
+> **FISCAL-009 — CT-e e MDF-e em primeira classe.** Esta skill valida modelos 55 (NF-e), 65 (NFC-e), **57 (CT-e)**, **58 (MDF-e)**, 59 (SAT/CF-e) e 67 (CT-e OS) com o mesmo algoritmo de DV mod-11 — eles NAO sao caso especial da NF-e. Atencao em operacoes de transporte:
+> - **CT-e (mod. 57):** transportadora/operador logistico emite CT-e por carga. Skill valida estrutura idêntica à NF-e.
+> - **MDF-e (mod. 58):** **obrigatorio** quando carga cruza fronteira de UF com >1 NF-e no veiculo (ou >1 CT-e). Modela como cidadao de primeira classe — nao como wrapper da NF-e.
+> - **CT-e OS (mod. 67):** Outros Servicos de transporte (turismo, malote, etc.). Mesmo algoritmo.
+> - **Cancelamento e correcao** seguem prazos especificos por modelo — confira no Manual de cada um (CT-e: ate 168h; MDF-e: ate 24h).
+
 ## Quando usar
 
 - Conciliacao fiscal: bateu o XML recebido com o pedido?

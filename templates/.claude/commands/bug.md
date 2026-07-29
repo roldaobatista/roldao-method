@@ -7,6 +7,8 @@ allowed-tools: Read, Glob, Grep, Bash(touch:*), Bash(mkdir:*), Bash(grep:*), Bas
 
 # /bug — corrigir bug
 
+> **Pra quem nao programa:** voce digita `/bug "boleto saiu errado"` e o framework primeiro INVESTIGA o estado real (banco, log, payload) antes de mexer em qualquer linha. **O que voce ganha:** evita os "fix sintoma" — eu nao mexo no template/visual achando que e ali, sem antes ler o que esta salvo. Voce recebe: (1) causa raiz em PT-BR, (2) confirmacao do que vou mudar, (3) so depois a correcao. Custo: ~30 segundos a mais; beneficio: nao precisa pedir 3 vezes pra eu acertar.
+
 **REGRA #0 ATIVA:** você NÃO escreve uma linha de código antes de o investigador reportar a causa raiz.
 
 Use `$ARGUMENTS` como descrição do bug reportado.

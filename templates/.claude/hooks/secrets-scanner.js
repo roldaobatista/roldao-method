@@ -8,7 +8,7 @@
 // (b) sempre escaneia o conteudo contra a lista canonica de patterns
 //     (incluindo em arquivos de exemplo — segredo real ali ainda bloqueia).
 
-const { readStdinJson, secretTokenRegexes, recordMetric, normalizeFilePath } = require('./_lib.js');
+const { readStdinJson, secretTokenRegexes, recordMetric, normalizeFilePath, failClosedMessage } = require('./_lib.js');
 
 // Sufixos que liberam APENAS a checagem de path (conteudo continua escaneado).
 const ALLOWED_SUFFIXES_RE = /\.(example|sample|template|tpl|dist)$/;
@@ -49,13 +49,22 @@ const PWD_BARE_RE = new RegExp(
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   let content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
 
-  // Fail-closed parcial: se JSON parse falhou mas ha texto cru, escaneia
-  // ele mesmo (segredo num Write com JSON quebrado nao pode passar).
-  // No Node equivalente: se readStdinJson devolveu {} mas o JSON nao foi
-  // vazio, content fica '' aqui — paridade com .sh exige reler stdin cru,
-  // mas como ja consumimos, fallback e exit 0 (igual ao .sh quando TMPF
-  // fica vazio E INPUT vazio).
-  if (!content && !filePath) process.exit(0);
+  // Auditoria 10x1 (R1, 2026-05-27): trocado fail-OPEN por fail-CLOSED.
+  // Antes: JSON parse falhou + sem content + sem filePath -> exit 0 (passa).
+  // Isso vazava em SEC-001: stdin malformado + Write contendo secret no
+  // payload corrompido era aceito porque o scanner não conseguia extrair
+  // os campos. Agora bloqueia e pede pro usuário tentar de novo.
+  // tool_name OK + sem dados = abortar por segurança.
+  const toolName = input?.tool_name || '';
+  if (!content && !filePath) {
+    if (toolName === 'Write' || toolName === 'Edit') {
+      process.stderr.write(failClosedMessage('secrets-scanner',
+        new Error('payload Write/Edit chegou sem file_path nem content — possivel JSON malformado')));
+      recordMetric('block', 'secrets-scanner', 'fail-closed: payload incompleto em Write/Edit');
+      process.exit(2);
+    }
+    process.exit(0);
+  }
 
   // Checagem 1: path proibido (pula se for arquivo de exemplo)
   const skipPathCheck = !filePath || ALLOWED_SUFFIXES_RE.test(filePath);
@@ -64,7 +73,7 @@ const PWD_BARE_RE = new RegExp(
       if (re.test(filePath)) {
         process.stderr.write(`[secrets-scanner] BLOQUEADO: tentativa de escrever arquivo sensível.\n\n`);
         process.stderr.write(`Arquivo: ${filePath}\n`);
-        process.stderr.write(`Padrão: ${re.source}\n\n`);
+        process.stderr.write(`Em linguagem clara: nome do arquivo bate com padrao de arquivo que costuma guardar segredo (senha, chave, token).\n\n`);
         process.stderr.write(`Regra: SEC-001 — nunca versionar segredos.\n`);
         process.stderr.write(`Use variável de ambiente ou cofre (vault). Se for arquivo de EXEMPLO, use sufixo .example (ex: .env.example).\n`);
         recordMetric('block', 'secrets-scanner', `filename: ${re.source}`);
