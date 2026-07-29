@@ -7,7 +7,7 @@
 // ou retorna CPF/email/telefone — lembrar que LGPD-004 exige trilha imutavel
 // para dado pessoal sensivel (saude, financeiro). Soft warning — exit 0.
 
-const { readStdinJson, normalizeFilePath } = require('./_lib.js');
+const { readStdinJson, normalizeFilePath, emitSoftWarning } = require('./_lib.js');
 
 const TRIGGER_PATHS_RE =
   /(handlers?|controllers?|services?|repositorios?|repositories|usecases?|domain)\//i;
@@ -48,6 +48,12 @@ const TRILHA_RE =
       `Se este caminho de leitura ja eh logado em camada de cima (middleware,\n` +
       `interceptor, decorator), ignore este lembrete.\n` +
       `Soft warning — nao bloqueia.\n`,
+  );
+  emitSoftWarning(
+    'lgpd-trilha-auditoria-reminder',
+    'LGPD-004',
+    `Handler/repository ${filePath} acessa dado pessoal sem trilha de auditoria visivel.`,
+    filePath,
   );
   process.exit(0);
 })().catch(() => process.exit(0));

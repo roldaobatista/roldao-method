@@ -8,7 +8,7 @@
 // efetiva (crypto-shredding ou DELETE). Soft warning — NUNCA bloqueia.
 // O autor decide se a observacao se aplica.
 
-const { readStdinJson, normalizeFilePath } = require('./_lib.js');
+const { readStdinJson, normalizeFilePath, emitSoftWarning } = require('./_lib.js');
 
 const TRIGGER_PATHS_RE = /migrations?\/|schemas?\/|models?\/|prisma\/|alembic\//i;
 const CODE_EXT_RE = /\.(sql|prisma|py|rb|js|jsx|ts|tsx|go|java|kt|cs|php|rs)$/i;
@@ -73,6 +73,12 @@ const ESQUECIMENTO_RE =
       `  - Anonimizacao irreversivel (substituir por valor sintetico).\n\n` +
       `Se o caminho ja existe em outro arquivo, ignore este lembrete.\n` +
       `Soft warning — nao bloqueia. Plugar caminho de exclusao na proxima feature dessa entidade.\n`,
+  );
+  emitSoftWarning(
+    'lgpd-esquecimento-reminder',
+    'LGPD-002',
+    `Coluna/campo de dado pessoal criada em ${filePath} sem caminho de exclusao visivel (DELETE/crypto-shredding/anonimizacao).`,
+    filePath,
   );
   process.exit(0);
 })().catch(() => process.exit(0));

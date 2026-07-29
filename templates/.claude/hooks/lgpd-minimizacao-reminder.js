@@ -6,7 +6,7 @@
 // Hook PreToolUse, matcher: Write|Edit.
 // Auditoria 2026-05-25 (regra #31): LGPD-003 (minimizacao) era so doutrinaria.
 
-const { readStdinJson, normalizeFilePath } = require('./_lib.js');
+const { readStdinJson, normalizeFilePath, emitSoftWarning } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|\/test\/|\/tests\/|\.test\.|\.spec\.|\/fixtures\/|\/mocks\/|\.json$|\.ya?ml$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 // Migration / schema / model
@@ -51,6 +51,13 @@ const JUSTIFICATIVA_RE = /LGPD-003:|minimizacao|base[-_]legal:|finalidade:|colet
   process.stderr.write(`  (b) Frontmatter da story: base-legal: <consentimento|contrato|obrigacao legal>\n`);
   process.stderr.write(`  (c) Skill: rode \`checklist-lgpd\` antes de criar a coluna\n\n`);
   process.stderr.write(`Regra: LGPD-003 (REGRAS-INEGOCIAVEIS.md).\n`);
+
+  emitSoftWarning(
+    'lgpd-minimizacao-reminder',
+    'LGPD-003',
+    `Migration/schema ${filePath} adiciona coluna "${piiMatch[0]}" sem justificativa (LGPD-003 minimizacao).`,
+    filePath,
+  );
 
   process.exit(0); // soft warning
 })().catch(() => process.exit(0));

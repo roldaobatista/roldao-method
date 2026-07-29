@@ -1815,7 +1815,7 @@ function menu() {
 }
 
 // ----------------------------------------------------------------------------
-// session-relay (US-117 / ADR-022) — robo externo que orquestra ciclo de sessao
+// session-relay (US-128 / ADR-022) — robo externo que orquestra ciclo de sessao
 // Claude: vigia tamanho do transcript .jsonl, dispara /checkpoint antes do
 // limite, fecha a sessao, abre nova com --continue. Loop ate Ctrl+C.
 // Toda logica em bin/lib/session-relay.js. Aqui so o wiring CLI.

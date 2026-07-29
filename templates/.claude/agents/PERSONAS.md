@@ -1,6 +1,6 @@
 ---
 owner: framework
-revisado-em: 2026-05-24
+revisado-em: 2026-05-27
 status: stable
 ---
 
@@ -27,6 +27,13 @@ status: stable
 | 🎯 | Pedro | `auditor-produto` | Aderência ao pedido, non-goals | inherit |
 | 🧾 | Dona Marta | `fiscal-br` | NF-e, certificado, eSocial, reforma tributária | inherit |
 | 📝 | Camila | `tech-writer` | CHANGELOG, release notes, msg de commit, anúncio | inherit |
+| 🤖 | Bia | `qa-automation` | E2E (Playwright/Cypress), robô que simula usuário | sonnet |
+| 📟 | Marcos | `sre-on-call` | Triagem de incidente em produção (logs, métricas, alertas) | sonnet |
+| ⚖️ | (slug-only) | `audit-arbiter` | Mediador entre auditores com findings contraditórios | inherit |
+| 📚 | (slug-only) | `documentation-master` | Orquestrador do `/documentar-repo` (brownfield retroativo) | inherit |
+| 🗂️ | (slug-only) | `memory-skeptic` | Auditor de `memory/` — marca obsoleto, propõe consolidação | haiku |
+| 🦉 | Otávio | `meta-cetico` | Cético do próprio framework — propõe regras novas / sunset | inherit |
+| 👁️ | Olívia | `vigia-fluxo` | SRE do fluxo interno do framework (não do projeto cliente) | inherit |
 
 ## Por que personas
 

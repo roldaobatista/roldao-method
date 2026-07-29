@@ -11,7 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, normalizeFilePath } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, normalizeFilePath, emitSoftWarning } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|\/test\/|\/tests\/|\.test\.|\.spec\.|\/fixtures\/|\/mocks\/|\.json$|\.ya?ml$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart|sql|prisma)$/;
@@ -85,6 +85,13 @@ function findDpoEvidence(projdir) {
   process.stderr.write(`  (b) Adicione DPO_EMAIL=<email> em .env.example\n`);
   process.stderr.write(`  (c) addon lgpd-compliance tem skill \`gerar-canal-dpo\` que monta modelo\n\n`);
   process.stderr.write(`Regra: LGPD-009 (REGRAS-INEGOCIAVEIS.md).\n`);
+
+  emitSoftWarning(
+    'lgpd-dpo-canal-reminder',
+    'LGPD-009',
+    `Projeto manuseia PII (detectado em ${filePath}) sem canal do titular / DPO declarado em docs/lgpd/, .env.example ou ADR.`,
+    filePath,
+  );
 
   process.exit(0); // soft warning
 })().catch(() => process.exit(0));

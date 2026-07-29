@@ -84,24 +84,23 @@ Cursor não tem `PreToolUse`. Os hooks rodam apenas no Claude Code. Em Cursor, a
 
 ### Hooks não rodam no Windows (silencioso)
 **Sintoma:** o framework parece instalado, mas hooks nunca bloqueiam nada.
-**Causa principal:** os 26 hooks bloqueadores são scripts `bash` que usam `perl -MJSON::PP` pra parsear o JSON de input do Claude Code. PowerShell e CMD não têm bash nem perl no PATH.
+**Causa principal:** desde a v1.0 (EP-001 / ADR-012) os 44 hooks são **Node puro** (zero deps runtime). Se Node não estiver no PATH, hook não executa. Em projetos antigos (anteriores a v1.0) os hooks eram bash+perl — esses ainda funcionam mas estão deprecados.
 **Fix obrigatório:**
-1. Instale o **Git for Windows** (https://git-scm.com/download/win) — ele vem com Git Bash, bash e perl.
-2. Abra o **Git Bash** (não PowerShell, não CMD).
-3. Rode o Claude Code (ou Cursor com terminal) a partir do Git Bash.
-4. Confira: `which bash && which perl && bash --version`. Tudo precisa existir.
-5. Se usa Cursor/Windsurf: configure o terminal padrão pra Git Bash em Settings → Terminal → Default Profile.
+1. Confirme Node ≥18 no PATH: `node --version`. Se faltar, instale em https://nodejs.org.
+2. Rode `npx roldao-method doctor` — ele reporta "Hooks vão rodar?" verificando Node.
+3. Se rodar Claude Code via terminal embutido (Cursor/Windsurf), confirme que o terminal padrão tem Node disponível.
+4. Projeto antigo com hooks bash+perl? Rode `npx roldao-method update` pra portar pros hooks Node (sem perda).
 
 **Diagnóstico rápido:**
 ```bash
 npx roldao-method doctor
 ```
-A partir da v0.5.0 o `doctor` reporta "Hooks vão rodar?" com base em bash+perl detectados.
+O `doctor` reporta "Hooks vão rodar?" com base em Node detectado.
 
 ### Hook quebra no Windows com erro de comando
-**Sintoma:** `bash: command not found` ou erro de perl/grep.
-**Causa:** PATH do Git Bash não está completo.
-**Fix:** abra o Git Bash (vem com Git for Windows) e rode o Claude Code a partir dele. Ou ajuste `claude` pra usar o `bash.exe` do Git.
+**Sintoma:** `node: command not found` ou erro de require.
+**Causa:** Node não está no PATH do terminal usado pelo Claude Code.
+**Fix:** instale Node ≥18 e abra o terminal a partir de um shell com Node no PATH (PowerShell + nvm-windows ou Git Bash + Node Windows installer). PowerShell puro funciona desde que `node` esteja resolvendo.
 
 ### `paths-frontmatter-validator` bloqueia arquivo de doc legítimo
 **Causa:** arquivo `.md` em `docs/` sem frontmatter (`owner`, `revisado-em`, `status`).

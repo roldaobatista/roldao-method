@@ -7,6 +7,8 @@ allowed-tools: Read, Glob, Grep, Bash(touch:*), Bash(mkdir:*), Task
 
 # /feature — funcionalidade nova
 
+> **Pra quem nao programa:** voce digita `/feature US-042` (ou uma descricao) e o framework toca a feature inteira sozinho. **O que voce ganha:** a US passa por 7 etapas automaticas (PM clarifica → Detetive le o codigo → Tech-lead desenha → Dev implementa → Revisor confere → 3 auditores em paralelo → checkpoint final). Em vez de eu (Claude) interpretar e pular passo, o Maestro garante que cada etapa rode na ordem certa, com marcador em disco. Resultado: feature entregue com audit trail rastreavel, sem etapa silenciosamente pulada.
+
 Use `$ARGUMENTS` como `US-NNN` (preferido) ou descricao inicial da feature.
 
 ## Delegue ao Maestro

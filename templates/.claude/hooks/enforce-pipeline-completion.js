@@ -10,6 +10,10 @@
 // - brownfield-active → exige audit-seg-done
 // - ar-active → exige 3 auditores pass
 // - feature-active (original) → exige checkpoint-done
+//
+// Fonte declarativa dos nomes de marker por modo: .claude/_meta/pipeline-markers.json
+// (auditoria 10x1 R6, 2026-05-27). Mudancas nos nomes DEVEM atualizar o JSON +
+// .claude/agents/maestro.md no mesmo commit pra evitar drift silencioso.
 
 const fs = require('fs');
 const path = require('path');
@@ -77,8 +81,28 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.
   // Modo FT (original): exige checkpoint-done
   if (fs.existsSync(m('checkpoint-done'))) process.exit(0);
 
-  // Pipeline nao comecou (sem Sofia nem Detetive) — sessao abortada cedo
-  if (!fs.existsSync(m('sofia-done')) && !fs.existsSync(m('detetive-done'))) {
+  // Auditoria 10x1 (B2, 2026-05-27): se feature-active existe, exigir AO MENOS
+  // sofia-done. Antes: se nem sofia-done nem detetive-done existiam, o hook saia
+  // 0 — bastava o Claude pular Sofia/Detetive pra burlar todo o gate. Agora um
+  // /feature iniciado precisa fechar OU ser abortado conscientemente via Maestro.
+  if (modoFT && !fs.existsSync(m('sofia-done'))) {
+    const reason = `[enforce-pipeline-completion] Pipeline /feature foi marcado como ativo (feature-active-${sess}) mas Sofia (gerente-produto) nao rodou.
+
+Isso normalmente significa que o pipeline foi iniciado sem passar pela etapa inicial obrigatoria. Possiveis correcoes:
+
+  (a) Delegue ao maestro Modo FT pra rodar o pipeline completo agora:
+      Task subagent_type=maestro prompt="Modo FT: retomar pipeline ativo, comecar por Sofia."
+
+  (b) Aborto consciente:
+      Task subagent_type=maestro prompt="Modo FT: abortar feature ativa, motivo: <motivo>."
+
+Encerrar sem isso violaria INV-002 (spec gera codigo, sem PM nao ha spec valida).`;
+    process.stdout.write(JSON.stringify({ decision: 'block', reason }));
+    process.exit(0);
+  }
+
+  // Pipeline FT nao ativo + sem etapas anteriores -> nao ha o que validar
+  if (!modoFT && !fs.existsSync(m('sofia-done')) && !fs.existsSync(m('detetive-done'))) {
     process.exit(0);
   }
 

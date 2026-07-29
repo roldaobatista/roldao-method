@@ -186,6 +186,81 @@ try {
   fail++; console.log(`  FAIL gerar-br-code crashou: ${err.message}`);
 }
 
+// CNH (11 dígitos, mod 11 com dsc — algoritmo Detran).
+// CNH válida calculada manualmente: base "123456789" + DV "00".
+const cnh = path.join(S, 'validar-cnh', 'scripts', 'validar.py');
+run('CNH valida (12345678900)', cnh, '12345678900', true);
+run('CNH tamanho invalido (10 digitos)', cnh, '1234567890', false);
+run('CNH sequencia repetida', cnh, '11111111111', false);
+run('CNH DV errado', cnh, '12345678901', false);
+
+// RENAVAM (11 dígitos, mod 11). Base "1234567890" → DV "0".
+const renavam = path.join(S, 'validar-renavam', 'scripts', 'validar.py');
+run('RENAVAM valido (12345678900)', renavam, '12345678900', true);
+run('RENAVAM sequencia repetida', renavam, '00000000000', false);
+run('RENAVAM tamanho invalido (8 digitos)', renavam, '12345678', false);
+run('RENAVAM DV errado', renavam, '12345678901', false);
+
+// Titulo eleitor (12 digitos, mod 11, UF 01-28).
+// Base seq="12345678", uf="01" (SP) → dv1=9, dv2=1 → "123456780191".
+const titulo = path.join(S, 'validar-titulo-eleitor', 'scripts', 'validar.py');
+run('Titulo eleitor valido SP (123456780191)', titulo, '123456780191', true);
+run('Titulo eleitor UF invalida (29)', titulo, '123456782991', false);
+run('Titulo eleitor tamanho invalido (9 digitos)', titulo, '123456789', false);
+run('Titulo eleitor DV errado', titulo, '123456780100', false);
+
+// Conta bancaria — formato + DV quando o banco tem algoritmo conhecido.
+// BB (001) com mod11_98_to_2: base "1234567" → DV "9".
+const conta = path.join(S, 'validar-conta-bancaria', 'scripts', 'validar.py');
+function runConta(label, banco, ag, c, expectOk) {
+  let ok = true;
+  try { execFileSync(PY, [conta, banco, ag, c], { stdio: 'pipe' }); } catch { ok = false; }
+  if (ok === expectOk) { pass++; console.log(`  OK   ${label}`); }
+  else { fail++; console.log(`  FAIL ${label} (esperado ${expectOk ? 'valido' : 'invalido'})`); }
+}
+runConta('Conta BB DV correto (mod11_98_to_2)', '001', '1234', '12345679', true);
+runConta('Conta BB DV errado', '001', '1234', '12345670', false);
+runConta('Conta Nubank sem DV (so formato)', '260', '0001', '12345678', true);
+runConta('Conta Nubank conta curta demais', '260', '0001', '12', false);
+runConta('Conta banco desconhecido (so formato)', '999', '1234', '12345678', true);
+
+// mascarar-dado-pessoal — funcoes que NAO mudam na Onda 6 (cpf, cnpj, rg, ie,
+// cnh, renavam, titulo, cartao, uuid, pix-cpf). Email/telefone ficam pra Onda 6
+// junto com a correcao do vazamento.
+const mascarar = path.join(S, 'mascarar-dado-pessoal', 'scripts', 'mascarar.py');
+function runMascarar(label, tipo, valor, esperado) {
+  let out;
+  try {
+    out = execFileSync(PY, [mascarar, tipo, valor], { encoding: 'utf8' }).trim();
+  } catch (err) {
+    fail++; console.log(`  FAIL ${label} (crashou: ${err.message})`); return;
+  }
+  if (out === esperado) { pass++; console.log(`  OK   ${label}`); }
+  else { fail++; console.log(`  FAIL ${label} (esperado "${esperado}", recebido "${out}")`); }
+}
+runMascarar('mascarar CPF preserva so DV', 'cpf', '123.456.789-09', '***.***.***-09');
+runMascarar('mascarar CPF invalido vira asterisco', 'cpf', '123', '***.***.***-**');
+runMascarar('mascarar CNPJ preserva ordem+DV', 'cnpj', '11.222.333/0001-81', '**.***.***/0001-81');
+runMascarar('mascarar CNPJ alfanumerico FISCAL-005', 'cnpj', '12ABC34501DE35', '**.***.***/01DE-35');
+runMascarar('mascarar RG preserva ultimos 2', 'rg', '12.345.678-9', '**.***.***8-9');
+runMascarar('mascarar IE preserva ultimos 3', 'ie', '110042490114', '*********114');
+runMascarar('mascarar CNH preserva 2 ultimos', 'cnh', '12345678900', '*********00');
+runMascarar('mascarar RENAVAM preserva 2 ultimos', 'renavam', '12345678900', '*********00');
+runMascarar('mascarar titulo eleitor preserva 2 ultimos', 'titulo', '123456780191', '**** **** **91');
+runMascarar('mascarar cartao preserva 4 ultimos', 'cartao', '5555555555554444', '**** **** **** 4444');
+runMascarar('mascarar UUID preserva inicio+fim', 'uuid', '123e4567-e89b-42d3-a456-426614174000', '123e4567-****-****-****-****14174000');
+runMascarar('mascarar pix-CPF 11 digitos sem mascara', 'pix', '12345678909', '***.***.***-09');
+// Onda 6 — mascaramento de email e telefone mais agressivo (B3).
+runMascarar('mascarar email mascara dominio tambem (B3)', 'email', 'joao.silva@exemplo.com', 'j**@e**.com');
+runMascarar('mascarar email com .com.br (B3)', 'email', 'fulano@empresa.com.br', 'f**@e**.br');
+runMascarar('mascarar email sem ponto no dominio (fallback)', 'email', 'teste@localhost', 't**@***');
+runMascarar('mascarar telefone E.164 preserva so 4 ultimos (B3)', 'telefone', '+5511987654321', '+*********4321');
+runMascarar('mascarar telefone sem prefixo preserva so 4 ultimos', 'telefone', '11987654321', '*******4321');
+// Bug Onda 6 — pix com CPF/CNPJ com pontuacao (len > 13) cai na rama de telefone
+// por causa da heuristica "s[0].isdigit() and len(s) > 13". Idem UUID que comeca
+// com digito. Esses casos vao ser cobertos quando a Onda 6 reescrever a heuristica
+// (contar so digitos, ou validar formato antes de classificar).
+
 // Regressão cruzada: cada PIS gerado por gerar-test-fixture-br DEVE passar
 // no validador-pis-pasep oficial — desalinhamento de algoritmo entre gerador
 // e validador deixa fixture com PIS que viola TST-004 silenciosamente.

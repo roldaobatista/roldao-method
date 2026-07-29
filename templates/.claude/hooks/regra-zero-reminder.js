@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir, emitSoftWarning } = require('./_lib.js');
 
 // Gatilhos: termos fortes de bug (bug, erro, problema, travou, quebrou, "nao funciona")
 // disparam por si só. Gatilhos fracos (deveria, esperava, estranho) precisam de
@@ -57,5 +57,13 @@ Aplica regras: INV-006, INV-AGENT-002.
   }
 
   process.stdout.write(REMINDER);
+
+  emitSoftWarning(
+    'regra-zero-reminder',
+    'INV-006',
+    `Prompt do usuario parece descrever bug — lembrete REGRA #0 injetado. Detetive deve rodar antes de Edit/Write em codigo de negocio.`,
+    '',
+  );
+
   process.exit(0);
 })().catch(() => process.exit(0));

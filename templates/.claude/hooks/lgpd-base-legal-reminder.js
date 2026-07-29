@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, normalizeFilePath } = require('./_lib.js');
+const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, normalizeFilePath, emitSoftWarning } = require('./_lib.js');
 
 const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|ROADMAP|test\/|tests\/|spec\/|specs\/|\.test\.|\.spec\.|\.json$|\.ya?ml$|\.toml$|\.ini$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart|sql|prisma)$/;
@@ -97,6 +97,13 @@ function fileMentionsLgpd(dir) {
   process.stderr.write(`Skill ajuda: \`checklist-lgpd\` tem arvore de decisao das 10 bases legais.\n\n`);
   process.stderr.write(`Regras: LGPD-001 (toda coleta exige base legal), LGPD-007 (citar art. 7 ou 11).\n`);
   process.stderr.write(`Este e aviso doutrinario — auditor-seguranca cobra na auditoria final.\n`);
+
+  emitSoftWarning(
+    'lgpd-base-legal-reminder',
+    'LGPD-007',
+    `Arquivo ${filePath} menciona "${piiMatch[0]}" — possivel dado pessoal sem base legal documentada.`,
+    filePath
+  );
 
   process.exit(0); // soft warning: sai 0 sempre
 })().catch(() => {

@@ -1,10 +1,10 @@
 ---
 owner: framework
-revisado-em: 2026-05-24
+revisado-em: 2026-05-27
 status: stable
 ---
 
-# Mapa visual dos 17 agentes
+# Mapa visual dos 22 agentes
 
 Quem chamar pra cada tipo de tarefa. **Você não invoca os agentes diretamente** — os workflows (`/feature`, `/bug`, etc.) cuidam disso. Este mapa é referência rápida.
 
@@ -49,6 +49,13 @@ DOMÍNIO BR
 
 COMUNICAÇÃO
 └─ Camila (tech-writer)          → CHANGELOG, release notes, msg de commit, anúncio
+
+AUTO-AUDITORIA / MEMÓRIA / FLUXO (novos na v2 / v3)
+├─ Otávio (meta-cetico)          → cético do próprio framework — propõe regras novas e sunset de regras dormentes
+├─ Olívia (vigia-fluxo)          → SRE do fluxo interno (agente parado, sequência pulada, audit_sha em loop)
+├─ (audit-arbiter)               → mediador quando 2 auditores se contradizem no mesmo arquivo
+├─ (documentation-master)        → orquestra `/documentar-repo` em projeto brownfield (23 fases, 4 stages anti-sobrescrita)
+└─ (memory-skeptic)              → marca memórias obsoletas em `memory/`, propõe consolidação (nunca deleta)
 ```
 
 ## Por workflow
@@ -83,7 +90,7 @@ COMUNICAÇÃO
 | `/agentes` | (sem agente — índice) |
 | `/o-que-aconteceu` | (sem agente — git log + diff) |
 
-## Identidade dos 17
+## Identidade dos 22
 
 | Ícone | Nome | Papel | Modelo |
 |---|---|---|---|
@@ -96,13 +103,18 @@ COMUNICAÇÃO
 | 💻 | Bruno | Dev Sênior | inherit |
 | 🗄️ | Helena | DBA / Dados | sonnet |
 | 🚀 | Lucas | DevOps / Infra | sonnet |
-| 🧪 | Bia | QA Automation | sonnet |
-| 🚨 | Marcos | SRE On-Call | sonnet |
+| 🤖 | Bia | QA Automation (E2E) | sonnet |
+| 📟 | Marcos | SRE On-Call (produção do cliente) | sonnet |
 | ✅ | Inês | Revisor | inherit |
 | 🛡️ | Caio | Auditor Segurança | inherit |
 | 🧪 | Júlia | Auditor Qualidade | inherit |
 | 🎯 | Pedro | Auditor Produto | inherit |
 | 🧾 | Dona Marta | Fiscal BR | inherit |
 | 📝 | Camila | Tech Writer | sonnet |
+| 🦉 | Otávio | Meta-Cético (auto-auditoria do framework) | inherit |
+| 👁️ | Olívia | Vigia do Fluxo Interno | inherit |
+| ⚖️ | (slug-only) | audit-arbiter (mediador entre auditores) | inherit |
+| 📚 | (slug-only) | documentation-master (orquestra `/documentar-repo`) | inherit |
+| 🗂️ | (slug-only) | memory-skeptic (auditor de `memory/`) | haiku |
 
 > Para detalhes de cada agente: leia `.claude/agents/<nome>.md`.
