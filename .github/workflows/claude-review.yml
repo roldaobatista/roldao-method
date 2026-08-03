@@ -40,7 +40,7 @@ jobs:
       - name: Rodar Claude
         # Auditoria 10x1 (R2, 2026-05-27): pinado por SHA pra mitigar supply-chain.
         # Atualizar SHA quando subir versao da action (rodar `gh api repos/anthropics/claude-code-action/tags`).
-        uses: anthropics/claude-code-action@787c5a0ce96a9a6cfb050ea0c8f4c05f2447c251 # v1.0.133
+        uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |
