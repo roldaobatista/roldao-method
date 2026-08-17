@@ -24,21 +24,26 @@ const ROOT = path.resolve(__dirname, '..');
 const T = path.join(ROOT, 'templates');
 
 const adapters = [
-  { name: 'cursor',     file: '.cursor/rules/roldao-method.mdc' },
-  { name: 'windsurf',   file: '.windsurf/rules/roldao-method.md' },
-  { name: 'continue',   file: '.continue/config.yaml' },
-  { name: 'cline',      file: '.clinerules' },
-  { name: 'roo',        file: '.roorules' },
-  { name: 'aider',      file: '.aider.conf.yml' },
+  { name: 'cursor', file: '.cursor/rules/roldao-method.mdc' },
+  { name: 'windsurf', file: '.windsurf/rules/roldao-method.md' },
+  { name: 'continue', file: '.continue/config.yaml' },
+  { name: 'cline', file: '.clinerules' },
+  { name: 'roo', file: '.roorules' },
+  { name: 'aider', file: '.aider.conf.yml' },
   { name: 'gemini-cli', file: 'GEMINI.md' },
-  { name: 'codex-cli',  file: '.codex/instructions.md' },
+  { name: 'codex-cli', file: '.codex/instructions.md' },
 ];
 
 let pass = 0;
 let fail = 0;
 function check(desc, cond, extra) {
-  if (cond) { pass++; console.log(`  OK   ${desc}`); }
-  else { fail++; console.log(`  FAIL ${desc}${extra ? ` — ${extra}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${desc}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${desc}${extra ? ` — ${extra}` : ''}`);
+  }
 }
 
 console.log(`\nValidando conteúdo dos ${adapters.length} adapters...\n`);
@@ -61,11 +66,15 @@ for (const a of adapters) {
   check(`${a.name}: cita REGRA #0 / investigar antes`, regra0);
 
   // 2. Sequencia obrigatoria — pelo menos um dos nomes da pipeline
-  const sequencia = /sofia|detetive|rafael|sequ[êe]ncia\s+(obrigat[óo]ria|de\s+agentes)|gerente-produto.*investigador/i.test(text);
+  const sequencia =
+    /sofia|detetive|rafael|sequ[êe]ncia\s+(obrigat[óo]ria|de\s+agentes)|gerente-produto.*investigador/i.test(
+      text,
+    );
   check(`${a.name}: cita sequência obrigatória (Sofia/Detetive/Rafael/sequencia)`, sequencia);
 
   // 3. Anti-mascaramento — diferencial do framework
-  const antiMascaramento = /mascaramento|@ts-ignore|\.skip\(|assertTrue\(true|\|\| true|skip\(|eslint-disable/i.test(text);
+  const antiMascaramento =
+    /mascaramento|@ts-ignore|\.skip\(|assertTrue\(true|\|\| true|skip\(|eslint-disable/i.test(text);
   check(`${a.name}: cita anti-mascaramento / padroes proibidos`, antiMascaramento);
 
   // 4. PT-BR — sem jargao tecnico cru
@@ -89,10 +98,17 @@ for (const a of adapters) {
   if (a.name === 'cursor' || a.name === 'windsurf') {
     // MDC tem frontmatter (windsurf usa .md normal, cursor usa .mdc com frontmatter
     // de glob — ambos esperam .md valido)
-    check(`${a.name}: arquivo nao vazio apos frontmatter`, text.replace(/^---[\s\S]*?---/, '').trim().length > 200);
+    check(
+      `${a.name}: arquivo nao vazio apos frontmatter`,
+      text.replace(/^---[\s\S]*?---/, '').trim().length > 200,
+    );
   }
 }
 
 console.log('');
-if (fail === 0) { console.log(`Total OK (${pass} checagens).`); process.exit(0); }
-console.log(`${fail} falha(s) em ${pass + fail} checagens.`); process.exit(1);
+if (fail === 0) {
+  console.log(`Total OK (${pass} checagens).`);
+  process.exit(0);
+}
+console.log(`${fail} falha(s) em ${pass + fail} checagens.`);
+process.exit(1);

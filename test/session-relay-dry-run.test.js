@@ -17,8 +17,15 @@ function t(name, fn) {
   try {
     const r = fn();
     if (r && typeof r.then === 'function') {
-      return r.then(() => { console.log(`  OK  ${name}`); pass++; })
-              .catch((e) => { console.error(`  FAIL  ${name}\n        ${e.message}`); fail++; });
+      return r
+        .then(() => {
+          console.log(`  OK  ${name}`);
+          pass++;
+        })
+        .catch((e) => {
+          console.error(`  FAIL  ${name}\n        ${e.message}`);
+          fail++;
+        });
     }
     console.log(`  OK  ${name}`);
     pass++;
@@ -66,7 +73,10 @@ function t(name, fn) {
     assert.strictEqual(result.iterations, 1);
     const joined = messages.join('\n');
     assert.ok(joined.includes('abri o Claude'), 'devia abrir');
-    assert.ok(joined.includes('vigiando a conversa') || joined.includes('AVISO'), 'devia vigiar ou avisar');
+    assert.ok(
+      joined.includes('vigiando a conversa') || joined.includes('AVISO'),
+      'devia vigiar ou avisar',
+    );
     fs.rmSync(tmpHome, { recursive: true, force: true });
     fs.rmSync(tmpProj, { recursive: true, force: true });
   });
@@ -99,8 +109,10 @@ function t(name, fn) {
     assert.strictEqual(result.iterations, 1);
     const joined = messages.join('\n');
     // Mensagem chave (AC-117-7): "passou da metade da memoria"
-    assert.ok(joined.includes('passou da metade') || joined.includes('vou pedir'),
-      'devia avisar Roldao em PT-BR sobre o checkpoint:\n' + joined);
+    assert.ok(
+      joined.includes('passou da metade') || joined.includes('vou pedir'),
+      'devia avisar Roldao em PT-BR sobre o checkpoint:\n' + joined,
+    );
     fs.rmSync(tmpHome, { recursive: true, force: true });
     fs.rmSync(tmpProj, { recursive: true, force: true });
   });

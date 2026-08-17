@@ -13,8 +13,14 @@ const E2E_DIR_RE = /\/(e2e|e2e-tests|end-to-end|playwright|cypress|cypress\/inte
 const UNSAFE_PATH_RE = /\.\.|^\/|^[A-Za-z]:\//;
 
 const UNIT_TEST_EXTS = new Set([
-  '.test.js', '.test.ts', '.test.jsx', '.test.tsx',
-  '.spec.js', '.spec.ts', '.spec.jsx', '.spec.tsx',
+  '.test.js',
+  '.test.ts',
+  '.test.jsx',
+  '.test.tsx',
+  '.spec.js',
+  '.spec.ts',
+  '.spec.jsx',
+  '.spec.tsx',
 ]);
 
 function hasUnitTestExt(file) {
@@ -30,8 +36,11 @@ function isE2EFile(file) {
 
 function walkDir(dir, onFile) {
   let entries;
-  try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
-  catch { return; }
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
   for (const e of entries) {
     const full = path.join(dir, e.name);
     if (e.isDirectory()) {
@@ -58,7 +67,11 @@ function walkDir(dir, onFile) {
   if (UNSAFE_PATH_RE.test(moduleDir)) process.exit(0);
 
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(2); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(2);
+  }
 
   const absModule = path.join(projdir, moduleDir);
 
@@ -76,25 +89,41 @@ function walkDir(dir, onFile) {
     const allowMarker = path.join(projdir, '.claude', '.runtime', 'allow-e2e-first');
     if (fs.existsSync(allowMarker)) process.exit(0);
 
-    process.stderr.write(`[validate-test-pyramid] BLOQUEADO: criacao de teste E2E sem unit tests no modulo.\n\n`);
+    process.stderr.write(
+      `[validate-test-pyramid] BLOQUEADO: criacao de teste E2E sem unit tests no modulo.\n\n`,
+    );
     process.stderr.write(`Arquivo: ${filePath}\n`);
     process.stderr.write(`Modulo: ${moduleDir}\n`);
     process.stderr.write(`Unit tests no modulo: ${unitCount}\n`);
     process.stderr.write(`E2E tests no modulo: ${e2eCount} (sendo criado mais um)\n\n`);
-    process.stderr.write(`Regra: TST-001 + TST-002. E2E e lento, fragil, caro de manter. Sem unit cobrindo\n`);
-    process.stderr.write(`casos de borda da logica, E2E vira teste de fumaca caro que nao da feedback util.\n\n`);
+    process.stderr.write(
+      `Regra: TST-001 + TST-002. E2E e lento, fragil, caro de manter. Sem unit cobrindo\n`,
+    );
+    process.stderr.write(
+      `casos de borda da logica, E2E vira teste de fumaca caro que nao da feedback util.\n\n`,
+    );
     process.stderr.write(`Piramide saudavel:\n`);
     process.stderr.write(`  - Muitos unit tests (rapidos, isolados)\n`);
     process.stderr.write(`  - Alguns integration tests\n`);
     process.stderr.write(`  - Poucos E2E (smoke tests do happy path)\n\n`);
     process.stderr.write(`Acao recomendada:\n`);
-    process.stderr.write(`  1. Antes de adicionar E2E, escreva unit tests cobrindo logica de borda do modulo.\n`);
-    process.stderr.write(`  2. Se ja tem unit suficiente mas hooks nao detectou, configure pasta esperada\n`);
+    process.stderr.write(
+      `  1. Antes de adicionar E2E, escreva unit tests cobrindo logica de borda do modulo.\n`,
+    );
+    process.stderr.write(
+      `  2. Se ja tem unit suficiente mas hooks nao detectou, configure pasta esperada\n`,
+    );
     process.stderr.write(`     (este hook procura *.test.ts, *.spec.ts, test_*.py, etc).\n\n`);
-    process.stderr.write(`Excecao: se este E2E e o primeiro teste do projeto greenfield, autorize a abertura.\n`);
-    process.stderr.write(`[INSTRUCAO PRO AGENTE CLAUDE — voce, usuario nao-programador, NAO precisa executar\n`);
+    process.stderr.write(
+      `Excecao: se este E2E e o primeiro teste do projeto greenfield, autorize a abertura.\n`,
+    );
+    process.stderr.write(
+      `[INSTRUCAO PRO AGENTE CLAUDE — voce, usuario nao-programador, NAO precisa executar\n`,
+    );
     process.stderr.write(` isso manualmente; o agente sabe quando aplicar:]\n`);
-    process.stderr.write(`  mkdir -p ${projdir}/.claude/.runtime && touch ${projdir}/.claude/.runtime/allow-e2e-first\n`);
+    process.stderr.write(
+      `  mkdir -p ${projdir}/.claude/.runtime && touch ${projdir}/.claude/.runtime/allow-e2e-first\n`,
+    );
     recordMetric('block', 'validate-test-pyramid', `unit=${unitCount} e2e=${e2eCount}`);
     process.exit(2);
   }

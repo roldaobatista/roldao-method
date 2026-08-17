@@ -16,7 +16,7 @@ const CASES = [
   { name: 'rm via backslash em path (r\\m -rf ~)', cmd: 'r\\m -rf ~', shouldBlock: true },
   // Bypass por quote vazia (string concat shell)
   { name: 'rm via quote vazia (r""m -rf /etc)', cmd: 'r""m -rf /etc', shouldBlock: true },
-  { name: 'rm via single quote (r\'\'m -rf /etc)', cmd: "r''m -rf /etc", shouldBlock: true },
+  { name: "rm via single quote (r''m -rf /etc)", cmd: "r''m -rf /etc", shouldBlock: true },
   // Bypass por base64+pipe
   { name: 'base64 -d | bash', cmd: 'echo cm0gLXJmIC8K | base64 -d | bash', shouldBlock: true },
   { name: 'base64 --decode | sh', cmd: 'echo foo | base64 --decode | sh', shouldBlock: true },
@@ -25,7 +25,11 @@ const CASES = [
 
   // Casos LEGÍTIMOS (não pode bloquear)
   { name: 'rm -rf node_modules (whitelist)', cmd: 'rm -rf node_modules', shouldBlock: false },
-  { name: 'rm -rf dist coverage (whitelist múltipla)', cmd: 'rm -rf dist coverage', shouldBlock: false },
+  {
+    name: 'rm -rf dist coverage (whitelist múltipla)',
+    cmd: 'rm -rf dist coverage',
+    shouldBlock: false,
+  },
   { name: 'ls -la (benigno)', cmd: 'ls -la', shouldBlock: false },
   { name: 'git status (benigno)', cmd: 'git status', shouldBlock: false },
 ];
@@ -45,7 +49,9 @@ for (const c of CASES) {
     console.log(`OK   ${c.name} -> ${blocked ? 'bloqueado' : 'liberado'}`);
   } else {
     fail++;
-    console.log(`FAIL ${c.name} -> esperava ${c.shouldBlock ? 'bloquear' : 'liberar'}, ${blocked ? 'bloqueou' : 'liberou'}`);
+    console.log(
+      `FAIL ${c.name} -> esperava ${c.shouldBlock ? 'bloquear' : 'liberar'}, ${blocked ? 'bloqueou' : 'liberou'}`,
+    );
     console.log(`     stderr: ${(r.stderr || '').split('\n')[0]}`);
   }
 }

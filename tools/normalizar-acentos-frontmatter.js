@@ -74,7 +74,10 @@ function processarArquivo(filepath, dryRun) {
   // Acha 2o ---
   let fim = -1;
   for (let i = 1; i < Math.min(linhas.length, 60); i++) {
-    if (linhas[i].trim() === '---') { fim = i; break; }
+    if (linhas[i].trim() === '---') {
+      fim = i;
+      break;
+    }
   }
   if (fim === -1) return { mudancas: 0, novoConteudo: null };
 

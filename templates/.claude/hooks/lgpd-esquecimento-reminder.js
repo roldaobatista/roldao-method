@@ -46,8 +46,7 @@ const ESQUECIMENTO_RE =
   if (!CODE_EXT_RE.test(filePath)) process.exit(0);
   if (!TRIGGER_PATHS_RE.test(filePath)) process.exit(0);
 
-  const content =
-    input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
+  const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
   if (!content) process.exit(0);
 
   // Acha colunas de dado pessoal sendo CRIADAS (CREATE TABLE, ADD COLUMN, ou

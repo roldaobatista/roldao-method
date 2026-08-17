@@ -120,10 +120,7 @@
       "Bash(dd if=:*)",
       "Bash(dd of=:*)"
     ],
-    "ask": [
-      "Bash(git reset --hard:*)",
-      "Bash(git push --force-with-lease:*)"
-    ]
+    "ask": ["Bash(git reset --hard:*)", "Bash(git push --force-with-lease:*)"]
   },
   "hooks": {
     "SessionStart": [
@@ -136,9 +133,7 @@
     ],
     "UserPromptSubmit": [
       {
-        "hooks": [
-          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/inject-context.sh\"" }
-        ]
+        "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/inject-context.sh\"" }]
       }
     ],
     "PreToolUse": [
@@ -175,9 +170,7 @@
     "PostToolUse": [
       {
         "matcher": "Bash",
-        "hooks": [
-          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/override-consume.sh\"" }
-        ]
+        "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/override-consume.sh\"" }]
       }
     ]
   },
@@ -185,9 +178,5 @@
     "PROJECT_NAME": "<NomeDoProjeto>",
     "PROJECT_OWNER_NAME": "<dono-do-projeto>"
   },
-  "additionalDirectories": [
-    "docs",
-    ".agent",
-    ".claude"
-  ]
+  "additionalDirectories": ["docs", ".agent", ".claude"]
 }

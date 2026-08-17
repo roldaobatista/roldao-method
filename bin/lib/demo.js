@@ -22,12 +22,24 @@ function makeIO({ colors, glyphs }) {
       console.log('');
       console.log(`${c.bold}${c.cyan}[${n}/${total}]${c.reset} ${c.bold}${label}${c.reset}`);
     },
-    step(msg) { console.log(`  ${c.dim}${g.arrow}${c.reset} ${msg}`); },
-    blocked(msg) { console.log(`  ${c.green}${g.ok} BLOQUEADO${c.reset} ${msg}`); },
-    invalid(msg) { console.log(`  ${c.red}${g.err} INVÁLIDO${c.reset} ${msg}`); },
-    valid(msg) { console.log(`  ${c.green}${g.ok} VÁLIDO${c.reset} ${msg}`); },
-    info(msg) { console.log(`  ${c.dim}${msg}${c.reset}`); },
-    success(msg) { console.log(`${c.green}${g.ok}${c.reset} ${msg}`); },
+    step(msg) {
+      console.log(`  ${c.dim}${g.arrow}${c.reset} ${msg}`);
+    },
+    blocked(msg) {
+      console.log(`  ${c.green}${g.ok} BLOQUEADO${c.reset} ${msg}`);
+    },
+    invalid(msg) {
+      console.log(`  ${c.red}${g.err} INVÁLIDO${c.reset} ${msg}`);
+    },
+    valid(msg) {
+      console.log(`  ${c.green}${g.ok} VÁLIDO${c.reset} ${msg}`);
+    },
+    info(msg) {
+      console.log(`  ${c.dim}${msg}${c.reset}`);
+    },
+    success(msg) {
+      console.log(`${c.green}${g.ok}${c.reset} ${msg}`);
+    },
   };
 }
 
@@ -36,7 +48,8 @@ function makeIO({ colors, glyphs }) {
 function validarCPF(cpf) {
   const digits = String(cpf).replace(/\D/g, '');
   if (digits.length !== 11) return { ok: false, motivo: 'precisa de 11 dígitos' };
-  if (/^(\d)\1{10}$/.test(digits)) return { ok: false, motivo: 'todos os dígitos iguais (padrão inválido)' };
+  if (/^(\d)\1{10}$/.test(digits))
+    return { ok: false, motivo: 'todos os dígitos iguais (padrão inválido)' };
   const calcDV = (slice, mult) => {
     let soma = 0;
     for (let i = 0; i < slice.length; i++) soma += parseInt(slice[i], 10) * (mult - i);
@@ -90,7 +103,9 @@ async function demo({ colors, glyphs, root, fast = false }) {
 
   console.log('');
   console.log(`${c.bold}${c.cyan}ROLDAO-METHOD ${c.reset}${c.bold}— demo de 30 segundos${c.reset}`);
-  console.log(`${c.dim}Roda 3 verificações que o framework faz automaticamente nos seus projetos.${c.reset}`);
+  console.log(
+    `${c.dim}Roda 3 verificações que o framework faz automaticamente nos seus projetos.${c.reset}`,
+  );
   console.log(`${c.dim}Não modifica nada. Não precisa de Claude Code instalado.${c.reset}`);
 
   const total = 3;
@@ -160,8 +175,12 @@ async function demo({ colors, glyphs, root, fast = false }) {
   }
   console.log('');
   console.log(`${c.bold}Próximo passo:${c.reset}`);
-  console.log(`  ${c.cyan}npx roldao-method install${c.reset}      ${c.dim}instala no seu projeto${c.reset}`);
-  console.log(`  ${c.cyan}npx roldao-method tutorial${c.reset}     ${c.dim}guiado em 5 minutos (após instalar)${c.reset}`);
+  console.log(
+    `  ${c.cyan}npx roldao-method install${c.reset}      ${c.dim}instala no seu projeto${c.reset}`,
+  );
+  console.log(
+    `  ${c.cyan}npx roldao-method tutorial${c.reset}     ${c.dim}guiado em 5 minutos (após instalar)${c.reset}`,
+  );
   console.log('');
 
   return pass === total ? 0 : 1;

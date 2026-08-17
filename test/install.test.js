@@ -23,7 +23,10 @@ process.chdir(TMP);
 let failures = 0;
 function check(desc, cond) {
   if (cond) console.log(`  OK   ${desc}`);
-  else { console.log(`  FAIL ${desc}`); failures++; }
+  else {
+    console.log(`  FAIL ${desc}`);
+    failures++;
+  }
 }
 
 console.log(`\nTestando em: ${TMP}\n`);
@@ -190,7 +193,10 @@ try {
   const marker = 'CAMPO CUSTOMIZADO DO PROJETO — nao remover';
   fs.writeFileSync(ovFile, `# PRD override\n\n${marker}\n`);
   execSync(`node "${BIN}" update --yes`, { stdio: 'pipe' });
-  check('override sobrevive ao update', fs.existsSync(ovFile) && fs.readFileSync(ovFile, 'utf8').includes(marker));
+  check(
+    'override sobrevive ao update',
+    fs.existsSync(ovFile) && fs.readFileSync(ovFile, 'utf8').includes(marker),
+  );
   check('update NAO cria .bak no override', !fs.existsSync(ovFile + '.bak'));
 } catch (e) {
   check('override preservado no update', false);
@@ -206,7 +212,9 @@ try {
       try {
         execSync(`node "${hookPath}"`, { input, stdio: 'pipe' });
         return 0;
-      } catch (e) { return e.status ?? 1; }
+      } catch (e) {
+        return e.status ?? 1;
+      }
     };
     check(
       'E2E: hook .js instalado bloqueia rm -rf real (exit 2)',
@@ -237,8 +245,14 @@ try {
 // 6) Add addon (electron-br como exemplo, sempre presente)
 try {
   execSync(`node "${BIN}" add electron-br --yes`, { stdio: 'pipe' });
-  check('add electron-br copiou agente', fs.existsSync(path.join(TMP, '.claude/agents/electron-arch.md')));
-  check('add electron-br copiou hook', fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.js')));
+  check(
+    'add electron-br copiou agente',
+    fs.existsSync(path.join(TMP, '.claude/agents/electron-arch.md')),
+  );
+  check(
+    'add electron-br copiou hook',
+    fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.js')),
+  );
 } catch (e) {
   check('add electron-br executou', false);
 }
@@ -258,10 +272,22 @@ try {
 // 6c) remove tira só o addon, preserva o core
 try {
   execSync(`node "${BIN}" remove electron-br --yes`, { stdio: 'pipe' });
-  check('remove tirou agente do addon', !fs.existsSync(path.join(TMP, '.claude/agents/electron-arch.md')));
-  check('remove tirou hook do addon', !fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.sh')));
-  check('remove preservou core (dev-senior)', fs.existsSync(path.join(TMP, '.claude/agents/dev-senior.md')));
-  check('remove preservou core (block-destructive)', fs.existsSync(path.join(TMP, '.claude/hooks/block-destructive.js')));
+  check(
+    'remove tirou agente do addon',
+    !fs.existsSync(path.join(TMP, '.claude/agents/electron-arch.md')),
+  );
+  check(
+    'remove tirou hook do addon',
+    !fs.existsSync(path.join(TMP, '.claude/hooks/block-ipc-without-validation.sh')),
+  );
+  check(
+    'remove preservou core (dev-senior)',
+    fs.existsSync(path.join(TMP, '.claude/agents/dev-senior.md')),
+  );
+  check(
+    'remove preservou core (block-destructive)',
+    fs.existsSync(path.join(TMP, '.claude/hooks/block-destructive.js')),
+  );
 } catch (e) {
   check('remove executou', false);
 }
@@ -283,14 +309,20 @@ if (fs.existsSync(storiesDir)) {
   for (const f of fs.readdirSync(storiesDir)) fs.unlinkSync(path.join(storiesDir, f));
 }
 try {
-  const out = execSync(`node "${BIN}" tasks-to-issues --yes --dry-run`, { stdio: 'pipe' }).toString();
-  check('tasks-to-issues sem stories retorna mensagem amigavel',
-    /nenhuma task|0 ja exportada|0 no projeto/i.test(out));
+  const out = execSync(`node "${BIN}" tasks-to-issues --yes --dry-run`, {
+    stdio: 'pipe',
+  }).toString();
+  check(
+    'tasks-to-issues sem stories retorna mensagem amigavel',
+    /nenhuma task|0 ja exportada|0 no projeto/i.test(out),
+  );
 } catch (e) {
   // Cair aqui tambem e aceitavel se mensagem cita docs/stories ou gh
   const out = ((e.stdout || '') + (e.stderr || '')).toString();
-  check('tasks-to-issues sem stories falha com mensagem clara',
-    /docs\/stories|GitHub CLI \(gh\)|nenhuma task/.test(out));
+  check(
+    'tasks-to-issues sem stories falha com mensagem clara',
+    /docs\/stories|GitHub CLI \(gh\)|nenhuma task/.test(out),
+  );
 }
 
 // 7) Uninstall
@@ -300,7 +332,10 @@ try {
   check('uninstall removeu .claude/agents', !fs.existsSync(path.join(TMP, '.claude/agents')));
   check('uninstall preservou AGENTS.md', fs.existsSync(path.join(TMP, 'AGENTS.md')));
   check('uninstall preservou CLAUDE.md', fs.existsSync(path.join(TMP, 'CLAUDE.md')));
-  check('uninstall preservou REGRAS-INEGOCIAVEIS.md', fs.existsSync(path.join(TMP, 'REGRAS-INEGOCIAVEIS.md')));
+  check(
+    'uninstall preservou REGRAS-INEGOCIAVEIS.md',
+    fs.existsSync(path.join(TMP, 'REGRAS-INEGOCIAVEIS.md')),
+  );
 } catch (e) {
   check('uninstall executou', false);
 }
@@ -314,11 +349,16 @@ try {
   check('default: NAO instala .cursor/', !fs.existsSync(path.join(tmpDefault, '.cursor')));
   check('default: NAO instala .windsurf/', !fs.existsSync(path.join(tmpDefault, '.windsurf')));
   check('default: NAO instala .clinerules', !fs.existsSync(path.join(tmpDefault, '.clinerules')));
-  check('default: NAO instala .aider.conf.yml', !fs.existsSync(path.join(tmpDefault, '.aider.conf.yml')));
+  check(
+    'default: NAO instala .aider.conf.yml',
+    !fs.existsSync(path.join(tmpDefault, '.aider.conf.yml')),
+  );
   check('default: NAO instala GEMINI.md', !fs.existsSync(path.join(tmpDefault, 'GEMINI.md')));
   check('default: NAO instala .codex/', !fs.existsSync(path.join(tmpDefault, '.codex')));
   process.chdir(TMP);
-  try { fs.rmSync(tmpDefault, { recursive: true, force: true }); } catch {}
+  try {
+    fs.rmSync(tmpDefault, { recursive: true, force: true });
+  } catch {}
 } catch (e) {
   check('adapter resolution default', false);
   process.chdir(TMP);
@@ -334,9 +374,14 @@ try {
   check('--all-adapters: .aider.conf.yml', fs.existsSync(path.join(tmpAll, '.aider.conf.yml')));
   check('--all-adapters: .cursor/', fs.existsSync(path.join(tmpAll, '.cursor')));
   check('--all-adapters: GEMINI.md', fs.existsSync(path.join(tmpAll, 'GEMINI.md')));
-  check('--all-adapters: .codex/instructions.md', fs.existsSync(path.join(tmpAll, '.codex/instructions.md')));
+  check(
+    '--all-adapters: .codex/instructions.md',
+    fs.existsSync(path.join(tmpAll, '.codex/instructions.md')),
+  );
   process.chdir(TMP);
-  try { fs.rmSync(tmpAll, { recursive: true, force: true }); } catch {}
+  try {
+    fs.rmSync(tmpAll, { recursive: true, force: true });
+  } catch {}
 } catch (e) {
   check('--all-adapters', false);
   process.chdir(TMP);
@@ -349,10 +394,18 @@ try {
   execSync(`node "${BIN}" install --yes --adapters=cursor,windsurf`, { stdio: 'pipe' });
   check('--adapters=cursor,windsurf: .cursor/', fs.existsSync(path.join(tmpSel, '.cursor')));
   check('--adapters=cursor,windsurf: .windsurf/', fs.existsSync(path.join(tmpSel, '.windsurf')));
-  check('--adapters=cursor,windsurf: .claude/ (sempre)', fs.existsSync(path.join(tmpSel, '.claude')));
-  check('--adapters=cursor,windsurf: NAO instala .clinerules', !fs.existsSync(path.join(tmpSel, '.clinerules')));
+  check(
+    '--adapters=cursor,windsurf: .claude/ (sempre)',
+    fs.existsSync(path.join(tmpSel, '.claude')),
+  );
+  check(
+    '--adapters=cursor,windsurf: NAO instala .clinerules',
+    !fs.existsSync(path.join(tmpSel, '.clinerules')),
+  );
   process.chdir(TMP);
-  try { fs.rmSync(tmpSel, { recursive: true, force: true }); } catch {}
+  try {
+    fs.rmSync(tmpSel, { recursive: true, force: true });
+  } catch {}
 } catch (e) {
   check('--adapters=cursor,windsurf', false);
   process.chdir(TMP);
@@ -364,11 +417,22 @@ try {
   process.chdir(tmpGC);
   execSync(`node "${BIN}" install --yes --adapters=gemini-cli,codex-cli`, { stdio: 'pipe' });
   check('--adapters=gemini-cli: GEMINI.md', fs.existsSync(path.join(tmpGC, 'GEMINI.md')));
-  check('--adapters=codex-cli: .codex/instructions.md', fs.existsSync(path.join(tmpGC, '.codex/instructions.md')));
-  check('--adapters=gemini-cli,codex-cli: .claude/ (sempre)', fs.existsSync(path.join(tmpGC, '.claude')));
-  check('--adapters=gemini-cli,codex-cli: NAO instala .cursor/', !fs.existsSync(path.join(tmpGC, '.cursor')));
+  check(
+    '--adapters=codex-cli: .codex/instructions.md',
+    fs.existsSync(path.join(tmpGC, '.codex/instructions.md')),
+  );
+  check(
+    '--adapters=gemini-cli,codex-cli: .claude/ (sempre)',
+    fs.existsSync(path.join(tmpGC, '.claude')),
+  );
+  check(
+    '--adapters=gemini-cli,codex-cli: NAO instala .cursor/',
+    !fs.existsSync(path.join(tmpGC, '.cursor')),
+  );
   process.chdir(TMP);
-  try { fs.rmSync(tmpGC, { recursive: true, force: true }); } catch {}
+  try {
+    fs.rmSync(tmpGC, { recursive: true, force: true });
+  } catch {}
 } catch (e) {
   check('--adapters=gemini-cli,codex-cli', false);
   process.chdir(TMP);
@@ -383,7 +447,9 @@ try {
   } catch (e) {
     // Só ISTO é "não consegui montar o cenário" — não falha o teste.
     canTest = false;
-    console.log(`  SKIP install recusa rodar em $HOME (não foi possível chdir pra ${homedir}: ${e.message})`);
+    console.log(
+      `  SKIP install recusa rodar em $HOME (não foi possível chdir pra ${homedir}: ${e.message})`,
+    );
   }
   if (canTest) {
     let blocked = false;
@@ -400,8 +466,14 @@ try {
 
 // Cleanup
 process.chdir(ROOT);
-try { fs.rmSync(TMP, { recursive: true, force: true }); } catch {}
+try {
+  fs.rmSync(TMP, { recursive: true, force: true });
+} catch {}
 
 console.log('');
-if (failures === 0) { console.log('Total OK.'); process.exit(0); }
-console.log(`${failures} falha(s).`); process.exit(1);
+if (failures === 0) {
+  console.log('Total OK.');
+  process.exit(0);
+}
+console.log(`${failures} falha(s).`);
+process.exit(1);

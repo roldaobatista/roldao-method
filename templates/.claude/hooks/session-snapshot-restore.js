@@ -11,7 +11,11 @@ const STALE_MS = STALE_DAYS * 24 * 60 * 60 * 1000;
 
 (async () => {
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(0); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(0);
+  }
   const runtime = path.join(projdir, '.claude', '.runtime');
   const snapshot = path.join(runtime, 'session-snapshot.md');
   const state = path.join(runtime, 'session-state.json');
@@ -24,9 +28,13 @@ const STALE_MS = STALE_DAYS * 24 * 60 * 60 * 1000;
         const txt = fs.readFileSync(snapshot, 'utf8');
         process.stderr.write(`\n[session-snapshot-restore] Snapshot da sessao anterior:\n`);
         process.stderr.write(txt);
-        process.stderr.write(`\n[session-snapshot-restore] Snapshot lido. Continue de onde parou ou rode \`/status\` pra confirmar.\n\n`);
+        process.stderr.write(
+          `\n[session-snapshot-restore] Snapshot lido. Continue de onde parou ou rode \`/status\` pra confirmar.\n\n`,
+        );
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
 
   // Recria markers a partir do session-state.json
@@ -38,7 +46,9 @@ const STALE_MS = STALE_DAYS * 24 * 60 * 60 * 1000;
       const j = JSON.parse(fs.readFileSync(state, 'utf8'));
       const savedHash = j.session_hash || '';
       if (savedHash) {
-        try { fs.writeFileSync(path.join(runtime, '.session-hash'), savedHash + '\n'); } catch {}
+        try {
+          fs.writeFileSync(path.join(runtime, '.session-hash'), savedHash + '\n');
+        } catch {}
         process.stderr.write(`[session-snapshot-restore] SESSION_HASH restaurado: ${savedHash}\n`);
       }
 
@@ -52,13 +62,20 @@ const STALE_MS = STALE_DAYS * 24 * 60 * 60 * 1000;
         if (name.includes('/') || name.includes('..')) continue;
         const markerPath = path.join(runtime, name);
         if (!fs.existsSync(markerPath)) {
-          try { fs.writeFileSync(markerPath, content); restored++; } catch {}
+          try {
+            fs.writeFileSync(markerPath, content);
+            restored++;
+          } catch {}
         }
       }
       if (restored > 0) {
-        process.stderr.write(`[session-snapshot-restore] ${restored} marker(s) recriado(s) — Sofia/Detetive/Rafael preservados entre sessoes.\n\n`);
+        process.stderr.write(
+          `[session-snapshot-restore] ${restored} marker(s) recriado(s) — Sofia/Detetive/Rafael preservados entre sessoes.\n\n`,
+        );
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
 
   process.exit(0);

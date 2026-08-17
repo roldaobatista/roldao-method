@@ -4,7 +4,8 @@
 
 const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
-const EXCLUDED_PATH_RE = /\.env|config.*\.example|\.example|README|\.md$|\/docs\/|\/test\/|\/tests\/|\/__tests__\/|\/spec\/|\/specs\/|\/e2e\/|\/cypress\/|\/playwright\/|\.test\.|\.spec\.|\.e2e\.|\/fixtures\/|\/mocks\/|\/__mocks__\//;
+const EXCLUDED_PATH_RE =
+  /\.env|config.*\.example|\.example|README|\.md$|\/docs\/|\/test\/|\/tests\/|\/__tests__\/|\/spec\/|\/specs\/|\/e2e\/|\/cypress\/|\/playwright\/|\.test\.|\.spec\.|\.e2e\.|\/fixtures\/|\/mocks\/|\/__mocks__\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift)$/;
 const COMMENT_LINE_RE = /^\s*(\/\/|#|\/\*|\*)/;
 // EXCEPTION_RE deve cobrir SO o opt-out explicito (SEC-005-exception). Antes
@@ -63,17 +64,25 @@ const SENSITIVE_DOMAINS = [
   });
 
   if (violations.length > 0) {
-    process.stderr.write(`[no-hardcoded-env-urls] BLOQUEADO: URL de servico externo hardcoded.\n\n`);
+    process.stderr.write(
+      `[no-hardcoded-env-urls] BLOQUEADO: URL de servico externo hardcoded.\n\n`,
+    );
     process.stderr.write(`Arquivo: ${filePath}\n\nViolacoes encontradas:\n`);
     for (const v of violations) process.stderr.write(`  - ${v}\n`);
-    process.stderr.write(`\nRegra: SEC-005 — URLs de servicos externos (SEFAZ, Pix, gateways, APIs pagas)\n`);
+    process.stderr.write(
+      `\nRegra: SEC-005 — URLs de servicos externos (SEFAZ, Pix, gateways, APIs pagas)\n`,
+    );
     process.stderr.write(`SEMPRE vem de variavel de ambiente, nunca hardcoded.\n\n`);
     process.stderr.write(`Por que:\n`);
     process.stderr.write(`  - Voce nao pode trocar URL sem deploy (homologacao vs producao).\n`);
     process.stderr.write(`  - Voce arrisca chamar producao em ambiente de teste.\n`);
     process.stderr.write(`  - Voce esconde dependencia externa do operador de infra.\n\n`);
-    process.stderr.write(`Correto:\n  const SEFAZ_URL = process.env.SEFAZ_URL;\n  if (!SEFAZ_URL) throw new Error('SEFAZ_URL nao configurada');\n\n`);
-    process.stderr.write(`Excecao: se MESMO assim e necessario (ex: URL canonica imutavel publicada em RFC),\n`);
+    process.stderr.write(
+      `Correto:\n  const SEFAZ_URL = process.env.SEFAZ_URL;\n  if (!SEFAZ_URL) throw new Error('SEFAZ_URL nao configurada');\n\n`,
+    );
+    process.stderr.write(
+      `Excecao: se MESMO assim e necessario (ex: URL canonica imutavel publicada em RFC),\n`,
+    );
     process.stderr.write(`adicione na mesma linha:\n  // SEC-005-exception: <razao>\n`);
     recordMetric('block', 'no-hardcoded-env-urls', violations[0]);
     process.exit(2);

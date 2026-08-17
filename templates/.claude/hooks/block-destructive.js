@@ -11,11 +11,11 @@ const { readStdinJson, recordMetric } = require('./_lib.js');
 // Mantida curta: so paths que QUALQUER projeto regenera deterministicamente.
 const SAFE_RM_TARGETS = new RegExp(
   '^(' +
-  'node_modules|\\.next|\\.nuxt|dist|build|out|target|' +
-  '\\.cache|\\.parcel-cache|\\.turbo|\\.vite|\\.svelte-kit|' +
-  'coverage|\\.pytest_cache|__pycache__|\\.mypy_cache|\\.tox|\\.ruff_cache|' +
-  'venv|\\.venv|\\.idea|\\.vscode/\\.cache' +
-  ')/?$'
+    'node_modules|\\.next|\\.nuxt|dist|build|out|target|' +
+    '\\.cache|\\.parcel-cache|\\.turbo|\\.vite|\\.svelte-kit|' +
+    'coverage|\\.pytest_cache|__pycache__|\\.mypy_cache|\\.tox|\\.ruff_cache|' +
+    'venv|\\.venv|\\.idea|\\.vscode/\\.cache' +
+    ')/?$',
 );
 
 // Padroes destrutivos. NOTA SEC-002: `git push --force-with-lease` (sem `=value`)
@@ -31,16 +31,25 @@ const PATTERNS = [
   { re: /rm\s+-[A-Za-z]*r(\s|$)/i, desc: 'apagar recursivamente (rm -r)' },
   // Alvo perigoso: path absoluto (/), home (~), wildcard glob (*), variavel ($).
   // Atencao: NAO casa `rm -f arquivo.log` (ponto no nome de 1 arquivo e benigno).
-  { re: /rm\s+-[fr][A-Za-z]*\s+["']?[/~*$]/i, desc: 'rm com alvo perigoso (path absoluto, home, wildcard ou variavel)' },
+  {
+    re: /rm\s+-[fr][A-Za-z]*\s+["']?[/~*$]/i,
+    desc: 'rm com alvo perigoso (path absoluto, home, wildcard ou variavel)',
+  },
   { re: /rm\s+-[fr][A-Za-z]*\s+["']?\.\.\//i, desc: 'rm com path traversal (../)' },
   { re: /rm\s+.*--recursive/i, desc: 'apagar recursivamente (rm --recursive)' },
-  { re: /rm\s+.*--force\b/i, desc: 'apagar sem perguntar (rm --force longo — use -f curto pra single file)' },
+  {
+    re: /rm\s+.*--force\b/i,
+    desc: 'apagar sem perguntar (rm --force longo — use -f curto pra single file)',
+  },
   { re: /rm\s+.*--no-preserve-root/i, desc: 'apagar a raiz do sistema (rm --no-preserve-root)' },
   { re: /find\s+.*-delete/i, desc: 'apagar arquivos varridos por find' },
   { re: /find\s+.*-exec\s+rm/i, desc: 'find + rm em massa' },
   { re: /\sshred\s/i, desc: 'sobrescrever arquivo pra impedir recuperação (shred)' },
   { re: /:\(\)\s*\{\s*:\s*\|\s*:/, desc: 'fork bomb (trava a máquina)' },
-  { re: /git\s+push.*--force(\s|$)/i, desc: 'sobrescrever histórico remoto (git push --force — use --force-with-lease)' },
+  {
+    re: /git\s+push.*--force(\s|$)/i,
+    desc: 'sobrescrever histórico remoto (git push --force — use --force-with-lease)',
+  },
   { re: /git\s+push.*-f\s/i, desc: 'sobrescrever histórico remoto (git push -f)' },
   { re: /git\s+push.*\s-f$/i, desc: 'sobrescrever histórico remoto (git push -f)' },
   { re: /git\s+push.*--delete/i, desc: 'apagar branch remota (git push --delete)' },
@@ -53,14 +62,20 @@ const PATTERNS = [
   { re: /dd\s+if=/i, desc: 'escrever raw em disco (dd if=)' },
   { re: /curl.*\|\s*(bash|sh)/i, desc: 'baixar e executar script da internet (curl | bash)' },
   { re: /wget.*\|\s*(bash|sh)/i, desc: 'baixar e executar script da internet (wget | bash)' },
-  { re: /base64\s+(-d|--decode|-D)\s*[^|]*\|\s*(bash|sh)/i, desc: 'decodificar base64 e executar (base64 -d | bash) — bypass clássico' },
-  { re: /\|\s*(bash|sh)\s*$/i, desc: 'piping para bash/sh — comando opaco, exige rever em texto claro' },
+  {
+    re: /base64\s+(-d|--decode|-D)\s*[^|]*\|\s*(bash|sh)/i,
+    desc: 'decodificar base64 e executar (base64 -d | bash) — bypass clássico',
+  },
+  {
+    re: /\|\s*(bash|sh)\s*$/i,
+    desc: 'piping para bash/sh — comando opaco, exige rever em texto claro',
+  },
   { re: /DROP\s+TABLE/i, desc: 'apagar tabela do banco (DROP TABLE)' },
   { re: /TRUNCATE\s+TABLE/i, desc: 'esvaziar tabela do banco (TRUNCATE TABLE)' },
   { re: /DROP\s+DATABASE/i, desc: 'apagar banco inteiro (DROP DATABASE)' },
   // Flags de bypass — strings montadas em runtime pra nao acionar anti-mascaramento.sh
   // que escaneia source. TST-001-exception: detecto, nao uso pra mascarar teste.
-  { re: new RegExp('--' + 'no-verify', 'i'),  desc: 'pular hooks de pré-commit (--no-verify)' },
+  { re: new RegExp('--' + 'no-verify', 'i'), desc: 'pular hooks de pré-commit (--no-verify)' },
   { re: new RegExp('--' + 'skip-tests', 'i'), desc: 'pular testes (--skip-tests)' },
   { re: new RegExp('--' + 'skip-hooks', 'i'), desc: 'pular hooks (--skip-hooks)' },
 ];
@@ -78,9 +93,9 @@ const PATTERNS = [
   // vazias intercaladas dentro de palavras. Usado APENAS pra matching — passamos `rawCmd`
   // pra mensagem de erro pra mostrar o original ao usuario.
   const cmd = rawCmd
-    .replace(/\\([A-Za-z])/g, '$1')           // r\m -> rm, c\url -> curl
+    .replace(/\\([A-Za-z])/g, '$1') // r\m -> rm, c\url -> curl
     .replace(/([A-Za-z])["']{2}([A-Za-z])/g, '$1$2') // r""m -> rm, r''m -> rm
-    .replace(/(["'])\1/g, '');                // remove "" e '' isoladas
+    .replace(/(["'])\1/g, ''); // remove "" e '' isoladas
 
   // Whitelist de rm -rf safe: aceita 1 OU MAIS alvos, todos na whitelist.
   // Ex: `rm -rf node_modules dist coverage` — libera porque todos sao regeneraveis.
@@ -90,17 +105,21 @@ const PATTERNS = [
   if (rmMatch) {
     const rawTargets = rmMatch[1].trim();
     // Bloqueia presenca de tokens perigosos GLOBAIS no comando (variavel, drives Windows)
-    const globalDanger = /\$HOME|\$\{HOME|%USERPROFILE%|%TEMP%|^\/|\\|[A-Za-z]:[\\/]/.test(rawTargets);
+    const globalDanger = /\$HOME|\$\{HOME|%USERPROFILE%|%TEMP%|^\/|\\|[A-Za-z]:[\\/]/.test(
+      rawTargets,
+    );
     if (!globalDanger) {
       // Split por espaco (ignora quotes simples e duplas em volta de cada alvo)
       const targets = rawTargets.split(/\s+/).map((t) => t.replace(/^["']|["']$/g, ''));
-      const todosWhitelisted = targets.length > 0 && targets.every((t) => {
-        if (!t) return false;
-        const dangerous = /\.\.|^\/$|^~$|^~\/|^\$|^\/etc|^\/usr|^\/var|^\/home/.test(t);
-        if (dangerous) return false;
-        const stripped = t.replace(/^\.\//, '');
-        return SAFE_RM_TARGETS.test(stripped);
-      });
+      const todosWhitelisted =
+        targets.length > 0 &&
+        targets.every((t) => {
+          if (!t) return false;
+          const dangerous = /\.\.|^\/$|^~$|^~\/|^\$|^\/etc|^\/usr|^\/var|^\/home/.test(t);
+          if (dangerous) return false;
+          const stripped = t.replace(/^\.\//, '');
+          return SAFE_RM_TARGETS.test(stripped);
+        });
       if (todosWhitelisted) {
         process.exit(0);
       }
@@ -111,19 +130,32 @@ const PATTERNS = [
   // Auditoria 2026-05-25 (hook #2-3): enforce-pipeline-completion e validate-quick-dev-scope
   // documentavam nas mensagens de erro o caminho `rm marker` pra escapar do bloqueio.
   // Agora qualquer tentativa de remover marker dispara aqui antes.
-  const RUNTIME_MARKER_RE = /(^|\s)rm\s+[^|]*\.claude[/\\]\.runtime[/\\](feature-active|auditor-.*-pass|checkpoint-done|bug-active|bug-trigger|investigator-invoked|investigation-.*\.json|quick-dev-files)/i;
+  const RUNTIME_MARKER_RE =
+    /(^|\s)rm\s+[^|]*\.claude[/\\]\.runtime[/\\](feature-active|auditor-.*-pass|checkpoint-done|bug-active|bug-trigger|investigator-invoked|investigation-.*\.json|quick-dev-files)/i;
   if (RUNTIME_MARKER_RE.test(cmd)) {
-    process.stderr.write(`[block-destructive] BLOQUEADO: tentativa de remover marker de pipeline.\n\n`);
+    process.stderr.write(
+      `[block-destructive] BLOQUEADO: tentativa de remover marker de pipeline.\n\n`,
+    );
     process.stderr.write(`Comando: ${rawCmd}\n`);
-    process.stderr.write(`Motivo: markers em .claude/.runtime/ representam estado de gates do framework\n`);
-    process.stderr.write(`(pipeline /feature, auditores, checkpoint, investigador, /bug, /quick-dev).\n`);
+    process.stderr.write(
+      `Motivo: markers em .claude/.runtime/ representam estado de gates do framework\n`,
+    );
+    process.stderr.write(
+      `(pipeline /feature, auditores, checkpoint, investigador, /bug, /quick-dev).\n`,
+    );
     process.stderr.write(`Apagar manualmente anula todo o controle do framework.\n\n`);
     process.stderr.write(`Como destravar legitimamente:\n`);
     process.stderr.write(`- Pipeline travado em etapa errada: rode o agente da etapa pendente.\n`);
     process.stderr.write(`- Auditor reprovou: corrija o achado e re-rode o auditor.\n`);
-    process.stderr.write(`- Sessao corrompida: 'session-cleanup' (lifecycle) limpa no proximo SessionEnd.\n`);
-    process.stderr.write(`\nEm linguagem clara: bloqueamos pra evitar perder marcador de auditoria — voce nao consegue mais provar que aquela etapa foi feita.\n`);
-    process.stderr.write(`Regras: SEC-002 (nao executar destrutivo sem confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n`);
+    process.stderr.write(
+      `- Sessao corrompida: 'session-cleanup' (lifecycle) limpa no proximo SessionEnd.\n`,
+    );
+    process.stderr.write(
+      `\nEm linguagem clara: bloqueamos pra evitar perder marcador de auditoria — voce nao consegue mais provar que aquela etapa foi feita.\n`,
+    );
+    process.stderr.write(
+      `Regras: SEC-002 (nao executar destrutivo sem confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n`,
+    );
     recordMetric('block', 'block-destructive', 'tentativa de rm em marker .claude/.runtime');
     process.exit(2);
   }
@@ -134,11 +166,19 @@ const PATTERNS = [
       process.stderr.write(`[block-destructive] BLOQUEADO: comando irreversível detectado.\n\n`);
       process.stderr.write(`Comando: ${rawCmd}\n`);
       process.stderr.write(`O que detectamos: ${desc}\n\n`);
-      process.stderr.write(`Em linguagem clara: comando apaga coisa sem volta — precisa ouvir do dono do projeto que e isso mesmo que ele quer.\n`);
-      process.stderr.write(`Regras: SEC-002 (destrutivo exige confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n\n`);
+      process.stderr.write(
+        `Em linguagem clara: comando apaga coisa sem volta — precisa ouvir do dono do projeto que e isso mesmo que ele quer.\n`,
+      );
+      process.stderr.write(
+        `Regras: SEC-002 (destrutivo exige confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n\n`,
+      );
       process.stderr.write(`Como destravar (se for intencional):\n`);
-      process.stderr.write(`- Confirme com o usuário o que vai acontecer (em PT-BR claro, sem jargão).\n`);
-      process.stderr.write(`- Só depois execute o comando, ou peça pro usuário rodar manualmente.\n`);
+      process.stderr.write(
+        `- Confirme com o usuário o que vai acontecer (em PT-BR claro, sem jargão).\n`,
+      );
+      process.stderr.write(
+        `- Só depois execute o comando, ou peça pro usuário rodar manualmente.\n`,
+      );
       recordMetric('block', 'block-destructive', desc);
       process.exit(2);
     }

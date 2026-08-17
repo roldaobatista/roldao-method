@@ -16,8 +16,12 @@ const ALLOW_GLOBAL_FORMATTERS = process.env.ROLDAO_METHOD_FORMAT_ALLOW_GLOBAL ==
 
 function hasCommand(cmd) {
   if (!ALLOW_GLOBAL_FORMATTERS) return false;
-  try { execFileSync(process.platform === 'win32' ? 'where' : 'which', [cmd], { stdio: 'ignore' }); return true; }
-  catch { return false; }
+  try {
+    execFileSync(process.platform === 'win32' ? 'where' : 'which', [cmd], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function run(cmd, args) {
@@ -30,25 +34,42 @@ function run(cmd, args) {
       shell: false,
       windowsHide: true,
     });
-  } catch { /* best-effort */ }
+  } catch {
+    /* best-effort */
+  }
 }
 
 (async () => {
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(0); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(0);
+  }
 
   const input = await readStdinJson();
   const file = input?.tool_input?.file_path || '';
   // Guard contra path interpretado como flag (ex: "-rf", "--config=evil")
   // pelas ferramentas chamadas adiante (prettier/eslint/ruff/black/gofmt/etc),
   // contra null-byte injection (corta path em libc) e contra path nao-string.
-  if (typeof file !== 'string' || !file || file.startsWith('-') || file.includes('\0') || !fs.existsSync(file)) process.exit(0);
+  if (
+    typeof file !== 'string' ||
+    !file ||
+    file.startsWith('-') ||
+    file.includes('\0') ||
+    !fs.existsSync(file)
+  )
+    process.exit(0);
 
   const ext = (file.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
   const localBin = (b) => path.join(projdir, 'node_modules', '.bin', b);
 
   // md fica fora — paths-frontmatter-validator inspeciona quebras de linha.
-  if (['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'json', 'yml', 'yaml', 'css', 'scss', 'html'].includes(ext)) {
+  if (
+    ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'json', 'yml', 'yaml', 'css', 'scss', 'html'].includes(
+      ext,
+    )
+  ) {
     if (fs.existsSync(localBin('prettier'))) run(localBin('prettier'), ['--write', file]);
     else if (hasCommand('prettier')) run('prettier', ['--write', file]);
 
@@ -56,7 +77,10 @@ function run(cmd, args) {
       run(localBin('eslint'), ['--fix', file]);
     }
   } else if (ext === 'py') {
-    if (hasCommand('ruff')) { run('ruff', ['format', file]); run('ruff', ['check', '--fix', file]); }
+    if (hasCommand('ruff')) {
+      run('ruff', ['format', file]);
+      run('ruff', ['check', '--fix', file]);
+    }
     if (hasCommand('black')) run('black', [file]);
   } else if (ext === 'go') {
     if (hasCommand('gofmt')) run('gofmt', ['-w', file]);

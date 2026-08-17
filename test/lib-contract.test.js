@@ -30,8 +30,13 @@ const LIB = path.join(ROOT, 'templates', '.claude', 'hooks', '_lib.js');
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -106,25 +111,39 @@ try {
     check('safeRuntimeDir() sem projdir lanca', true);
   }
 } finally {
-  try { fs.rmSync(tmpdir, { recursive: true, force: true }); } catch { /* best-effort */ }
+  try {
+    fs.rmSync(tmpdir, { recursive: true, force: true });
+  } catch {
+    /* best-effort */
+  }
 }
 
 // safeTmpfile(prefix?) — cria arquivo tmp, retorna path
 const tmpfile = lib.safeTmpfile('contract-test');
 check('safeTmpfile cria arquivo', fs.existsSync(tmpfile));
 check('safeTmpfile retorna path string', typeof tmpfile === 'string');
-try { fs.unlinkSync(tmpfile); } catch { /* best-effort */ }
+try {
+  fs.unlinkSync(tmpfile);
+} catch {
+  /* best-effort */
+}
 
 // secretTokenPatterns() — retorna array de strings
 const patterns = lib.secretTokenPatterns();
 check('secretTokenPatterns retorna array', Array.isArray(patterns));
 check('secretTokenPatterns tem >= 10 entradas', patterns.length >= 10);
-check('secretTokenPatterns entradas sao strings', patterns.every((p) => typeof p === 'string'));
+check(
+  'secretTokenPatterns entradas sao strings',
+  patterns.every((p) => typeof p === 'string'),
+);
 
 // secretTokenRegexes() — retorna array de RegExp
 const regexes = lib.secretTokenRegexes();
 check('secretTokenRegexes retorna array', Array.isArray(regexes));
-check('secretTokenRegexes entradas sao RegExp', regexes.every((r) => r instanceof RegExp));
+check(
+  'secretTokenRegexes entradas sao RegExp',
+  regexes.every((r) => r instanceof RegExp),
+);
 check('secretTokenRegexes mesmo tamanho que patterns', regexes.length === patterns.length);
 
 // posixToJsRegex(pattern, flags?) — converte POSIX ERE pra RegExp JS
@@ -139,11 +158,17 @@ check('posixToJsRegex converte [[:alnum:]]', re2.test('AKIAxyz1'));
 // hookBlockHeader(name, reason) — escreve em stderr (smoke — checa que nao lanca)
 const stderrOriginal = process.stderr.write.bind(process.stderr);
 let stderrCaptured = '';
-process.stderr.write = (chunk) => { stderrCaptured += String(chunk); return true; };
+process.stderr.write = (chunk) => {
+  stderrCaptured += String(chunk);
+  return true;
+};
 try {
   lib.hookBlockHeader('test-hook', 'razao de teste');
   check('hookBlockHeader nao lanca', true);
-  check('hookBlockHeader escreve em stderr', stderrCaptured.includes('test-hook') && stderrCaptured.includes('BLOQUEADO'));
+  check(
+    'hookBlockHeader escreve em stderr',
+    stderrCaptured.includes('test-hook') && stderrCaptured.includes('BLOQUEADO'),
+  );
 } catch (e) {
   check('hookBlockHeader nao lanca', false, e.message);
 } finally {

@@ -8,7 +8,13 @@
 // (b) sempre escaneia o conteudo contra a lista canonica de patterns
 //     (incluindo em arquivos de exemplo — segredo real ali ainda bloqueia).
 
-const { readStdinJson, secretTokenRegexes, recordMetric, normalizeFilePath, failClosedMessage } = require('./_lib.js');
+const {
+  readStdinJson,
+  secretTokenRegexes,
+  recordMetric,
+  normalizeFilePath,
+  failClosedMessage,
+} = require('./_lib.js');
 
 // Sufixos que liberam APENAS a checagem de path (conteudo continua escaneado).
 const ALLOWED_SUFFIXES_RE = /\.(example|sample|template|tpl|dist)$/;
@@ -37,11 +43,17 @@ const BLOCKED_PATH_PATTERNS = [
 // Senha entre aspas: `password = "valor"`. Anti-mascaramento bloqueia tokens
 // literais no source — strings montadas via concat pra contornar.
 const PWD_QUOTED_RE = new RegExp(
-  '(' + 'password' + '|' + 'passwd' + '|' + 'senha' + ')\\s*[:=]\\s*["\'][^"\' ]{6,}'
+  '(' + 'password' + '|' + 'passwd' + '|' + 'senha' + ')\\s*[:=]\\s*["\'][^"\' ]{6,}',
 );
 // Variante sem aspas (Python/YAML/.env): `password = abc123def` (>=8 chars).
 const PWD_BARE_RE = new RegExp(
-  '(^|\\s)(' + 'password' + '|' + 'passwd' + '|' + 'senha' + ')\\s*[:=]\\s*[A-Za-z0-9_+/=!@#$%^&*-]{8,}(\\s|$)'
+  '(^|\\s)(' +
+    'password' +
+    '|' +
+    'passwd' +
+    '|' +
+    'senha' +
+    ')\\s*[:=]\\s*[A-Za-z0-9_+/=!@#$%^&*-]{8,}(\\s|$)',
 );
 
 (async () => {
@@ -58,8 +70,14 @@ const PWD_BARE_RE = new RegExp(
   const toolName = input?.tool_name || '';
   if (!content && !filePath) {
     if (toolName === 'Write' || toolName === 'Edit') {
-      process.stderr.write(failClosedMessage('secrets-scanner',
-        new Error('payload Write/Edit chegou sem file_path nem content — possivel JSON malformado')));
+      process.stderr.write(
+        failClosedMessage(
+          'secrets-scanner',
+          new Error(
+            'payload Write/Edit chegou sem file_path nem content — possivel JSON malformado',
+          ),
+        ),
+      );
       recordMetric('block', 'secrets-scanner', 'fail-closed: payload incompleto em Write/Edit');
       process.exit(2);
     }
@@ -71,11 +89,17 @@ const PWD_BARE_RE = new RegExp(
   if (!skipPathCheck) {
     for (const re of BLOCKED_PATH_PATTERNS) {
       if (re.test(filePath)) {
-        process.stderr.write(`[secrets-scanner] BLOQUEADO: tentativa de escrever arquivo sensível.\n\n`);
+        process.stderr.write(
+          `[secrets-scanner] BLOQUEADO: tentativa de escrever arquivo sensível.\n\n`,
+        );
         process.stderr.write(`Arquivo: ${filePath}\n`);
-        process.stderr.write(`Em linguagem clara: nome do arquivo bate com padrao de arquivo que costuma guardar segredo (senha, chave, token).\n\n`);
+        process.stderr.write(
+          `Em linguagem clara: nome do arquivo bate com padrao de arquivo que costuma guardar segredo (senha, chave, token).\n\n`,
+        );
         process.stderr.write(`Regra: SEC-001 — nunca versionar segredos.\n`);
-        process.stderr.write(`Use variável de ambiente ou cofre (vault). Se for arquivo de EXEMPLO, use sufixo .example (ex: .env.example).\n`);
+        process.stderr.write(
+          `Use variável de ambiente ou cofre (vault). Se for arquivo de EXEMPLO, use sufixo .example (ex: .env.example).\n`,
+        );
         recordMetric('block', 'secrets-scanner', `filename: ${re.source}`);
         process.exit(2);
       }
@@ -95,7 +119,9 @@ const PWD_BARE_RE = new RegExp(
         process.stderr.write(`[secrets-scanner] BLOQUEADO: conteúdo contém possível segredo.\n\n`);
         process.stderr.write(`Arquivo destino: ${filePath}\n`);
         process.stderr.write(`Padrão detectado: ${re.source}\n\n`);
-        process.stderr.write(`Regra: SEC-001. Se este valor é exemplo/placeholder, substitua por valor obviamente fake (ex: "AKIA-EXAMPLE-DO-NOT-USE").\n`);
+        process.stderr.write(
+          `Regra: SEC-001. Se este valor é exemplo/placeholder, substitua por valor obviamente fake (ex: "AKIA-EXAMPLE-DO-NOT-USE").\n`,
+        );
         recordMetric('block', 'secrets-scanner', `content: ${re.source}`);
         process.exit(2);
       }
@@ -106,11 +132,15 @@ const PWD_BARE_RE = new RegExp(
       if (COMMENT_LINE_RE.test(line)) continue;
       for (const re of [PWD_QUOTED_RE, PWD_BARE_RE]) {
         if (re.test(line)) {
-          process.stderr.write(`[secrets-scanner] BLOQUEADO: conteúdo contém possível segredo.\n\n`);
+          process.stderr.write(
+            `[secrets-scanner] BLOQUEADO: conteúdo contém possível segredo.\n\n`,
+          );
           process.stderr.write(`Arquivo destino: ${filePath}\n`);
           process.stderr.write(`Linha ${i + 1}: ${line.slice(0, 100)}\n`);
           process.stderr.write(`Padrão detectado: ${re.source}\n\n`);
-          process.stderr.write(`Regra: SEC-001. Se este valor é exemplo/placeholder, mova pra comentário (// password = ...) ou use valor obviamente fake.\n`);
+          process.stderr.write(
+            `Regra: SEC-001. Se este valor é exemplo/placeholder, mova pra comentário (// password = ...) ou use valor obviamente fake.\n`,
+          );
           recordMetric('block', 'secrets-scanner', `content: ${re.source}`);
           process.exit(2);
         }

@@ -17,8 +17,15 @@ function t(name, fn) {
   try {
     const r = fn();
     if (r && typeof r.then === 'function') {
-      return r.then(() => { console.log(`  OK  ${name}`); pass++; })
-              .catch((e) => { console.error(`  FAIL  ${name}\n        ${e.message}`); fail++; });
+      return r
+        .then(() => {
+          console.log(`  OK  ${name}`);
+          pass++;
+        })
+        .catch((e) => {
+          console.error(`  FAIL  ${name}\n        ${e.message}`);
+          fail++;
+        });
     }
     console.log(`  OK  ${name}`);
     pass++;
@@ -33,7 +40,12 @@ function t(name, fn) {
 function makeFakeChild() {
   const ee = new EventEmitter();
   let written = '';
-  ee.stdin = { write: (s) => { written += s; return true; } };
+  ee.stdin = {
+    write: (s) => {
+      written += s;
+      return true;
+    },
+  };
   ee.killed = false;
   ee.exitCode = null;
   ee.kill = (sig) => {
@@ -58,7 +70,12 @@ function makeFakeChild() {
   await t('triggerCheckpoint em dry-run nao toca stdin', () => {
     const child = makeFakeChild();
     let logged = '';
-    const ok = lib.triggerCheckpoint(child, { dryRun: true, log: (m) => { logged = m; } });
+    const ok = lib.triggerCheckpoint(child, {
+      dryRun: true,
+      log: (m) => {
+        logged = m;
+      },
+    });
     assert.strictEqual(ok, true);
     assert.strictEqual(child.written, '');
     assert.ok(logged.includes('dry-run'));

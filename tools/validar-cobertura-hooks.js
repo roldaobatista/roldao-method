@@ -26,7 +26,8 @@ const HOOKS_DIR = path.join(ROOT, 'templates', '.claude', 'hooks');
 // ficavam de fora — cobertura era subdeclarada. Agora scaneia tudo em test/.
 const TEST_DIR = path.join(ROOT, 'test');
 const SUITES = fs.existsSync(TEST_DIR)
-  ? fs.readdirSync(TEST_DIR)
+  ? fs
+      .readdirSync(TEST_DIR)
       .filter((f) => f.endsWith('.test.js'))
       .map((f) => path.join(TEST_DIR, f))
   : [];
@@ -34,20 +35,20 @@ const SUITES = fs.existsSync(TEST_DIR)
 const IGNORE = new Set([
   '_lib.js',
   'auto-format-on-write.js',
-  'auto-frontmatter.js',                              // PreToolUse soft warning (sempre exit 0)
-  'context-budget.js',                                // UserPromptSubmit (warning informativo)
+  'auto-frontmatter.js', // PreToolUse soft warning (sempre exit 0)
+  'context-budget.js', // UserPromptSubmit (warning informativo)
   'session-snapshot.js',
   'session-snapshot-restore.js',
-  'session-cleanup.js',                               // SessionEnd lifecycle
+  'session-cleanup.js', // SessionEnd lifecycle
   'subagent-handoff-audit.js',
-  'suggest-addon-on-keywords.js',                     // SessionStart best-effort
+  'suggest-addon-on-keywords.js', // SessionStart best-effort
   'regra-zero-reminder.js',
-  'lgpd-base-legal-reminder.js',                      // PreToolUse soft warning (LGPD-001/007)
-  'lgpd-esquecimento-reminder.js',                    // PostToolUse soft warning (LGPD-002)
-  'lgpd-minimizacao-reminder.js',                     // PostToolUse soft warning (LGPD-003)
-  'lgpd-transferencia-internacional-reminder.js',     // PostToolUse soft warning (LGPD-005)
-  'lgpd-trilha-auditoria-reminder.js',                // PostToolUse soft warning (LGPD-004)
-  'lgpd-dpo-canal-reminder.js',                       // PostToolUse soft warning (LGPD-009)
+  'lgpd-base-legal-reminder.js', // PreToolUse soft warning (LGPD-001/007)
+  'lgpd-esquecimento-reminder.js', // PostToolUse soft warning (LGPD-002)
+  'lgpd-minimizacao-reminder.js', // PostToolUse soft warning (LGPD-003)
+  'lgpd-transferencia-internacional-reminder.js', // PostToolUse soft warning (LGPD-005)
+  'lgpd-trilha-auditoria-reminder.js', // PostToolUse soft warning (LGPD-004)
+  'lgpd-dpo-canal-reminder.js', // PostToolUse soft warning (LGPD-009)
 ]);
 
 function main() {
@@ -64,9 +65,7 @@ function main() {
 
   const allTestText = SUITES.map((s) => fs.readFileSync(s, 'utf8')).join('\n');
 
-  const todos = fs
-    .readdirSync(HOOKS_DIR)
-    .filter((f) => f.endsWith('.js') && !IGNORE.has(f));
+  const todos = fs.readdirSync(HOOKS_DIR).filter((f) => f.endsWith('.js') && !IGNORE.has(f));
 
   const semCaso = [];
   const semChamadaReal = [];
@@ -98,11 +97,15 @@ function main() {
   }
 
   console.log(`[validar-cobertura-hooks] hooks bloqueadores: ${todos.length}`);
-  console.log(`[validar-cobertura-hooks] hooks com pelo menos 1 cenario: ${todos.length - semCaso.length}`);
+  console.log(
+    `[validar-cobertura-hooks] hooks com pelo menos 1 cenario: ${todos.length - semCaso.length}`,
+  );
   console.log(`[validar-cobertura-hooks] ignorados (helpers/lifecycle): ${[...IGNORE].join(', ')}`);
 
   if (semCaso.length === 0 && semChamadaReal.length === 0) {
-    console.log('[validar-cobertura-hooks] OK — todos os hooks bloqueadores tem cenario E chamada real (assertExit/assertBlockDecision).');
+    console.log(
+      '[validar-cobertura-hooks] OK — todos os hooks bloqueadores tem cenario E chamada real (assertExit/assertBlockDecision).',
+    );
     process.exit(0);
   }
 
@@ -113,12 +116,16 @@ function main() {
   }
   if (semChamadaReal.length > 0) {
     console.error('');
-    console.error('[validar-cobertura-hooks] FALHA — hooks mencionados mas SEM assertExit/assertBlockDecision real:');
+    console.error(
+      '[validar-cobertura-hooks] FALHA — hooks mencionados mas SEM assertExit/assertBlockDecision real:',
+    );
     for (const hook of semChamadaReal) console.error(`  - ${hook}`);
     console.error('  (auditoria 2026-05-25: literal solta em comentario nao conta como cobertura)');
   }
   console.error('');
-  console.error('Como resolver: adicione assertExit(...) ou assertBlockDecision(...) em uma das suites:');
+  console.error(
+    'Como resolver: adicione assertExit(...) ou assertBlockDecision(...) em uma das suites:',
+  );
   for (const s of SUITES) console.error(`  - ${path.relative(ROOT, s)}`);
   console.error('Veja docs/EXTENDENDO/hook.md.');
   process.exit(1);

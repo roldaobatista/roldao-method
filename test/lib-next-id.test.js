@@ -15,8 +15,13 @@ const LIB = path.join(ROOT, 'templates', '.claude', 'lib', 'next-id.js');
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 function setupProjeto() {
@@ -65,10 +70,14 @@ console.log('\nlib-next-id: helper E1 / T-301\n');
   clearReq();
   const { nextId } = require(LIB);
   const hoje = new Date().toISOString().slice(0, 10);
-  check('3a: CHK default → CHK-AAAA-MM-DD-walkthrough',
-    nextId('CHK') === `CHK-${hoje}-walkthrough`);
-  check('3b: CHK com slug → CHK-AAAA-MM-DD-pix-cobranca',
-    nextId('CHK', { slug: 'pix-cobranca' }) === `CHK-${hoje}-pix-cobranca`);
+  check(
+    '3a: CHK default → CHK-AAAA-MM-DD-walkthrough',
+    nextId('CHK') === `CHK-${hoje}-walkthrough`,
+  );
+  check(
+    '3b: CHK com slug → CHK-AAAA-MM-DD-pix-cobranca',
+    nextId('CHK', { slug: 'pix-cobranca' }) === `CHK-${hoje}-pix-cobranca`,
+  );
 }
 
 // Cenario 4: T-NNN dentro de arquivo de story
@@ -76,13 +85,16 @@ console.log('\nlib-next-id: helper E1 / T-301\n');
   const dir = setupProjeto();
   fs.mkdirSync(path.join(dir, 'docs/stories'), { recursive: true });
   const story = path.join(dir, 'docs/stories/US-200-teste.md');
-  fs.writeFileSync(story, `# US-200
+  fs.writeFileSync(
+    story,
+    `# US-200
 
 ## Tasks
 - T-001: faz X
 - T-002: faz Y
 - T-015: faz Z
-`);
+`,
+  );
   clearReq();
   const { nextId } = require(LIB);
   check('4a: T-NNN dentro de story → T-016', nextId('T', { dentroDeArquivo: story }) === 'T-016');
@@ -103,7 +115,11 @@ console.log('\nlib-next-id: helper E1 / T-301\n');
   clearReq();
   const { nextId } = require(LIB);
   let lancou = false;
-  try { nextId('XYZ'); } catch { lancou = true; }
+  try {
+    nextId('XYZ');
+  } catch {
+    lancou = true;
+  }
   check('6: tipo invalido → throw', lancou);
 }
 
@@ -112,7 +128,11 @@ console.log('\nlib-next-id: helper E1 / T-301\n');
   clearReq();
   const { nextId } = require(LIB);
   let lancou = false;
-  try { nextId('T'); } catch { lancou = true; }
+  try {
+    nextId('T');
+  } catch {
+    lancou = true;
+  }
   check('7: T sem dentroDeArquivo → throw', lancou);
 }
 

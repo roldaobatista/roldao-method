@@ -49,9 +49,9 @@ function findProjectRoot() {
 const ROOT = findProjectRoot();
 
 const TIPOS = {
-  us:  { pasta: 'docs/stories',   prefixo: 'US',  padding: 3 },
-  prd: { pasta: 'docs/prd',       prefixo: 'PRD', padding: 3 },
-  ep:  { pasta: 'docs/epicos',    prefixo: 'EP',  padding: 3 },
+  us: { pasta: 'docs/stories', prefixo: 'US', padding: 3 },
+  prd: { pasta: 'docs/prd', prefixo: 'PRD', padding: 3 },
+  ep: { pasta: 'docs/epicos', prefixo: 'EP', padding: 3 },
   adr: { pasta: 'docs/decisions', prefixo: 'ADR', padding: 3 },
 };
 

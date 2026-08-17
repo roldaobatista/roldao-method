@@ -10,14 +10,22 @@ const { readStdinJson, sanitizeProjdir, safeRuntimeDir } = require('./_lib.js');
 
 function findFirst(dir, regex) {
   let entries;
-  try { entries = fs.readdirSync(dir); } catch { return null; }
+  try {
+    entries = fs.readdirSync(dir);
+  } catch {
+    return null;
+  }
   for (const n of entries) if (regex.test(n)) return path.join(dir, n);
   return null;
 }
 
 (async () => {
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(0); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(0);
+  }
   const runtime = safeRuntimeDir(projdir);
 
   const input = await readStdinJson();
@@ -31,16 +39,29 @@ function findFirst(dir, regex) {
     if (activeFeature || activeBug) {
       const found = findFirst(runtime, /^investigation-.*\.json$/);
       if (!found) {
-        process.stderr.write(`[subagent-handoff-audit] AVISO: investigador encerrou sem gravar .claude/.runtime/investigation-<ref>.json. Próximo agente (dev-senior) vai bloquear.\n`);
+        process.stderr.write(
+          `[subagent-handoff-audit] AVISO: investigador encerrou sem gravar .claude/.runtime/investigation-<ref>.json. Próximo agente (dev-senior) vai bloquear.\n`,
+        );
       }
     }
-  } else if (subagent === 'auditor-seguranca' || subagent === 'auditor-qualidade' || subagent === 'auditor-produto') {
+  } else if (
+    subagent === 'auditor-seguranca' ||
+    subagent === 'auditor-qualidade' ||
+    subagent === 'auditor-produto'
+  ) {
     if (activeFeature) {
-      const key = subagent === 'auditor-seguranca' ? 'seg' : subagent === 'auditor-qualidade' ? 'qual' : 'prod';
+      const key =
+        subagent === 'auditor-seguranca'
+          ? 'seg'
+          : subagent === 'auditor-qualidade'
+            ? 'qual'
+            : 'prod';
       const pass = findFirst(runtime, new RegExp(`^auditor-${key}-pass-`));
       const block = findFirst(runtime, new RegExp(`^auditor-${key}-blocked-`));
       if (!pass && !block) {
-        process.stderr.write(`[subagent-handoff-audit] AVISO: ${subagent} encerrou sem gravar veredito (pass/blocked). Commit/merge será bloqueado.\n`);
+        process.stderr.write(
+          `[subagent-handoff-audit] AVISO: ${subagent} encerrou sem gravar veredito (pass/blocked). Commit/merge será bloqueado.\n`,
+        );
       }
     }
   }

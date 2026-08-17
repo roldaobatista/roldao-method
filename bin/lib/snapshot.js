@@ -39,13 +39,20 @@ function createSnapshot({ cwd, fromVersion = 'unknown', toVersion = 'unknown' } 
   const id = `${ts}-from-${fromVersion}-to-${toVersion}`;
   const dir = path.join(snapshotsRoot(cwd), id);
   fs.mkdirSync(path.join(dir, 'files'), { recursive: true });
-  fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({
-    id,
-    createdAt: new Date().toISOString(),
-    fromVersion,
-    toVersion,
-    files: [],
-  }, null, 2));
+  fs.writeFileSync(
+    path.join(dir, 'manifest.json'),
+    JSON.stringify(
+      {
+        id,
+        createdAt: new Date().toISOString(),
+        fromVersion,
+        toVersion,
+        files: [],
+      },
+      null,
+      2,
+    ),
+  );
   return id;
 }
 
@@ -62,7 +69,11 @@ function recordFile(snapshotId, cwd, rel, status = 'updated') {
   if (exists) {
     const dest = path.join(dir, 'files', rel);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
-    try { fs.copyFileSync(full, dest); } catch { /* best effort */ }
+    try {
+      fs.copyFileSync(full, dest);
+    } catch {
+      /* best effort */
+    }
   }
 
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -73,12 +84,19 @@ function recordFile(snapshotId, cwd, rel, status = 'updated') {
 function listSnapshots(cwd) {
   const root = snapshotsRoot(cwd);
   if (!fs.existsSync(root)) return [];
-  return fs.readdirSync(root)
+  return fs
+    .readdirSync(root)
     .filter((d) => fs.existsSync(path.join(root, d, 'manifest.json')))
     .map((id) => {
       try {
         const m = JSON.parse(fs.readFileSync(path.join(root, id, 'manifest.json'), 'utf8'));
-        return { id, createdAt: m.createdAt, fromVersion: m.fromVersion, toVersion: m.toVersion, fileCount: (m.files || []).length };
+        return {
+          id,
+          createdAt: m.createdAt,
+          fromVersion: m.fromVersion,
+          toVersion: m.toVersion,
+          fileCount: (m.files || []).length,
+        };
       } catch {
         return { id, createdAt: null, fromVersion: '?', toVersion: '?', fileCount: 0 };
       }

@@ -23,18 +23,18 @@ const QUIET = process.argv.includes('--quiet');
 
 // Pares (origem em templates/ → destino na raiz). Diretórios são walkados.
 const PARES = [
-  { src: 'templates/.claude/hooks',    dst: '.claude/hooks',    tipo: 'dir' },
-  { src: 'templates/.claude/agents',   dst: '.claude/agents',   tipo: 'dir' },
+  { src: 'templates/.claude/hooks', dst: '.claude/hooks', tipo: 'dir' },
+  { src: 'templates/.claude/agents', dst: '.claude/agents', tipo: 'dir' },
   { src: 'templates/.claude/commands', dst: '.claude/commands', tipo: 'dir' },
-  { src: 'templates/.claude/rules',    dst: '.claude/rules',    tipo: 'dir' },
-  { src: 'templates/.claude/skills',   dst: '.claude/skills',   tipo: 'dir' },
+  { src: 'templates/.claude/rules', dst: '.claude/rules', tipo: 'dir' },
+  { src: 'templates/.claude/skills', dst: '.claude/skills', tipo: 'dir' },
   { src: 'templates/.claude/output-styles', dst: '.claude/output-styles', tipo: 'dir' },
-  { src: 'templates/.specify/templates',    dst: '.specify/templates',    tipo: 'dir' },
-  { src: 'templates/.specify/schemas',      dst: '.specify/schemas',      tipo: 'dir' },
-  { src: 'templates/.specify/checklists',   dst: '.specify/checklists',   tipo: 'dir' },
-  { src: 'templates/.specify/data',         dst: '.specify/data',         tipo: 'dir' },
-  { src: 'templates/.specify/memory',       dst: '.specify/memory',       tipo: 'dir' },
-  { src: 'templates/.specify/scripts',      dst: '.specify/scripts',      tipo: 'dir' },
+  { src: 'templates/.specify/templates', dst: '.specify/templates', tipo: 'dir' },
+  { src: 'templates/.specify/schemas', dst: '.specify/schemas', tipo: 'dir' },
+  { src: 'templates/.specify/checklists', dst: '.specify/checklists', tipo: 'dir' },
+  { src: 'templates/.specify/data', dst: '.specify/data', tipo: 'dir' },
+  { src: 'templates/.specify/memory', dst: '.specify/memory', tipo: 'dir' },
+  { src: 'templates/.specify/scripts', dst: '.specify/scripts', tipo: 'dir' },
 ];
 // Nota: .specify/overrides/ NAO entra no sync — sao customizacoes do projeto, nao do framework.
 
@@ -70,7 +70,10 @@ function relPosix(abs, base) {
 // dogfood existe — ai pulamos a verificacao com mensagem clara.
 const NENHUM_DOGFOOD = PARES.every((par) => !fs.existsSync(path.join(ROOT, par.dst)));
 if (NENHUM_DOGFOOD && !WRITE) {
-  if (!QUIET) console.log('[sincronizar-dogfood] OK — dogfood ausente (CI ou clone recem-feito). Rode `--write` localmente pra gerar.');
+  if (!QUIET)
+    console.log(
+      '[sincronizar-dogfood] OK — dogfood ausente (CI ou clone recem-feito). Rode `--write` localmente pra gerar.',
+    );
   process.exit(0);
 }
 
@@ -88,8 +91,8 @@ for (const par of PARES) {
   const arquivosSrc = walkar(srcAbs);
   const arquivosDst = walkar(dstAbs);
 
-  const mapSrc = new Map(arquivosSrc.map(f => [relPosix(f, srcAbs), f]));
-  const mapDst = new Map(arquivosDst.map(f => [relPosix(f, dstAbs), f]));
+  const mapSrc = new Map(arquivosSrc.map((f) => [relPosix(f, srcAbs), f]));
+  const mapDst = new Map(arquivosDst.map((f) => [relPosix(f, dstAbs), f]));
 
   for (const [rel, abs] of mapSrc) {
     if (!mapDst.has(rel)) {
@@ -124,7 +127,9 @@ if (total === 0) {
 }
 
 if (WRITE) {
-  console.log(`[sincronizar-dogfood] regenerei dogfood: ${drifts.length} sobrescritos, ${apenasNoSrc.length} criados, ${apenasNoDst.length} órfãos no dogfood (mantidos).`);
+  console.log(
+    `[sincronizar-dogfood] regenerei dogfood: ${drifts.length} sobrescritos, ${apenasNoSrc.length} criados, ${apenasNoDst.length} órfãos no dogfood (mantidos).`,
+  );
   process.exit(0);
 }
 
@@ -133,20 +138,28 @@ console.error('Causa comum: editou templates/ sem regenerar o dogfood — ou vic
 console.error('');
 if (drifts.length) {
   console.error(`Arquivos com conteúdo divergente (${drifts.length}):`);
-  drifts.slice(0, 30).forEach(f => console.error(`  - ${f}`));
+  drifts.slice(0, 30).forEach((f) => console.error(`  - ${f}`));
   if (drifts.length > 30) console.error(`  ... e mais ${drifts.length - 30}`);
 }
 if (apenasNoSrc.length) {
   console.error(`Existem em templates/ mas faltam no dogfood (${apenasNoSrc.length}):`);
-  apenasNoSrc.slice(0, 10).forEach(f => console.error(`  - ${f}`));
+  apenasNoSrc.slice(0, 10).forEach((f) => console.error(`  - ${f}`));
 }
 if (apenasNoDst.length) {
-  console.error(`Existem no dogfood mas não no template (${apenasNoDst.length} — geralmente cache local, ok):`);
-  apenasNoDst.slice(0, 10).forEach(f => console.error(`  - ${f}`));
+  console.error(
+    `Existem no dogfood mas não no template (${apenasNoDst.length} — geralmente cache local, ok):`,
+  );
+  apenasNoDst.slice(0, 10).forEach((f) => console.error(`  - ${f}`));
 }
 console.error('');
 console.error('Como resolver:');
-console.error('  1. Se templates/ está correto (caso comum): `node tools/sincronizar-dogfood.js --write`');
-console.error('  2. Se a raiz tem edição válida que precisa virar template: copie manualmente pra templates/ e commite.');
-console.error('  3. Lembre que arquivos órfãos no dogfood (item 3) não são erro — são overrides locais ou cache.');
+console.error(
+  '  1. Se templates/ está correto (caso comum): `node tools/sincronizar-dogfood.js --write`',
+);
+console.error(
+  '  2. Se a raiz tem edição válida que precisa virar template: copie manualmente pra templates/ e commite.',
+);
+console.error(
+  '  3. Lembre que arquivos órfãos no dogfood (item 3) não são erro — são overrides locais ou cache.',
+);
 process.exit(1);

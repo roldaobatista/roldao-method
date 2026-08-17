@@ -11,6 +11,9 @@ coverage
 /.claude/
 /.specify/
 /.claude-plugin/
+# Manifesto do plugin é GERADO por tools/sincronizar-plugin-manifest.js —
+# formatar a mão quebra a checagem de paridade (mesma razão do /.claude-plugin/)
+/templates/.claude-plugin/
 /AGENTS.md
 /CLAUDE.md
 /REGRAS-INEGOCIAVEIS.md

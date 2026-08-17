@@ -7,14 +7,24 @@
 
 const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
-const FIXTURE_PATH_RE = /fixture|seed|mock-?data|test-?data|sample|\.test\.|\.spec\.|test\/|tests\/|spec\/|specs\//;
+const FIXTURE_PATH_RE =
+  /fixture|seed|mock-?data|test-?data|sample|\.test\.|\.spec\.|test\/|tests\/|spec\/|specs\//;
 const EXCEPTION_RE = /TST-004-exception|sintetico|synthetic|fake-data/;
 
-const SYNTHETIC_DOMAINS_RE = /^(example\.com(\.br)?|test\.com|test\.local|fake\.com|exemplo\.com(\.br)?|localhost)$|\.(test|local|example)$/;
+const SYNTHETIC_DOMAINS_RE =
+  /^(example\.com(\.br)?|test\.com|test\.local|fake\.com|exemplo\.com(\.br)?|localhost)$|\.(test|local|example)$/;
 const REAL_PROVIDER_DOMAINS = new Set([
-  'gmail.com', 'hotmail.com', 'yahoo.com', 'yahoo.com.br',
-  'outlook.com', 'icloud.com', 'live.com',
-  'uol.com.br', 'terra.com.br', 'ig.com.br', 'bol.com.br',
+  'gmail.com',
+  'hotmail.com',
+  'yahoo.com',
+  'yahoo.com.br',
+  'outlook.com',
+  'icloud.com',
+  'live.com',
+  'uol.com.br',
+  'terra.com.br',
+  'ig.com.br',
+  'bol.com.br',
 ]);
 
 function allSameDigits(s) {
@@ -28,7 +38,7 @@ function cpfDvOk(c) {
   const d = c.split('').map(Number);
   for (const t of [9, 10]) {
     let s = 0;
-    for (let i = 0; i < t; i++) s += d[i] * ((t + 1) - i);
+    for (let i = 0; i < t; i++) s += d[i] * (t + 1 - i);
     let r = (s * 10) % 11;
     if (r === 10) r = 0;
     if (r !== d[t]) return false;
@@ -98,19 +108,35 @@ const SYNTHETIC_PHONES = new Set(['11999999999']);
   }
 
   if (violations.length > 0) {
-    process.stderr.write(`[no-test-data-in-fixtures] BLOQUEADO: dado pessoal aparentemente real em fixture/seed/teste.\n\n`);
+    process.stderr.write(
+      `[no-test-data-in-fixtures] BLOQUEADO: dado pessoal aparentemente real em fixture/seed/teste.\n\n`,
+    );
     process.stderr.write(`Arquivo: ${filePath}\n\nViolacoes encontradas:\n`);
     for (const v of violations) process.stderr.write(`  - ${v}\n`);
-    process.stderr.write(`\nRegra: TST-004 — fixtures, seeds e testes usam dados sinteticos. Dados reais\n`);
-    process.stderr.write(`de cliente em fixture vazam pra repo, CI, ambiente de dev e por log de teste.\n\n`);
+    process.stderr.write(
+      `\nRegra: TST-004 — fixtures, seeds e testes usam dados sinteticos. Dados reais\n`,
+    );
+    process.stderr.write(
+      `de cliente em fixture vazam pra repo, CI, ambiente de dev e por log de teste.\n\n`,
+    );
     process.stderr.write(`Use:\n`);
-    process.stderr.write(`  - CPF/CNPJ: validos por algoritmo mas com padrao sintetico claro (ex: 12345678909)\n`);
-    process.stderr.write(`  - Email: dominios reservados — example.com, test.local, exemplo.com.br\n`);
+    process.stderr.write(
+      `  - CPF/CNPJ: validos por algoritmo mas com padrao sintetico claro (ex: 12345678909)\n`,
+    );
+    process.stderr.write(
+      `  - Email: dominios reservados — example.com, test.local, exemplo.com.br\n`,
+    );
     process.stderr.write(`  - Telefone: (11) 99999-9999 ou variacoes obviamente fake\n`);
     process.stderr.write(`  - Nomes: "Fulano de Tal", "Maria Teste", "Empresa Exemplo Ltda"\n`);
-    process.stderr.write(`  - Geracao programatica: use a skill 'gerar-test-fixture-br' (CPF/CNPJ/CEP/E.164 validos).\n\n`);
-    process.stderr.write(`Excecao: se MESMO assim precisa do dado real (caso reproduzido pra debug pontual),\n`);
-    process.stderr.write(`adicione na mesma linha ou no header:\n  // TST-004-exception: <razao clara e tempo de retencao>\n`);
+    process.stderr.write(
+      `  - Geracao programatica: use a skill 'gerar-test-fixture-br' (CPF/CNPJ/CEP/E.164 validos).\n\n`,
+    );
+    process.stderr.write(
+      `Excecao: se MESMO assim precisa do dado real (caso reproduzido pra debug pontual),\n`,
+    );
+    process.stderr.write(
+      `adicione na mesma linha ou no header:\n  // TST-004-exception: <razao clara e tempo de retencao>\n`,
+    );
     recordMetric('block', 'no-test-data-in-fixtures', violations[0]);
     process.exit(2);
   }

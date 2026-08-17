@@ -9,10 +9,20 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 function readStdinSync() {
-  try { return fs.readFileSync(0, 'utf8'); } catch { return ''; }
+  try {
+    return fs.readFileSync(0, 'utf8');
+  } catch {
+    return '';
+  }
 }
 
-function tryJson(s) { try { return JSON.parse(s); } catch { return {}; } }
+function tryJson(s) {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return {};
+  }
+}
 
 const PROJDIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 const RUNTIME = path.join(PROJDIR, '.claude', '.runtime');
@@ -26,41 +36,51 @@ const modelo = (input.model && input.model.display_name) || '?';
 let versao = '?';
 const pkg = path.join(PROJDIR, 'package.json');
 if (fs.existsSync(pkg)) {
-  try { versao = JSON.parse(fs.readFileSync(pkg, 'utf8')).version || '?'; } catch { /* skip */ }
+  try {
+    versao = JSON.parse(fs.readFileSync(pkg, 'utf8')).version || '?';
+  } catch {
+    /* skip */
+  }
 }
 
 // --- Branch git ---
 let branch = '—';
 try {
-  branch = execFileSync('git', ['-C', PROJDIR, 'branch', '--show-current'], {
-    stdio: ['ignore', 'pipe', 'ignore'],
-    timeout: 2000,
-  }).toString().trim() || '—';
-} catch { /* fora de repo git */ }
+  branch =
+    execFileSync('git', ['-C', PROJDIR, 'branch', '--show-current'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      timeout: 2000,
+    })
+      .toString()
+      .trim() || '—';
+} catch {
+  /* fora de repo git */
+}
 
 // --- Agente ativo (ultimo marker -done-) ---
 const AGENT_MAP = {
-  maestro:            '🎼 Maestro',
-  analista:           '🔎 Mariana',
-  'gerente-produto':  '📋 Sofia',
-  'ux-designer':      '🎨 Lia',
-  'tech-lead':        '🏛️ Rafael',
-  investigador:       '🔬 Detetive',
-  'dev-senior':       '💻 Bruno',
-  'dba-dados':        '🗄️ Helena',
-  'devops-infra':     '🚀 Lucas',
-  revisor:            '✅ Inês',
-  'auditor-seguranca':'🛡️ Caio',
-  'auditor-qualidade':'🧪 Júlia',
-  'auditor-produto':  '🎯 Pedro',
-  'fiscal-br':        '🧾 Dona Marta',
-  'tech-writer':      '📝 Camila',
+  maestro: '🎼 Maestro',
+  analista: '🔎 Mariana',
+  'gerente-produto': '📋 Sofia',
+  'ux-designer': '🎨 Lia',
+  'tech-lead': '🏛️ Rafael',
+  investigador: '🔬 Detetive',
+  'dev-senior': '💻 Bruno',
+  'dba-dados': '🗄️ Helena',
+  'devops-infra': '🚀 Lucas',
+  revisor: '✅ Inês',
+  'auditor-seguranca': '🛡️ Caio',
+  'auditor-qualidade': '🧪 Júlia',
+  'auditor-produto': '🎯 Pedro',
+  'fiscal-br': '🧾 Dona Marta',
+  'tech-writer': '📝 Camila',
 };
 
 let agente = '—';
 if (fs.existsSync(RUNTIME)) {
   try {
-    const entries = fs.readdirSync(RUNTIME)
+    const entries = fs
+      .readdirSync(RUNTIME)
       .filter((n) => /-done-/.test(n))
       .map((n) => ({ n, m: fs.statSync(path.join(RUNTIME, n)).mtimeMs }))
       .sort((a, b) => b.m - a.m);
@@ -68,20 +88,59 @@ if (fs.existsSync(RUNTIME)) {
       const slug = entries[0].n.replace(/-done-.*$/, '');
       agente = AGENT_MAP[slug] || slug;
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 
 // --- Story ativa + etapa do pipeline (T-205 / D5) ---
 // Detecta modo ativo (FT, PRD, BROWNFIELD, AR) e conta etapas concluidas.
 let story = '';
 let etapa = '';
-const MODE_TOTAL_ETAPAS = { 'feature-active': 7, 'prd-active': 6, 'brownfield-active': 4, 'ar-active': 2, 'bug-active': 4 };
+const MODE_TOTAL_ETAPAS = {
+  'feature-active': 7,
+  'prd-active': 6,
+  'brownfield-active': 4,
+  'ar-active': 2,
+  'bug-active': 4,
+};
 const MODE_ETAPAS = {
-  'feature-active': ['sofia-done', 'detetive-done', 'rafael-done', 'rafael-skipped', 'bruno-done', 'ines-done', 'revisor-done', 'auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass', 'checkpoint-done'],
-  'prd-active': ['analista-done', 'pm-prd-done', 'tech-lead-done', 'ux-done', 'ux-skipped', 'decomp-done'],
-  'brownfield-active': ['inventario-done', 'tech-lead-done', 'pm-onboarding-done', 'audit-seg-done'],
+  'feature-active': [
+    'sofia-done',
+    'detetive-done',
+    'rafael-done',
+    'rafael-skipped',
+    'bruno-done',
+    'ines-done',
+    'revisor-done',
+    'auditor-seg-pass',
+    'auditor-qual-pass',
+    'auditor-prod-pass',
+    'checkpoint-done',
+  ],
+  'prd-active': [
+    'analista-done',
+    'pm-prd-done',
+    'tech-lead-done',
+    'ux-done',
+    'ux-skipped',
+    'decomp-done',
+  ],
+  'brownfield-active': [
+    'inventario-done',
+    'tech-lead-done',
+    'pm-onboarding-done',
+    'audit-seg-done',
+  ],
   'ar-active': ['inventario-done', 'auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass'],
-  'bug-active': ['detetive-done', 'bruno-done', 'revisor-done', 'auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass'],
+  'bug-active': [
+    'detetive-done',
+    'bruno-done',
+    'revisor-done',
+    'auditor-seg-pass',
+    'auditor-qual-pass',
+    'auditor-prod-pass',
+  ],
 };
 if (fs.existsSync(RUNTIME)) {
   try {
@@ -94,13 +153,21 @@ if (fs.existsSync(RUNTIME)) {
       for (const c of candidatos) {
         try {
           const m = fs.statSync(path.join(RUNTIME, c)).mtimeMs;
-          if (m > mtimeMaisRecente) { mtimeMaisRecente = m; modoAtivo = { prefixo, file: c }; }
-        } catch { /* skip */ }
+          if (m > mtimeMaisRecente) {
+            mtimeMaisRecente = m;
+            modoAtivo = { prefixo, file: c };
+          }
+        } catch {
+          /* skip */
+        }
       }
     }
     if (modoAtivo) {
       // Le 12 chars do conteudo pra mostrar US-NNN
-      const content = fs.readFileSync(path.join(RUNTIME, modoAtivo.file), 'utf8').slice(0, 12).trim();
+      const content = fs
+        .readFileSync(path.join(RUNTIME, modoAtivo.file), 'utf8')
+        .slice(0, 12)
+        .trim();
       if (content) story = ` · 📌 ${content}`;
       // Conta etapas concluidas do modo ativo
       const sessHash = modoAtivo.file.slice(modoAtivo.prefixo.length + 1);
@@ -111,7 +178,9 @@ if (fs.existsSync(RUNTIME)) {
       const N = Math.min(concluidas, total);
       etapa = ` · 🔁 ${N}/${total}`;
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 
 // --- Porcentagem de contexto usado (le transcript_path da ultima msg assistant) ---
@@ -132,9 +201,15 @@ function lerUltimosBytes(filepath, maxBytes = 256 * 1024) {
     const len = size - start;
     const buf = Buffer.alloc(len);
     const fd = fs.openSync(filepath, 'r');
-    try { fs.readSync(fd, buf, 0, len, start); } finally { fs.closeSync(fd); }
+    try {
+      fs.readSync(fd, buf, 0, len, start);
+    } finally {
+      fs.closeSync(fd);
+    }
     return buf.toString('utf8');
-  } catch { return ''; }
+  } catch {
+    return '';
+  }
 }
 
 function limiteContexto(modelId) {
@@ -155,20 +230,25 @@ if (transcriptPath && fs.existsSync(transcriptPath)) {
       const ev = JSON.parse(linha);
       const u = ev?.message?.usage;
       if (u && (u.input_tokens != null || u.cache_read_input_tokens != null)) {
-        const tokens = (u.input_tokens || 0)
-          + (u.cache_read_input_tokens || 0)
-          + (u.cache_creation_input_tokens || 0);
+        const tokens =
+          (u.input_tokens || 0) +
+          (u.cache_read_input_tokens || 0) +
+          (u.cache_creation_input_tokens || 0);
         const limite = limiteContexto(input.model && input.model.id);
         const pct = Math.round((tokens / limite) * 100);
         let cor = '';
         let suffix = '';
-        if (pct >= 90) { cor = ANSI.vermelhoBold; suffix = '!'; }
-        else if (pct >= 75) cor = ANSI.vermelho;
+        if (pct >= 90) {
+          cor = ANSI.vermelhoBold;
+          suffix = '!';
+        } else if (pct >= 75) cor = ANSI.vermelho;
         else if (pct >= 50) cor = ANSI.amarelo;
         contexto = ` · ${cor}📊 ${pct}%${suffix}${cor ? ANSI.reset : ''}`;
         break;
       }
-    } catch { /* linha incompleta, continua */ }
+    } catch {
+      /* linha incompleta, continua */
+    }
   }
 }
 
@@ -181,7 +261,9 @@ if (fs.existsSync(metricsFile)) {
     const txt = fs.readFileSync(metricsFile, 'utf8');
     const count = (txt.match(new RegExp(`"ts":"${hoje}`, 'g')) || []).length;
     if (count > 0) shield = ` · 🛡️ ${count}`;
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 
 // T-402 (H2 + H3): respeita NO_COLOR + TERM=dumb + fallback emoji em terminal

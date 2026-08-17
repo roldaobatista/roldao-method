@@ -21,11 +21,18 @@ const PRD_CMD = path.join(ROOT, 'templates', '.claude', 'commands', 'prd.md');
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
-console.log('test/integration/prd-etapa-2-askuserquestion.test.js — /prd dispara AskUserQuestion na etapa 2 (AC-112-5)\n');
+console.log(
+  'test/integration/prd-etapa-2-askuserquestion.test.js — /prd dispara AskUserQuestion na etapa 2 (AC-112-5)\n',
+);
 
 const conteudo = fs.readFileSync(PRD_CMD, 'utf8');
 

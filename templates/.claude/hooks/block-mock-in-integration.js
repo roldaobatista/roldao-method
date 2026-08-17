@@ -41,7 +41,9 @@ const EXCEPTION_RE = /TST-003-exception|justificativa-mock/;
   }
 
   if (violations.length > 0) {
-    process.stderr.write(`[block-mock-in-integration] BLOQUEADO: mock detectado em teste de integracao/E2E.\n\n`);
+    process.stderr.write(
+      `[block-mock-in-integration] BLOQUEADO: mock detectado em teste de integracao/E2E.\n\n`,
+    );
     process.stderr.write(`Arquivo: ${filePath}\n\nViolacoes encontradas:\n`);
     for (const v of violations) process.stderr.write(`  - ${v}\n`);
     process.stderr.write(`\nRegra: TST-003 — nao testar com mock o que vai pra producao real.\n\n`);
@@ -49,7 +51,9 @@ const EXCEPTION_RE = /TST-003-exception|justificativa-mock/;
     process.stderr.write(`  - banco de teste real (Docker, fixture, transaction rollback)\n`);
     process.stderr.write(`  - ambiente de homologacao da SEFAZ/RFB para teste fiscal\n`);
     process.stderr.write(`  - sandbox do gateway de pagamento\n\n`);
-    process.stderr.write(`Excecao: se MESMO assim precisa do mock (timeout extremo, terceiro fora do ar),\n`);
+    process.stderr.write(
+      `Excecao: se MESMO assim precisa do mock (timeout extremo, terceiro fora do ar),\n`,
+    );
     process.stderr.write(`adicione na mesma linha:\n  // TST-003-exception: <razao clara>\n`);
     recordMetric('block', 'block-mock-in-integration', violations[0]);
     process.exit(2);

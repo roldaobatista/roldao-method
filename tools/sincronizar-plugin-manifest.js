@@ -95,7 +95,18 @@ function buildManifest() {
     author: 'Roldão Batista',
     homepage: HOMEPAGE,
     license: 'MIT',
-    keywords: ['pt-br', 'brazil', 'lgpd', 'nfe', 'pix', 'fiscal', 'agile', 'spec-driven', 'agents', 'hooks'],
+    keywords: [
+      'pt-br',
+      'brazil',
+      'lgpd',
+      'nfe',
+      'pix',
+      'fiscal',
+      'agile',
+      'spec-driven',
+      'agents',
+      'hooks',
+    ],
     agents: agents.map((a) => `agents/${a}`),
     commands: commands.map((c) => `commands/${c}`),
     skills: skills.map((s) => `skills/${s}`),
@@ -130,7 +141,8 @@ function main() {
   });
 
   if (fora.length === 0) {
-    if (!quiet) console.log('[sincronizar-plugin-manifest] OK — plugin.json em paridade nos 2 destinos.');
+    if (!quiet)
+      console.log('[sincronizar-plugin-manifest] OK — plugin.json em paridade nos 2 destinos.');
     process.exit(0);
   }
 

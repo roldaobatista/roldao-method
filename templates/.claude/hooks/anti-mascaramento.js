@@ -36,7 +36,7 @@ const TOKEN_RAW = [
   '\\.skip\\(',
   '\\bxit\\(',
   '\\bfit\\(',
-  '\\bxdescribe\\(',   // T-004 (B4): adicionado — TST-001 lista este token explicitamente
+  '\\bxdescribe\\(', // T-004 (B4): adicionado — TST-001 lista este token explicitamente
   '\\bfdescribe\\(',
   'pytest\\.mark\\.skip',
   '\\.todo\\(',
@@ -68,7 +68,8 @@ const TEST_ONLY_RAW = [
 const COMBINED_RE = new RegExp(TOKEN_RAW.join('|'), 'i');
 const TEST_ONLY_RE = new RegExp(TEST_ONLY_RAW.join('|'), 'i');
 const EXCEPTION_RE = /TST-001-exception:\s*\S+/i;
-const TEST_PATH_RE = /(^|\/)(test|tests|spec|specs|__tests__)\/|\.(test|spec)\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$|_test\.(go|py)$/i;
+const TEST_PATH_RE =
+  /(^|\/)(test|tests|spec|specs|__tests__)\/|\.(test|spec)\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$|_test\.(go|py)$/i;
 
 (async () => {
   const input = await readStdinJson();
@@ -93,7 +94,8 @@ const TEST_PATH_RE = /(^|\/)(test|tests|spec|specs|__tests__)\/|\.(test|spec)\.(
     const MAX = 3;
     process.stderr.write(`[anti-mascaramento] BLOQUEADO: padrão de mascaramento detectado.\n\n`);
     process.stderr.write(`Arquivo: ${filePath}\n`);
-    if (isTestFile) process.stderr.write(`Tipo: arquivo de teste (regras adicionais aplicam — T-004)\n`);
+    if (isTestFile)
+      process.stderr.write(`Tipo: arquivo de teste (regras adicionais aplicam — T-004)\n`);
     process.stderr.write(`\nViolações (mostrando até ${MAX}):\n`);
     for (let i = 0; i < Math.min(MAX, violations.length); i++) {
       process.stderr.write(`  - ${violations[i]}\n`);
@@ -101,8 +103,12 @@ const TEST_PATH_RE = /(^|\/)(test|tests|spec|specs|__tests__)\/|\.(test|spec)\.(
     if (violations.length > MAX) {
       process.stderr.write(`  (... e mais ${violations.length - MAX} ocorrência(s))\n`);
     }
-    process.stderr.write(`\nPor que: teste mascarado = bug silencioso. O teste falhou porque o CÓDIGO\n`);
-    process.stderr.write(`está errado — esconder o erro não corrige nada, só atrasa a descoberta.\n`);
+    process.stderr.write(
+      `\nPor que: teste mascarado = bug silencioso. O teste falhou porque o CÓDIGO\n`,
+    );
+    process.stderr.write(
+      `está errado — esconder o erro não corrige nada, só atrasa a descoberta.\n`,
+    );
     process.stderr.write(`Corrija o código, não o teste.\n\n`);
     if (isTestFile) {
       process.stderr.write(`Em arquivos de teste tambem proibidos (T-004 / J6+J7):\n`);
@@ -111,7 +117,9 @@ const TEST_PATH_RE = /(^|\/)(test|tests|spec|specs|__tests__)\/|\.(test|spec)\.(
       process.stderr.write(`  - it('x', () => { return; ...}): return precoce pula expect\n\n`);
     }
     process.stderr.write(`Exceção com prazo (use só se for inevitável):\n`);
-    process.stderr.write(`  // TST-001-exception: <razão + prazo, ex: "API externa fora até 2026-05-25">\n\n`);
+    process.stderr.write(
+      `  // TST-001-exception: <razão + prazo, ex: "API externa fora até 2026-05-25">\n\n`,
+    );
     process.stderr.write(`Regra: TST-001.\n`);
     process.stderr.write(`Ver: REGRAS-INEGOCIAVEIS.md#tst-001\n`);
     recordMetric('block', 'anti-mascaramento', violations[0]);
