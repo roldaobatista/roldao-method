@@ -1,12 +1,12 @@
 ---
 owner: roldao
-revisado-em: 2026-05-20
+revisado-em: 2026-08-17
 status: stable
 ---
 
 # Publicar no npm — guia único pro Roldão
 
-> Eu (assistente) **não publico sozinho** — precisa da SUA conta npm e do código 2FA do seu telefone. Tudo o mais (testes, tag git, release no GitHub) eu faço direto. Você só roda `npm publish`.
+> **Fluxo atual (desde a esteira release.yml):** publicar = enviar a tag `vX.Y.Z` — a esteira do GitHub roda a suite, valida o tarball e publica no npm sozinha com o `NPM_TOKEN` já configurado nos Secrets. O fluxo manual abaixo é RESERVA, só pra quando a esteira estiver fora do ar.
 >
 > Este é o **único** guia de publicação. O antigo `PUBLICAR.md` foi removido na v0.14.5 (estava obsoleto, citava v0.8.0 e instruções de "criar repo" que já não fazem sentido).
 
@@ -79,8 +79,8 @@ Deve mostrar a versão atual do `package.json`. Também aparece em https://www.n
 
 ## O que estamos publicando
 
-- Tamanho exato: rode `npm pack --dry-run` antes (o job `empacotamento` no CI também valida que descompactado < 2 MB).
-- CLI + 37 hooks core (+5 em addons) + 15 agentes + 28 commands + 31 skills (13 core + 18 addons) + 7 addons + docs.
+- Tamanho exato: rode `npm pack --dry-run` antes (o CI valida que descompactado < 3 MB).
+- CLI + 44 hooks core + 22 agentes + 34 commands + 37 skills (20 core + 17 addons) + 7 addons. `docs/` NÃO vai no pacote (só GitHub).
 - Zero dependências runtime (só Node + bash + perl no PC do usuário; Python só pra skills).
 - Licença MIT.
 

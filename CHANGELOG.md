@@ -1,5 +1,30 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [2.0.1] — 2026-08-17
+
+**Versão de correção da auditoria completa de 17/08: instalador seguro, pacote enxuto e sem material interno, permissões distribuídas sem furo, 6 comandos que ficaram pra trás agora chegam a você.**
+
+### O que muda pra você (não-programador)
+
+- **Instalar ficou mais seguro:** antes, se um programa qualquer "importasse" o framework por engano (robôs de análise fazem isso), ele instalava ~500 arquivos na pasta da pessoa sem perguntar. Agora só instala quando você manda.
+- **6 comandos novos no seu projeto:** `/avisos` (lê os avisos que os vigias acumulam — antes eles gravavam e ninguém conseguia ler), `/comeco` (boas-vindas e orientação na primeira sessão), `/retomar` (continua um trabalho interrompido do ponto certo), `/painel` e `/saude` (visão do andamento e da saúde do projeto), `/documentar-repo` (documenta projeto legado inteiro).
+- **O manual "pra quem não programa" agora explica as 3 camadas** do produto (guarda-corpos, nascimento, operação) e a fábrica aponta pros comandos de verdade em cada nível de risco.
+
+### Corrigido
+
+- **Instalador**: guarda `require.main === module` — importar o pacote como biblioteca não executa mais `install` no diretório corrente; campo `main` removido (pacote é CLI puro).
+- **Permissões distribuídas**: `Bash(node *)` e `Bash(python *)` removidos do allow de `templates/.claude/settings.json` — auto-aprovavam execução arbitrária de código e anulavam a deny-list. Runners específicos (npm test, vitest, pytest, tsc…) continuam liberados.
+- **Mensagens pós-install** apontam pra URLs do GitHub em vez de `docs/` locais que nunca eram copiados pro projeto.
+- **CI**: guarda de vazamento do tarball grepava arquivo extinto (passava sempre); agora barra `docs/`, `manutencao/`, `evals/` e `test/`. Mensagens de limite corrigidas de 2MB pro valor real (3MB).
+- **Docs**: caminho morto no `metodo/QUICKSTART.md`, link contratual de projeto novo apontando pra repositório extinto, ROADMAP preso em v1.3.0 com 14 itens entregues não marcados, contagens de skills/comandos defasadas, referências `.sh`→`.js` em REGRAS-INEGOCIAVEIS.
+
+### Mudado
+
+- **Pacote npm 40% menor** (2,84 MB → ~1,7 MB): `docs/` (ADRs, PRDs, stories, análises internas) sai do tarball — continua no GitHub. 5 exemplos frontend saem da raiz de `templates/` (caíam soltos na raiz do projeto) pra `templates/docs/exemplos-frontend/`.
+- **Análises internas de 2026-05-26 viram material privado** fora do repositório (`manutencao/privado/`, não versionado); citações em ADRs/PRD apontam pro novo local.
+- **Fábrica alinhada ao guarda-corpos**: tabela de tiers ganha a coluna "comando" (`/quick-dev`, `/bug`, `/feature`); via rápida documenta os limites mecânicos reais do `/quick-dev` e a regra "divergiu → vale o mais restritivo".
+- **Prettier aplicado em 100 arquivos** que viviam fora do gate; `templates/.claude-plugin/` entra no `.prettierignore` (manifesto é gerado — formatar a mão quebrava a paridade).
+
 ## [2.0.0] — 2026-05-26
 
 **Versão grande que fecha o PRD-003 (Auditoria 10 de 10) — entrega 42 de 44 critérios das stories US-111..US-116. Faz o framework respeitar as próprias regras nas entranhas, não só na vitrine.**
