@@ -1,7 +1,7 @@
 ---
 lang: pt-br
 owner: tech-writer
-revisado-em: 2026-05-24
+revisado-em: 2026-08-17
 status: stable
 ---
 
@@ -18,6 +18,16 @@ Quando você fala com um assistente de IA (Claude, Cursor, ChatGPT) sem regra ne
 - Esquece o que vocês combinaram na conversa anterior
 
 O ROLDAO-METHOD coloca **regras automáticas** no caminho dele. Se ele tentar fazer algo perigoso ou usar jargão com você, o sistema impede na hora.
+
+## O produto tem 3 camadas (você não precisa decorar — o assistente sabe)
+
+| Camada | Pra que serve | Quando você a vê em ação |
+|---|---|---|
+| **Guarda-corpos** | Regras automáticas que impedem o assistente de fazer besteira (apagar coisas, vazar senha, usar jargão) | Sempre, em silêncio — você só percebe quando algo é barrado |
+| **Nascimento** (`metodo/`) | Roteiro completo pra começar um projeto NOVO do zero, com toda a documentação antes do código | Uma vez por projeto, no `/inicio` |
+| **Operação** (`fabrica/`) | O dia a dia de um projeto que JÁ existe: cada pedido seu é classificado por risco (de "experimento" a "regulado pelo Inmetro") e recebe a cerimônia proporcional — correção de meia hora continua levando meia hora | Todo pedido de mudança ou correção |
+
+A regra de ouro da Operação: **quanto maior o risco do erro, mais verificação antes de subir** — e no nível máximo (fiscal, metrologia legal, dado sensível) quem aprova a subida é você, nunca o assistente sozinho.
 
 ## Os 5 momentos que você vai viver
 
