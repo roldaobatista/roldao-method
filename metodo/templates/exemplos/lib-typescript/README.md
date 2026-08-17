@@ -69,4 +69,4 @@ Distribuição dual ESM + CJS via `tsup` (ver [ADR-0002](./docs/adr/ADR-0002-dis
 
 ## Licença
 
-MIT · Autor: Roldão (balancassolution@gmail.com)
+MIT · Autor: Fulana Exemplo (autora@exemplo.com.br)

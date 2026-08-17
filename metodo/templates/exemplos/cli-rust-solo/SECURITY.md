@@ -13,7 +13,7 @@ proposito: política de divulgação de vulnerabilidades do `tempo-cli`.
 
 Encontrou uma vulnerabilidade? Por favor **NÃO abra issue pública**. Reporte por um dos canais privados:
 
-- **E-mail:** balancassolution@gmail.com — assunto começando com `[SEC]`.
+- **E-mail:** seguranca@exemplo.com.br — assunto começando com `[SEC]`.
 - **GitHub Security Advisory:** aba **Security → Report a vulnerability** no repositório.
 
 Inclua: passos para reproduzir, impacto observado, versão do `tempo-cli`, SO/arquitetura. PoC opcional mas bem-vindo.
