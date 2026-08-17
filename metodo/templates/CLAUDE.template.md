@@ -60,7 +60,7 @@ Ver **INV-AGENT-003** em [`REGRAS-INEGOCIAVEIS.md`](./REGRAS-INEGOCIAVEIS.md).
 - **Windows + Git Bash (default do dono):**
   - Usar `/` em paths, nunca `\`.
   - `NUL` não existe no bash — usar `/dev/null`.
-  - **Caminhos com espaço sempre entre aspas duplas** — `cd "C:/PROJETOS/Modelo projeto novo"`, nunca `cd $VAR` solto. Hooks usam `bash "$CLAUDE_PROJECT_DIR/..."` corretamente.
+  - **Caminhos com espaço sempre entre aspas duplas** — `cd "C:/PROJETOS/Meu Projeto"`, nunca `cd $VAR` solto. Hooks usam `bash "$CLAUDE_PROJECT_DIR/..."` corretamente.
   - `CRLF` vs `LF`: forçar LF via `.gitattributes` (`* text=auto eol=lf`).
   - Configurar Claude Code para usar bash de `C:\Program Files\Git\bin\bash.exe` (env var `CLAUDE_CODE_BASH_PATH` no Windows).
   - Hooks shell assumem `bash ≥ 4` (Git for Windows ≥ 2.40 inclui) + GNU coreutils (`date -d` em `hook-check-deps.sh` detecta BusyBox/macOS antigo e cai em `python3` fallback).

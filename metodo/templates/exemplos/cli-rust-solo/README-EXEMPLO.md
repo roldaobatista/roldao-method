@@ -11,14 +11,14 @@ proposito: exemplo preenchido do meta-template para referência e comparação
 arquivo: README-EXEMPLO.md (meta-readme do exemplo)
 proposito: explicar que esta pasta NÃO é um projeto real, mas o estado FINAL
            de um projeto-exemplo (tempo-cli, CLI Rust solo) APÓS aplicar o
-           método "Modelo projeto novo".
+           método ROLDAO-METHOD (camada metodo/).
 não confundir com: README.md (que é o README do projeto-exemplo em si).
 -->
 
 # Exemplo: `tempo-cli` — CLI Rust solo (estado final após aplicar o método)
 
 > Este diretório é um **exemplo materializado**. Não é um projeto rodando.
-> Mostra como ficariam os arquivos canônicos do método "Modelo projeto novo"
+> Mostra como ficariam os arquivos canônicos do método ROLDAO-METHOD (camada metodo/)
 > quando aplicados a um caso simples: ferramenta de linha de comando, 1
 > desenvolvedor (solo), sem LGPD, sem multi-tenant, sem operação 24/7.
 >

@@ -9,15 +9,15 @@ proposito: ativa o ritual do meta-template quando Claude Code abre nesta pasta.
 
 @AGENTS.md
 
-# CLAUDE.md — meta-template "Modelo Projeto Novo"
+# CLAUDE.md — camada metodo/ do roldao-method
 
-> **Você (Claude Code) está DENTRO do meta-template.** Esta pasta não é um produto. É o método canônico que você executa para CRIAR projetos novos em outra pasta.
+> **Você (Claude Code) está DENTRO da camada metodo/ do roldao-method.** Esta pasta não é um produto. É o método canônico que você executa para CRIAR projetos novos em outra pasta.
 
 ## 1. Reconhecimento de contexto — leia primeiro
 
 Se o usuário pediu algo que pareça **iniciar um projeto novo** (frases como "quero criar", "novo projeto", "começar um sistema", "fazer um app/CLI/lib/SaaS para X"):
 
-1. **NÃO escreva código nem arquivos dentro desta pasta** (`Modelo projeto novo/`). Esta pasta é o método; ela permanece intacta.
+1. **NÃO escreva código nem arquivos dentro desta pasta** (`metodo/`). Esta pasta é o método; ela permanece intacta.
 2. **Leia agora**, em ordem:
    - [`QUICKSTART.md`](./QUICKSTART.md) — 3 passos resumidos.
    - [`ESTRUTURA-PROJETO-NOVO-DO-ZERO.md`](./ESTRUTURA-PROJETO-NOVO-DO-ZERO.md) §0 (linhas ~51-83) e §15 (árvore) e §20 (passo prático).

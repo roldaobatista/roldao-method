@@ -7,9 +7,9 @@ limite-linhas: 200
 proposito: contrato cross-harness do meta-template (Claude Code, Cursor, Windsurf, Codex CLI, Kiro).
 ---
 
-# AGENTS.md — meta-template "Modelo Projeto Novo"
+# AGENTS.md — camada metodo/ do roldao-method
 
-> **Você (agente IA, qualquer harness) está DENTRO do meta-template.** Esta pasta não é um produto. É o método canônico que materializa projetos novos em OUTRA pasta.
+> **Você (agente IA, qualquer harness) está DENTRO da camada metodo/ do roldao-method.** Esta pasta não é um produto. É o método canônico que materializa projetos novos em OUTRA pasta.
 
 ## 1. Perfil do usuário (inegociável)
 

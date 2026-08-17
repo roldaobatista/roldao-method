@@ -33,7 +33,7 @@ proposito: registro humano de mudanças notáveis do projeto, seguindo Keep a Ch
 ## [0.1.0] — <YYYY-MM-DD>
 
 ### Adicionado
-- Versão inicial. Esqueleto documental criado via meta-template "Modelo Projeto Novo".
+- Versão inicial. Esqueleto documental criado via ROLDAO-METHOD (camada metodo/).
 
 ---
 
