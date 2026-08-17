@@ -1,0 +1,36 @@
+# CODEOWNERS — <NomeDoProjeto>
+#
+# Define quem revisa cada pasta automaticamente em PRs.
+# Sintaxe oficial: https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Regra geral: dono do projeto é fallback de tudo.
+# Times/áreas específicas: usar @<team> ou @<user>.
+
+# Fallback — qualquer arquivo sem regra específica
+*       @<dono-do-projeto>
+
+# Documentação canônica do método
+/AGENTS.md                          @<dono-do-projeto>
+/CLAUDE.md                          @<dono-do-projeto>
+/REGRAS-INEGOCIAVEIS.md             @<dono-do-projeto>
+/.claude/memory/constitution.md     @<dono-do-projeto>
+
+# Segurança e conformidade
+/SECURITY.md                        @<dono-do-projeto>
+/docs/seguranca/                    @<dono-do-projeto>
+/docs/conformidade/                 @<dono-do-projeto>
+
+# Hooks e CI
+/.claude/                           @<dono-do-projeto>
+/.github/                           @<dono-do-projeto>
+/.pre-commit-config.yaml            @<dono-do-projeto>
+
+# ADRs e RFCs (decisões arquiteturais)
+/docs/adr/                          @<dono-do-projeto>
+/docs/comunidade/rfcs/              @<dono-do-projeto>
+
+# Por domínio (descomentar e ajustar quando time existir)
+# /docs/dominios/financas/          @<team-finance>
+# /docs/dominios/ia/                @<team-ml>
+# /backend/                         @<team-backend>
+# /frontend/                        @<team-frontend>
