@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "Perfil saas-python-regulado (todas as camadas). Multi-tenant, LGPD, on-call, change-management. Hooks completos. defaultMode mais conservador (default em vez de acceptEdits) por causa de dados regulados.",
+  "_comment_perfil": "PR obrigatoria para main. Agente IA: SEM push direto em main. Confirmar todas migrations destrutivas, restore de backup (2-eyes), rotacao de credencial por incidente.",
+  "model": "claude-opus-4-7",
+  "defaultMode": "default",
+  "permissions": {
+    "allow": [
+      "Read", "Edit", "Write", "Glob", "Grep",
+      "Bash(pytest:*)", "Bash(python:*)", "Bash(python3:*)",
+      "Bash(uv:*)", "Bash(poetry:*)", "Bash(pip:*)",
+      "Bash(ruff:*)", "Bash(mypy:*)", "Bash(black:*)", "Bash(isort:*)",
+      "Bash(alembic:*)", "Bash(uvicorn:*)", "Bash(gunicorn:*)",
+      "Bash(ls:*)", "Bash(pwd:*)", "Bash(which:*)", "Bash(echo:*)",
+      "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(find:*)",
+      "Bash(mkdir:*)", "Bash(cp:*)", "Bash(mv:*)",
+      "Bash(grep:*)", "Bash(sed:*)", "Bash(awk:*)", "Bash(wc:*)",
+      "Bash(sort:*)", "Bash(uniq:*)", "Bash(tr:*)", "Bash(cut:*)",
+      "Bash(date:*)", "Bash(test:*)", "Bash(true:*)", "Bash(false:*)",
+      "Bash(env:*)", "Bash(printenv:*)", "Bash(basename:*)", "Bash(dirname:*)",
+      "Bash(stat:*)", "Bash(file:*)", "Bash(diff:*)", "Bash(chmod:*)",
+      "Bash(sqlite3:*)", "Bash(psql:*)", "Bash(redis-cli:*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)",
+      "Bash(git show:*)", "Bash(git branch:*)", "Bash(git checkout:*)",
+      "Bash(git switch:*)", "Bash(git stash:*)", "Bash(git fetch:*)",
+      "Bash(git pull:*)", "Bash(git rev-parse:*)", "Bash(git ls-files:*)",
+      "Bash(git config:*)", "Bash(git add:*)", "Bash(git commit:*)",
+      "Bash(git revert:*)", "Bash(git tag:*)", "Bash(git remote:*)",
+      "Bash(gh pr:*)", "Bash(gh issue:*)", "Bash(gh run:*)",
+      "Bash(jq:*)", "Bash(rg:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)", "Bash(rm -fr:*)", "Bash(rm -Rf:*)",
+      "Bash(git push:*)",
+      "Bash(git push --force:*)", "Bash(git push -f:*)",
+      "Bash(git reset --hard origin:*)",
+      "Bash(git clean -fd:*)", "Bash(git clean -fdx:*)",
+      "Bash(git branch -D:*)",
+      "Bash(pip publish:*)", "Bash(twine upload:*)",
+      "Bash(sudo:*)",
+      "Bash(drop database:*)", "Bash(drop table:*)", "Bash(drop schema:*)",
+      "Bash(truncate:*)",
+      "Bash(alembic downgrade:*)",
+      "Bash(gh repo delete:*)", "Bash(gh repo edit --visibility:*)",
+      "Bash(mkfs:*)", "Bash(dd if=:*)", "Bash(dd of=:*)"
+    ],
+    "ask": [
+      "Bash(git reset --hard:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(alembic upgrade:*)",
+      "Bash(alembic revision:*)",
+      "Bash(gh pr merge:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-deps.sh\"" },
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/staleness-checker.sh\"" }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/inject-context.sh\"" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/override-ledger.sh\"" },
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-destructive.sh\"" },
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/auditor-commit-hygiene.sh\"" }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/secrets-scanner.sh\"" },
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/frontmatter-validator.sh\"" },
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-edit-evidence.sh\"" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/anti-mascaramento.sh\"" },
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/doc-line-counter.sh\"" }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "PROJECT_NAME": "saas-python-regulado"
+  },
+  "additionalDirectories": [
+    "docs",
+    ".agent",
+    ".claude"
+  ]
+}

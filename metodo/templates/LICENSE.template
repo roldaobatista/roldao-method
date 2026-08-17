@@ -1,0 +1,36 @@
+MIT License
+
+Copyright (c) <YYYY> <dono-do-projeto>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+<!--
+NOTA PARA O AGENTE:
+- Default deste template: MIT (mais permissiva, padrão OSS).
+- Outros valores comuns:
+  - Apache-2.0 — quando projeto envolve patentes, exige aviso explícito de patente.
+  - GPL-3.0 — quando quer copyleft forte (derivados também têm que ser GPL).
+  - proprietaria — substituir todo o texto por: "Copyright (c) <YYYY> <dono>. Todos os direitos reservados. Distribuição, modificação ou uso comercial proibidos sem licença escrita."
+- Tipo do projeto vs licença default:
+  - oss-lib → MIT (default acima)
+  - lib (interna) → proprietaria
+  - cli (público) → MIT
+  - saas, saas-regulado → proprietaria
+  - interno → proprietaria
+-->

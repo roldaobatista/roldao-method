@@ -1,0 +1,90 @@
+# .gitignore template — projeto novo
+# Copiar para `.gitignore` na raiz. Adicionar entradas específicas da stack abaixo.
+# Referência: ESTRUTURA-PROJETO-NOVO-DO-ZERO.md §3 / matriz-harness.md §6.
+
+# --- Segredos e overrides ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+.claude/.override-reason
+.claude/.session-evidence
+.claude/.staleness-cache
+.claude/overrides.log
+
+# --- Sistema operacional ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editores / IDEs ---
+.idea/
+.vscode/settings.json
+.vscode/launch.json
+*.swp
+*.swo
+.history/
+
+# --- Logs ---
+*.log
+logs/
+.logs/
+
+# --- Cache / build / dist comuns ---
+.cache/
+.tmp/
+tmp/
+dist/
+build/
+out/
+coverage/
+.coverage
+htmlcov/
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.next/
+.nuxt/
+.turbo/
+.parcel-cache/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# --- Rust ---
+target/
+
+# --- Go ---
+/bin/
+/pkg/
+
+# --- Java/Kotlin ---
+*.class
+target/
+.gradle/
+
+# --- Database local ---
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Claude Code local ---
+.claude/settings.local.json
+.claude/cache/
+
+# --- Agent runtime ---
+.agent/sessions/
+.agent/cache/

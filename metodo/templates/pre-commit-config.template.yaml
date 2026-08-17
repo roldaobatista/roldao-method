@@ -1,0 +1,146 @@
+# ---------------------------------------------------------------------------
+# .pre-commit-config.yaml — <NomeDoProjeto>
+#
+# Referências:
+#   - SECURITY.md             (política de segurança do projeto)
+#   - REGRAS-INEGOCIAVEIS.md  (invariantes INV-AGENT-001..011)
+#   - AGENTS.md               (contrato canônico)
+#
+# Por que este arquivo existe:
+#   Esta config é a DEFESA REAL do projeto contra:
+#     - vazamento de segredos
+#     - vazamento de PII brasileira (CPF/CNPJ/telefone)
+#     - mascaramento de erro (--no-verify, eslint-disable, @ts-ignore)
+#     - operações destrutivas em commit
+#     - frontmatter mal formado
+#
+#   Funciona em QUALQUER harness (Claude Code, Cursor, Windsurf, Codex CLI,
+#   Kiro). Hooks nativos do Claude Code (.claude/hooks/*.sh) são UX
+#   (feedback imediato pro agente) + defesa em profundidade — não substituem
+#   este pre-commit. Ver matriz-multi-harness.md.
+#
+# ADAPTADORES DOS HOOKS:
+#   Os scripts em .claude/hooks/*.sh recebem JSON no stdin porque tambem rodam
+#   como hooks do Claude Code. As entries locais abaixo adaptam os caminhos que
+#   o pre-commit envia para payloads JSON equivalentes a Write/Bash.
+#
+# Instalar (uma vez por clone):
+#   pip install pre-commit
+#   pre-commit install
+#   pre-commit install --hook-type commit-msg
+#
+# Rodar manualmente em todo o repo:
+#   pre-commit run --all-files
+#
+# Atualizar versões fixadas:
+#   pre-commit autoupdate
+# ---------------------------------------------------------------------------
+
+default_install_hook_types: [pre-commit, commit-msg]
+fail_fast: false
+
+repos:
+  # -------------------------------------------------------------------------
+  # 1. Higiene básica de arquivos (oficial pre-commit-hooks)
+  # -------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+
+  # -------------------------------------------------------------------------
+  # 2. Gitleaks — scanner canônico de segredos
+  # -------------------------------------------------------------------------
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.0
+    hooks:
+      - id: gitleaks
+
+  # -------------------------------------------------------------------------
+  # 3. Hooks locais — espelham os .sh do Claude Code para todos os harnesses
+  # -------------------------------------------------------------------------
+  - repo: local
+    hooks:
+
+      # 3.1 Anti-mascaramento de erro (INV-AGENT-006)
+      # Espelha .claude/hooks/anti-mascaramento.sh
+      - id: anti-mascaramento
+        name: anti-mascaramento (INV-AGENT-006)
+        entry: >-
+          bash -c 'for f in "$@"; do jq -n --arg file "$f" --rawfile content "$f" "{tool_name:\"Write\",tool_input:{file_path:\$file,content:\$content}}" | bash .claude/hooks/anti-mascaramento.sh || exit $?; done' --
+        language: system
+        stages: [pre-commit]
+        pass_filenames: true
+        types_or: [text]
+
+      # 3.2 Block destructive (INV-AGENT-002)
+      # Rejeita commit que tenta introduzir padrões destrutivos no diff OU
+      # cuja mensagem contém marcador de bypass (--no-verify documentado, etc.)
+      - id: block-destructive
+        name: block-destructive (INV-AGENT-002)
+        entry: >-
+          bash -c 'for f in "$@"; do jq -n --arg file "$f" --rawfile command "$f" "{tool_input:{file_path:\$file,command:\$command}}" | bash .claude/hooks/block-destructive.sh || exit $?; done' --
+        language: system
+        stages: [pre-commit]
+        pass_filenames: true
+        types_or: [text]
+
+      # 3.2.1 Commit message scanner — bloqueia mensagens com marca de bypass
+      # (cita --no-verify, "skip ci", etc.) usando o próprio block-destructive.sh
+      # via stdin com payload sintético.
+      - id: block-destructive-msg
+        name: block-destructive — commit message (INV-AGENT-002)
+        entry: >-
+          bash -c 'jq -Rs "{tool_input: {command: .}}" < "$1" | bash .claude/hooks/block-destructive.sh' --
+        language: system
+        stages: [commit-msg]
+        pass_filenames: true
+
+      # 3.2.2 Commit hygiene universal — warning sobre commit misturando areas
+      - id: auditor-commit-hygiene
+        name: auditor-commit-hygiene (INV-AGENT-007)
+        entry: >-
+          bash -c 'jq -n "{tool_input:{command:\"git commit\"}}" | bash .claude/hooks/auditor-commit-hygiene.sh'
+        language: system
+        stages: [pre-commit]
+        always_run: true
+        pass_filenames: false
+
+      # 3.3 Frontmatter validator (markdown canônico do projeto)
+      - id: frontmatter-validator
+        name: frontmatter validator (*.md)
+        entry: >-
+          bash -c 'for f in "$@"; do jq -n --arg file "$f" --rawfile content "$f" "{tool_name:\"Write\",tool_input:{file_path:\$file,content:\$content}}" | bash .claude/hooks/frontmatter-validator.sh || exit $?; done' --
+        language: system
+        stages: [pre-commit]
+        pass_filenames: true
+        files: \.md$
+
+      # 3.4 Limite de linhas em docs — evita AGENTS/CLAUDE/REGRAS inchados
+      - id: doc-line-counter
+        name: doc-line-counter (limite-linhas)
+        entry: >-
+          bash -c 'for f in "$@"; do jq -n --arg file "$f" --rawfile content "$f" "{tool_name:\"Write\",tool_input:{file_path:\$file,content:\$content}}" | bash .claude/hooks/doc-line-counter.sh || exit $?; done' --
+        language: system
+        stages: [pre-commit]
+        pass_filenames: true
+        files: \.md$
+
+      # 3.5 Secrets scanner — PII brasileira (INV-AGENT-008)
+      # Detecta CPF, CNPJ, telefone brasileiro em arquivos versionados.
+      # Complementa o gitleaks (que cobre tokens/keys, não PII local).
+      - id: secrets-scanner-pii-br
+        name: secrets-scanner PII BR (INV-AGENT-008)
+        entry: >-
+          bash -c 'for f in "$@"; do jq -n --arg file "$f" --rawfile content "$f" "{tool_name:\"Write\",tool_input:{file_path:\$file,content:\$content}}" | bash .claude/hooks/secrets-scanner.sh || exit $?; done' --
+        language: system
+        stages: [pre-commit]
+        pass_filenames: true
+        types_or: [text]

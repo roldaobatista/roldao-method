@@ -1,0 +1,94 @@
+<!--
+template: .cursorrules
+uso: copiar para a raiz do repositório como `.cursorrules` (sem extensão).
+escopo: adendo específico do harness Cursor. Tudo que é canônico de produto/processo vive em AGENTS.md.
+referência: matriz-multi-harness.md §Estratégia recomendada
+limite: ≤120 linhas.
+
+Cursor lê este arquivo na raiz. Contrato principal vive em AGENTS.md;
+este arquivo redireciona + repete o não-negociável.
+-->
+
+# .cursorrules — <NomeDoProjeto>
+
+> **Hierarquia de precedência (vale para os 4 contratos AI):**
+> constitution.md > REGRAS-INEGOCIAVEIS.md > AGENTS.md > .cursorrules
+> Em qualquer conflito, o documento mais alto vence.
+
+> Este arquivo é o adendo do harness **Cursor**. A fonte canônica é [`AGENTS.md`](./AGENTS.md). Em conflito, AGENTS.md vence (e acima dele, REGRAS-INEGOCIAVEIS.md e constitution.md).
+
+## 1. Leia primeiro
+
+Antes de qualquer ação, leia obrigatoriamente:
+
+1. [`constitution.md`](./constitution.md) — princípios fundadores.
+2. [`REGRAS-INEGOCIAVEIS.md`](./REGRAS-INEGOCIAVEIS.md) — invariantes INV-AGENT-001..011.
+3. [`AGENTS.md`](./AGENTS.md) — contrato canônico do projeto.
+
+`.cursorrules` (este arquivo) é o último elo da cadeia e o mais fácil de mudar. Não duplique conteúdo dos arquivos acima — apenas referencie.
+
+## 2. Regras inegociáveis — resumo
+
+Detalhes completos em [`REGRAS-INEGOCIAVEIS.md`](./REGRAS-INEGOCIAVEIS.md). PASS ZERO obrigatório:
+
+- **INV-AGENT-001** — agente IA não deleta dado de produção sem confirmação humana.
+- **INV-AGENT-002** — proibido `--no-verify`, `--force`, `--force-with-lease` em `main`. Override exige ADR registrado em `docs/adr/` + aprovação humana em PR dedicado (Cursor não tem `override-ledger.sh` — ledger é hook do Claude Code).
+- **INV-AGENT-003** — investigar (banco/log/payload) antes de editar lógica de negócio.
+- **INV-AGENT-004** — pró-atividade: executa reversíveis sem perguntar; confirma só destrutivos.
+- **INV-AGENT-005** — validar antes de afirmar "pronto"; evidência obrigatória.
+- **INV-AGENT-006** — causa raiz, nunca sintoma; proibido mascarar erro.
+- **INV-AGENT-007** — commits atômicos; sem `git add .` cego.
+- **INV-AGENT-008** — PII nunca em logs/prints; mascarar antes.
+- **INV-AGENT-009** — segredos nunca em arquivo versionado.
+- **INV-AGENT-010** — linguagem acessível; traduzir jargão na 1ª ocorrência.
+- **INV-AGENT-011** — alteração de qualquer INV-AGENT exige PR dedicado + aprovação do dono.
+
+## 3. Defesa real ≠ hook nativo
+
+Cursor **não suporta hooks PreToolUse** (ver [`matriz-multi-harness.md`](./matriz-multi-harness.md)). Isso significa:
+
+- Não há intercepção automática antes do Cursor executar um `Bash`, `Write` ou `Edit`.
+- A rede de segurança real do projeto é **pre-commit git + CI**, não hooks de harness.
+- Antes de qualquer commit, o framework [`pre-commit`](https://pre-commit.com/) executa os mesmos validadores que o Claude Code roda em PreToolUse:
+  - `gitleaks` (segredos)
+  - `secrets-scanner` PII brasileira (CPF/CNPJ/telefone)
+  - `anti-mascaramento` (proíbe `--no-verify`, `eslint-disable`, `@ts-ignore`, etc.)
+  - `block-destructive` (proíbe `git reset --hard`, `drop table`, etc. em commit message ou diff)
+  - `frontmatter-validator` (valida frontmatter de `*.md`)
+  - `check-yaml`, `check-json`, `end-of-file-fixer`, `trailing-whitespace`
+  - `detect-private-key`
+
+A configuração canônica vive em [`.pre-commit-config.yaml`](./.pre-commit-config.yaml). Instalar uma vez por clone:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Se um agente IA rodando dentro do Cursor tentar burlar isso (ex.: `git commit --no-verify`), o **CI** rejeita o push. Defesa em profundidade.
+
+## 4. Subagentes / auditores especialistas
+
+Cursor **não roda subagentes Claude Code** (`.claude/agents/*.md`). Auditores especialistas (tech-lead, especialista-juridico, etc.) **não rodam automaticamente** neste harness.
+
+Equivalências disponíveis em Cursor:
+
+- **Commands manuais** em `.cursor/commands/<nome>.md` — o usuário invoca via `/comando`.
+- **Rules por path** em `.cursor/rules/*.mdc` (com `globs:`) — aplicam tom/regra automaticamente em arquivos específicos.
+- **Skills equivalentes** (se existirem) — invocar via Bash a partir de `scripts/`.
+
+Se o projeto depende de auditoria automática (catálogo em [`docs/governanca/catalogo-auditores.md`](./docs/governanca/catalogo-auditores.md)), rode os auditores **manualmente** antes de cada PR — o pre-commit + CI cobre o piso de segurança, mas não substitui revisão especializada.
+
+## 5. Pró-atividade e linguagem
+
+Ver INV-AGENT-004 (pró-atividade) e INV-AGENT-010 (linguagem acessível) em [`REGRAS-INEGOCIAVEIS.md`](./REGRAS-INEGOCIAVEIS.md). Não duplicar aqui.
+
+## 6. O que NÃO repetir aqui
+
+- Política de commits → `REGRAS-INEGOCIAVEIS.md` INV-AGENT-002, INV-AGENT-007.
+- Stack, comandos canônicos, ADRs → `AGENTS.md §2, §6, §10`.
+- Invariantes → `REGRAS-INEGOCIAVEIS.md`.
+- Glossário → `docs/glossario.md`.
+
+<!-- Se sentir vontade de copiar conteúdo dos arquivos acima pra cá, PARE.
+     Adicione referência, não cópia. .cursorrules fala só do que é específico do harness Cursor. -->
