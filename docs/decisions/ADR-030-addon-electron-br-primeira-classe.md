@@ -11,7 +11,7 @@ supersedes: []
 superseded-by: null
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Analise externa do lionclaw (10 agentes) — `docs/analises/2026-05-26-licoes-do-lionclaw.md` §3, §4, §5"
+  incidente-ou-feedback: "Analise externa do lionclaw (10 agentes) — `manutencao/privado/2026-05-26-licoes-do-lionclaw.md (privado, fora do repo)` §3, §4, §5"
   sintoma-observado: "AGENTS.md §9 lista addon `electron-br` mas nao tem agentes/skills/templates materializados. Dev BR plugando ROLDAO-METHOD em Electron acaba copiando padrao do lionclaw na unha e replicando god-file 8198 linhas, prompt em migration, zero aria-live."
 ---
 
@@ -28,7 +28,7 @@ O framework ja menciona addon `electron-br` em `AGENTS.md §9 — Pontos de exte
 1. Copiar padrao do lionclaw na unha — herda os anti-padroes que a auditoria de 2026-05-26 catalogou (god-file 8198 linhas, prompt em migration, zero aria-live)
 2. Inventar do zero — perde a base que o lionclaw provou em producao (cofre 3-camadas, 15 MCPs locais, IPC tipado por dominio)
 
-A analise externa do lionclaw (`docs/analises/2026-05-26-licoes-do-lionclaw.md`) extraiu **8 padroes bons que viram template** + **5 hooks Electron-especificos** + **2 agentes especialistas** + **7 skills**. Falta empacotar tudo num addon instalavel.
+A analise externa do lionclaw (`manutencao/privado/2026-05-26-licoes-do-lionclaw.md (privado, fora do repo)`) extraiu **8 padroes bons que viram template** + **5 hooks Electron-especificos** + **2 agentes especialistas** + **7 skills**. Falta empacotar tudo num addon instalavel.
 
 Hoje os addons existentes (`fintech-br`, `fiscal-br-completo`, `lgpd-compliance`) sao **pequenos** — entregam hooks pontuais + 1-2 skills. Nenhum tem agentes proprios nem templates production-ready. `electron-br` sera o primeiro com **estrutura completa**, servindo de referencia pros proximos.
 

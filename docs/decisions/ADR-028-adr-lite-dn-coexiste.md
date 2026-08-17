@@ -11,7 +11,7 @@ supersedes: []
 superseded-by: null
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §9 (F3)"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §9 (F3)"
   sintoma-observado: "Escolher prefixo CSS exige o MESMO ritual de escolher banco. Pequenas decisoes viram folclore oral porque ADR e overhead. Em 22 ADRs do framework, ha decisoes triviais (ADR-013 convencao hook node) e estruturais (ADR-001 zero-deps) misturadas — sem gradiente."
 ---
 

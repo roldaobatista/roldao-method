@@ -12,7 +12,7 @@ superseded-by: null
 relacionado: [ADR-020, ADR-024]
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §1 (F1)"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §1 (F1)"
   sintoma-observado: "Sofia escreve sofia-done-<sess> vazio. Detetive abre o marker e nao tem ideia de quais ACs Sofia priorizou — re-le PRD inteiro. Bruno re-le tudo do disco. Contexto perdido a cada handoff."
 ---
 

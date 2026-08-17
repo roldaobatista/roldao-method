@@ -12,7 +12,7 @@ superseded-by: null
 relacionado: [ADR-020]
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §6 (F2)"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §6 (F2)"
   sintoma-observado: "Resolution tracker confia em marker, nao em commit. audit_sha prova que Caio leu o diff, nao que o diff endereçou os 3 criticos. Caio pode dizer 'achei 3 criticos', Bruno corrige (talvez nao os 3), marker pass e escrito, e os 3 criticos podem nunca terem sido tocados."
 ---
 

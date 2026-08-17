@@ -12,7 +12,7 @@ superseded-by: null
 estende: [ADR-020, ADR-021]
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §1 + §3"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §1 + §3"
   sintoma-observado: "Markers binarios sem payload em .claude/.runtime/ — Detetive nao sabe quais ACs Sofia priorizou; auto-compactacao perde estado de pipeline; sessao morta no meio de /feature refaz trabalho que ja estava feito."
 ---
 
@@ -53,7 +53,7 @@ Roldao roda 2 features em paralelo em worktrees diferentes. Ambos podem ter mesm
 
 Sofia escreve `sofia-done-<sess>` vazio. Detetive abre o marker e nao tem ideia de quais ACs Sofia priorizou — re-le PRD inteiro. ADR-020 ja evoluiu marker de **auditor** pra JSON com `audit_sha`/`lido_de`, mas Sofia/Detetive/Rafael/Bruno ainda criam arquivo vazio.
 
-A auditoria de 2026-05-26 (`docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §1, F1-F3) consolidou 3 fraquezas. Solucao do PRD-004 e introduzir **estado consolidado** em 1 arquivo JSON por story.
+A auditoria de 2026-05-26 (`manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §1, F1-F3) consolidou 3 fraquezas. Solucao do PRD-004 e introduzir **estado consolidado** em 1 arquivo JSON por story.
 
 ## Decisao
 

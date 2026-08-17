@@ -24,3 +24,6 @@ __pycache__/
 /CLAUDE.md
 /CLAUDE.local.md
 /REGRAS-INEGOCIAVEIS.md
+
+# Analises internas privadas — ficam SO nesta maquina, nunca no GitHub/npm
+/manutencao/privado/

@@ -11,7 +11,7 @@ supersedes: []
 superseded-by: null
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §2 (F1)"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §2 (F1)"
   sintoma-observado: "Carregamento tudo-ou-nada via MEMORY.md. Agente carrega 9KB de detalhe de sprint (project-auditoria-10-10-decisoes.md) pra responder 'qual a stack?'. Orcamento de contexto degrada rapido com memoria crescendo."
 ---
 

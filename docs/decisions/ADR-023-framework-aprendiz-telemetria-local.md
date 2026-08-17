@@ -11,7 +11,7 @@ supersedes: []
 superseded-by: null
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — secao 11 do `docs/analises/2026-05-26-melhorias-fluxo-roldao.md`"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — secao 11 do `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)`"
   sintoma-observado: "Framework nao se observa nem aprende com o uso. Quais hooks disparam mais? Quais sao falso positivo? Quais sao mortos? Hoje opacidade total."
 ---
 
@@ -29,7 +29,7 @@ A v2.0.0 entregou 44 hooks bloqueadores + 28 comandos + 17 agentes. Eles funcion
 - Hook que nunca disparou em 6 meses pode ser regra essencial dormente OU codigo morto — sem dado, ninguem sabe.
 - Regra contornada via `--bypass` 50x num projeto e sinal de regra ruim OU regra critica que o agente esta sabotando — sem dado, ninguem sabe.
 
-A auditoria de 2026-05-26 (`docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §11) diagnosticou:
+A auditoria de 2026-05-26 (`manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §11) diagnosticou:
 
 > "Framework nao se observa nem aprende com o uso. Quais hooks disparam mais? Quais sao falso positivo? Quais sao mortos? Hoje opacidade total."
 

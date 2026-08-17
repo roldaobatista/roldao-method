@@ -63,7 +63,7 @@ Nenhuma capacidade v2 perdida.
 
 ## Por que essa proposta veio agora
 
-Analise externa do lionclaw em 2026-05-26 (`docs/analises/2026-05-26-licoes-do-lionclaw.md` §3, §4, §5) identificou 8 padroes bons + 5 anti-padroes Electron que valeriam empacotar como addon completo. ADR-030 formalizou a decisao arquitetural. PRD-004 US-123 detalha o escopo.
+Analise externa do lionclaw em 2026-05-26 (`manutencao/privado/2026-05-26-licoes-do-lionclaw.md (privado, fora do repo)` §3, §4, §5) identificou 8 padroes bons + 5 anti-padroes Electron que valeriam empacotar como addon completo. ADR-030 formalizou a decisao arquitetural. PRD-004 US-123 detalha o escopo.
 
 ---
 
@@ -73,7 +73,7 @@ Pra detalhes operacionais do v3 (lista completa de agentes, hooks, skills, templ
 
 - **PRD-004 US-123** — `docs/stories/US-123-addon-electron-br.md`
 - **ADR-030** — `docs/decisions/ADR-030-addon-electron-br-primeira-classe.md`
-- **Analise lionclaw** — `docs/analises/2026-05-26-licoes-do-lionclaw.md` §3-§5
+- **Analise lionclaw** — `manutencao/privado/2026-05-26-licoes-do-lionclaw.md (privado, fora do repo)` §3-§5
 
 ---
 

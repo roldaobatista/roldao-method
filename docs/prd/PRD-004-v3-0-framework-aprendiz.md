@@ -7,9 +7,9 @@ owner: gerente-produto
 revisado-em: 2026-05-26
 escopo: evolucao do framework ROLDAO-METHOD pra v3.0.0 — Framework Aprendiz. Implementa as 3 auditorias de 2026-05-26 sem retirar nada do que ja existe (principio aditivo).
 fontes:
-  - docs/analises/2026-05-26-licoes-do-lionclaw.md
-  - docs/analises/2026-05-26-auditoria-pipelines-lionclaw.md
-  - docs/analises/2026-05-26-melhorias-fluxo-roldao.md
+  - manutencao/privado/2026-05-26-licoes-do-lionclaw.md (privado, fora do repo)
+  - manutencao/privado/2026-05-26-auditoria-pipelines-lionclaw.md (privado, fora do repo)
+  - manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)
 epico-filho-previsto: EP-003
 stories-filhas-previstas:
   - US-117 (Onda 1 — Performance + Visibilidade imediata)

@@ -11,7 +11,7 @@ supersedes: []
 superseded-by: null
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §5"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §5"
   sintoma-observado: "23 hooks PreToolUse Write|Edit em sequencia custam 700ms-1.8s por operacao. Sessao de 100 edits gasta 1-3min so em hook. anti-mascaramento.js BLOQUEOU o proprio doc de analise que so CITAVA padroes proibidos — sinal de hook sem allowlist por path."
 ---
 
@@ -39,9 +39,9 @@ Pior: muitos hooks rodam em paths que NUNCA interessam. Exemplos reais:
 - Hook fiscal valida emissao de NF-e. Roda em todo `Edit` — inclusive `README.md`, `docs/analises/*.md`, hooks customizados.
 - Hook de log Pix valida log de chave Pix. Roda em todo `Edit` — inclusive arquivos sem nada de Pix.
 - Hook de imutabilidade NF-e valida UPDATE/DELETE em tabela NF-e. Roda em arquivo `.md`.
-- Hook anti-mascaramento bloqueia padroes em teste. Bloqueou o proprio `docs/analises/2026-05-26-licoes-do-lionclaw.md` porque ele **citava** padroes proibidos em prosa — solucao manual foi reescrever em prosa indireta. Friccao desnecessaria. Este proprio ADR sofreu o mesmo bloqueio na primeira escrita.
+- Hook anti-mascaramento bloqueia padroes em teste. Bloqueou o proprio `manutencao/privado/2026-05-26-licoes-do-lionclaw.md (privado, fora do repo)` porque ele **citava** padroes proibidos em prosa — solucao manual foi reescrever em prosa indireta. Friccao desnecessaria. Este proprio ADR sofreu o mesmo bloqueio na primeira escrita.
 
-A auditoria de 2026-05-26 (`docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §5, F1-F3) diagnosticou 3 fraquezas: (F1) 23 hooks em sequencia, (F2) falsos positivos sem allowlist por path, (F3) ordem implicita sem dependencias declaradas.
+A auditoria de 2026-05-26 (`manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §5, F1-F3) diagnosticou 3 fraquezas: (F1) 23 hooks em sequencia, (F2) falsos positivos sem allowlist por path, (F3) ordem implicita sem dependencias declaradas.
 
 Hoje a unica via pra "saber qual hook roda quando" e abrir `settings.json` + 44 arquivos `.js`. Nao ha manifest, nao ha allowlist, nao ha dependencia explicita.
 
@@ -215,7 +215,7 @@ Aceitar custo atual. Vantagem: zero risco. Desvantagens:
 
 - `ROLDAO_HOOKS_VERBOSE=1 echo "test" > README.md` → stderr lista hooks executados, contagem ≤ 5.
 - `cat .claude/hooks/MANIFEST.json | jq '.hooks | length'` retorna >= 44.
-- Editar `docs/analises/2026-05-26-licoes-do-lionclaw.md` citando padrao proibido em prosa → `anti-mascaramento.js` NAO bloqueia (fast-path).
+- Editar `manutencao/privado/2026-05-26-licoes-do-lionclaw.md (privado, fora do repo)` citando padrao proibido em prosa → `anti-mascaramento.js` NAO bloqueia (fast-path).
 - Editar `docs/decisions/ADR-NNN-*.md` citando padrao proibido em prosa → `anti-mascaramento.js` NAO bloqueia (fast-path — este ADR seria evidencia viva).
 - Editar `src/auth/login.ts` com diretiva de ignorar tipo → `anti-mascaramento.js` BLOQUEIA (sem paths_skip pra esse caminho).
 - Renomear `.claude/hooks/MANIFEST.json` pra simular ausencia → hooks continuam rodando normalmente (fallback).

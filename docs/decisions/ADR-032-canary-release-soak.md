@@ -12,7 +12,7 @@ superseded-by: null
 relacionado: [ADR-016]
 origem:
   data: 2026-05-26
-  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `docs/analises/2026-05-26-melhorias-fluxo-roldao.md` §10 (P10.7)"
+  incidente-ou-feedback: "Auditoria de fluxo interno (10 agentes) — `manutencao/privado/2026-05-26-melhorias-fluxo-roldao.md (privado, fora do repo)` §10 (P10.7)"
   sintoma-observado: "Hoje todo release vai direto pra latest. Roldao instala em projeto-cobaia e descobre regressao em producao. Usuario do framework e cobaia em producao."
 ---
 
