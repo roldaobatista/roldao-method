@@ -22,7 +22,12 @@ const TYPE_IGNORE = '#' + ' type:\\s*ignore';
 const SUPPRESS = '@' + 'SuppressWarnings';
 const DISABLED = '@' + 'Disabled';
 
-const TOKEN_RAW = [
+// Auditoria 2026-08-17: token separados em dois grupos.
+//
+// ALWAYS_CODE_RAW — supressao de erro/lint/tipo. So faz sentido como mascaramento
+// em CODIGO (nunca em teste especificamente, e nunca legitimo em lugar nenhum).
+// Continua valendo em qualquer arquivo de codigo, exceto documentacao (ver isDoc).
+const ALWAYS_CODE_RAW = [
   TS_IGNORE,
   TS_NOCHECK,
   ESLINT_DISABLE,
@@ -30,6 +35,19 @@ const TOKEN_RAW = [
   NOQA,
   TYPE_IGNORE,
   SUPPRESS,
+  DISABLED,
+  '\\|\\|\\s*true(\\s*($|;|#|&|\\|))',
+  '--' + 'no-verify',
+  '--' + 'skip-tests',
+  '--' + 'ignore-errors',
+];
+
+// TEST_ONLY_MASK_RAW — padroes que SO fazem sentido como mascaramento dentro de
+// um arquivo de teste (assertion tautologica, foco/skip de test runner). Em
+// codigo de producao sao construcoes legitimas: `model.fit(X, y)` (scikit-learn/
+// keras), `db.query().skip(10)` (query builder de paginacao), etc. Auditoria
+// 2026-08-17 (falso positivo provado em src/train.py e src/api.ts).
+const TEST_ONLY_MASK_RAW = [
   'assertTrue\\(true\\)',
   'assertEquals\\(1,\\s*1\\)',
   'expect\\(true\\)\\.toBe\\(true\\)',
@@ -40,20 +58,15 @@ const TOKEN_RAW = [
   '\\bfdescribe\\(',
   'pytest\\.mark\\.skip',
   '\\.todo\\(',
-  DISABLED,
-  '\\|\\|\\s*true(\\s*($|;|#|&|\\|))',
-  '--' + 'no-verify',
-  '--' + 'skip-tests',
-  '--' + 'ignore-errors',
   'pytest\\.skip',
 ];
 
-// Padroes que disparam APENAS em arquivos de teste (T-004 / J6 + J7).
+// Padroes estruturais que disparam APENAS em arquivos de teste (T-004 / J6 + J7).
 // Em codigo de producao, `if (false)` pode ser feature flag legitima.
 // Em codigo de teste, `if (false)` deixa bloco de teste morto silenciosamente.
 // Padroes ancorados em INICIO DE LINHA (^\s*) pra evitar falso positivo
 // quando aparecem dentro de string literal/template (testes do proprio hook).
-const TEST_ONLY_RAW = [
+const TEST_ONLY_STRUCTURAL_RAW = [
   // J6 — bloco morto: if (false) { ... }, if (0) { ... } no comeco da linha
   '^\\s*if\\s*\\(\\s*(false|0)\\s*\\)\\s*\\{',
   // J6 — teste comentado: linha comeca com // ou /* anulando chamada it/describe/test
@@ -65,11 +78,21 @@ const TEST_ONLY_RAW = [
   '^\\s*\\b(it|test)\\(\\s*[\'"`][^\'"`]+[\'"`]\\s*,\\s*(async\\s+)?function\\s*\\([^)]*\\)\\s*\\{\\s*return\\b',
 ];
 
-const COMBINED_RE = new RegExp(TOKEN_RAW.join('|'), 'i');
-const TEST_ONLY_RE = new RegExp(TEST_ONLY_RAW.join('|'), 'i');
+// ALWAYS_CODE_RE — supressao de erro/lint/tipo, valida em qualquer arquivo de
+// CODIGO (nao em documentacao — ver isDoc mais abaixo).
+const ALWAYS_CODE_RE = new RegExp(ALWAYS_CODE_RAW.join('|'), 'i');
+// TEST_ONLY_RE — mascaramento que so faz sentido dentro de arquivo de teste:
+// assertion tautologica + foco/skip de test runner (mask) + estruturais (J6/J7).
+const TEST_ONLY_RE = new RegExp(
+  [...TEST_ONLY_MASK_RAW, ...TEST_ONLY_STRUCTURAL_RAW].join('|'),
+  'i',
+);
 const EXCEPTION_RE = /TST-001-exception:\s*\S+/i;
 const TEST_PATH_RE =
   /(^|\/)(test|tests|spec|specs|__tests__)\/|\.(test|spec)\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart)$|_test\.(go|py)$/i;
+// Documentacao FALA SOBRE os padroes de mascaramento (ex: "nunca use @ts-ignore"
+// em prosa) — nao e mascaramento de verdade. Auditoria 2026-08-17.
+const DOC_PATH_RE = /\.(md|mdx|txt)$/i;
 
 (async () => {
   const input = await readStdinJson();
@@ -78,12 +101,13 @@ const TEST_PATH_RE =
   if (!content) process.exit(0);
 
   const isTestFile = TEST_PATH_RE.test(filePath);
+  const isDoc = DOC_PATH_RE.test(filePath);
 
   const lines = String(content).split(/\r?\n/);
   const violations = [];
   lines.forEach((line, idx) => {
     let hit = false;
-    if (COMBINED_RE.test(line)) hit = true;
+    if (!isDoc && ALWAYS_CODE_RE.test(line)) hit = true;
     else if (isTestFile && TEST_ONLY_RE.test(line)) hit = true;
     if (!hit) return;
     if (EXCEPTION_RE.test(line)) return;

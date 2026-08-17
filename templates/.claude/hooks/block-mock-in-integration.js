@@ -4,7 +4,23 @@
 
 const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
-const INTEGRATION_PATH_RE = /integration|e2e|end-to-end/i;
+// Auditoria 2026-08-17: o regex antigo (/integration|e2e|end-to-end/i) casava
+// QUALQUER path que contivesse a substring "integration" — inclusive pasta de
+// producao como src/integrations/stripe.test.ts (teste UNITARIO de um modulo
+// que mora em integrations/). A regra e sobre TESTE DE INTEGRACAO, nao sobre
+// qualquer arquivo perto da palavra. Agora exige convencao de teste:
+//   - pasta dedicada:  tests/integration/..., __tests__/integration/...
+//   - pastas e2e/end-to-end em qualquer nivel (convencao quase exclusiva de
+//     suite Cypress/Playwright, raramente usada pra codigo de producao)
+//   - sufixo de arquivo:  foo.integration.test.ts, foo.e2e.spec.js
+const INTEGRATION_PATH_RE = new RegExp(
+  [
+    '(^|/)(tests?|__tests__|specs?)/integration(/|$)',
+    '(^|/)(e2e|end-to-end)(/|$)',
+    '\\.(integration|e2e|end-to-end)\\.(test|spec)\\.[jt]sx?$',
+  ].join('|'),
+  'i',
+);
 
 const MOCK_PATTERNS = [
   /vi\.mock\(/,

@@ -28,6 +28,7 @@ const XDESCRIBE = 'x' + 'describe';
 const FDESCRIBE = 'f' + 'describe';
 const DOT_SKIP = '.s' + 'kip';
 const EXPECT_TRUE_TOBE = 'expe' + 'ct(true).t' + 'oBe(true)';
+const TS_IGNORE = '@' + 'ts-ignore';
 
 let pass = 0;
 let fail = 0;
@@ -205,6 +206,73 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 {
   const r = run('/tmp/x.test.js', `${FIT}('focado', () => {});`);
   check('controle 6: token f-it continua bloqueando', r.exit === 2, `exit=${r.exit}`);
+}
+
+// ============================================================================
+// Auditoria 2026-08-17 — falsos positivos provados em execucao real:
+//   model.fit(X, y) em src/train.py bloqueado (fit( de ML, nao de teste)
+//   db.query().skip(10) em src/api.ts bloqueado (query builder, nao teste)
+//   docs/regras.md citando "@ts-ignore" em prosa bloqueado
+// Correcao: fit(/.skip( etc. so bloqueiam em arquivo de TESTE; @ts-ignore etc.
+// ficam isentos em arquivo de documentacao (.md/.mdx/.txt).
+// ============================================================================
+
+{
+  // model.fit(X, y) em arquivo Python comum (nao-teste) -> libera
+  const content = `model.${FIT}(X, y)`;
+  const r = run('/tmp/src/train.py', content);
+  check(
+    'AUD-2026-08-17.1: model.fit em .py comum -> pass',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 150)}`,
+  );
+}
+
+{
+  // fit( em arquivo de teste -> continua bloqueando
+  const content = `model.${FIT}(X, y)`;
+  const r = run('/tmp/src/train.test.js', content);
+  check('AUD-2026-08-17.2: fit( em arquivo .test.js -> block', r.exit === 2, `exit=${r.exit}`);
+}
+
+{
+  // db.query().skip(10) — query builder de paginacao, nao-teste -> libera
+  const content = `db.query()${DOT_SKIP}(10);`;
+  const r = run('/tmp/src/api.ts', content);
+  check(
+    'AUD-2026-08-17.3: .skip( em query builder (nao-teste) -> pass',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 150)}`,
+  );
+}
+
+{
+  // .skip( dentro de arquivo de teste -> continua bloqueando
+  const content = `promiseChain${DOT_SKIP}(1);`;
+  const r = run('/tmp/x.test.js', content);
+  check('AUD-2026-08-17.4: .skip( em teste -> block', r.exit === 2, `exit=${r.exit}`);
+}
+
+{
+  // Documentacao FALANDO SOBRE a regra (prosa citando @ts-ignore) -> libera
+  const content = `# Regras do projeto\n\nNunca use ${TS_IGNORE} no codigo de producao.\n`;
+  const r = run('/tmp/docs/regras.md', content);
+  check(
+    'AUD-2026-08-17.5: doc .md citando @ts-ignore -> pass',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 150)}`,
+  );
+}
+
+{
+  // Controle: @ts-ignore em arquivo de CODIGO continua bloqueando
+  const content = `${TS_IGNORE}\nconst x: any = foo();`;
+  const r = run('/tmp/src/x.ts', content);
+  check(
+    'AUD-2026-08-17.6: @ts-ignore em codigo (.ts) continua bloqueando',
+    r.exit === 2,
+    `exit=${r.exit}`,
+  );
 }
 
 console.log(`\nResultado: ${pass} OK, ${fail} FAIL`);

@@ -5,7 +5,12 @@
 const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const SKIP_PATH_RE = /\.md$|\.mdx$|CHANGELOG|\.txt$/;
-const TODO_RE = /\b(TODO|FIXME|XXX|HACK)\b/;
+// Auditoria 2026-08-17: o regex antigo (/\b(TODO|FIXME|XXX|HACK)\b/) casava
+// o termo em QUALQUER lugar da linha — inclusive identificador de codigo como
+// `export const STATUS = { TODO: 1 }`. A regra e sobre COMENTARIO "// TODO"
+// sem issue, nao sobre o token em si. Agora exige um marcador de comentario
+// (//, #, /*, <!--) em algum ponto ANTES do termo na mesma linha.
+const TODO_RE = /(\/\/|#|\/\*|<!--)[^\n]*?\b(TODO|FIXME|XXX|HACK)\b/;
 const ID_RE =
   /(#[0-9]+|US-[0-9]+|T-[0-9]+|AC-[0-9]+|INV-[0-9]+|SEC-[0-9]+|TST-[0-9]+|LGPD-[0-9]+|FISCAL-[0-9]+|ADR-[0-9]+)/;
 
