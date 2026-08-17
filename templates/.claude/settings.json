@@ -73,7 +73,6 @@
       "Bash(date*)",
 
       "Bash(node -v*)",
-      "Bash(node *)",
       "Bash(npm -v*)",
       "Bash(npm list*)",
       "Bash(npm ls*)",
@@ -119,8 +118,6 @@
 
       "Bash(python -V*)",
       "Bash(python3 -V*)",
-      "Bash(python *)",
-      "Bash(python3 *)",
       "Bash(pytest*)",
       "Bash(ruff*)",
       "Bash(black*)",
