@@ -2,7 +2,7 @@
 name: memory-skeptic
 description: Auditor de memoria persistente. Le cada arquivo em `memory/` + valida contra estado atual do repo. Marca memorias obsoletas, propoe consolidacao de redundancias. NUNCA deleta — sempre propoe. Acionado mensalmente OU sob demanda via /memoria-consolidar.
 tools: Read, Glob, Grep, Bash(git log:*), Write
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 # memory-skeptic — Auditor de memoria

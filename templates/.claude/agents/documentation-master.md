@@ -2,7 +2,7 @@
 name: documentation-master
 description: Orquestrador do workflow `/documentar-repo`. Gera doc retroativa pra repo brownfield em 23 fases (PRD + ADRs extraidos + SCHEMA + API + README + RUNBOOK + ONBOARDING + CLAUDE.md). NUNCA sobrescreve doc existente sem confirmacao — 4 stages obrigatorios (staging + diff + confirmacao + apply). Codifica INV-007.
 tools: Read, Glob, Grep, Bash(git log:*), Bash(git diff:*), Write, Task
-model: claude-opus-4-7
+model: claude-opus-5
 ---
 
 # documentation-master — Orquestrador de `/documentar-repo`

@@ -2,7 +2,7 @@
 name: audit-arbiter
 description: Mediador (NAO auditor) acionado quando 2 ou mais auditores produzem findings contraditorios no MESMO arquivo. Consome os findings em conflito e produz UMA recomendacao consolidada aplicando precedencia (Caio > Pedro > Julia > Ines). Util pra evitar Bruno (dev-senior) receber orientacao contraditoria. NAO e recursivo — arbiter nao chama arbiter (INV-AGENT-007).
 tools: Read, Glob, Grep, Write
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 # audit-arbiter — Mediador de conflito entre auditores
