@@ -190,7 +190,7 @@ Usa Cursor/Windsurf/etc. e quer hooks mecânicos? Rode o Claude Code em paralelo
 - [FAQ](docs/FAQ.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Casos de uso BR](docs/CASOS-DE-USO-BR.md) — NF-e, telemedicina, Pix, eSocial, e-commerce, EAD, Open Finance
 - [Guia MCP](docs/MCP-GUIA-BR.md) · [Arquitetura](docs/ARQUITETURA.md)
-- [Publicar no npm](docs/PUBLICAR-NPM.md) — processo de release pro mantenedor
+- [Publicar no npm](manutencao/PUBLICAR-NPM.md) — processo de release pro mantenedor
 - [Roadmap público](ROADMAP.md) · [Addons](addons/README.md)
 
 ## Licença · Contribuir · Suporte
