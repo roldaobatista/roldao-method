@@ -153,7 +153,33 @@ try {
   // Direcao inversa: hook .js que existe mas ninguem registrou em
   // settings.json nunca dispara — falso "tenho o bloqueador". `_lib.js`
   // e infra, nao hook.
+  // ADR-033: hooks dos grupos quentes sao registrados via _dispatcher-groups.json
+  // (o settings aponta so pro _dispatcher.js) — contam como registrados.
   const registered = new Set(unique);
+  try {
+    const grupos = JSON.parse(
+      fs.readFileSync(path.join(hooksDir, '_dispatcher-groups.json'), 'utf8'),
+    );
+    for (const lista of Object.values(grupos)) {
+      if (!Array.isArray(lista)) continue;
+      for (const nome of lista) registered.add(`${nome}.js`);
+    }
+    // Grupos so valem se o settings realmente invoca o dispatcher
+    if (!hookCmds.includes('_dispatcher.js')) {
+      fail('_dispatcher-groups.json existe mas settings.json nao invoca _dispatcher.js');
+    }
+    // E todo hook de grupo precisa existir em disco
+    for (const [g, lista] of Object.entries(grupos)) {
+      if (!Array.isArray(lista)) continue;
+      for (const nome of lista) {
+        if (!fs.existsSync(path.join(hooksDir, `${nome}.js`))) {
+          fail(`_dispatcher-groups.json (${g}) referencia hook inexistente: ${nome}.js`);
+        }
+      }
+    }
+  } catch (e) {
+    if (e.code !== 'ENOENT') fail(`_dispatcher-groups.json invalido: ${e.message}`);
+  }
   for (const f of listDir(hooksDir)) {
     if (!f.endsWith('.js') || /^_/.test(f)) continue;
     if (!registered.has(f)) {

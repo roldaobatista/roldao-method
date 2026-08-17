@@ -15,14 +15,14 @@ const CANONICAL_NAMES = new Set([
   'PUBLICAR.md',
 ]);
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (!DOC_MD_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (!DOC_MD_RE.test(filePath)) return 0;
 
   const base = path.basename(filePath);
-  if (CANONICAL_NAMES.has(base)) process.exit(0);
+  if (CANONICAL_NAMES.has(base)) return 0;
 
   // Em Edit, `new_string` e' o trecho substituido — nao serve pra checar frontmatter.
   // Estrategia: Write usa `content` (arquivo todo); Edit em arquivo existente le do disco
@@ -40,7 +40,7 @@ const CANONICAL_NAMES = new Set([
       content = input?.tool_input?.new_string || '';
     }
   }
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   // Strip BOM + linhas em branco iniciais antes de exigir '---'
   let cleaned = String(content).replace(/^﻿/, '');
@@ -68,7 +68,7 @@ const CANONICAL_NAMES = new Set([
     );
     process.stderr.write(`Regra: INV-004 (IDs rastreaveis + convencao de docs).\n`);
     recordMetric('block', 'paths-frontmatter-validator', `cabecalho ausente em ${filePath}`);
-    process.exit(2);
+    return 2;
   }
 
   // Extrai bloco de cabecalho de identificacao (entre 1o e 2o ---)
@@ -88,12 +88,20 @@ const CANONICAL_NAMES = new Set([
         'paths-frontmatter-validator',
         `campo '${field}' ausente em ${filePath}`,
       );
-      process.exit(2);
+      return 2;
     }
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[paths-frontmatter-validator] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[paths-frontmatter-validator] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

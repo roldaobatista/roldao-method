@@ -94,11 +94,11 @@ const TEST_PATH_RE =
 // em prosa) — nao e mascaramento de verdade. Auditoria 2026-08-17.
 const DOC_PATH_RE = /\.(md|mdx|txt)$/i;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = input?.tool_input?.file_path || '';
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const isTestFile = TEST_PATH_RE.test(filePath);
   const isDoc = DOC_PATH_RE.test(filePath);
@@ -147,11 +147,19 @@ const DOC_PATH_RE = /\.(md|mdx|txt)$/i;
     process.stderr.write(`Regra: TST-001.\n`);
     process.stderr.write(`Ver: REGRAS-INEGOCIAVEIS.md#tst-001\n`);
     recordMetric('block', 'anti-mascaramento', violations[0]);
-    process.exit(2);
+    return 2;
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[anti-mascaramento] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[anti-mascaramento] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

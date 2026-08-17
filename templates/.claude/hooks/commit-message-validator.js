@@ -45,11 +45,11 @@ function extractMessages(cmd) {
   return parts.join('\n');
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const cmd = input?.tool_input?.command || '';
-  if (!cmd) process.exit(0);
-  if (!cmd.includes('git commit')) process.exit(0);
+  if (!cmd) return 0;
+  if (!cmd.includes('git commit')) return 0;
 
   // Aplica: -m/--message/-F/--file OU --amend. Commit via editor sem nenhum
   // desses (sem -m): exit 0 (COMMIT_EDITMSG nao existe em PreToolUse).
@@ -59,13 +59,13 @@ function extractMessages(cmd) {
     /(?:^|\s)-F\s/.test(cmd) ||
     /--file[=\s]/.test(cmd);
   const isAmend = /--amend/.test(cmd);
-  if (!hasInline && !isAmend) process.exit(0);
+  if (!hasInline && !isAmend) return 0;
 
   // Extrai mensagem. Se parser falhar (heredoc malformado, encoding raro), exit 0
   // ao inves de validar CMD inteiro. Validar CMD causava falso positivo cronico
   // em Windows com CRLF.
   const msg = extractMessages(cmd);
-  if (!msg) process.exit(0);
+  if (!msg) return 0;
 
   const primeiraLinha = msg.split(/\r?\n/)[0];
   const violations = [];
@@ -136,7 +136,7 @@ function extractMessages(cmd) {
     /* sem projdir, skip rastreabilidade */
   }
 
-  if (violations.length === 0) process.exit(0);
+  if (violations.length === 0) return 0;
 
   process.stderr.write(
     `[BLOQUEIO] [commit-message-validator] mensagem da gravacao nao segue a regra do projeto.\n\n`,
@@ -167,9 +167,19 @@ function extractMessages(cmd) {
   process.stderr.write(`  fix(US-042): boleto saia com valor em dobro pra clientes PJ\n`);
   process.stderr.write(`  docs: atualiza README com novo comando demo\n`);
   recordMetric('block', 'commit-message-validator', violations[0]);
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[BLOQUEIO] [commit-message-validator] erro interno ao validar mensagem.\n`);
-  process.stderr.write(`Detalhe tecnico (pra desenvolvedor): ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(
+      `[BLOQUEIO] [commit-message-validator] erro interno ao validar mensagem.\n`,
+    );
+    process.stderr.write(`Detalhe tecnico (pra desenvolvedor): ${err.message}\n`);
+    process.exit(2);
+  });
+}

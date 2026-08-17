@@ -36,18 +36,18 @@ const COLUNA_RE = new RegExp('(' + COLUNAS_DADO_PESSOAL.join('|') + ')', 'i');
 const ESQUECIMENTO_RE =
   /(DELETE\s+FROM|deletar?|esquece?r?|forgott?en|crypto[_-]?shred|right[_-]?to[_-]?erasur|anonimiz)/i;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const toolName = input?.tool_name || '';
-  if (toolName !== 'Write' && toolName !== 'Edit') process.exit(0);
+  if (toolName !== 'Write' && toolName !== 'Edit') return 0;
 
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
-  if (!TRIGGER_PATHS_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
+  if (!TRIGGER_PATHS_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   // Acha colunas de dado pessoal sendo CRIADAS (CREATE TABLE, ADD COLUMN, ou
   // declaracao de campo em modelo ORM).
@@ -55,10 +55,10 @@ const ESQUECIMENTO_RE =
     /CREATE\s+TABLE|ADD\s+COLUMN|@Column|@Field|sa\.Column|models\.|prisma|@Entity|class\s+\w+\s*\(/i.test(
       content,
     );
-  if (!isCreate) process.exit(0);
+  if (!isCreate) return 0;
 
-  if (!COLUNA_RE.test(content)) process.exit(0);
-  if (ESQUECIMENTO_RE.test(content)) process.exit(0); // ja menciona caminho
+  if (!COLUNA_RE.test(content)) return 0;
+  if (ESQUECIMENTO_RE.test(content)) return 0; // ja menciona caminho
 
   // Soft warning — exit 0, escreve em stderr (Claude le).
   process.stderr.write(
@@ -79,5 +79,16 @@ const ESQUECIMENTO_RE =
     `Coluna/campo de dado pessoal criada em ${filePath} sem caminho de exclusao visivel (DELETE/crypto-shredding/anonimizacao).`,
     filePath,
   );
-  process.exit(0);
-})().catch(() => process.exit(0));
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[lgpd-esquecimento-reminder] erro interno: ${err.message}\n`);
+    process.exit(0);
+  });
+}

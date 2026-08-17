@@ -106,32 +106,32 @@ function validateCheckpointMarker(markPath, projdir, currentShas) {
   return { state: 'ok' };
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const cmd = input?.tool_input?.command || '';
-  if (!cmd) process.exit(0);
-  if (!/git commit|git merge|git push/.test(cmd)) process.exit(0);
+  if (!cmd) return 0;
+  if (!/git commit|git merge|git push/.test(cmd)) return 0;
   const header = commitHeaderFromCommand(cmd);
-  if (header && SKIP_PREFIXES_RE.test(header)) process.exit(0);
+  if (header && SKIP_PREFIXES_RE.test(header)) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(2);
+    return 2;
   }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
   const markFeature = path.join(runtime, `feature-active-${sess}`);
   const markCheckpoint = path.join(runtime, `checkpoint-done-${sess}`);
 
-  if (!fs.existsSync(markFeature)) process.exit(0);
+  if (!fs.existsSync(markFeature)) return 0;
 
   const currentShas = computeDiffShas(projdir);
 
   const r = validateCheckpointMarker(markCheckpoint, projdir, currentShas);
 
-  if (r.state === 'ok') process.exit(0);
+  if (r.state === 'ok') return 0;
   if (r.state === 'legacy') {
     process.stderr.write(
       `[require-checkpoint-before-merge] AVISO: checkpoint marker sem JSON canonico — aceito porque ROLDAO_METHOD_LEGACY_MARKERS=1.\n`,
@@ -139,7 +139,7 @@ function validateCheckpointMarker(markPath, projdir, currentShas) {
     process.stderr.write(
       `Esta tolerancia some em v2.2.0. Rode '/checkpoint' completo na proxima feature.\n`,
     );
-    process.exit(0);
+    return 0;
   }
 
   let usHint = '';
@@ -238,8 +238,16 @@ function validateCheckpointMarker(markPath, projdir, currentShas) {
   );
   process.stderr.write(`Aplica regras: INV-AGENT-004, INV-AGENT-006, INV-006.\n`);
   recordMetric('block', 'require-checkpoint-before-merge', `${usHint || 'US-?'}: state=${r.state}`);
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[require-checkpoint-before-merge] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[require-checkpoint-before-merge] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

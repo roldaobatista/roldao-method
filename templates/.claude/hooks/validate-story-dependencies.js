@@ -63,26 +63,26 @@ function extractDepsFromFrontmatter(text) {
   return out;
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(2);
+    return 2;
   }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
   const markFeature = path.join(runtime, `feature-active-${sess}`);
   const markDepsOk = path.join(runtime, `deps-checked-${sess}`);
 
-  if (!fs.existsSync(markFeature)) process.exit(0);
-  if (fs.existsSync(markDepsOk)) process.exit(0); // cache de sessao
+  if (!fs.existsSync(markFeature)) return 0;
+  if (fs.existsSync(markDepsOk)) return 0; // cache de sessao
 
   let usId = '';
   try {
@@ -92,19 +92,19 @@ function extractDepsFromFrontmatter(text) {
   } catch {
     /* skip */
   }
-  if (!usId) process.exit(0);
+  if (!usId) return 0;
 
   const storyFile = findFile(
     path.join(projdir, 'docs', 'stories'),
     (n) => n.startsWith(usId + '-') && n.endsWith('.md'),
   );
-  if (!storyFile || !fs.existsSync(storyFile)) process.exit(0);
+  if (!storyFile || !fs.existsSync(storyFile)) return 0;
 
   let text;
   try {
     text = fs.readFileSync(storyFile, 'utf8');
   } catch {
-    process.exit(0);
+    return 0;
   }
   const deps = extractDepsFromFrontmatter(text);
 
@@ -115,7 +115,7 @@ function extractDepsFromFrontmatter(text) {
     try {
       fs.writeFileSync(markDepsOk, '');
     } catch {}
-    process.exit(0);
+    return 0;
   }
 
   const blockers = [];
@@ -147,7 +147,7 @@ function extractDepsFromFrontmatter(text) {
     try {
       fs.writeFileSync(markDepsOk, '');
     } catch {}
-    process.exit(0);
+    return 0;
   }
 
   process.stderr.write(
@@ -170,8 +170,16 @@ function extractDepsFromFrontmatter(text) {
     'validate-story-dependencies',
     `${usId}: ${blockers.length} dependencias nao entregues`,
   );
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[validate-story-dependencies] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[validate-story-dependencies] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

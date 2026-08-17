@@ -30,26 +30,26 @@ function firstMatchFile(dir, predicate) {
   return null;
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(2);
+    return 2;
   }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
   const markFeature = path.join(runtime, `feature-active-${sess}`);
   const markReadiness = path.join(runtime, `readiness-passed-${sess}`);
 
-  if (!fs.existsSync(markFeature)) process.exit(0);
-  if (fs.existsSync(markReadiness)) process.exit(0);
+  if (!fs.existsSync(markFeature)) return 0;
+  if (fs.existsSync(markReadiness)) return 0;
 
   // Tenta ler US do marker e buscar status do epico
   let usId = '';
@@ -87,7 +87,7 @@ function firstMatchFile(dir, predicate) {
                 try {
                   fs.writeFileSync(markReadiness, '');
                 } catch {}
-                process.exit(0);
+                return 0;
               }
             }
           }
@@ -128,8 +128,16 @@ function firstMatchFile(dir, predicate) {
     'require-readiness-before-feature',
     `${usId || 'US-?'} sem readiness (status=${statusHint || 'sem arquivo'})`,
   );
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[require-readiness-before-feature] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[require-readiness-before-feature] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

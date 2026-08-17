@@ -39,15 +39,15 @@ function run(cmd, args) {
   }
 }
 
-(async () => {
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(0);
+    return 0;
   }
 
-  const input = await readStdinJson();
   const file = input?.tool_input?.file_path || '';
   // Guard contra path interpretado como flag (ex: "-rf", "--config=evil")
   // pelas ferramentas chamadas adiante (prettier/eslint/ruff/black/gofmt/etc),
@@ -59,7 +59,7 @@ function run(cmd, args) {
     file.includes('\0') ||
     !fs.existsSync(file)
   )
-    process.exit(0);
+    return 0;
 
   const ext = (file.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
   const localBin = (b) => path.join(projdir, 'node_modules', '.bin', b);
@@ -105,5 +105,16 @@ function run(cmd, args) {
     if (hasCommand('shfmt')) run('shfmt', ['-w', file]);
   }
 
-  process.exit(0);
-})().catch(() => process.exit(0));
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[auto-format-on-write] erro interno: ${err.message}\n`);
+    process.exit(0);
+  });
+}

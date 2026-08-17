@@ -19,7 +19,6 @@
       "Read(./.claude/**)",
       "Read(./.specify/**)",
       "Read(./docs/**)",
-
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
@@ -52,7 +51,6 @@
       "Bash(git rev-parse*)",
       "Bash(git ls-files*)",
       "Bash(git blame*)",
-
       "Bash(ls*)",
       "Bash(pwd)",
       "Bash(cat *.md)",
@@ -71,7 +69,6 @@
       "Bash(whoami)",
       "Bash(hostname)",
       "Bash(date*)",
-
       "Bash(node -v*)",
       "Bash(npm -v*)",
       "Bash(npm list*)",
@@ -102,7 +99,6 @@
       "Bash(eslint*)",
       "Bash(prettier*)",
       "Bash(playwright*)",
-
       "Bash(pnpm -v*)",
       "Bash(pnpm list*)",
       "Bash(pnpm test*)",
@@ -115,7 +111,6 @@
       "Bash(bun -v*)",
       "Bash(bun test*)",
       "Bash(bun run*)",
-
       "Bash(python -V*)",
       "Bash(python3 -V*)",
       "Bash(pytest*)",
@@ -131,7 +126,6 @@
       "Bash(pip list*)",
       "Bash(pip show*)",
       "Bash(pip-audit*)",
-
       "Bash(go version*)",
       "Bash(go test*)",
       "Bash(go build*)",
@@ -147,7 +141,6 @@
       "Bash(cargo check*)",
       "Bash(cargo clippy*)",
       "Bash(cargo fmt*)",
-
       "Bash(docker ps*)",
       "Bash(docker images*)",
       "Bash(docker logs*)",
@@ -194,14 +187,12 @@
       "Bash(docker-compose build*)",
       "Bash(docker-compose exec*)",
       "Bash(docker-compose restart*)",
-
       "Bash(make test*)",
       "Bash(make build*)",
       "Bash(make lint*)",
       "Bash(make check*)",
       "Bash(make run*)",
       "Bash(make install*)",
-
       "Bash(gh pr view*)",
       "Bash(gh pr list*)",
       "Bash(gh pr checks*)",
@@ -221,12 +212,10 @@
       "Bash(gh api repos/*)",
       "Bash(gh workflow list*)",
       "Bash(gh workflow view*)",
-
       "Bash(curl -I *)",
       "Bash(curl -X GET*)",
       "Bash(curl --head *)",
       "Bash(wget --spider*)",
-
       "Bash(jq *)",
       "Bash(sqlite3 *)",
       "Bash(psql -c \"SELECT*)",
@@ -239,7 +228,6 @@
       "Bash(redis-cli get*)",
       "Bash(redis-cli keys*)",
       "Bash(mongosh --eval \"db.*.find*)",
-
       "Bash(prisma generate*)",
       "Bash(prisma format*)",
       "Bash(prisma validate*)",
@@ -250,7 +238,6 @@
       "Bash(alembic show*)",
       "Bash(supabase status*)",
       "Bash(supabase db diff*)",
-
       "Bash(echo *)",
       "Bash(head *)",
       "Bash(tail *)",
@@ -381,43 +368,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-destructive.js\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/commit-message-validator.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-amend-after-push.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-secrets-in-commit-message.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-checkpoint-before-merge.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-auditors-pass-before-commit.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-postmortem-after-hotfix.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/nfe-imutavel.js\"",
-            "timeout": 5
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/_dispatcher.js\" pre-bash",
+            "timeout": 60
           }
         ]
       },
@@ -426,113 +378,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/secrets-scanner.js\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/anti-mascaramento.js\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-frontmatter.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/paths-frontmatter-validator.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-mock-in-integration.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block-todo-without-issue.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-test-data-in-fixtures.js\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-hardcoded-env-urls.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/fiscal-br-validator.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/nfe-imutavel.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-investigador-before-fix.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-readiness-before-feature.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/require-agent-sequence-before-dev.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-dependencies.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-story-approvals.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-quick-dev-scope.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-test-pyramid.js\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-base-legal-reminder.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-minimizacao-reminder.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-transferencia-internacional-reminder.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-dpo-canal-reminder.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/no-log-pix-key.js\"",
-            "timeout": 5
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/_dispatcher.js\" pre-write",
+            "timeout": 60
           }
         ]
       }
@@ -543,18 +390,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/auto-format-on-write.js\"",
-            "timeout": 15
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-esquecimento-reminder.js\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lgpd-trilha-auditoria-reminder.js\"",
-            "timeout": 5
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/_dispatcher.js\" post-write",
+            "timeout": 30
           }
         ]
       }

@@ -28,25 +28,25 @@ const DPA_RE =
 // Indicios fortes de processar dado pessoal (pra evitar warn em arquivo neutro)
 const PII_USAGE_RE = /\b(cpf|cnpj|email|telefone|endereco|user\.|customer\.|cliente\.|usuario\.)/i;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const provMatch = String(content).match(PROVIDER_RE);
-  if (!provMatch) process.exit(0);
+  if (!provMatch) return 0;
 
   // Se tem regiao BR declarada na mesma referencia, libera
-  if (REGIAO_BR_RE.test(content)) process.exit(0);
+  if (REGIAO_BR_RE.test(content)) return 0;
   // Se ha declaracao de DPA, libera
-  if (DPA_RE.test(content)) process.exit(0);
+  if (DPA_RE.test(content)) return 0;
   // Se nao manuseia PII no arquivo, nao avisa (pode ser config de CDN)
-  if (!PII_USAGE_RE.test(content)) process.exit(0);
+  if (!PII_USAGE_RE.test(content)) return 0;
 
   process.stderr.write(`[lgpd-transferencia-internacional-reminder] AVISO (nao bloqueio):\n\n`);
   process.stderr.write(
@@ -79,5 +79,18 @@ const PII_USAGE_RE = /\b(cpf|cnpj|email|telefone|endereco|user\.|customer\.|clie
     filePath,
   );
 
-  process.exit(0); // soft warning
-})().catch(() => process.exit(0));
+  return 0; // soft warning
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(
+      `[lgpd-transferencia-internacional-reminder] erro interno: ${err.message}\n`,
+    );
+    process.exit(0);
+  });
+}

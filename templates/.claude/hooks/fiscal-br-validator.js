@@ -77,14 +77,14 @@ const FISCAL_004_EMISSAO_RE =
 const FISCAL_004_DECLARATION_RE =
   /FISCAL-004:\s*(svc-an|svc-rs|epec|contingencia|fs-da|nao-aplica)/i;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = input?.tool_input?.file_path || '';
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const violations = [];
   const lines = String(content).split(/\r?\n/);
@@ -199,11 +199,19 @@ const FISCAL_004_DECLARATION_RE =
     process.stderr.write(`Detalhe: REGRAS-INEGOCIAVEIS.md (FISCAL-001..010).\n`);
     process.stderr.write(`Excecao por linha: // FISCAL-NNN-exception: <razao + responsavel>.\n`);
     recordMetric('block', 'fiscal-br-validator', violations[0]);
-    process.exit(2);
+    return 2;
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[fiscal-br-validator] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[fiscal-br-validator] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

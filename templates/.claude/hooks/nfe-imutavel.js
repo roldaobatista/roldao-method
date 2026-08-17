@@ -35,6 +35,8 @@ const SQL_UPDATE_DELETE_RE = new RegExp(
 const XML_EMITIDO_PATH_RE = /(emitidas?|autorizadas?|enviadas?|nfe-?emitida)\b.*\.xml$/i;
 const XML_NOME_CHAVE_RE = /\b\d{44}\b.*\.xml$/i;
 
+// bloqueia — escreve a mensagem de erro e RETORNA o exit code (nunca chama
+// process.exit — contrato do _dispatcher, ADR-033). Chamadores devem `return bloqueia(...)`.
 function bloqueia(motivo, contexto) {
   process.stderr.write(`[nfe-imutavel] BLOQUEADO: ${motivo}\n\n`);
   process.stderr.write(`Contexto: ${contexto}\n\n`);
@@ -49,45 +51,47 @@ function bloqueia(motivo, contexto) {
   process.stderr.write(`- Documente a razao em ADR aprovado pelo fiscal/contador.\n`);
   process.stderr.write(`- Adicione marca // FISCAL-001-exception: <ADR-NNN ou razao> na linha.\n`);
   recordMetric('block', 'nfe-imutavel', motivo);
-  process.exit(2);
+  return 2;
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+// Atende DOIS eventos (PreToolUse Bash E Write|Edit) — trata os dois formatos
+// de payload (tool_input.command e tool_input.file_path) no mesmo runHook.
+async function runHook(input) {
   const toolName = input?.tool_name || '';
 
   if (toolName === 'Bash') {
     const cmd = input?.tool_input?.command || '';
-    if (!cmd) process.exit(0);
-    if (EXCEPTION_RE.test(cmd)) process.exit(0);
+    if (!cmd) return 0;
+    if (EXCEPTION_RE.test(cmd)) return 0;
     if (SQL_UPDATE_DELETE_RE.test(cmd)) {
-      bloqueia(
+      return bloqueia(
         'UPDATE/DELETE/TRUNCATE/DROP em tabela de documento fiscal emitido',
         cmd.slice(0, 200),
       );
     }
-    process.exit(0);
+    return 0;
   }
 
   if (toolName === 'Write' || toolName === 'Edit') {
     const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-    if (!filePath) process.exit(0);
+    if (!filePath) return 0;
 
     const isXmlEmitido = XML_EMITIDO_PATH_RE.test(filePath) || XML_NOME_CHAVE_RE.test(filePath);
 
     if (isXmlEmitido) {
-      bloqueia('edicao de arquivo de documento fiscal emitido', filePath);
+      return bloqueia('edicao de arquivo de documento fiscal emitido', filePath);
     }
 
     const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-    if (!content) process.exit(0);
+    if (!content) return 0;
 
     const lines = String(content).split(/\r?\n/);
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       if (EXCEPTION_RE.test(line)) continue;
       if (SQL_UPDATE_DELETE_RE.test(line)) {
-        bloqueia(
+        return bloqueia(
           'UPDATE/DELETE em tabela de documento fiscal emitido (codigo SQL)',
           `${filePath} linha ${i + 1}: ${line.slice(0, 120)}`,
         );
@@ -95,8 +99,16 @@ function bloqueia(motivo, contexto) {
     }
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[nfe-imutavel] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[nfe-imutavel] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

@@ -30,14 +30,14 @@ function extractEtapaBlock(content, etapa) {
   return m ? m[0] : '';
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = input?.tool_input?.file_path || '';
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!filePath) process.exit(0);
-  if (!content) process.exit(0);
-  if (!STORY_PATH_RE.test(filePath)) process.exit(0);
-  if (!/^status:\s*entregue\b/m.test(content)) process.exit(0);
+  if (!filePath) return 0;
+  if (!content) return 0;
+  if (!STORY_PATH_RE.test(filePath)) return 0;
+  if (!/^status:\s*entregue\b/m.test(content)) return 0;
 
   const missing = [];
   for (const etapa of REQUIRED) {
@@ -74,7 +74,7 @@ function extractEtapaBlock(content, etapa) {
   // Conta aprovacoes reprovadas/bloqueadas
   const hasBlock = (content.match(/^\s*status:\s*(reprovado|bloqueado)\s*$/gm) || []).length;
 
-  if (missing.length === 0 && hasBlock === 0 && missingSha.length === 0) process.exit(0);
+  if (missing.length === 0 && hasBlock === 0 && missingSha.length === 0) return 0;
 
   const usMatch = content.match(/^id:\s*(US-\d+)/m);
   const usId = usMatch ? usMatch[1] : '(nao identificada)';
@@ -171,8 +171,16 @@ function extractEtapaBlock(content, etapa) {
     'validate-story-approvals',
     `${usId}: missing=${missing.length} blocked=${hasBlock}`,
   );
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[validate-story-approvals] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[validate-story-approvals] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

@@ -197,8 +197,8 @@ function posixToJsRegex(pattern, flags = '') {
     .replace(/\[\[:alpha:\]\]/g, '[a-zA-Z]')
     .replace(/\[\[:alnum:\]\]/g, '[a-zA-Z0-9]')
     .replace(/\[\[:digit:\]\]/g, '\\d')
-    .replace(/\[\[:upper:\]\]/g, 'A-Z')
-    .replace(/\[\[:lower:\]\]/g, 'a-z')
+    .replace(/\[\[:upper:\]\]/g, '[A-Z]')
+    .replace(/\[\[:lower:\]\]/g, '[a-z]')
     .replace(/\[\[:punct:\]\]/g, '[!-/:-@\\[-`{-~]')
     .replace(/\[\[:xdigit:\]\]/g, '[0-9a-fA-F]');
   return new RegExp(converted, flags);
@@ -266,12 +266,15 @@ function recordMetric(kind, label, reason) {
     return;
   }
   const ts = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
-  // Escapa aspas e barra na razao pra JSON valido. tr equivalente a perl no _lib.sh.
-  const cleanReason = String(reason || '')
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/[\n\t]/g, ' ');
-  const line = `{"ts":"${ts}","kind":"${kind || '?'}","label":"${label || '?'}","reason":"${cleanReason}"}\n`;
+  // Auditoria 2026-08-17: JSON via JSON.stringify — a concatenacao manual nao
+  // escapava \r nem kind/label e podia gravar JSONL invalido.
+  const line =
+    JSON.stringify({
+      ts,
+      kind: String(kind || '?'),
+      label: String(label || '?'),
+      reason: String(reason || '').replace(/[\r\n\t]/g, ' '),
+    }) + '\n';
   try {
     fs.appendFileSync(path.join(runtime, 'metrics.jsonl'), line);
   } catch {

@@ -26,24 +26,24 @@ const MS_HORA = 60 * 60 * 1000;
 // Auditoria 2026-08-17: isencao ancorada no cabecalho da mensagem do commit.
 const ALLOW_PREFIXES_RE = /^(docs|chore|test|ci|postmortem)(\([^)]*\))?\s*!?:/i;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const cmd = input?.tool_input?.command || '';
-  if (!cmd) process.exit(0);
-  if (!cmd.includes('git commit')) process.exit(0);
+  if (!cmd) return 0;
+  if (!cmd.includes('git commit')) return 0;
 
   // Libera commit de docs/chore/test/ci/postmortem (precisa fechar o ciclo)
   const header = commitHeaderFromCommand(cmd);
-  if (header && ALLOW_PREFIXES_RE.test(header)) process.exit(0);
+  if (header && ALLOW_PREFIXES_RE.test(header)) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(0);
+    return 0;
   }
   const runtime = path.join(projdir, '.claude', '.runtime');
-  if (!fs.existsSync(runtime)) process.exit(0);
+  if (!fs.existsSync(runtime)) return 0;
 
   // Acha markers needs-postmortem-* vencidos (> 48h)
   let markers;
@@ -61,12 +61,12 @@ const ALLOW_PREFIXES_RE = /^(docs|chore|test|ci|postmortem)(\([^)]*\))?\s*!?:/i;
       })
       .filter(Boolean);
   } catch {
-    process.exit(0);
+    return 0;
   }
 
   const agora = Date.now();
   const vencidos = markers.filter((m) => agora - m.mtime > LIMITE_HORAS * MS_HORA);
-  if (vencidos.length === 0) process.exit(0);
+  if (vencidos.length === 0) return 0;
 
   // Existe postmortem mais novo que o marker mais antigo? Se sim, considera ciclo fechado.
   const markerMaisAntigo = vencidos.reduce((min, m) => (m.mtime < min ? m.mtime : min), Infinity);
@@ -95,7 +95,7 @@ const ALLOW_PREFIXES_RE = /^(docs|chore|test|ci|postmortem)(\([^)]*\))?\s*!?:/i;
         /* */
       }
     }
-    process.exit(0);
+    return 0;
   }
 
   process.stderr.write(
@@ -132,5 +132,13 @@ const ALLOW_PREFIXES_RE = /^(docs|chore|test|ci|postmortem)(\([^)]*\))?\s*!?:/i;
     'require-postmortem-after-hotfix',
     `marker vencido > ${LIMITE_HORAS}h sem INC-*`,
   );
-  process.exit(2);
-})().catch(() => process.exit(2));
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch(() => process.exit(2));
+}

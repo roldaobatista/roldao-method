@@ -34,11 +34,11 @@ function extractMessages(cmd) {
   return parts.join('\n');
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const cmd = input?.tool_input?.command || '';
 
-  if (!cmd.includes('git commit')) process.exit(0);
+  if (!cmd.includes('git commit')) return 0;
 
   // Fail-closed: se parser nao extraiu mensagem (commit via -F, editor, ou
   // formato exotico), escaneia o CMD inteiro — segredo em --file leak.txt
@@ -63,12 +63,20 @@ function extractMessages(cmd) {
         `  "fix: rotaciona chave AWS por exposicao em log" (NAO: "fix: chave AKIA... rotacionada")\n`,
       );
       recordMetric('block', 'block-secrets-in-commit-message', re.source);
-      process.exit(2);
+      return 2;
     }
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[block-secrets-in-commit-message] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[block-secrets-in-commit-message] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

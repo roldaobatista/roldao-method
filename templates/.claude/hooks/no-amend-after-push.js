@@ -33,7 +33,8 @@ function gitInstalled() {
   }
 }
 
-(async () => {
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   // Hook roda no PWD do harness. Aceita PROJDIR via env (sanitizado) ou cai pra
   // PWD. Fail-closed: se sanitizeProjdir recusar (env malicioso, traversal),
   // BLOQUEIA o --amend em vez de liberar.
@@ -41,17 +42,15 @@ function gitInstalled() {
   try {
     projdir = sanitizeProjdir(process.env.CLAUDE_PROJECT_DIR || process.cwd());
   } catch {
-    process.exit(2);
+    return 2;
   }
-
-  const input = await readStdinJson();
   const cmd = input?.tool_input?.command || '';
 
   // Aplica so a `git commit`
-  if (!cmd.includes('git commit')) process.exit(0);
+  if (!cmd.includes('git commit')) return 0;
 
   // --amend como argumento isolado (regex igual ao grep -E do .sh)
-  if (!/(^|\s)--amend(\s|$)/.test(cmd)) process.exit(0);
+  if (!/(^|\s)--amend(\s|$)/.test(cmd)) return 0;
 
   // Fail-closed: sem `git` no PATH nao da pra saber se ja foi pushado.
   // Bloqueia o --amend pedindo instalacao OU desligar este hook.
@@ -81,7 +80,7 @@ function gitInstalled() {
       `    agente desligar este hook temporariamente em .claude/settings.json.\n`,
     );
     recordMetric('block', 'no-amend-after-push', 'git ausente — fail-closed');
-    process.exit(2);
+    return 2;
   }
 
   const opts = { cwd: projdir };
@@ -134,12 +133,20 @@ function gitInstalled() {
       `execute com confirmacao explicita e force-with-lease consciente (autorizacao do usuario obrigatoria).\n`,
     );
     recordMetric('block', 'no-amend-after-push', `amend em commit ja pushado para ${pushedTo}`);
-    process.exit(2);
+    return 2;
   }
 
-  process.exit(0);
-})().catch((err) => {
-  // Fail-closed: erro inesperado num hook bloqueador NAO libera. Exit 2.
-  process.stderr.write(`[no-amend-after-push] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    // Fail-closed: erro inesperado num hook bloqueador NAO libera. Exit 2.
+    process.stderr.write(`[no-amend-after-push] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

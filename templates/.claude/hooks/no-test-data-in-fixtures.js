@@ -49,13 +49,13 @@ function cpfDvOk(c) {
 const SYNTHETIC_CPFS = new Set(['12345678909', '12345678900']);
 const SYNTHETIC_PHONES = new Set(['11999999999']);
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!FIXTURE_PATH_RE.test(filePath)) process.exit(0);
+  if (!FIXTURE_PATH_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const violations = [];
   for (const line of String(content).split(/\r?\n/)) {
@@ -138,11 +138,19 @@ const SYNTHETIC_PHONES = new Set(['11999999999']);
       `adicione na mesma linha ou no header:\n  // TST-004-exception: <razao clara e tempo de retencao>\n`,
     );
     recordMetric('block', 'no-test-data-in-fixtures', violations[0]);
-    process.exit(2);
+    return 2;
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[no-test-data-in-fixtures] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[no-test-data-in-fixtures] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

@@ -41,14 +41,14 @@ const SENSITIVE_DOMAINS = [
   'sandbox\\.(asaas|pagarme|stripe|mercadopago|gerencianet|stark|efi)\\.com',
 ];
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const violations = [];
   const lines = String(content).split(/\r?\n/);
@@ -85,11 +85,19 @@ const SENSITIVE_DOMAINS = [
     );
     process.stderr.write(`adicione na mesma linha:\n  // SEC-005-exception: <razao>\n`);
     recordMetric('block', 'no-hardcoded-env-urls', violations[0]);
-    process.exit(2);
+    return 2;
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[no-hardcoded-env-urls] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[no-hardcoded-env-urls] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

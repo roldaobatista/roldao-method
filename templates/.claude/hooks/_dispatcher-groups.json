@@ -1,0 +1,39 @@
+{
+  "$comentario": "Fonte única dos grupos do _dispatcher.js — mesma ordem que o settings.json tinha antes do ADR-033. Mudou hook? Atualize aqui E rode npm test (validar-cobertura-hooks confere).",
+  "pre-write": [
+    "secrets-scanner",
+    "anti-mascaramento",
+    "auto-frontmatter",
+    "paths-frontmatter-validator",
+    "block-mock-in-integration",
+    "block-todo-without-issue",
+    "no-test-data-in-fixtures",
+    "no-hardcoded-env-urls",
+    "fiscal-br-validator",
+    "nfe-imutavel",
+    "require-investigador-before-fix",
+    "require-readiness-before-feature",
+    "require-agent-sequence-before-dev",
+    "validate-story-dependencies",
+    "validate-story-approvals",
+    "validate-quick-dev-scope",
+    "validate-test-pyramid",
+    "lgpd-base-legal-reminder",
+    "lgpd-minimizacao-reminder",
+    "lgpd-transferencia-internacional-reminder",
+    "lgpd-dpo-canal-reminder",
+    "no-log-pix-key"
+  ],
+  "post-write": ["auto-format-on-write", "lgpd-esquecimento-reminder", "lgpd-trilha-auditoria-reminder"],
+  "pre-bash": [
+    "block-destructive",
+    "commit-message-validator",
+    "no-amend-after-push",
+    "block-secrets-in-commit-message",
+    "require-checkpoint-before-merge",
+    "require-auditors-pass-before-commit",
+    "require-postmortem-after-hotfix",
+    "enforce-tier-ceremony",
+    "nfe-imutavel"
+  ]
+}

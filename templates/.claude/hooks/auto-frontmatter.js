@@ -83,20 +83,20 @@ function reescreverFrontmatter(content) {
   return linhas.join('\n');
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = input?.tool_input?.file_path || '';
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!TARGET_EXT_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!TARGET_EXT_RE.test(filePath)) return 0;
 
   // PreToolUse nao consegue modificar content do Write/Edit (limitacao do harness).
   // Funciona como AVISO: se detectar placeholder, alerta o agente pra usar valor real.
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const reescrito = reescreverFrontmatter(content);
-  if (!reescrito) process.exit(0);
+  if (!reescrito) return 0;
 
   // Soft warning (exit 0) sugerindo o frontmatter atualizado
   process.stderr.write(
@@ -106,5 +106,13 @@ function reescreverFrontmatter(content) {
     `Sugestao mecanica: substituir 'AAAA-MM-DD' por '${hojeIso()}' e 'owner: <preencher>' por '${fallbackUser()}' antes de salvar.\n`,
   );
   process.stderr.write(`(T-302 / E2+E8 — nao bloqueia, so lembra.)\n`);
-  process.exit(0);
-})().catch(() => process.exit(0));
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch(() => process.exit(0));
+}

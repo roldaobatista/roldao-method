@@ -53,11 +53,13 @@ const PWD_BARE_RE = new RegExp(
     'passwd' +
     '|' +
     'senha' +
-    ')\\s*[:=]\\s*[A-Za-z0-9_+/=!@#$%^&*-]{8,}(\\s|$)',
+    // Auditoria 2026-08-17: exige cara de senha (digito ou simbolo no valor) —
+    // atribuicao de variavel (`password = senhaDigitada`) era falso positivo.
+    ')\\s*[:=]\\s*(?=[^\\s]*[0-9!@#$%^&*+/=-])[A-Za-z0-9_+/=!@#$%^&*-]{8,}(\\s|$)',
 );
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   let content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
 
@@ -79,9 +81,9 @@ const PWD_BARE_RE = new RegExp(
         ),
       );
       recordMetric('block', 'secrets-scanner', 'fail-closed: payload incompleto em Write/Edit');
-      process.exit(2);
+      return 2;
     }
-    process.exit(0);
+    return 0;
   }
 
   // Checagem 1: path proibido (pula se for arquivo de exemplo)
@@ -101,7 +103,7 @@ const PWD_BARE_RE = new RegExp(
           `Use variável de ambiente ou cofre (vault). Se for arquivo de EXEMPLO, use sufixo .example (ex: .env.example).\n`,
         );
         recordMetric('block', 'secrets-scanner', `filename: ${re.source}`);
-        process.exit(2);
+        return 2;
       }
     }
   }
@@ -123,7 +125,7 @@ const PWD_BARE_RE = new RegExp(
           `Regra: SEC-001. Se este valor é exemplo/placeholder, substitua por valor obviamente fake (ex: "AKIA-EXAMPLE-DO-NOT-USE").\n`,
         );
         recordMetric('block', 'secrets-scanner', `content: ${re.source}`);
-        process.exit(2);
+        return 2;
       }
     }
     const lines = String(content).split(/\r?\n/);
@@ -142,14 +144,22 @@ const PWD_BARE_RE = new RegExp(
             `Regra: SEC-001. Se este valor é exemplo/placeholder, mova pra comentário (// password = ...) ou use valor obviamente fake.\n`,
           );
           recordMetric('block', 'secrets-scanner', `content: ${re.source}`);
-          process.exit(2);
+          return 2;
         }
       }
     }
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[secrets-scanner] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[secrets-scanner] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

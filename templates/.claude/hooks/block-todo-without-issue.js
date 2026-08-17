@@ -14,13 +14,13 @@ const TODO_RE = /(\/\/|#|\/\*|<!--)[^\n]*?\b(TODO|FIXME|XXX|HACK)\b/;
 const ID_RE =
   /(#[0-9]+|US-[0-9]+|T-[0-9]+|AC-[0-9]+|INV-[0-9]+|SEC-[0-9]+|TST-[0-9]+|LGPD-[0-9]+|FISCAL-[0-9]+|ADR-[0-9]+)/;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (SKIP_PATH_RE.test(filePath)) process.exit(0);
+  if (SKIP_PATH_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const violations = [];
   String(content)
@@ -46,11 +46,19 @@ const ID_RE =
       `IDs aceitos: #N, US-N, T-N, AC-N, INV-N, SEC-N, TST-N, LGPD-N, FISCAL-N, ADR-N.\n`,
     );
     recordMetric('block', 'block-todo-without-issue', violations[0]);
-    process.exit(2);
+    return 2;
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[block-todo-without-issue] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[block-todo-without-issue] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

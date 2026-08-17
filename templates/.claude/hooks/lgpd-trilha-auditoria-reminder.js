@@ -21,20 +21,20 @@ const ACESSO_DADO_RE =
 const TRILHA_RE =
   /(audit_?log|audit_?trail|recordAccess|registrar_?acesso|log_?lgpd|trilha_?auditoria|logger\.(info|audit|access).*\b(cpf|email|telefone|paciente|conta))/i;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const toolName = input?.tool_name || '';
-  if (toolName !== 'Write' && toolName !== 'Edit') process.exit(0);
+  if (toolName !== 'Write' && toolName !== 'Edit') return 0;
 
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
-  if (!TRIGGER_PATHS_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
+  if (!TRIGGER_PATHS_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
-  if (!ACESSO_DADO_RE.test(content)) process.exit(0);
-  if (TRILHA_RE.test(content)) process.exit(0);
+  if (!content) return 0;
+  if (!ACESSO_DADO_RE.test(content)) return 0;
+  if (TRILHA_RE.test(content)) return 0;
 
   process.stderr.write(
     `[lgpd-trilha-auditoria-reminder] Lembrete LGPD-004 — trilha de auditoria.\n\n` +
@@ -54,5 +54,16 @@ const TRILHA_RE =
     `Handler/repository ${filePath} acessa dado pessoal sem trilha de auditoria visivel.`,
     filePath,
   );
-  process.exit(0);
-})().catch(() => process.exit(0));
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[lgpd-trilha-auditoria-reminder] erro interno: ${err.message}\n`);
+    process.exit(0);
+  });
+}

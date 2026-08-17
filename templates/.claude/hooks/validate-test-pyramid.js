@@ -57,16 +57,16 @@ function walkDir(dir, onFile) {
   }
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const rawFilePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!rawFilePath) process.exit(0);
+  if (!rawFilePath) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(2);
+    return 2;
   }
   const projdirNorm = normalizeFilePath(projdir);
 
@@ -77,18 +77,18 @@ function walkDir(dir, onFile) {
   if (ABS_PATH_RE.test(rawFilePath)) {
     const rel = normalizeFilePath(path.posix.relative(projdirNorm, rawFilePath));
     // Fora do projeto (sobe diretorio ou e path absoluto de outro drive) — ignora.
-    if (rel.startsWith('..') || ABS_PATH_RE.test(rel)) process.exit(0);
+    if (rel.startsWith('..') || ABS_PATH_RE.test(rel)) return 0;
     filePath = rel;
   }
 
-  if (!E2E_PATH_RE.test(filePath)) process.exit(0);
+  if (!E2E_PATH_RE.test(filePath)) return 0;
 
   // Identifica modulo: sobe um nivel se MODULE_DIR termina em /e2e, /cypress, etc.
   let moduleDir = normalizeFilePath(path.dirname(filePath));
   if (E2E_DIR_RE.test(moduleDir)) moduleDir = path.dirname(moduleDir);
 
   // Sanitizacao: rejeita traversal explicito (moduleDir ja e relativo ao projeto aqui).
-  if (UNSAFE_PATH_RE.test(moduleDir)) process.exit(0);
+  if (UNSAFE_PATH_RE.test(moduleDir)) return 0;
 
   const absModule = path.join(projdir, moduleDir);
 
@@ -104,7 +104,7 @@ function walkDir(dir, onFile) {
   if (unitCount === 0 && e2eCount <= 5) {
     // Override: arquivo de marker libera primeiro E2E em projeto greenfield.
     const allowMarker = path.join(projdir, '.claude', '.runtime', 'allow-e2e-first');
-    if (fs.existsSync(allowMarker)) process.exit(0);
+    if (fs.existsSync(allowMarker)) return 0;
 
     process.stderr.write(
       `[validate-test-pyramid] BLOQUEADO: criacao de teste E2E sem unit tests no modulo.\n\n`,
@@ -142,11 +142,19 @@ function walkDir(dir, onFile) {
       `  mkdir -p ${projdir}/.claude/.runtime && touch ${projdir}/.claude/.runtime/allow-e2e-first\n`,
     );
     recordMetric('block', 'validate-test-pyramid', `unit=${unitCount} e2e=${e2eCount}`);
-    process.exit(2);
+    return 2;
   }
 
-  process.exit(0);
-})().catch((err) => {
-  process.stderr.write(`[validate-test-pyramid] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[validate-test-pyramid] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

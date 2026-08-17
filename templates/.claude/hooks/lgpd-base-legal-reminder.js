@@ -59,24 +59,24 @@ function fileMentionsLgpd(dir) {
   return false;
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   const piiMatch = String(content).match(PII_RE);
-  if (!piiMatch) process.exit(0);
+  if (!piiMatch) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(0);
+    return 0;
   }
   const decisionsDir = path.join(projdir, 'docs', 'decisions');
 
@@ -114,7 +114,7 @@ function fileMentionsLgpd(dir) {
     }
   }
 
-  if (documentado) process.exit(0);
+  if (documentado) return 0;
 
   process.stderr.write(`[lgpd-base-legal-reminder] AVISO (nao bloqueio):\n\n`);
   process.stderr.write(
@@ -148,7 +148,16 @@ function fileMentionsLgpd(dir) {
     filePath,
   );
 
-  process.exit(0); // soft warning: sai 0 sempre
-})().catch(() => {
-  process.exit(0); // fail-soft em hook de aviso
-});
+  return 0; // soft warning: sai 0 sempre
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[lgpd-base-legal-reminder] erro interno: ${err.message}\n`);
+    process.exit(0); // fail-soft em hook de aviso
+  });
+}

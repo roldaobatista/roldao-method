@@ -21,25 +21,25 @@ const PATH_SENSITIVE_RE =
   /(\b|\/)(fiscal|nfe|nfce|sat|esocial|reinf|sped|pix|lgpd|dpo|ripd|imposto|tributo|cpf|cnpj|certificado|sefaz)([\b/_.-]|$)/i;
 const LIMIT = 3;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   // Auditoria 2026-08-17: normaliza \ do Windows — senao SKIP_PATH_RE (com /)
   // nunca casa e o hook conta teste como arquivo de codigo no limite de 3.
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
+  if (!filePath) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(2);
+    return 2;
   }
   const sess = sanitizeSessionHash(undefined, projdir);
   const markQd = path.join(projdir, '.claude', '.runtime', `quick-dev-active-${sess}`);
 
-  if (!fs.existsSync(markQd)) process.exit(0);
-  if (SKIP_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (!fs.existsSync(markQd)) return 0;
+  if (SKIP_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   // Bloqueio imediato em dominio sensivel
   if (PATH_SENSITIVE_RE.test(filePath)) {
@@ -58,7 +58,7 @@ const LIMIT = 3;
     process.stderr.write(`  2. Rode: /feature <descricao>\n\n`);
     process.stderr.write(`Aplica: validate-quick-dev-scope (palavra-gatilho), INV-AGENT-005.\n`);
     recordMetric('block', 'validate-quick-dev-scope', `dominio sensivel: ${filePath}`);
-    process.exit(2);
+    return 2;
   }
 
   const runtime = safeRuntimeDir(projdir);
@@ -75,7 +75,7 @@ const LIMIT = 3;
   }
 
   const alreadyInLog = seen.has(normPath);
-  if (alreadyInLog) process.exit(0); // idempotencia
+  if (alreadyInLog) return 0; // idempotencia
 
   const uniqueAfter = seen.size + 1;
 
@@ -83,7 +83,7 @@ const LIMIT = 3;
     try {
       fs.appendFileSync(filesLog, normPath + '\n');
     } catch {}
-    process.exit(0);
+    return 0;
   }
 
   // Estourou — NAO adiciona o novo, bloqueia
@@ -116,8 +116,16 @@ const LIMIT = 3;
   process.stderr.write(`(passo documentado em /quick-dev.md).\n\n`);
   process.stderr.write(`Aplica: /quick-dev.md (cheklist obrigatorio), INV-AGENT-005.\n`);
   recordMetric('block', 'validate-quick-dev-scope', `escopo estourou: ${uniqueAfter} arquivos`);
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[validate-quick-dev-scope] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[validate-quick-dev-scope] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

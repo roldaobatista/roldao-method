@@ -111,25 +111,25 @@ function validateMarker(passMark, currentShas) {
   return { state: 'ok', audit_sha: j.audit_sha };
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const cmd = input?.tool_input?.command || '';
-  if (!cmd) process.exit(0);
-  if (!/git commit|git merge|git push/.test(cmd)) process.exit(0);
+  if (!cmd) return 0;
+  if (!/git commit|git merge|git push/.test(cmd)) return 0;
   const header = commitHeaderFromCommand(cmd);
-  if (header && SKIP_PREFIXES_RE.test(header)) process.exit(0);
+  if (header && SKIP_PREFIXES_RE.test(header)) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(2);
+    return 2;
   }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
   const markFeature = path.join(runtime, `feature-active-${sess}`);
 
-  if (!fs.existsSync(markFeature)) process.exit(0);
+  if (!fs.existsSync(markFeature)) return 0;
 
   // Hash do diff atual em 2 formatos (sha256 legado + git hash-object cross-platform).
   // Marker e valido se audit_sha bater em QUALQUER um dos dois.
@@ -201,7 +201,7 @@ function validateMarker(passMark, currentShas) {
       );
       recordMetric('legacy-bypass', 'auditors-pass', `count=${legacy.length}`);
     }
-    process.exit(0);
+    return 0;
   }
 
   let usHint = '';
@@ -299,8 +299,16 @@ function validateMarker(passMark, currentShas) {
     'require-auditors-pass-before-commit',
     `${usHint || 'US-?'} blocked=${blocked.length} missing=${missing.length} empty=${empty.length} malformed=${malformed.length} missing-field=${missingField.length} stale=${stale.length}`,
   );
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[require-auditors-pass-before-commit] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[require-auditors-pass-before-commit] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

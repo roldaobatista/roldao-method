@@ -157,28 +157,21 @@ function bloquear(rawCmd, desc, motivoMetrica) {
   );
   process.stderr.write(`- Só depois execute o comando, ou peça pro usuário rodar manualmente.\n`);
   recordMetric('block', 'block-destructive', motivoMetrica || desc);
-  process.exit(2);
+  return 2;
 }
 
-(async () => {
-  const raw = await readStdinRaw();
-  if (!raw || !raw.trim()) process.exit(0);
-
-  let input = null;
-  try {
-    input = JSON.parse(raw);
-  } catch {
-    input = null;
+// Contrato do _dispatcher (ADR-033): recebe input parseado + texto cru do stdin.
+// O cru sustenta o fail-closed: JSON malformado com comando destrutivo bloqueia.
+async function runHook(input, raw) {
+  let rawCmd = input?.tool_input?.command || '';
+  if (!rawCmd && raw && raw.trim()) {
+    try {
+      JSON.parse(raw); // JSON valido sem command -> nada a escanear
+    } catch {
+      rawCmd = raw; // malformado -> fail-closed escaneia o texto inteiro
+    }
   }
-
-  let rawCmd;
-  if (input === null) {
-    // Fail-closed: JSON malformado mas ha input cru — escaneia o texto inteiro.
-    rawCmd = raw;
-  } else {
-    rawCmd = input?.tool_input?.command || '';
-  }
-  if (!rawCmd) process.exit(0);
+  if (!rawCmd) return 0;
 
   // Normaliza pra detectar bypass por escape backslash/quote (ex: `r\m -rf /`, `r""m -rf /`).
   // Shell aceita `r\m`/`r"m"` como `rm`. Removemos backslashes que escapam letras E quotes
@@ -194,7 +187,7 @@ function bloquear(rawCmd, desc, motivoMetrica) {
   // A isencao exige comando UNICO (sem ;|&& fora de aspas): encadeado escaneia normal.
   const semAspas = cmd.replace(/"[^"]*"|'[^']*'/g, '');
   if (/^\s*(grep|rg)\b/.test(cmd) && !/[;&|]/.test(semAspas)) {
-    process.exit(0);
+    return 0;
   }
 
   // Whitelist de rm/rimraf safe: cada trecho `rm -rf <alvos>` (cortado no proximo
@@ -254,19 +247,34 @@ function bloquear(rawCmd, desc, motivoMetrica) {
       `Regras: SEC-002 (nao executar destrutivo sem confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n`,
     );
     recordMetric('block', 'block-destructive', 'tentativa de rm em marker .claude/.runtime');
-    process.exit(2);
+    return 2;
   }
 
   // Padroes destrutivos: primeiro match bloqueia.
   for (const { re, desc } of PATTERNS) {
     if (re.test(scanCmd)) {
-      bloquear(rawCmd, desc);
+      return bloquear(rawCmd, desc);
     }
   }
 
-  process.exit(0);
-})().catch((err) => {
-  // Fail-closed: erro inesperado num hook bloqueador NAO libera. Exit 2.
-  process.stderr.write(`[block-destructive] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 0;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    const raw = await readStdinRaw();
+    let input = {};
+    try {
+      input = raw ? JSON.parse(raw) : {};
+    } catch {
+      input = {};
+    }
+    process.exit(await runHook(input, raw));
+  })().catch((err) => {
+    // Fail-closed: erro inesperado num hook bloqueador NAO libera. Exit 2.
+    process.stderr.write(`[block-destructive] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

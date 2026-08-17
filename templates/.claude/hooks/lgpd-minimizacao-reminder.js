@@ -24,24 +24,24 @@ const COLUMN_DECL_RE =
 const JUSTIFICATIVA_RE =
   /LGPD-003:|minimizacao|base[-_]legal:|finalidade:|coleta_necessaria|necessario_para|required_for/i;
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
-  if (!SCHEMA_PATH_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
+  if (!SCHEMA_PATH_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content) process.exit(0);
+  if (!content) return 0;
 
   // Deve haver declaracao de coluna E mencao a PII
-  if (!COLUMN_DECL_RE.test(content)) process.exit(0);
+  if (!COLUMN_DECL_RE.test(content)) return 0;
   const piiMatch = String(content).match(PII_COLUMN_RE);
-  if (!piiMatch) process.exit(0);
+  if (!piiMatch) return 0;
 
   // Se ja ha justificativa declarada, libera
-  if (JUSTIFICATIVA_RE.test(content)) process.exit(0);
+  if (JUSTIFICATIVA_RE.test(content)) return 0;
 
   process.stderr.write(`[lgpd-minimizacao-reminder] AVISO (nao bloqueio):\n\n`);
   process.stderr.write(
@@ -71,5 +71,16 @@ const JUSTIFICATIVA_RE =
     filePath,
   );
 
-  process.exit(0); // soft warning
-})().catch(() => process.exit(0));
+  return 0; // soft warning
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[lgpd-minimizacao-reminder] erro interno: ${err.message}\n`);
+    process.exit(0);
+  });
+}

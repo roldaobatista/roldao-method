@@ -98,25 +98,25 @@ function validateInvestigationJson(filepath) {
   return { state: 'ok' };
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(2);
+    return 2;
   }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
   const markBug = path.join(runtime, `bug-trigger-${sess}`);
   const markInv = path.join(runtime, `investigator-invoked-${sess}`);
 
-  if (!fs.existsSync(markBug)) process.exit(0);
+  if (!fs.existsSync(markBug)) return 0;
 
   // GATE 1: investigador invocado.
   if (!fs.existsSync(markInv)) {
@@ -141,7 +141,7 @@ function validateInvestigationJson(filepath) {
       'require-investigador-before-fix',
       `edit em ${filePath} sem investigador (GATE 1)`,
     );
-    process.exit(2);
+    return 2;
   }
 
   // GATE 2 (T-003 / B3): investigador invocado E gravou prova mecanica COM SHAPE VALIDO.
@@ -157,7 +157,7 @@ function validateInvestigationJson(filepath) {
     /* runtime ausente — confia no GATE 1 */
   }
 
-  if (!bugActive) process.exit(0);
+  if (!bugActive) return 0;
 
   // Escopo temporal (auditoria 2026-08-17): so aceita investigation-*.json
   // GRAVADO DEPOIS do gatilho do bug atual (bug-trigger-${sess}). Sem isso, um
@@ -232,7 +232,7 @@ function validateInvestigationJson(filepath) {
       'require-investigador-before-fix',
       `marker sem investigation-*.json (GATE 2.1)`,
     );
-    process.exit(2);
+    return 2;
   }
 
   // Valida shape de cada investigation-*.json — pelo menos UM precisa ser valido (ok ou legacy).
@@ -250,7 +250,7 @@ function validateInvestigationJson(filepath) {
         `Esta tolerancia some em v2.2.0. Investigador deve gravar JSON canonico (ADR-020 + T-003).\n`,
       );
     }
-    process.exit(0);
+    return 0;
   }
 
   // Nenhum JSON valido — bloqueia listando os problemas.
@@ -291,8 +291,16 @@ function validateInvestigationJson(filepath) {
     'require-investigador-before-fix',
     `investigation-*.json sem shape valido (GATE 2.2)`,
   );
-  process.exit(2);
-})().catch((err) => {
-  process.stderr.write(`[require-investigador-before-fix] erro interno: ${err.message}\n`);
-  process.exit(2);
-});
+  return 2;
+}
+
+module.exports = { runHook, onErrorExit: 2 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[require-investigador-before-fix] erro interno: ${err.message}\n`);
+    process.exit(2);
+  });
+}

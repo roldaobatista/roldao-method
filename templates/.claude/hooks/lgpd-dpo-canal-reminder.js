@@ -62,26 +62,26 @@ function findDpoEvidence(projdir) {
   return null;
 }
 
-(async () => {
-  const input = await readStdinJson();
+// Contrato do _dispatcher (ADR-033): retorna exit code, nunca chama process.exit.
+async function runHook(input) {
   const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (EXCLUDED_PATH_RE.test(filePath)) process.exit(0);
-  if (!CODE_EXT_RE.test(filePath)) process.exit(0);
+  if (!filePath) return 0;
+  if (EXCLUDED_PATH_RE.test(filePath)) return 0;
+  if (!CODE_EXT_RE.test(filePath)) return 0;
 
   const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
-  if (!content || !PII_RE.test(content)) process.exit(0);
+  if (!content || !PII_RE.test(content)) return 0;
 
   let projdir;
   try {
     projdir = sanitizeProjdir();
   } catch {
-    process.exit(0);
+    return 0;
   }
   const sess = sanitizeSessionHash(undefined, projdir);
   const marker = path.join(projdir, '.claude', '.runtime', `dpo-canal-checked-${sess}`);
   // 1x por sessao
-  if (fs.existsSync(marker)) process.exit(0);
+  if (fs.existsSync(marker)) return 0;
 
   const evid = findDpoEvidence(projdir);
   // Marca antes de sair (mesmo OK) — 1 alerta por sessao maximo
@@ -92,7 +92,7 @@ function findDpoEvidence(projdir) {
     /* skip */
   }
 
-  if (evid) process.exit(0); // ja documentado
+  if (evid) return 0; // ja documentado
 
   process.stderr.write(`[lgpd-dpo-canal-reminder] AVISO (nao bloqueio, 1x por sessao):\n\n`);
   process.stderr.write(
@@ -120,5 +120,16 @@ function findDpoEvidence(projdir) {
     filePath,
   );
 
-  process.exit(0); // soft warning
-})().catch(() => process.exit(0));
+  return 0; // soft warning
+}
+
+module.exports = { runHook, onErrorExit: 0 };
+
+if (require.main === module) {
+  (async () => {
+    process.exit(await runHook(await readStdinJson()));
+  })().catch((err) => {
+    process.stderr.write(`[lgpd-dpo-canal-reminder] erro interno: ${err.message}\n`);
+    process.exit(0);
+  });
+}
