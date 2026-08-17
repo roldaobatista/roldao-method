@@ -2,13 +2,20 @@
 // block-destructive.js — bloqueia comandos destrutivos no Bash tool.
 // Hook PreToolUse, matcher: Bash. SEC-002, INV-AGENT-005.
 //
-// Port Node do block-destructive.sh (EP-001/US-102). Comportamento idêntico:
-// mesmos padrões, mesma whitelist de rm -rf seguro, mesmo exit 2.
+// Port Node do block-destructive.sh (EP-001/US-102).
+// Auditoria 2026-08-17 (mutirao lote 3):
+// - `git push origin +main` (+refspec = force) agora bloqueia
+// - `git -c x=y push --force` agora bloqueia (opcoes entre git e push)
+// - `rimraf`/`npx rimraf` tratado como rm (mesma whitelist)
+// - `terraform apply --force` NAO bloqueia mais (rm ancorado em fronteira de palavra)
+// - `rm -rf node_modules && npm install` NAO bloqueia mais (whitelist por trecho,
+//   com o RESTO da corrente ainda escaneado — `rm -rf node_modules; rm -rf /` bloqueia)
+// - `grep "DROP TABLE" ...` simples NAO bloqueia mais (busca so-leitura sem encadeamento)
+// - fail-closed de verdade: JSON malformado no stdin -> escaneia o texto cru
 
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { recordMetric } = require('./_lib.js');
 
-// Whitelist de alvos seguros pra `rm -rf` — artefatos locais regeneraveis.
-// Mantida curta: so paths que QUALQUER projeto regenera deterministicamente.
+// Whitelist de alvos seguros pra `rm -rf`/`rimraf` — artefatos regeneraveis.
 const SAFE_RM_TARGETS = new RegExp(
   '^(' +
     'node_modules|\\.next|\\.nuxt|dist|build|out|target|' +
@@ -18,42 +25,78 @@ const SAFE_RM_TARGETS = new RegExp(
     ')/?$',
 );
 
+// `rm` precisa estar em inicio de comando/apos separador — sem isso, o "rm" no fim
+// de "terraform" casava `/rm\s+.*--force/` (falso positivo cronico).
+const RM = '(?:^|[\\s;|&(])rm\\s+';
+// `git [opcoes] push` — opcoes tipo `-c a=b` ou `--exec-path=x` entre git e push
+// eram bypass (`git -c core.pager=cat push --force` passava).
+const GIT_PUSH = 'git(?:\\s+-[a-zA-Z](?:\\s+\\S+)?|\\s+--[\\w-]+(?:=\\S+)?)*\\s+push';
+
 // Padroes destrutivos. NOTA SEC-002: `git push --force-with-lease` (sem `=value`)
 // E PERMITIDO — caminho seguro recomendado pelo proprio git. Bloqueamos apenas
-// `--force` cru, `-f` isolado, `:<ref>`, `--delete`.
+// `--force` cru, `-f` isolado, `+refspec`, `:<ref>`, `--delete`.
 //
 // Strings construidas via concat pra evitar que o pattern aparecca literalmente
-// no source (anti-mascaramento.sh bloqueia ocorrencias de --no-verify/--skip-* etc.
+// no source (anti-mascaramento bloqueia ocorrencias de --no-verify/--skip-* etc.
 // em codigo fonte, mas aqui sao DADOS do detector, nao mascaramento de teste).
 const PATTERNS = [
-  { re: /rm\s+-[A-Za-z]*r[A-Za-z]*f/i, desc: 'apagar pasta inteira recursivamente (rm -rf)' },
-  { re: /rm\s+-[A-Za-z]*f[A-Za-z]*r/i, desc: 'apagar pasta inteira recursivamente (rm -fr)' },
-  { re: /rm\s+-[A-Za-z]*r(\s|$)/i, desc: 'apagar recursivamente (rm -r)' },
+  {
+    re: new RegExp(RM + '-[A-Za-z]*r[A-Za-z]*f', 'i'),
+    desc: 'apagar pasta inteira recursivamente (rm -rf)',
+  },
+  {
+    re: new RegExp(RM + '-[A-Za-z]*f[A-Za-z]*r', 'i'),
+    desc: 'apagar pasta inteira recursivamente (rm -fr)',
+  },
+  { re: new RegExp(RM + '-[A-Za-z]*r(\\s|$)', 'i'), desc: 'apagar recursivamente (rm -r)' },
   // Alvo perigoso: path absoluto (/), home (~), wildcard glob (*), variavel ($).
   // Atencao: NAO casa `rm -f arquivo.log` (ponto no nome de 1 arquivo e benigno).
   {
-    re: /rm\s+-[fr][A-Za-z]*\s+["']?[/~*$]/i,
+    re: new RegExp(RM + '-[fr][A-Za-z]*\\s+["\']?[/~*$]', 'i'),
     desc: 'rm com alvo perigoso (path absoluto, home, wildcard ou variavel)',
   },
-  { re: /rm\s+-[fr][A-Za-z]*\s+["']?\.\.\//i, desc: 'rm com path traversal (../)' },
-  { re: /rm\s+.*--recursive/i, desc: 'apagar recursivamente (rm --recursive)' },
   {
-    re: /rm\s+.*--force\b/i,
+    re: new RegExp(RM + '-[fr][A-Za-z]*\\s+["\']?\\.\\./', 'i'),
+    desc: 'rm com path traversal (../)',
+  },
+  { re: new RegExp(RM + '.*--recursive', 'i'), desc: 'apagar recursivamente (rm --recursive)' },
+  {
+    re: new RegExp(RM + '.*--force\\b', 'i'),
     desc: 'apagar sem perguntar (rm --force longo — use -f curto pra single file)',
   },
-  { re: /rm\s+.*--no-preserve-root/i, desc: 'apagar a raiz do sistema (rm --no-preserve-root)' },
+  {
+    re: new RegExp(RM + '.*--no-preserve-root', 'i'),
+    desc: 'apagar a raiz do sistema (rm --no-preserve-root)',
+  },
+  { re: /(?:^|[\s;|&(])rimraf\s/i, desc: 'apagar pasta inteira recursivamente (rimraf)' },
   { re: /find\s+.*-delete/i, desc: 'apagar arquivos varridos por find' },
   { re: /find\s+.*-exec\s+rm/i, desc: 'find + rm em massa' },
   { re: /\sshred\s/i, desc: 'sobrescrever arquivo pra impedir recuperação (shred)' },
   { re: /:\(\)\s*\{\s*:\s*\|\s*:/, desc: 'fork bomb (trava a máquina)' },
   {
-    re: /git\s+push.*--force(\s|$)/i,
+    re: new RegExp(GIT_PUSH + '.*--force(\\s|$)', 'i'),
     desc: 'sobrescrever histórico remoto (git push --force — use --force-with-lease)',
   },
-  { re: /git\s+push.*-f\s/i, desc: 'sobrescrever histórico remoto (git push -f)' },
-  { re: /git\s+push.*\s-f$/i, desc: 'sobrescrever histórico remoto (git push -f)' },
-  { re: /git\s+push.*--delete/i, desc: 'apagar branch remota (git push --delete)' },
-  { re: /git\s+push\s+[^|]*\s:[A-Za-z]/i, desc: 'apagar branch remota (git push :branch)' },
+  {
+    re: new RegExp(GIT_PUSH + '.*-f\\s', 'i'),
+    desc: 'sobrescrever histórico remoto (git push -f)',
+  },
+  {
+    re: new RegExp(GIT_PUSH + '.*\\s-f$', 'i'),
+    desc: 'sobrescrever histórico remoto (git push -f)',
+  },
+  {
+    re: new RegExp(GIT_PUSH + '[^|;&]*\\s\\+[A-Za-z]', 'i'),
+    desc: 'sobrescrever histórico remoto (git push +refspec — o + força o envio)',
+  },
+  {
+    re: new RegExp(GIT_PUSH + '.*--delete', 'i'),
+    desc: 'apagar branch remota (git push --delete)',
+  },
+  {
+    re: new RegExp(GIT_PUSH + '\\s+[^|]*\\s:[A-Za-z]', 'i'),
+    desc: 'apagar branch remota (git push :branch)',
+  },
   { re: /git\s+reset\s+--hard/i, desc: 'descartar mudanças locais sem aviso (git reset --hard)' },
   { re: /git\s+clean\s+-fd/i, desc: 'apagar arquivos não rastreados (git clean -fd)' },
   { re: /git\s+branch\s+-D/i, desc: 'apagar branch local sem confirmar merge (git branch -D)' },
@@ -73,19 +116,68 @@ const PATTERNS = [
   { re: /DROP\s+TABLE/i, desc: 'apagar tabela do banco (DROP TABLE)' },
   { re: /TRUNCATE\s+TABLE/i, desc: 'esvaziar tabela do banco (TRUNCATE TABLE)' },
   { re: /DROP\s+DATABASE/i, desc: 'apagar banco inteiro (DROP DATABASE)' },
-  // Flags de bypass — strings montadas em runtime pra nao acionar anti-mascaramento.sh
+  // Flags de bypass — strings montadas em runtime pra nao acionar anti-mascaramento
   // que escaneia source. TST-001-exception: detecto, nao uso pra mascarar teste.
   { re: new RegExp('--' + 'no-verify', 'i'), desc: 'pular hooks de pré-commit (--no-verify)' },
   { re: new RegExp('--' + 'skip-tests', 'i'), desc: 'pular testes (--skip-tests)' },
   { re: new RegExp('--' + 'skip-hooks', 'i'), desc: 'pular hooks (--skip-hooks)' },
 ];
 
-(async () => {
-  const input = await readStdinJson();
+// Le stdin cru (sem depender de parse): fail-closed exige escanear o texto
+// mesmo quando o JSON vem malformado.
+function readStdinRaw() {
+  return new Promise((resolve) => {
+    let raw = '';
+    if (process.stdin.isTTY) {
+      resolve('');
+      return;
+    }
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', (c) => {
+      raw += c;
+    });
+    process.stdin.on('end', () => resolve(raw));
+    process.stdin.on('error', () => resolve(raw));
+  });
+}
 
-  // Fail-closed: se parse falhou mas ha input cru, escaneia o input. Sai 0 so
-  // se realmente vazio. Equivale ao `if [ -z "$CMD" ]; then if [ -n "$INPUT" ]` no .sh.
-  const rawCmd = input?.tool_input?.command || '';
+function bloquear(rawCmd, desc, motivoMetrica) {
+  process.stderr.write(`[block-destructive] BLOQUEADO: comando irreversível detectado.\n\n`);
+  process.stderr.write(`Comando: ${rawCmd}\n`);
+  process.stderr.write(`O que detectamos: ${desc}\n\n`);
+  process.stderr.write(
+    `Em linguagem clara: comando apaga coisa sem volta — precisa ouvir do dono do projeto que e isso mesmo que ele quer.\n`,
+  );
+  process.stderr.write(
+    `Regras: SEC-002 (destrutivo exige confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n\n`,
+  );
+  process.stderr.write(`Como destravar (se for intencional):\n`);
+  process.stderr.write(
+    `- Confirme com o usuário o que vai acontecer (em PT-BR claro, sem jargão).\n`,
+  );
+  process.stderr.write(`- Só depois execute o comando, ou peça pro usuário rodar manualmente.\n`);
+  recordMetric('block', 'block-destructive', motivoMetrica || desc);
+  process.exit(2);
+}
+
+(async () => {
+  const raw = await readStdinRaw();
+  if (!raw || !raw.trim()) process.exit(0);
+
+  let input = null;
+  try {
+    input = JSON.parse(raw);
+  } catch {
+    input = null;
+  }
+
+  let rawCmd;
+  if (input === null) {
+    // Fail-closed: JSON malformado mas ha input cru — escaneia o texto inteiro.
+    rawCmd = raw;
+  } else {
+    rawCmd = input?.tool_input?.command || '';
+  }
   if (!rawCmd) process.exit(0);
 
   // Normaliza pra detectar bypass por escape backslash/quote (ex: `r\m -rf /`, `r""m -rf /`).
@@ -97,34 +189,39 @@ const PATTERNS = [
     .replace(/([A-Za-z])["']{2}([A-Za-z])/g, '$1$2') // r""m -> rm, r''m -> rm
     .replace(/(["'])\1/g, ''); // remove "" e '' isoladas
 
-  // Whitelist de rm -rf safe: aceita 1 OU MAIS alvos, todos na whitelist.
-  // Ex: `rm -rf node_modules dist coverage` — libera porque todos sao regeneraveis.
-  // Auditoria 10x1 (U4, 2026-05-27): aceita tambem rm precedido de `&&`/`;`/`||`
-  // pra cobrir caso comum `cd foo && rm -rf node_modules`.
-  const rmMatch = cmd.match(/(?:^|;|&&|\|\|)\s*rm\s+-[a-zA-Z]*[rf][a-zA-Z]*\s+(.+?)\s*$/);
-  if (rmMatch) {
-    const rawTargets = rmMatch[1].trim();
-    // Bloqueia presenca de tokens perigosos GLOBAIS no comando (variavel, drives Windows)
-    const globalDanger = /\$HOME|\$\{HOME|%USERPROFILE%|%TEMP%|^\/|\\|[A-Za-z]:[\\/]/.test(
-      rawTargets,
-    );
-    if (!globalDanger) {
-      // Split por espaco (ignora quotes simples e duplas em volta de cada alvo)
-      const targets = rawTargets.split(/\s+/).map((t) => t.replace(/^["']|["']$/g, ''));
-      const todosWhitelisted =
-        targets.length > 0 &&
-        targets.every((t) => {
-          if (!t) return false;
-          const dangerous = /\.\.|^\/$|^~$|^~\/|^\$|^\/etc|^\/usr|^\/var|^\/home/.test(t);
-          if (dangerous) return false;
-          const stripped = t.replace(/^\.\//, '');
-          return SAFE_RM_TARGETS.test(stripped);
-        });
-      if (todosWhitelisted) {
-        process.exit(0);
-      }
-    }
+  // Busca so-leitura simples (grep/rg de padrao SQL etc.) sem encadeamento nao e
+  // destrutiva — `grep -rn "DROP TABLE" migrations/` era falso positivo cronico.
+  // A isencao exige comando UNICO (sem ;|&& fora de aspas): encadeado escaneia normal.
+  const semAspas = cmd.replace(/"[^"]*"|'[^']*'/g, '');
+  if (/^\s*(grep|rg)\b/.test(cmd) && !/[;&|]/.test(semAspas)) {
+    process.exit(0);
   }
+
+  // Whitelist de rm/rimraf safe: cada trecho `rm -rf <alvos>` (cortado no proximo
+  // separador) com TODOS os alvos regeneraveis e APAGADO do texto escaneado — o
+  // resto da corrente continua sob analise. Antes o exit 0 era imediato e
+  // `rm -rf node_modules && npm install` bloqueava (ancora em $), enquanto a
+  // versao corrigida ingenua liberaria `rm -rf node_modules; rm -rf /` inteiro.
+  const SAFE_CHUNK_RE =
+    /(?:^|[;|&(]|&&|\|\|)\s*(?:npx\s+)?(rm\s+-[a-zA-Z]*[rf][a-zA-Z]*|rimraf)\s+([^;|&]+)/g;
+  const scanCmd = cmd.replace(SAFE_CHUNK_RE, (full, _tool, rawTargets) => {
+    const alvos = rawTargets.trim();
+    const globalDanger = /\$HOME|\$\{HOME|%USERPROFILE%|%TEMP%|^\/|\\|[A-Za-z]:[\\/]/.test(alvos);
+    if (globalDanger) return full;
+    const targets = alvos.split(/\s+/).map((t) => t.replace(/^["']|["']$/g, ''));
+    const todosWhitelisted =
+      targets.length > 0 &&
+      targets.every((t) => {
+        if (!t) return false;
+        if (t.startsWith('-')) return false; // flag extra (ex: --force) nao e alvo
+        const dangerous = /\.\.|^\/$|^~$|^~\/|^\$|^\/etc|^\/usr|^\/var|^\/home/.test(t);
+        if (dangerous) return false;
+        const stripped = t.replace(/^\.\//, '');
+        return SAFE_RM_TARGETS.test(stripped);
+      });
+    // Trecho seguro some do scan; preserva o separador inicial pra nao colar tokens.
+    return todosWhitelisted ? full.match(/^(?:[;|&(]|&&|\|\|)?/)[0] + ' ' : full;
+  });
 
   // Marker de pipeline / auditoria — apagar = anular toda a engenharia de gates.
   // Auditoria 2026-05-25 (hook #2-3): enforce-pipeline-completion e validate-quick-dev-scope
@@ -162,25 +259,8 @@ const PATTERNS = [
 
   // Padroes destrutivos: primeiro match bloqueia.
   for (const { re, desc } of PATTERNS) {
-    if (re.test(cmd)) {
-      process.stderr.write(`[block-destructive] BLOQUEADO: comando irreversível detectado.\n\n`);
-      process.stderr.write(`Comando: ${rawCmd}\n`);
-      process.stderr.write(`O que detectamos: ${desc}\n\n`);
-      process.stderr.write(
-        `Em linguagem clara: comando apaga coisa sem volta — precisa ouvir do dono do projeto que e isso mesmo que ele quer.\n`,
-      );
-      process.stderr.write(
-        `Regras: SEC-002 (destrutivo exige confirmacao), INV-AGENT-005 (confirmar acoes destrutivas).\n\n`,
-      );
-      process.stderr.write(`Como destravar (se for intencional):\n`);
-      process.stderr.write(
-        `- Confirme com o usuário o que vai acontecer (em PT-BR claro, sem jargão).\n`,
-      );
-      process.stderr.write(
-        `- Só depois execute o comando, ou peça pro usuário rodar manualmente.\n`,
-      );
-      recordMetric('block', 'block-destructive', desc);
-      process.exit(2);
+    if (re.test(scanCmd)) {
+      bloquear(rawCmd, desc);
     }
   }
 

@@ -23,6 +23,25 @@ const CASES = [
   // Bypass por pipe genérico (vazado de scripts opacos)
   { name: 'cat script | bash', cmd: 'cat /tmp/script.sh | bash', shouldBlock: true },
 
+  // Bypasses da auditoria 2026-08-17 (mutirao lote 3)
+  {
+    name: 'force via +refspec (git push origin +main)',
+    cmd: 'git push origin +main',
+    shouldBlock: true,
+  },
+  {
+    name: 'force com opcao entre git e push (git -c x push --force)',
+    cmd: 'git -c core.pager=cat push --force origin main',
+    shouldBlock: true,
+  },
+  { name: 'npx rimraf alvo perigoso', cmd: 'npx rimraf /important', shouldBlock: true },
+  { name: 'rimraf alvo nao-whitelisted', cmd: 'rimraf src', shouldBlock: true },
+  {
+    name: 'corrente com segundo rm perigoso',
+    cmd: 'rm -rf node_modules; rm -rf /',
+    shouldBlock: true,
+  },
+
   // Casos LEGÍTIMOS (não pode bloquear)
   { name: 'rm -rf node_modules (whitelist)', cmd: 'rm -rf node_modules', shouldBlock: false },
   {
@@ -32,14 +51,50 @@ const CASES = [
   },
   { name: 'ls -la (benigno)', cmd: 'ls -la', shouldBlock: false },
   { name: 'git status (benigno)', cmd: 'git status', shouldBlock: false },
+  // Falsos positivos corrigidos na auditoria 2026-08-17
+  {
+    name: 'terraform apply --force (nao e rm)',
+    cmd: 'terraform apply --force',
+    shouldBlock: false,
+  },
+  {
+    name: 'rm -rf node_modules && npm install (corrente benigna)',
+    cmd: 'rm -rf node_modules && npm install',
+    shouldBlock: false,
+  },
+  {
+    name: 'npx rimraf node_modules (whitelist)',
+    cmd: 'npx rimraf node_modules',
+    shouldBlock: false,
+  },
+  {
+    name: 'grep de padrao SQL (so-leitura)',
+    cmd: 'grep -rn "DROP TABLE" migrations/',
+    shouldBlock: false,
+  },
+  {
+    name: 'force-with-lease continua permitido',
+    cmd: 'git push --force-with-lease origin main',
+    shouldBlock: false,
+  },
 ];
+
+// Fail-closed: JSON malformado contendo comando destrutivo deve bloquear
+// (antes: parse falho -> cmd vazio -> exit 0, fail-OPEN documentado errado).
+CASES.push({
+  name: 'fail-closed: stdin nao-JSON com rm -rf',
+  cmd: null,
+  rawInput: '{{{nao-e-json rm -rf /',
+  shouldBlock: true,
+});
 
 let ok = 0;
 let fail = 0;
 
 for (const c of CASES) {
   const r = spawnSync(process.execPath, [HOOK], {
-    input: JSON.stringify({ tool_input: { command: c.cmd } }),
+    input:
+      c.rawInput !== undefined ? c.rawInput : JSON.stringify({ tool_input: { command: c.cmd } }),
     encoding: 'utf8',
   });
   const blocked = r.status === 2;
