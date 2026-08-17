@@ -34,9 +34,10 @@ roldao-method/                        <- raiz do framework
 │   └── validar-templates.js          <- audita frontmatter, refs, JSON valido
 ├── test/
 │   └── install.test.js               <- smoke test do CLI
+├── manutencao/                       <- guias do MANTENEDOR (fora do pacote npm)
+│   └── PUBLICAR-NPM.md
 ├── docs/                             <- doc PRA USUARIO do framework
 │   ├── QUICKSTART.md
-│   ├── PUBLICAR-NPM.md
 │   ├── PLAN-MODE-E-SESSOES.md
 │   ├── MCP-GUIA-BR.md
 │   ├── FAQ.md
@@ -144,7 +145,7 @@ Antes de publicar:
 3. `npm pack --dry-run` — confirmar que `files` inclui só o necessário.
 4. Atualizar `CHANGELOG.md` com o novo bloco de versão.
 5. Bumpar `package.json`.
-6. `npm publish` (exige login do mantenedor — ver `docs/PUBLICAR-NPM.md`).
+6. `npm publish` (exige login do mantenedor — ver `manutencao/PUBLICAR-NPM.md`).
 
 ## Decisões arquiteturais registradas
 

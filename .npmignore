@@ -1,11 +1,7 @@
-# Guias internos de release — nao vao pro tarball npm.
-docs/PUBLICAR.md
-docs/PUBLICAR-NPM.md
-
-# Como o array `files` no package.json e whitelist (vence sobre .npmignore),
-# o que importa aqui sao 2 coisas: (1) excluir caminhos DENTRO de pastas que
-# estao no whitelist (ex: docs/PUBLICAR-NPM.md); (2) defesa em camada caso
-# alguem amplie o whitelist no futuro.
+# Guias internos de release vivem em manutencao/ (pasta FORA do whitelist
+# `files` do package.json) — o npm moderno NAO deixa o .npmignore excluir
+# conteudo de pasta que esta no whitelist, entao a exclusao aqui nao
+# funcionava (bug pego pela sanidade do pack em CI, corrigido 2026-08-17).
 
 # Defesa: nao deve aparecer no whitelist, mas garante.
 **/node_modules

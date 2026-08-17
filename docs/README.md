@@ -51,7 +51,7 @@ status: stable
 
 ## 📦 Publicar (mantenedores)
 
-- [PUBLICAR-NPM](PUBLICAR-NPM.md) — release no npm + GitHub release.
+- [PUBLICAR-NPM](../manutencao/PUBLICAR-NPM.md) — release no npm + GitHub release.
 
 ## 🗺️ Caminho recomendado
 
