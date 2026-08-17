@@ -42,6 +42,25 @@ proposito: Método operacional da Fábrica — do pedido ao aprendizado, tarefa 
 
 Regra prática: **na dúvida entre dois tiers, use o maior.**
 
+## Via rápida — cerimônia NUNCA pode custar mais que a tarefa
+
+A Fábrica preza pela agilidade: **uma correção de meia hora continua levando meia hora.**
+A cerimônia é proporcional ao risco E ao tamanho:
+
+- **Correção pequena (até ~1h, tier ≤ 2, sem mudança em dados salvos/contratos):**
+  executa direto no microciclo. A evidência é o relatório da conversa + teste rodado —
+  não precisa preencher template nenhum. Se era bug, só o registro `bug-vira-teste`
+  (5 minutos) é obrigatório, porque é ele que impede o bug de voltar.
+- **Regra dos 10%:** se preencher template está tomando mais de ~10% do tempo da tarefa,
+  corta-se o template, nunca a verificação (teste continua obrigatório).
+- **O que NUNCA se corta, mesmo na via rápida:** rodar os testes antes de dizer "pronto"
+  e investigar a causa raiz antes de mexer.
+- Templates completos são pra quando o custo do erro é maior que o custo do papel:
+  tier 3-4, mudança de estrutura de dados, ou funcionalidade nova com regra de negócio.
+
+Sinal de degeneração: se o método estiver deixando as entregas mais lentas sem ter
+evitado nenhum erro, o problema é o método — ajustar a régua, não abandonar a verificação.
+
 ## Caminho Padrão (do pedido ao aprendizado)
 
 Toda mudança percorre estas 6 etapas. Em tier 0-1 as etapas 2 e 5 podem ser mentais;
