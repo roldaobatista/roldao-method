@@ -15,7 +15,9 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { resolveTemplate, listTemplates, AREAS_VALIDAS } = require('../.specify/scripts/resolver-template.js');
+// Importa da cópia VERSIONADA (templates/); a raiz /.specify/ é artefato de
+// instalação local e está no .gitignore — no CI ela não existe.
+const { resolveTemplate, listTemplates, AREAS_VALIDAS } = require('../templates/.specify/scripts/resolver-template.js');
 
 let okCount = 0;
 let failCount = 0;
