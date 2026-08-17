@@ -130,7 +130,7 @@ Ver [`docs/governanca/catalogo-auditores.md`](./docs/governanca/catalogo-auditor
 - `--force-with-lease` em `main`/`master`/`release/*`: PROIBIDO. Em branch própria (feature/fix): exige `.claude/.override-reason` registrado.
 - `git reset --hard` em ref remota (`origin/*`): PROIBIDO. Em ref local: exige `.claude/.override-reason`.
 
-**Caminhos com espaço (importante em git bash no Windows):** sempre entre aspas duplas — `cd "C:/PROJETOS/Modelo projeto novo"`, nunca `cd $VAR` sem aspas.
+**Caminhos com espaço (importante em git bash no Windows):** sempre entre aspas duplas — `cd "C:/PROJETOS/Meu Projeto"`, nunca `cd $VAR` sem aspas.
 
 ## 8. Convenções
 - Idioma: pt-BR (herdado do frontmatter; alterar só se projeto for explicitamente bilíngue/EN).

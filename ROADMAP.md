@@ -8,7 +8,7 @@ status: stable
 
 > Roadmap público do que vem por aí. Não é promessa contratual — é direção. Reabra issue se precisa de algo que não está aqui.
 
-## Versão atual: v1.3.0 (mai/2026)
+## Versão atual: v2.0.0 (mai/2026)
 
 Marco "session-relay" — robô vigia externo da memória do Claude (US-128, antes US-117, ADR-022). Versões anteriores entregues:
 
@@ -21,7 +21,7 @@ Highlights consolidados:
 - 17 agentes especialistas (com nome + ícone) — Maestro, Sofia, Detetive, Rafael, Bruno, Helena, Lucas, Inês, Caio, Júlia, Pedro, Mariana, Lia, Dona Marta, Camila + Bia (qa-automation) + Marcos (sre-on-call).
 - 28 workflows com `allowed-tools` declarado (`/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`).
 - 35 hooks validadores (28 bloqueadores via `exit 2` ou JSON `decision:block`; 7 soft warnings) + 8 lifecycle/manutenção (`auto-format-on-write`, `auto-frontmatter`, `context-budget`, `session-snapshot`, `session-snapshot-restore`, `session-cleanup`, `subagent-handoff-audit`, `suggest-addon-on-keywords`) + 1 utilitário (`_lib.js`) = **44 hooks Node puros**. **Roda em Windows sem Git Bash** (EP-001 migrou tudo pra Node, sem bash/perl).
-- 19 skills BR no core + 17 nos addons = **36 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
+- 20 skills BR no core + 17 nos addons = **37 skills** (inclui `calculadora-reforma-paralela` LC 214/2025, `validar-cns-cartao-sus`, `checklist-cfm-telemedicina`).
 - 8 checklists + 7 knowledge bases.
 - **7 addons** (electron-br, fiscal-br-completo, lgpd-compliance, fintech-br, esocial-completo, varejo-pdv-br, healthtech-br beta).
 - 12 templates de spec PT-BR.
@@ -77,13 +77,16 @@ Highlights consolidados:
 - [ ] Skill `gerar-relatorio-bacen` — **Definição de pronto:** cobre DLO, SCR, IF.DATA, 3 testes verdes com fixture validada.
 - [ ] eSocial S-3000 (exclusão) — **Definição de pronto:** evento gerado + XML válido + assinatura + retransmissão, 4 testes verdes.
 
-## v2.0.0 — "Comunidade + tração" (alvo: abr/2027)
+## v2.5.0 — "Comunidade + tração" (alvo: abr/2027)
+
+> Nota: este marco chamava-se "v2.0.0" antes de a v2.0.0 real ser lançada em
+> mai/2026 com outro conteúdo (auditoria 10/10). Renumerado pra não colidir.
 
 Pré-requisitos técnicos (controláveis pelo time):
 - [ ] Pacote publicado no npm com ≥6 meses sem breaking change em minor.
 - [ ] `bin/install.js` modularizado com ≥80% de cobertura de teste unitário.
 - [ ] Documentação completa em pt-BR + en (com `tools/sincronizar-traducao.js --check`).
-- [ ] RFC process estabelecido (`docs/RFC-PROCESS.md` + template em `.specify/templates/`).
+- [ ] Processo RFC (a criar) — proposta formal de mudança estrutural, com template próprio.
 - [x] Skill `validar-chave-acesso-nfe` no core — **entregue na v1.0**.
 - [ ] Test runner com ≥300 casos cobertos.
 
@@ -100,27 +103,27 @@ Sinais de tração (dependem da comunidade — separados pra não bloquear relea
 ### Refactors arquiteturais
 - [ ] **Modularizar `bin/install.js`** (1879 linhas hoje). Quebrar em `bin/lib/commands/{install,update,doctor,uninstall,add,remove,tasks-to-issues}.js`. **Estado atual:** marcadores `// MODULARIZE-v1.1:` adicionados nas 7 funções de comando — guia o refactor preservando contexto. **Por que adiamos:** as funções compartilham 30+ helpers (`safeCopy`, `walkAndCopy`, `resumo`, `counters`, `detalhes`, `c`, `log`, etc.) e refactor exige extrair contexto + injeção de dependência. 25 testes cobrem comportamento — refactor pode quebrar sem regredir teste se a interface mudar. Plano: extrair `doctor()` primeiro (mais isolada, só lê filesystem), validar com testes, depois `uninstall`, depois `removeAddon`, por último `install` e `update`. **Alvo: v1.1**.
 - [ ] **Extrair algoritmo CPF/CNPJ pra módulo único**. Hoje triplicado em `validar-cpf-cnpj/scripts/validar.py`, `validar-pix/scripts/validar-pix.py`, `gerar-test-fixture-br/scripts/gerar.py`. Divergência futura é questão de tempo. Solução: lib `.claude/skills/_lib/cpf_cnpj.py` importada pelas 3.
-- [ ] **Sem linter/formatter** — adicionar Prettier mínimo (zero config) sobre `.js`/`.json`/`.md`. Mantém zero deps runtime (Prettier vai em devDependencies).
+- [x] **Sem linter/formatter** — adicionar Prettier mínimo (zero config) sobre `.js`/`.json`/`.md`. Mantém zero deps runtime (Prettier vai em devDependencies). **Entregue na v1.1.0.**
 
 ### Skills sem teste automatizado
 - [ ] `brainstormar-ideia`, `checklist-lgpd`, `gerar-adr-pt-br`, `traduzir-jargao` — prompt-only sem script. Plano: eval LLM live no CI cobrindo "skill foi acionada com prompt X, devolveu resposta com elemento Y".
 
 ### Skills BR faltando
-- [ ] `validar-titulo-eleitor` (12 dígitos, mod 11) — onboarding/KYC.
-- [ ] `validar-cnh` (11 dígitos, Detran) — frota, seguro auto.
-- [ ] `validar-renavam` (11 dígitos).
-- [ ] `validar-conta-bancaria` (agência+conta por banco) — TED/Pix.
-- [ ] `mascarar-dado-pessoal` (CPF, email, telefone, chave Pix) — sustenta LGPD-004 e PIX-004.
+- [x] `validar-titulo-eleitor` (12 dígitos, mod 11) — onboarding/KYC. **Entregue na v1.1.0.**
+- [x] `validar-cnh` (11 dígitos, Detran) — frota, seguro auto. **Entregue na v1.1.0.**
+- [x] `validar-renavam` (11 dígitos). **Entregue na v1.1.0.**
+- [x] `validar-conta-bancaria` (agência+conta por banco) — TED/Pix. **Entregue na v1.1.0.**
+- [x] `mascarar-dado-pessoal` (CPF, email, telefone, chave Pix) — sustenta LGPD-004 e PIX-004. **Entregue na v1.1.0.**
 - [ ] Mover `validar-pis-pasep` do addon `esocial-completo` pro core (PIS é universal).
 
 ### Hooks faltantes vs REGRAS-INEGOCIAVEIS.md
-- [ ] FISCAL-001 — bloquear UPDATE em XML/tabela `nfe_emitida`.
-- [ ] LGPD-002 — detectar feature de coleta sem caminho de exclusão.
-- [ ] LGPD-004 — warning quando handler toca CPF sem log de acesso.
+- [x] FISCAL-001 — bloquear UPDATE em XML/tabela `nfe_emitida`. **Entregue na v1.1.0** (`nfe-imutavel.js`).
+- [x] LGPD-002 — detectar feature de coleta sem caminho de exclusão. **Entregue na v1.1.0** (`lgpd-esquecimento-reminder.js`).
+- [x] LGPD-004 — warning quando handler toca CPF sem log de acesso. **Entregue na v1.1.0** (`lgpd-trilha-auditoria-reminder.js`).
 
 ### Agentes faltantes pra pipeline completa
-- [ ] `qa-automation` — escreve E2E (Playwright/Cypress); hoje validate-test-pyramid bloqueia ausência mas ninguém escreve.
-- [ ] `sre-on-call` — detecta incidente em logs/Sentry/alertas; hoje cai no investigador genérico.
+- [x] `qa-automation` — escreve E2E (Playwright/Cypress); hoje validate-test-pyramid bloqueia ausência mas ninguém escreve. **Entregue na v1.1.0** (Bia).
+- [x] `sre-on-call` — detecta incidente em logs/Sentry/alertas; hoje cai no investigador genérico. **Entregue na v1.1.0** (Marcos).
 
 ## Pendências contínuas (sem versão alvo)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bootstrap-fase-2.sh — fase 2 (pós-descoberta) do meta-template "Modelo Projeto Novo".
+# bootstrap-fase-2.sh — fase 2 (pós-descoberta) da camada metodo/ do roldao-method.
 #
 # Adiciona C5, C6 e C8 ao projeto destino conforme o tipo DEFINITIVO classificado
 # após a descoberta (C1) ficar com docs/descoberta/sintese-final.md em status: stable.

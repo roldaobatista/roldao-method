@@ -22,7 +22,7 @@ O método é **descoberta-first**. A categoria do produto (SaaS regulado? CLI? l
 
 > Travou em algum termo técnico abaixo? Abra o [GLOSSARIO-ROLDAO.md](GLOSSARIO-ROLDAO.md) — ele traduz todo o jargão para linguagem de dono não-técnico.
 
-1. Abra Claude Code **dentro desta pasta**: `C:/projetos/Modelo-projeto-novo/`.
+1. Abra Claude Code **dentro desta pasta**: a pasta onde você tem o roldao-method (ex.: `D:/PROJETOS/roldao-method`).
 2. Digite o que quer criar, em linguagem livre. Exemplos:
    - *"quero criar um sistema pra padaria controlar produção, estoque e vendas"*
    - *"quero uma biblioteca pra parsear arquivos CSV"*
@@ -84,7 +84,7 @@ Você está na pasta do meta-template. Quando o usuário pedir projeto novo:
 - **Não escolher stack no início.** Stack é ADR-0001, sai depois da descoberta.
 - **Não materializar C6/C8 antes de C1 fechar.** Por isso bootstrap-fase-2 só roda com sintese-final em stable.
 - **Não escrever código em `src/`** antes de ADR-0001 aceita. O phase-gate.sh bloqueia.
-- **Não escrever arquivos DENTRO desta pasta** `Modelo-projeto-novo/`. Esta pasta é o método; permanece intacta.
+- **Não escrever arquivos DENTRO desta pasta** `metodo/`. Esta pasta é o método; permanece intacta.
 - **Não fazer 4 perguntas abertas** ("qual stack? qual domínio? qual equipe? qual prazo?"). 1-2 perguntas fechadas via `AskUserQuestion`.
 
 ## Para projetos micro/experimento (atalho)

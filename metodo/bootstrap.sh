@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bootstrap.sh — fase 1 (descoberta-first) do meta-template "Modelo Projeto Novo".
+# bootstrap.sh — fase 1 (descoberta-first) da camada metodo/ do roldao-method.
 #
 # Cria APENAS:
 #   - C0 raiz (README, AGENTS, CLAUDE, REGRAS, CONTRIBUTING, SECURITY exceto

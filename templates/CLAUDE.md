@@ -35,7 +35,7 @@ Comunicar em **Português (Brasil)**. Tabela de tradução PT-BR canônica em `A
 ├── hooks/                 ← bloqueadores + auxiliares + lifecycle (PostToolUse, SubagentStop, PreCompact, SessionEnd)
 ├── output-styles/         ← pt-br-conciso, dpo-lgpd, fiscal-br
 ├── commands/              ← 28 slash commands (com `allowed-tools`)
-├── skills/                ← 19 skills BR no core (criar quando padrão repetir 3x)
+├── skills/                ← 20 skills BR no core (criar quando padrão repetir 3x)
 └── rules/                 ← com `paths:` frontmatter (lazy load)
 ```
 

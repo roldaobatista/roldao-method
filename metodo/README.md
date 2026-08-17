@@ -4,12 +4,12 @@ revisado-em: 2026-05-27
 status: stable
 idioma: pt-BR
 limite-linhas: 200
-proposito: README raiz do meta-template "Modelo Projeto Novo".
+proposito: README da camada metodo/ do ROLDAO-METHOD.
 ---
 
-# Modelo Projeto Novo — Método canônico para projetos do zero
+# metodo/ — Método canônico para projetos do zero
 
-Este repositório é o **método canônico** que agentes IA (Claude Code, Cursor, Windsurf, Codex CLI, Kiro) seguem para construir a **estrutura documental completa** de qualquer projeto de software novo, **antes da primeira linha de código**.
+Esta camada do ROLDAO-METHOD é o **método canônico** que agentes IA (Claude Code, Cursor, Windsurf, Codex CLI, Kiro) seguem para construir a **estrutura documental completa** de qualquer projeto de software novo, **antes da primeira linha de código**.
 
 Não é um framework (= ferramenta pronta com regras embutidas), não é um boilerplate (= código de exemplo pronto pra copiar) e não é um gerador (= robô que cria o projeto sozinho). É um **manual + templates + matriz de compatibilidade + glossário** que o agente IA lê, classifica o projeto e materializa no repositório de destino.
 
@@ -75,7 +75,7 @@ Em uma frase: o manual deste repo diz *como fazer*; os arquivos do projeto-desti
 ## Estrutura do repositório
 
 ```
-Modelo-projeto-novo/
+metodo/
 ├── README.md                          (você está aqui)
 ├── AGENTS.md                          contrato cross-harness (todos os agentes)
 ├── CLAUDE.md                          adendo específico do Claude Code

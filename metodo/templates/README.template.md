@@ -41,7 +41,7 @@ Nota: este é o template para o README.md do PROJETO DESTINO.
 
 ## Contratos deste projeto (leitura obrigatória para contribuir)
 
-Este projeto segue o método [Modelo Projeto Novo](https://github.com/<org>/modelo-projeto-novo) — método canônico que agentes IA seguem para estruturar projetos do zero. Os documentos abaixo são **contratuais** (vinculam humano e agente IA) e seguem hierarquia de precedência declarada em `.claude/memory/constitution.md`:
+Este projeto segue o método [ROLDAO-METHOD](https://github.com/roldaobatista/roldao-method) — método canônico que agentes IA seguem para estruturar projetos do zero. Os documentos abaixo são **contratuais** (vinculam humano e agente IA) e seguem hierarquia de precedência declarada em `.claude/memory/constitution.md`:
 
 | Documento | O que define |
 |---|---|
