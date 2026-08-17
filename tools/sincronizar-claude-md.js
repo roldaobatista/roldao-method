@@ -29,14 +29,18 @@ const template = read(TEMPLATE_PATH);
 // limpo e nunca tem CLAUDE.md raiz — sem este short-circuit o gate
 // quebrava em todo push.
 if (!fs.existsSync(ROOT_PATH)) {
-  console.log('[sincronizar-claude-md] OK — CLAUDE.md raiz ausente (gitignored); só template avaliado.');
+  console.log(
+    '[sincronizar-claude-md] OK — CLAUDE.md raiz ausente (gitignored); só template avaliado.',
+  );
   process.exit(0);
 }
 
 const root = read(ROOT_PATH);
 
 if (template === root) {
-  console.log('[sincronizar-claude-md] OK — CLAUDE.md raiz e templates/CLAUDE.md estão sincronizados.');
+  console.log(
+    '[sincronizar-claude-md] OK — CLAUDE.md raiz e templates/CLAUDE.md estão sincronizados.',
+  );
   process.exit(0);
 }
 

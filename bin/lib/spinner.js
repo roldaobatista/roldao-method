@@ -9,7 +9,12 @@ const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '
 const FRAMES_ASCII = ['|', '/', '-', '\\'];
 const INTERVAL_MS = 80;
 
-function makeSpinner({ stream = process.stdout, isTTY = true, quiet = false, noUnicode = false } = {}) {
+function makeSpinner({
+  stream = process.stdout,
+  isTTY = true,
+  quiet = false,
+  noUnicode = false,
+} = {}) {
   const active = isTTY && !quiet;
   const frames = noUnicode ? FRAMES_ASCII : FRAMES;
   let timer = null;
@@ -44,7 +49,10 @@ function makeSpinner({ stream = process.stdout, isTTY = true, quiet = false, noU
       return this;
     },
     succeed(msg) {
-      if (timer) { clearInterval(timer); timer = null; }
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
       clearLine();
       const mark = noUnicode ? '[OK]' : '✓';
       if (active) stream.write(`${mark} ${msg || label}\n`);
@@ -52,7 +60,10 @@ function makeSpinner({ stream = process.stdout, isTTY = true, quiet = false, noU
       return this;
     },
     fail(msg) {
-      if (timer) { clearInterval(timer); timer = null; }
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
       clearLine();
       const mark = noUnicode ? '[X]' : '✗';
       if (active) stream.write(`${mark} ${msg || label}\n`);
@@ -60,7 +71,10 @@ function makeSpinner({ stream = process.stdout, isTTY = true, quiet = false, noU
       return this;
     },
     stop() {
-      if (timer) { clearInterval(timer); timer = null; }
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
       clearLine();
       return this;
     },

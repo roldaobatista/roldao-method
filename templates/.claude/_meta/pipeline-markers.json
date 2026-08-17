@@ -24,35 +24,20 @@
       "descricao": "Modo PRD — pipeline /prd (Analista -> Sofia PRD -> Rafael -> Lia opcional -> Sofia DECOMP)",
       "marker_ativacao": "prd-active",
       "marker_final": "decomp-done",
-      "etapas_obrigatorias_em_ordem": [
-        "analista-done",
-        "pm-prd-done",
-        "tech-lead-done",
-        "decomp-done"
-      ],
+      "etapas_obrigatorias_em_ordem": ["analista-done", "pm-prd-done", "tech-lead-done", "decomp-done"],
       "etapas_opcionais": ["ux-done", "ux-skipped"]
     },
     "brownfield-active": {
       "descricao": "Modo BROWNFIELD — pipeline /brownfield (Detetive inventario -> Rafael ADRs -> Sofia AGENTS.md -> Caio scan)",
       "marker_ativacao": "brownfield-active",
       "marker_final": "audit-seg-done",
-      "etapas_obrigatorias_em_ordem": [
-        "inventario-done",
-        "tech-lead-done",
-        "pm-onboarding-done",
-        "audit-seg-done"
-      ]
+      "etapas_obrigatorias_em_ordem": ["inventario-done", "tech-lead-done", "pm-onboarding-done", "audit-seg-done"]
     },
     "ar-active": {
       "descricao": "Modo AR — pipeline /auditoria-reversa (Detetive -> 3 auditores em paralelo)",
       "marker_ativacao": "ar-active",
       "marker_final": "auditor-prod-pass",
-      "etapas_obrigatorias_em_ordem": [
-        "inventario-done",
-        "auditor-seg-pass",
-        "auditor-qual-pass",
-        "auditor-prod-pass"
-      ]
+      "etapas_obrigatorias_em_ordem": ["inventario-done", "auditor-seg-pass", "auditor-qual-pass", "auditor-prod-pass"]
     }
   },
   "_uso": {

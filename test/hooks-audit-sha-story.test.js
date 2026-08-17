@@ -18,8 +18,13 @@ const HOOK = path.join(ROOT, 'templates', '.claude', 'hooks', 'validate-story-ap
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 const SHA_VALIDO = 'a'.repeat(64);
@@ -37,8 +42,8 @@ function run(content) {
 
 // Helper: gera frontmatter completo com aprovacoes parametrizadas.
 function story(opts = {}) {
-  const sha = (etapa) => opts.shas?.[etapa] !== undefined ? opts.shas[etapa] : SHA_VALIDO;
-  const linhaSha = (etapa) => opts.shas?.[etapa] === null ? '' : `\n    audit_sha: ${sha(etapa)}`;
+  const sha = (etapa) => (opts.shas?.[etapa] !== undefined ? opts.shas[etapa] : SHA_VALIDO);
+  const linhaSha = (etapa) => (opts.shas?.[etapa] === null ? '' : `\n    audit_sha: ${sha(etapa)}`);
   return `---
 id: US-200
 status: entregue
@@ -92,42 +97,74 @@ console.log('\nhooks-audit-sha-story: aprovacoes exigem audit_sha (T-025 / J10)\
 // Cenario 1: todos os 4 com audit_sha valido → pass
 {
   const r = run(story());
-  check('cenario 1: 4 etapas com audit_sha hex valido → exit 0',
-    r.exit === 0, `exit=${r.exit}, stderr=${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 1: 4 etapas com audit_sha hex valido → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 200)}`,
+  );
 }
 
 // Cenario 2: revisor sem audit_sha → block
 {
   const r = run(story({ shas: { revisor: null } }));
   check('cenario 2a: revisor sem audit_sha → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 2b: stderr menciona "revisor"', /revisor/.test(r.stderr), `stderr: ${r.stderr.slice(0, 300)}`);
-  check('cenario 2c: stderr menciona "audit_sha"', /audit_sha/.test(r.stderr), `stderr: ${r.stderr.slice(0, 300)}`);
+  check(
+    'cenario 2b: stderr menciona "revisor"',
+    /revisor/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 300)}`,
+  );
+  check(
+    'cenario 2c: stderr menciona "audit_sha"',
+    /audit_sha/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 300)}`,
+  );
 }
 
 // Cenario 3: auditor-seguranca com audit_sha invalido (nao hex 64) → block
 {
   const r = run(story({ shas: { 'auditor-seguranca': 'sha-invalido' } }));
   check('cenario 3a: audit_sha mal formado → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 3b: stderr menciona "sha256 hex"', /sha256 hex/.test(r.stderr), `stderr: ${r.stderr.slice(0, 300)}`);
+  check(
+    'cenario 3b: stderr menciona "sha256 hex"',
+    /sha256 hex/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 300)}`,
+  );
 }
 
 // Cenario 4: 3 auditores sem audit_sha → block listando todos
 {
-  const r = run(story({ shas: { 'auditor-seguranca': null, 'auditor-qualidade': null, 'auditor-produto': null } }));
+  const r = run(
+    story({
+      shas: { 'auditor-seguranca': null, 'auditor-qualidade': null, 'auditor-produto': null },
+    }),
+  );
   check('cenario 4a: 3 auditores sem audit_sha → exit 2', r.exit === 2);
-  check('cenario 4b: stderr lista auditor-seguranca',
-    /auditor-seguranca.*audit_sha/.test(r.stderr), `stderr: ${r.stderr.slice(0, 400)}`);
-  check('cenario 4c: stderr lista auditor-qualidade',
-    /auditor-qualidade.*audit_sha/.test(r.stderr), `stderr: ${r.stderr.slice(0, 400)}`);
-  check('cenario 4d: stderr lista auditor-produto',
-    /auditor-produto.*audit_sha/.test(r.stderr), `stderr: ${r.stderr.slice(0, 400)}`);
+  check(
+    'cenario 4b: stderr lista auditor-seguranca',
+    /auditor-seguranca.*audit_sha/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 400)}`,
+  );
+  check(
+    'cenario 4c: stderr lista auditor-qualidade',
+    /auditor-qualidade.*audit_sha/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 400)}`,
+  );
+  check(
+    'cenario 4d: stderr lista auditor-produto',
+    /auditor-produto.*audit_sha/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 400)}`,
+  );
 }
 
 // Cenario 5: tech-lead "dispensado" nao precisa de audit_sha (so etapas que auditam diff)
 {
   const c = story({ techLeadStatus: 'dispensado' });
   const r = run(c);
-  check('cenario 5: tech-lead dispensado + outros OK → exit 0', r.exit === 0, `exit=${r.exit}, stderr=${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 5: tech-lead dispensado + outros OK → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 200)}`,
+  );
 }
 
 // Cenario 6: revisor com status diferente de "aprovado" nao exige audit_sha
@@ -137,12 +174,15 @@ console.log('\nhooks-audit-sha-story: aprovacoes exigem audit_sha (T-025 / J10)\
     `- etapa: revisor
     agente: Ines
     data: 2026-05-24
-    status: dispensado`
+    status: dispensado`,
   );
   // Mas se revisor dispensado, story tem outros em aprovado — deve passar
   const r = run(c);
-  check('cenario 6: revisor dispensado (sem sha) + outros OK → exit 0',
-    r.exit === 0, `exit=${r.exit}, stderr=${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 6: revisor dispensado (sem sha) + outros OK → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 200)}`,
+  );
 }
 
 // Cenario 7 (regressao): status diferente de "entregue" nao dispara hook

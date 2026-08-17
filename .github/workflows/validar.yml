@@ -218,13 +218,13 @@ jobs:
           SIZE=$(node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const a=JSON.parse(s);console.log(a[0].unpackedSize)})" <<< "$OUT")
           MAX=$((3*1024*1024))  # 3 MB descompactado — bump v1.2.4 (era 2 MB; framework cresceu organicamente com 5 hooks novos e doc UX expandida)
           if [ "$SIZE" -gt "$MAX" ]; then
-            echo "FAIL: pacote descompactado $SIZE bytes (>2MB). Algum arquivo grande vazou no files?"
+            echo "FAIL: pacote descompactado $SIZE bytes (>3MB). Algum arquivo grande vazou no files?"
             exit 1
           fi
-          echo "OK: pacote descompactado $SIZE bytes (<2MB)"
+          echo "OK: pacote descompactado $SIZE bytes (<3MB)"
           # Guias internos NAO podem vazar pro tarball
-          if grep -q "docs/PUBLICAR-NPM.md" <<< "$OUT"; then
-            echo "FAIL: docs/PUBLICAR-NPM.md vazou pro tarball — corrigir .npmignore/files"
+          if grep -Eq '"path": *"(docs|manutencao|evals|test)/' <<< "$OUT"; then
+            echo "FAIL: material interno (docs/, manutencao/, evals/ ou test/) vazou pro tarball — corrigir files no package.json"
             exit 1
           fi
-          echo "OK: guias internos excluidos do tarball"
+          echo "OK: material interno excluido do tarball"

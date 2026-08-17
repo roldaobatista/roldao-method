@@ -23,7 +23,11 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.
   await readStdinJson(); // consome stdin (Stop hook recebe JSON do Claude Code)
 
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(0); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(0);
+  }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
   const m = (name) => path.join(runtime, `${name}-${sess}`);
@@ -43,9 +47,11 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.
     const faltamPRD = [];
     if (!fs.existsSync(m('pm-prd-done'))) faltamPRD.push('Sofia (Modo PRD — escrever PRD-NNN)');
     if (!fs.existsSync(m('tech-lead-done'))) faltamPRD.push('Rafael (listar ADRs decorrentes)');
-    if (!fs.existsSync(m('ux-done')) && !fs.existsSync(m('ux-skipped'))) faltamPRD.push('Lia (UX — gerar ou skipar explicitamente)');
-    if (!fs.existsSync(m('decomp-done'))) faltamPRD.push('Sofia (Modo DECOMP — quebrar em US filhas)');
-    const reason = `[enforce-pipeline-completion] Pipeline /prd aberto sem decomposicao final.\nFalta:\n${faltamPRD.map(x => `  - ${x}`).join('\n')}\n\nDelegue ao maestro Modo PRD pra retomar.`;
+    if (!fs.existsSync(m('ux-done')) && !fs.existsSync(m('ux-skipped')))
+      faltamPRD.push('Lia (UX — gerar ou skipar explicitamente)');
+    if (!fs.existsSync(m('decomp-done')))
+      faltamPRD.push('Sofia (Modo DECOMP — quebrar em US filhas)');
+    const reason = `[enforce-pipeline-completion] Pipeline /prd aberto sem decomposicao final.\nFalta:\n${faltamPRD.map((x) => `  - ${x}`).join('\n')}\n\nDelegue ao maestro Modo PRD pra retomar.`;
     process.stdout.write(JSON.stringify({ decision: 'block', reason }));
     process.exit(0);
   }
@@ -58,22 +64,23 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.
     if (!fs.existsSync(m('tech-lead-done'))) faltamBF.push('Rafael (ADRs de adocao)');
     if (!fs.existsSync(m('pm-onboarding-done'))) faltamBF.push('Sofia (AGENTS.md + onboarding)');
     if (!fs.existsSync(m('audit-seg-done'))) faltamBF.push('Caio (scan inicial seg)');
-    const reason = `[enforce-pipeline-completion] Pipeline /brownfield aberto sem scan inicial seg.\nFalta:\n${faltamBF.map(x => `  - ${x}`).join('\n')}\n\nDelegue ao maestro Modo BROWNFIELD.`;
+    const reason = `[enforce-pipeline-completion] Pipeline /brownfield aberto sem scan inicial seg.\nFalta:\n${faltamBF.map((x) => `  - ${x}`).join('\n')}\n\nDelegue ao maestro Modo BROWNFIELD.`;
     process.stdout.write(JSON.stringify({ decision: 'block', reason }));
     process.exit(0);
   }
 
   // Modo AR: exige 3 auditores pass (etapa 2/2)
   if (modoAR) {
-    const auditoresOk = ['auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass']
-      .every((k) => fs.existsSync(m(k)));
+    const auditoresOk = ['auditor-seg-pass', 'auditor-qual-pass', 'auditor-prod-pass'].every((k) =>
+      fs.existsSync(m(k)),
+    );
     if (auditoresOk) process.exit(0);
     if (!fs.existsSync(m('inventario-done'))) process.exit(0);
     const faltamAR = [];
     if (!fs.existsSync(m('auditor-seg-pass'))) faltamAR.push('Caio (auditor-seguranca)');
     if (!fs.existsSync(m('auditor-qual-pass'))) faltamAR.push('Julia (auditor-qualidade)');
     if (!fs.existsSync(m('auditor-prod-pass'))) faltamAR.push('Pedro (auditor-produto)');
-    const reason = `[enforce-pipeline-completion] Pipeline /auditoria-reversa aberto sem 3 auditores.\nFalta:\n${faltamAR.map(x => `  - ${x}`).join('\n')}\n\nDelegue ao maestro Modo AR.`;
+    const reason = `[enforce-pipeline-completion] Pipeline /auditoria-reversa aberto sem 3 auditores.\nFalta:\n${faltamAR.map((x) => `  - ${x}`).join('\n')}\n\nDelegue ao maestro Modo AR.`;
     process.stdout.write(JSON.stringify({ decision: 'block', reason }));
     process.exit(0);
   }
@@ -110,7 +117,9 @@ Encerrar sem isso violaria INV-002 (spec gera codigo, sem PM nao ha spec valida)
   try {
     const head = fs.readFileSync(m('feature-active'), 'utf8').split(/\r?\n/)[0].trim();
     if (head) usId = head;
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 
   const faltam = [];
   // Revisor (Inês) e parte do pipeline /feature (Sofia → Detetive → Rafael →

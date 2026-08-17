@@ -40,7 +40,11 @@ function addProject(cwd) {
   if (existing) {
     existing.lastSeen = new Date().toISOString();
   } else {
-    list.push({ path: normalized, addedAt: new Date().toISOString(), lastSeen: new Date().toISOString() });
+    list.push({
+      path: normalized,
+      addedAt: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
+    });
   }
   writeRegistry(list);
 }

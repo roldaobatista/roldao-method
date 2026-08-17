@@ -20,8 +20,13 @@ const SESS = 'sessatual';
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 function setupRuntime() {
@@ -33,13 +38,22 @@ function setupRuntime() {
 }
 
 function cleanup(dir) {
-  try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* */ }
+  try {
+    fs.rmSync(dir, { recursive: true, force: true });
+  } catch {
+    /* */
+  }
 }
 
 function runHook(dir) {
   const env = { ...process.env, CLAUDE_PROJECT_DIR: dir, ROLDAO_SKIP_METRICS: '1' };
   const input = JSON.stringify({});
-  const r = spawnSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'], env, timeout: 15000 });
+  const r = spawnSync('node', [HOOK], {
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+    timeout: 15000,
+  });
   return { exit: r.status, stderr: (r.stderr || '').toString() };
 }
 
@@ -56,11 +70,26 @@ console.log('\nhooks-session-cleanup: limpa markers efemeros da sessao atual (T-
 
   const r = runHook(dir);
   check('cenario 1a: hook executa sem erro', r.exit === 0, `exit=${r.exit}`);
-  check('cenario 1b: bug-trigger removido', !fs.existsSync(path.join(runtime, `bug-trigger-${SESS}`)));
-  check('cenario 1c: bug-active removido', !fs.existsSync(path.join(runtime, `bug-active-${SESS}`)));
-  check('cenario 1d: feature-active removido', !fs.existsSync(path.join(runtime, `feature-active-${SESS}`)));
-  check('cenario 1e: auditor-seg-pass removido', !fs.existsSync(path.join(runtime, `auditor-seg-pass-${SESS}`)));
-  check('cenario 1f: checkpoint-done removido', !fs.existsSync(path.join(runtime, `checkpoint-done-${SESS}`)));
+  check(
+    'cenario 1b: bug-trigger removido',
+    !fs.existsSync(path.join(runtime, `bug-trigger-${SESS}`)),
+  );
+  check(
+    'cenario 1c: bug-active removido',
+    !fs.existsSync(path.join(runtime, `bug-active-${SESS}`)),
+  );
+  check(
+    'cenario 1d: feature-active removido',
+    !fs.existsSync(path.join(runtime, `feature-active-${SESS}`)),
+  );
+  check(
+    'cenario 1e: auditor-seg-pass removido',
+    !fs.existsSync(path.join(runtime, `auditor-seg-pass-${SESS}`)),
+  );
+  check(
+    'cenario 1f: checkpoint-done removido',
+    !fs.existsSync(path.join(runtime, `checkpoint-done-${SESS}`)),
+  );
   cleanup(dir);
 }
 
@@ -72,9 +101,18 @@ console.log('\nhooks-session-cleanup: limpa markers efemeros da sessao atual (T-
   fs.writeFileSync(path.join(runtime, 'feature-active-paralela123'), '');
 
   runHook(dir);
-  check('cenario 2a: marker sessao atual removido', !fs.existsSync(path.join(runtime, `bug-active-${SESS}`)));
-  check('cenario 2b: bug-active-outraSessao PRESERVADO', fs.existsSync(path.join(runtime, 'bug-active-outraSessao')));
-  check('cenario 2c: feature-active-paralela123 PRESERVADO', fs.existsSync(path.join(runtime, 'feature-active-paralela123')));
+  check(
+    'cenario 2a: marker sessao atual removido',
+    !fs.existsSync(path.join(runtime, `bug-active-${SESS}`)),
+  );
+  check(
+    'cenario 2b: bug-active-outraSessao PRESERVADO',
+    fs.existsSync(path.join(runtime, 'bug-active-outraSessao')),
+  );
+  check(
+    'cenario 2c: feature-active-paralela123 PRESERVADO',
+    fs.existsSync(path.join(runtime, 'feature-active-paralela123')),
+  );
   cleanup(dir);
 }
 
@@ -88,11 +126,23 @@ console.log('\nhooks-session-cleanup: limpa markers efemeros da sessao atual (T-
   fs.writeFileSync(path.join(runtime, 'audit-inventory.json'), '{}');
 
   runHook(dir);
-  check('cenario 3a: investigation-*.json PRESERVADO', fs.existsSync(path.join(runtime, 'investigation-bug-001.json')));
+  check(
+    'cenario 3a: investigation-*.json PRESERVADO',
+    fs.existsSync(path.join(runtime, 'investigation-bug-001.json')),
+  );
   check('cenario 3b: metrics.jsonl PRESERVADO', fs.existsSync(path.join(runtime, 'metrics.jsonl')));
-  check('cenario 3c: session-snapshot.md PRESERVADO', fs.existsSync(path.join(runtime, 'session-snapshot.md')));
-  check('cenario 3d: session-state.json PRESERVADO', fs.existsSync(path.join(runtime, 'session-state.json')));
-  check('cenario 3e: audit-inventory.json PRESERVADO', fs.existsSync(path.join(runtime, 'audit-inventory.json')));
+  check(
+    'cenario 3c: session-snapshot.md PRESERVADO',
+    fs.existsSync(path.join(runtime, 'session-snapshot.md')),
+  );
+  check(
+    'cenario 3d: session-state.json PRESERVADO',
+    fs.existsSync(path.join(runtime, 'session-state.json')),
+  );
+  check(
+    'cenario 3e: audit-inventory.json PRESERVADO',
+    fs.existsSync(path.join(runtime, 'audit-inventory.json')),
+  );
   check('cenario 3f: .session-hash PRESERVADO', fs.existsSync(path.join(runtime, '.session-hash')));
   cleanup(dir);
 }

@@ -11,7 +11,14 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric, gitSafeEnv, emitSoftWarning } = require('./_lib.js');
+const {
+  readStdinJson,
+  sanitizeProjdir,
+  sanitizeSessionHash,
+  recordMetric,
+  gitSafeEnv,
+  emitSoftWarning,
+} = require('./_lib.js');
 
 // computeDiffShas — retorna { sha256, gitBlobSha } do diff HEAD atual.
 // Marker do auditor pode trazer audit_sha em qualquer dos dois formatos.
@@ -21,14 +28,22 @@ const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, recordMetric, gitSa
 // Retorna { sha256:'', gitBlobSha:'' } se git nao disponivel.
 function computeDiffShas(projdir) {
   try {
-    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], { stdio: 'ignore', env: gitSafeEnv() });
-    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'], env: gitSafeEnv() });
+    execFileSync('git', ['-C', projdir, 'rev-parse', '--git-dir'], {
+      stdio: 'ignore',
+      env: gitSafeEnv(),
+    });
+    const diff = execFileSync('git', ['-C', projdir, 'diff', 'HEAD'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: gitSafeEnv(),
+    });
     const sha256 = crypto.createHash('sha256').update(diff).digest('hex');
     const gitBlobSha = execFileSync('git', ['hash-object', '--stdin'], {
       input: diff || Buffer.alloc(0),
       stdio: ['pipe', 'pipe', 'ignore'],
       env: gitSafeEnv(),
-    }).toString().trim();
+    })
+      .toString()
+      .trim();
     return { sha256, gitBlobSha };
   } catch {
     return { sha256: '', gitBlobSha: '' };
@@ -40,7 +55,7 @@ const REQUIRED_FIELDS = ['session', 'agent', 'audit_sha', 'timestamp', 'lido_de'
 const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
 
 const LABELS = {
-  seg:  'auditor-seguranca (Caio) — secrets, LGPD, supply chain, OWASP',
+  seg: 'auditor-seguranca (Caio) — secrets, LGPD, supply chain, OWASP',
   qual: 'auditor-qualidade (Julia) — testes, cobertura, anti-mascaramento',
   prod: 'auditor-produto (Pedro) — aderencia a US, non-goals',
 };
@@ -73,7 +88,9 @@ function validateMarker(passMark, currentShas) {
   }
 
   // Valida shape canonico (ADR-020 secao 'Shape do marker').
-  const faltando = REQUIRED_FIELDS.filter((k) => j[k] === undefined || j[k] === null || j[k] === '');
+  const faltando = REQUIRED_FIELDS.filter(
+    (k) => j[k] === undefined || j[k] === null || j[k] === '',
+  );
   if (faltando.length > 0) {
     return { state: 'missing-field', audit_sha: '', faltando };
   }
@@ -83,7 +100,7 @@ function validateMarker(passMark, currentShas) {
   const cs = currentShas || { sha256: '', gitBlobSha: '' };
   const hasAtLeastOne = cs.sha256 || cs.gitBlobSha;
   if (hasAtLeastOne) {
-    const bate = (j.audit_sha === cs.sha256) || (j.audit_sha === cs.gitBlobSha);
+    const bate = j.audit_sha === cs.sha256 || j.audit_sha === cs.gitBlobSha;
     if (!bate) return { state: 'stale', audit_sha: j.audit_sha };
   }
 
@@ -98,7 +115,11 @@ function validateMarker(passMark, currentShas) {
   if (SKIP_PREFIXES_RE.test(cmd)) process.exit(0);
 
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(2); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(2);
+  }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
   const markFeature = path.join(runtime, `feature-active-${sess}`);
@@ -128,17 +149,36 @@ function validateMarker(passMark, currentShas) {
 
     const r = validateMarker(passMark, currentShas);
     switch (r.state) {
-      case 'ok': break;
-      case 'missing': missing.push(LABELS[key]); break;
-      case 'empty': empty.push(LABELS[key]); break;
-      case 'malformed': malformed.push(LABELS[key]); break;
-      case 'missing-field': missingField.push({ label: LABELS[key], faltando: r.faltando }); break;
-      case 'stale': stale.push(LABELS[key]); break;
-      case 'legacy': legacy.push(LABELS[key]); break;
+      case 'ok':
+        break;
+      case 'missing':
+        missing.push(LABELS[key]);
+        break;
+      case 'empty':
+        empty.push(LABELS[key]);
+        break;
+      case 'malformed':
+        malformed.push(LABELS[key]);
+        break;
+      case 'missing-field':
+        missingField.push({ label: LABELS[key], faltando: r.faltando });
+        break;
+      case 'stale':
+        stale.push(LABELS[key]);
+        break;
+      case 'legacy':
+        legacy.push(LABELS[key]);
+        break;
     }
   }
 
-  const totalProblemas = blocked.length + missing.length + empty.length + malformed.length + missingField.length + stale.length;
+  const totalProblemas =
+    blocked.length +
+    missing.length +
+    empty.length +
+    malformed.length +
+    missingField.length +
+    stale.length;
   if (totalProblemas === 0) {
     // Auditoria 10x1 (R7, 2026-05-27): visibiliza no stdout (em vez de só
     // stderr que some) + grava em warnings.jsonl pro /avisos consumir +
@@ -164,10 +204,16 @@ function validateMarker(passMark, currentShas) {
     const head = fs.readFileSync(markFeature, 'utf8').split(/\r?\n/)[0];
     const m = head.match(/\b(US-\d+)\b/);
     if (m) usHint = m[1];
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 
-  process.stderr.write(`[require-auditors-pass-before-commit] BLOQUEADO: tentativa de commit/merge/push\n`);
-  process.stderr.write(`em sessao /feature ativa sem aprovacao consolidada e VERIFICAVEL dos 3 auditores.\n\n`);
+  process.stderr.write(
+    `[require-auditors-pass-before-commit] BLOQUEADO: tentativa de commit/merge/push\n`,
+  );
+  process.stderr.write(
+    `em sessao /feature ativa sem aprovacao consolidada e VERIFICAVEL dos 3 auditores.\n\n`,
+  );
   process.stderr.write(`Story alvo: ${usHint || '(nao identificada)'}\n`);
   process.stderr.write(`Comando bloqueado: ${cmd}\n\n`);
 
@@ -206,8 +252,12 @@ function validateMarker(passMark, currentShas) {
   }
 
   process.stderr.write(`Como destravar (caminho legitimo — NAO ha bypass mecanico):\n`);
-  process.stderr.write(`  1. Volte ao /feature etapa 6 e peca pro Maestro re-rodar os 3 auditores.\n`);
-  process.stderr.write(`     Ele invoca auditor-seguranca, auditor-qualidade, auditor-produto em paralelo.\n`);
+  process.stderr.write(
+    `  1. Volte ao /feature etapa 6 e peca pro Maestro re-rodar os 3 auditores.\n`,
+  );
+  process.stderr.write(
+    `     Ele invoca auditor-seguranca, auditor-qualidade, auditor-produto em paralelo.\n`,
+  );
   process.stderr.write(`  2. Cada auditor, ao APROVAR, escreve marker JSON canonico (ADR-020):\n`);
   process.stderr.write(`        {\n`);
   process.stderr.write(`          "session": "<hash da sessao>",\n`);
@@ -216,18 +266,34 @@ function validateMarker(passMark, currentShas) {
   process.stderr.write(`          "timestamp": "2026-MM-DDTHH:MM:SSZ",\n`);
   process.stderr.write(`          "lido_de": ["arquivo1.js", "arquivo2.md"]\n`);
   process.stderr.write(`        }\n`);
-  process.stderr.write(`  3. Se algum BLOQUEOU: volte pra Dev Senior (etapa 4), corrija, re-rode 5 e 6.\n\n`);
+  process.stderr.write(
+    `  3. Se algum BLOQUEOU: volte pra Dev Senior (etapa 4), corrija, re-rode 5 e 6.\n\n`,
+  );
   process.stderr.write(`Por que esse rigor:\n`);
-  process.stderr.write(`  - Marker vazio (criado por 'touch') NAO conta como aprovacao — INV-AGENT-004.\n`);
-  process.stderr.write(`  - audit_sha amarra aprovacao ao diff exato — se voce mexer no codigo depois,\n`);
+  process.stderr.write(
+    `  - Marker vazio (criado por 'touch') NAO conta como aprovacao — INV-AGENT-004.\n`,
+  );
+  process.stderr.write(
+    `  - audit_sha amarra aprovacao ao diff exato — se voce mexer no codigo depois,\n`,
+  );
   process.stderr.write(`    marker fica "stale" e auditor precisa rodar de novo.\n`);
-  process.stderr.write(`  - Sem esse contrato, "auditado" vira teatro (bloqueador 1 da auditoria 2026-05-24).\n\n`);
-  process.stderr.write(`Em migracao de v1.x pra v2.x: setar ROLDAO_METHOD_LEGACY_MARKERS=1 aceita\n`);
+  process.stderr.write(
+    `  - Sem esse contrato, "auditado" vira teatro (bloqueador 1 da auditoria 2026-05-24).\n\n`,
+  );
+  process.stderr.write(
+    `Em migracao de v1.x pra v2.x: setar ROLDAO_METHOD_LEGACY_MARKERS=1 aceita\n`,
+  );
   process.stderr.write(`markers antigos vazios por enquanto. Janela de tolerancia (ADR-021):\n`);
   process.stderr.write(`  - v2.0.0 → v2.1.0: flag aceita\n`);
   process.stderr.write(`  - v2.2.0+: flag removida; sem migracao quebra commit.\n\n`);
-  process.stderr.write(`Aplica regras: INV-AGENT-004, INV-AGENT-006, SEC-* (seguranca), TST-* (qualidade).\n`);
-  recordMetric('block', 'require-auditors-pass-before-commit', `${usHint || 'US-?'} blocked=${blocked.length} missing=${missing.length} empty=${empty.length} malformed=${malformed.length} missing-field=${missingField.length} stale=${stale.length}`);
+  process.stderr.write(
+    `Aplica regras: INV-AGENT-004, INV-AGENT-006, SEC-* (seguranca), TST-* (qualidade).\n`,
+  );
+  recordMetric(
+    'block',
+    'require-auditors-pass-before-commit',
+    `${usHint || 'US-?'} blocked=${blocked.length} missing=${missing.length} empty=${empty.length} malformed=${malformed.length} missing-field=${missingField.length} stale=${stale.length}`,
+  );
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[require-auditors-pass-before-commit] erro interno: ${err.message}\n`);

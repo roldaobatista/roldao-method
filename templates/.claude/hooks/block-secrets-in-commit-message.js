@@ -13,7 +13,7 @@ const { readStdinJson, secretTokenRegexes, recordMetric } = require('./_lib.js')
 // anti-mascaramento que escaneia source.
 const PWD_INLINE_PATTERNS = [
   new RegExp('password' + '\\s*[:=]\\s*\\S{6,}'),
-  new RegExp('senha'    + '\\s*[:=]\\s*\\S{6,}'),
+  new RegExp('senha' + '\\s*[:=]\\s*\\S{6,}'),
 ];
 
 // Extrai todas as mensagens de -m/--message + heredoc EOF. Equivale ao
@@ -49,13 +49,19 @@ function extractMessages(cmd) {
   const allPatterns = [...secretTokenRegexes(), ...PWD_INLINE_PATTERNS];
   for (const re of allPatterns) {
     if (re.test(msg)) {
-      process.stderr.write(`[block-secrets-in-commit-message] BLOQUEADO: mensagem de commit contem possivel segredo.\n\n`);
+      process.stderr.write(
+        `[block-secrets-in-commit-message] BLOQUEADO: mensagem de commit contem possivel segredo.\n\n`,
+      );
       process.stderr.write(`Mensagem: ${msg}\n`);
       process.stderr.write(`Padrao detectado: ${re.source}\n\n`);
-      process.stderr.write(`Regra: SEC-001. Mensagem de commit fica em log publico (git log, GitHub, code review).\n`);
+      process.stderr.write(
+        `Regra: SEC-001. Mensagem de commit fica em log publico (git log, GitHub, code review).\n`,
+      );
       process.stderr.write(`Nunca colocar chave, token, senha, certificado.\n\n`);
       process.stderr.write(`Se for parte do contexto da feature, descreva sem o valor literal:\n`);
-      process.stderr.write(`  "fix: rotaciona chave AWS por exposicao em log" (NAO: "fix: chave AKIA... rotacionada")\n`);
+      process.stderr.write(
+        `  "fix: rotaciona chave AWS por exposicao em log" (NAO: "fix: chave AKIA... rotacionada")\n`,
+      );
       recordMetric('block', 'block-secrets-in-commit-message', re.source);
       process.exit(2);
     }

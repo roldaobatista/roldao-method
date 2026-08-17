@@ -22,12 +22,12 @@ const fs = require('fs');
 const path = require('path');
 
 const CONFIG = {
-  US:  { pasta: 'docs/stories',   pad: 3 },
-  EP:  { pasta: 'docs/epicos',    pad: 3 },
-  PRD: { pasta: 'docs/prd',       pad: 3 },
+  US: { pasta: 'docs/stories', pad: 3 },
+  EP: { pasta: 'docs/epicos', pad: 3 },
+  PRD: { pasta: 'docs/prd', pad: 3 },
   ADR: { pasta: 'docs/decisions', pad: 3 },
   CHK: { pasta: 'docs/checkpoints', pad: 0 }, // CHK usa data, nao numero
-  T:   { pasta: null, pad: 3 }, // T-NNN e local por story — caller informa o conteudo
+  T: { pasta: null, pad: 3 }, // T-NNN e local por story — caller informa o conteudo
 };
 
 function projdir() {
@@ -40,12 +40,16 @@ function projdir() {
 function nextId(tipo, opts = {}) {
   const t = String(tipo).toUpperCase();
   const cfg = CONFIG[t];
-  if (!cfg) throw new Error(`next-id: tipo desconhecido '${tipo}'. Validos: ${Object.keys(CONFIG).join(', ')}`);
+  if (!cfg)
+    throw new Error(
+      `next-id: tipo desconhecido '${tipo}'. Validos: ${Object.keys(CONFIG).join(', ')}`,
+    );
 
   const pad = opts.pad !== undefined ? opts.pad : cfg.pad;
 
   if (t === 'T') {
-    if (!opts.dentroDeArquivo) throw new Error(`next-id: tipo T exige opts.dentroDeArquivo (path da story)`);
+    if (!opts.dentroDeArquivo)
+      throw new Error(`next-id: tipo T exige opts.dentroDeArquivo (path da story)`);
     return _nextTaskNoArquivo(opts.dentroDeArquivo, pad);
   }
 
@@ -71,7 +75,9 @@ function _nextNoDiretorio(pastaRelativa, prefixo, pad) {
         if (n > max) max = n;
       }
     }
-  } catch { /* pasta nao existe = comeca em 001 */ }
+  } catch {
+    /* pasta nao existe = comeca em 001 */
+  }
   const proximo = max + 1;
   return `${prefixo}-${String(proximo).padStart(pad, '0')}`;
 }
@@ -85,7 +91,9 @@ function _nextTaskNoArquivo(filepath, pad) {
       const n = parseInt(m.slice(2), 10);
       if (n > max) max = n;
     }
-  } catch { /* arquivo nao existe = T-001 */ }
+  } catch {
+    /* arquivo nao existe = T-001 */
+  }
   const proximo = max + 1;
   return `T-${String(proximo).padStart(pad, '0')}`;
 }

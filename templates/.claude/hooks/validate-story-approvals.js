@@ -25,10 +25,7 @@ const SHA256_HEX_RE = /^[a-f0-9]{64}$/i;
 // Extrai bloco YAML de uma etapa especifica do frontmatter de story.
 // Retorna o texto entre "- etapa: <name>" e o proximo "- etapa:" (ou fim do frontmatter).
 function extractEtapaBlock(content, etapa) {
-  const re = new RegExp(
-    `^\\s*-\\s*etapa:\\s*${etapa}\\b[\\s\\S]*?(?=^\\s*-\\s*etapa:|^---$)`,
-    'm'
-  );
+  const re = new RegExp(`^\\s*-\\s*etapa:\\s*${etapa}\\b[\\s\\S]*?(?=^\\s*-\\s*etapa:|^---$)`, 'm');
   const m = content.match(re);
   return m ? m[0] : '';
 }
@@ -67,7 +64,10 @@ function extractEtapaBlock(content, etapa) {
     if (!shaMatch) {
       missingSha.push({ etapa, motivo: 'campo "audit_sha" ausente' });
     } else if (!SHA256_HEX_RE.test(shaMatch[1])) {
-      missingSha.push({ etapa, motivo: `"audit_sha" nao e sha256 hex valido (got=${shaMatch[1].slice(0, 16)}...)` });
+      missingSha.push({
+        etapa,
+        motivo: `"audit_sha" nao e sha256 hex valido (got=${shaMatch[1].slice(0, 16)}...)`,
+      });
     }
   }
 
@@ -90,19 +90,31 @@ function extractEtapaBlock(content, etapa) {
   }
 
   if (hasBlock > 0) {
-    process.stderr.write(`Existem aprovacoes com status 'reprovado' ou 'bloqueado'. Resolva (corrigir\n`);
-    process.stderr.write(`no codigo + re-rodar etapa correspondente do /feature + atualizar a entrada\n`);
+    process.stderr.write(
+      `Existem aprovacoes com status 'reprovado' ou 'bloqueado'. Resolva (corrigir\n`,
+    );
+    process.stderr.write(
+      `no codigo + re-rodar etapa correspondente do /feature + atualizar a entrada\n`,
+    );
     process.stderr.write(`para status: aprovado) antes de marcar entregue.\n\n`);
   }
 
   if (missingSha.length > 0) {
-    process.stderr.write(`Aprovacoes que auditaram diff mas NAO declararam audit_sha (T-025 / J10):\n`);
+    process.stderr.write(
+      `Aprovacoes que auditaram diff mas NAO declararam audit_sha (T-025 / J10):\n`,
+    );
     for (const { etapa, motivo } of missingSha) {
       process.stderr.write(`  ✗ ${etapa} — ${motivo}\n`);
     }
-    process.stderr.write(`\nEtapas que auditam diff (revisor + 3 auditores) precisam declarar o sha256\n`);
-    process.stderr.write(`do diff que aprovaram. Sem isso, nao da pra cruzar 'auditor disse APROVADO'\n`);
-    process.stderr.write(`com 'diff que esta no commit'. ADR-020 (mesma logica dos pass markers).\n\n`);
+    process.stderr.write(
+      `\nEtapas que auditam diff (revisor + 3 auditores) precisam declarar o sha256\n`,
+    );
+    process.stderr.write(
+      `do diff que aprovaram. Sem isso, nao da pra cruzar 'auditor disse APROVADO'\n`,
+    );
+    process.stderr.write(
+      `com 'diff que esta no commit'. ADR-020 (mesma logica dos pass markers).\n\n`,
+    );
     process.stderr.write(`Formato:\n`);
     process.stderr.write(`  - etapa: revisor\n`);
     process.stderr.write(`    agente: Ines\n`);
@@ -145,10 +157,20 @@ function extractEtapaBlock(content, etapa) {
   process.stderr.write(`    agente: Pedro\n`);
   process.stderr.write(`    data: AAAA-MM-DD\n`);
   process.stderr.write(`    status: aprovado\n\n`);
-  process.stderr.write(`Sem audit trail completo, nao ha como auditar 6 meses depois quem decidiu\n`);
-  process.stderr.write(`o que. Marcador efemero em .runtime/ nao serve — limpo ao fim da sessao.\n\n`);
-  process.stderr.write(`Aplica regras: INV-001 (documento e estado compartilhado), INV-AGENT-006.\n`);
-  recordMetric('block', 'validate-story-approvals', `${usId}: missing=${missing.length} blocked=${hasBlock}`);
+  process.stderr.write(
+    `Sem audit trail completo, nao ha como auditar 6 meses depois quem decidiu\n`,
+  );
+  process.stderr.write(
+    `o que. Marcador efemero em .runtime/ nao serve — limpo ao fim da sessao.\n\n`,
+  );
+  process.stderr.write(
+    `Aplica regras: INV-001 (documento e estado compartilhado), INV-AGENT-006.\n`,
+  );
+  recordMetric(
+    'block',
+    'validate-story-approvals',
+    `${usId}: missing=${missing.length} blocked=${hasBlock}`,
+  );
   process.exit(2);
 })().catch((err) => {
   process.stderr.write(`[validate-story-approvals] erro interno: ${err.message}\n`);

@@ -26,8 +26,13 @@ const HOOKS_DIR = path.join(ROOT, 'templates', '.claude', 'hooks');
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 // Roda hook .js direto com node + stdin
@@ -38,19 +43,29 @@ function runJsHook(hookName, input) {
     stdio: ['pipe', 'pipe', 'pipe'],
     timeout: 15000,
   });
-  return { exit: r.status, stdout: (r.stdout || '').toString(), stderr: (r.stderr || '').toString() };
+  return {
+    exit: r.status,
+    stdout: (r.stdout || '').toString(),
+    stderr: (r.stderr || '').toString(),
+  };
 }
 
 function assertExit(label, hookName, input, expectedExit) {
   const r = runJsHook(hookName, input);
-  check(label, r.exit === expectedExit, `expected exit=${expectedExit}, got=${r.exit}, stderr="${r.stderr.slice(0, 100)}"`);
+  check(
+    label,
+    r.exit === expectedExit,
+    `expected exit=${expectedExit}, got=${r.exit}, stderr="${r.stderr.slice(0, 100)}"`,
+  );
 }
 
 function assertBlockDecision(label, hookName, input) {
   const r = runJsHook(hookName, input);
-  check(label,
+  check(
+    label,
     r.exit === 0 && /["']?decision["']?:\s*["']?block["']?/.test(r.stdout),
-    `expected JSON decision:block, got exit=${r.exit} stdout="${r.stdout.slice(0, 100)}"`);
+    `expected JSON decision:block, got exit=${r.exit} stdout="${r.stdout.slice(0, 100)}"`,
+  );
 }
 
 console.log('\nhooks-node-only: testa hooks .js puros sem dependencia bash\n');
@@ -121,103 +136,292 @@ for (const h of ALL_HOOKS) {
 // ============================================================================
 
 // block-destructive
-assertExit('block-destructive: rm -rf / bloqueia', 'block-destructive',
-  JSON.stringify({ tool_input: { command: 'rm -rf /' } }), 2);
-assertExit('block-destructive: ls libera', 'block-destructive',
-  JSON.stringify({ tool_input: { command: 'ls -la' } }), 0);
-assertExit('block-destructive: rm -rf node_modules whitelist libera', 'block-destructive',
-  JSON.stringify({ tool_input: { command: 'rm -rf node_modules' } }), 0);
+assertExit(
+  'block-destructive: rm -rf / bloqueia',
+  'block-destructive',
+  JSON.stringify({ tool_input: { command: 'rm -rf /' } }),
+  2,
+);
+assertExit(
+  'block-destructive: ls libera',
+  'block-destructive',
+  JSON.stringify({ tool_input: { command: 'ls -la' } }),
+  0,
+);
+assertExit(
+  'block-destructive: rm -rf node_modules whitelist libera',
+  'block-destructive',
+  JSON.stringify({ tool_input: { command: 'rm -rf node_modules' } }),
+  0,
+);
 
 // secrets-scanner
-assertExit('secrets-scanner: .env bloqueia', 'secrets-scanner',
-  JSON.stringify({ tool_input: { file_path: '/proj/.env', content: 'X=1' } }), 2);
-assertExit('secrets-scanner: AKIA em conteudo bloqueia', 'secrets-scanner',
-  JSON.stringify({ tool_input: { file_path: '/proj/cfg.js', content: 'const k = "AKIAIOSFODNN7EXAMPLE";' } }), 2);
-assertExit('secrets-scanner: .env.example libera (path)', 'secrets-scanner',
-  JSON.stringify({ tool_input: { file_path: '/proj/.env.example', content: 'API_KEY=fake' } }), 0);
+assertExit(
+  'secrets-scanner: .env bloqueia',
+  'secrets-scanner',
+  JSON.stringify({ tool_input: { file_path: '/proj/.env', content: 'X=1' } }),
+  2,
+);
+assertExit(
+  'secrets-scanner: AKIA em conteudo bloqueia',
+  'secrets-scanner',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/cfg.js', content: 'const k = "AKIAIOSFODNN7EXAMPLE";' },
+  }),
+  2,
+);
+assertExit(
+  'secrets-scanner: .env.example libera (path)',
+  'secrets-scanner',
+  JSON.stringify({ tool_input: { file_path: '/proj/.env.example', content: 'API_KEY=fake' } }),
+  0,
+);
 
 // block-secrets-in-commit-message
-assertExit('commit-msg-secrets: AKIA bloqueia', 'block-secrets-in-commit-message',
-  JSON.stringify({ tool_input: { command: 'git commit -m "fix: AKIAIOSFODNN7EXAMPLE"' } }), 2);
-assertExit('commit-msg-secrets: msg limpa libera', 'block-secrets-in-commit-message',
-  JSON.stringify({ tool_input: { command: 'git commit -m "fix: ajusta validacao"' } }), 0);
+assertExit(
+  'commit-msg-secrets: AKIA bloqueia',
+  'block-secrets-in-commit-message',
+  JSON.stringify({ tool_input: { command: 'git commit -m "fix: AKIAIOSFODNN7EXAMPLE"' } }),
+  2,
+);
+assertExit(
+  'commit-msg-secrets: msg limpa libera',
+  'block-secrets-in-commit-message',
+  JSON.stringify({ tool_input: { command: 'git commit -m "fix: ajusta validacao"' } }),
+  0,
+);
 
 // anti-mascaramento
-assertExit('anti-mask: ts-ignore bloqueia', 'anti-mascaramento',
-  JSON.stringify({ tool_input: { file_path: '/proj/a.ts', content: '// @ts-' + 'ignore\nfoo();' } }), 2);
-assertExit('anti-mask: codigo limpo libera', 'anti-mascaramento',
-  JSON.stringify({ tool_input: { file_path: '/proj/a.ts', content: 'export const x = 1;' } }), 0);
+assertExit(
+  'anti-mask: ts-ignore bloqueia',
+  'anti-mascaramento',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/a.ts', content: '// @ts-' + 'ignore\nfoo();' },
+  }),
+  2,
+);
+assertExit(
+  'anti-mask: codigo limpo libera',
+  'anti-mascaramento',
+  JSON.stringify({ tool_input: { file_path: '/proj/a.ts', content: 'export const x = 1;' } }),
+  0,
+);
 
 // block-mock-in-integration
-assertExit('mock-integ: jest.mock em /integration/ bloqueia', 'block-mock-in-integration',
-  JSON.stringify({ tool_input: { file_path: '/proj/tests/integration/x.test.js', content: 'jest.mock("./db");' } }), 2);
-assertExit('mock-integ: jest.mock fora libera', 'block-mock-in-integration',
-  JSON.stringify({ tool_input: { file_path: '/proj/tests/unit/x.test.js', content: 'jest.mock("./db");' } }), 0);
+assertExit(
+  'mock-integ: jest.mock em /integration/ bloqueia',
+  'block-mock-in-integration',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/tests/integration/x.test.js', content: 'jest.mock("./db");' },
+  }),
+  2,
+);
+assertExit(
+  'mock-integ: jest.mock fora libera',
+  'block-mock-in-integration',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/tests/unit/x.test.js', content: 'jest.mock("./db");' },
+  }),
+  0,
+);
 
 // no-test-data-in-fixtures
-assertExit('fixtures: gmail bloqueia', 'no-test-data-in-fixtures',
-  JSON.stringify({ tool_input: { file_path: '/proj/fixtures/users.json', content: '"email": "joao@gmail.com"' } }), 2);
-assertExit('fixtures: example.com libera', 'no-test-data-in-fixtures',
-  JSON.stringify({ tool_input: { file_path: '/proj/fixtures/users.json', content: '"email": "joao@example.com"' } }), 0);
+assertExit(
+  'fixtures: gmail bloqueia',
+  'no-test-data-in-fixtures',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/fixtures/users.json', content: '"email": "joao@gmail.com"' },
+  }),
+  2,
+);
+assertExit(
+  'fixtures: example.com libera',
+  'no-test-data-in-fixtures',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/fixtures/users.json', content: '"email": "joao@example.com"' },
+  }),
+  0,
+);
 
 // no-hardcoded-env-urls
-assertExit('urls: SEFAZ hardcoded bloqueia', 'no-hardcoded-env-urls',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch("https://nfe.fazenda.sp.gov.br/x");' } }), 2);
+assertExit(
+  'urls: SEFAZ hardcoded bloqueia',
+  'no-hardcoded-env-urls',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/sefaz.ts',
+      content: 'fetch("https://nfe.fazenda.sp.gov.br/x");',
+    },
+  }),
+  2,
+);
 // Auditoria 10-agentes 2ª passada 2026-05-24: fallback `|| 'URL'` agora BLOQUEIA
 // (era o vetor real de SEC-005 violado). Apenas SEC-005-exception libera.
-assertExit('urls: fallback || URL bloqueia (vetor SEC-005 real)', 'no-hardcoded-env-urls',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch(process.env.SEFAZ_URL || "https://nfe.fazenda.sp.gov.br/x");' } }), 2);
-assertExit('urls: process.env puro (sem fallback hardcoded) libera', 'no-hardcoded-env-urls',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch(process.env.SEFAZ_URL);' } }), 0);
-assertExit('urls: SEC-005-exception libera', 'no-hardcoded-env-urls',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/sefaz.ts', content: 'const URL = "https://nfe.fazenda.sp.gov.br/x"; // SEC-005-exception: URL canonica documentada na RFC interna' } }), 0);
+assertExit(
+  'urls: fallback || URL bloqueia (vetor SEC-005 real)',
+  'no-hardcoded-env-urls',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/sefaz.ts',
+      content: 'fetch(process.env.SEFAZ_URL || "https://nfe.fazenda.sp.gov.br/x");',
+    },
+  }),
+  2,
+);
+assertExit(
+  'urls: process.env puro (sem fallback hardcoded) libera',
+  'no-hardcoded-env-urls',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/sefaz.ts', content: 'fetch(process.env.SEFAZ_URL);' },
+  }),
+  0,
+);
+assertExit(
+  'urls: SEC-005-exception libera',
+  'no-hardcoded-env-urls',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/sefaz.ts',
+      content:
+        'const URL = "https://nfe.fazenda.sp.gov.br/x"; // SEC-005-exception: URL canonica documentada na RFC interna',
+    },
+  }),
+  0,
+);
 
 // fiscal-br-validator
-assertExit('fiscal: tpAmb=1 hardcoded bloqueia', 'fiscal-br-validator',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/nfe.ts', content: 'const tpAmb = 1;' } }), 2);
-assertExit('fiscal: tpAmb com env libera', 'fiscal-br-validator',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/nfe.ts', content: 'const tpAmb = process.env.SEFAZ_TPAMB;' } }), 0);
+assertExit(
+  'fiscal: tpAmb=1 hardcoded bloqueia',
+  'fiscal-br-validator',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/nfe.ts', content: 'const tpAmb = 1;' } }),
+  2,
+);
+assertExit(
+  'fiscal: tpAmb com env libera',
+  'fiscal-br-validator',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/nfe.ts',
+      content: 'const tpAmb = process.env.SEFAZ_TPAMB;',
+    },
+  }),
+  0,
+);
 // FISCAL-004 — contingencia SEFAZ obrigatoria (auditoria 2026-05-25)
-assertExit('fiscal-004: emissao sem contingencia bloqueia', 'fiscal-br-validator',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/emissor.ts', content: 'function emitirNFe(payload) { return ws.nfeAutorizacao(payload); }' } }), 2);
-assertExit('fiscal-004: emissao com FISCAL-004 SVC-AN libera', 'fiscal-br-validator',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/emissor.ts', content: '// FISCAL-004: SVC-AN\nfunction emitirNFe(payload) { return ws.nfeAutorizacao(payload); }' } }), 0);
+assertExit(
+  'fiscal-004: emissao sem contingencia bloqueia',
+  'fiscal-br-validator',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/emissor.ts',
+      content: 'function emitirNFe(payload) { return ws.nfeAutorizacao(payload); }',
+    },
+  }),
+  2,
+);
+assertExit(
+  'fiscal-004: emissao com FISCAL-004 SVC-AN libera',
+  'fiscal-br-validator',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/emissor.ts',
+      content:
+        '// FISCAL-004: SVC-AN\nfunction emitirNFe(payload) { return ws.nfeAutorizacao(payload); }',
+    },
+  }),
+  0,
+);
 
 // enforce-pipeline-completion — Stop hook, libera quando nao ha feature-active marker
-assertExit('enforce-pipeline: sem feature ativa libera', 'enforce-pipeline-completion',
-  JSON.stringify({ hook_event_name: 'Stop' }), 0);
+assertExit(
+  'enforce-pipeline: sem feature ativa libera',
+  'enforce-pipeline-completion',
+  JSON.stringify({ hook_event_name: 'Stop' }),
+  0,
+);
 
 // require-postmortem-after-hotfix — libera commit normal quando nao ha marker vencido
-assertExit('require-postmortem: commit sem marker hotfix libera', 'require-postmortem-after-hotfix',
-  JSON.stringify({ tool_input: { command: 'git commit -m "feat: nova feature"' } }), 0);
-assertExit('require-postmortem: commit nao-git libera', 'require-postmortem-after-hotfix',
-  JSON.stringify({ tool_input: { command: 'npm test' } }), 0);
+assertExit(
+  'require-postmortem: commit sem marker hotfix libera',
+  'require-postmortem-after-hotfix',
+  JSON.stringify({ tool_input: { command: 'git commit -m "feat: nova feature"' } }),
+  0,
+);
+assertExit(
+  'require-postmortem: commit nao-git libera',
+  'require-postmortem-after-hotfix',
+  JSON.stringify({ tool_input: { command: 'npm test' } }),
+  0,
+);
 
 // no-log-pix-key
-assertExit('pix-log: console.log cpf bloqueia', 'no-log-pix-key',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/pix.ts', content: 'console.log("cpf:", cpf);' } }), 2);
-assertExit('pix-log: com mask libera', 'no-log-pix-key',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/pix.ts', content: 'console.log("cpf:", mask(cpf));' } }), 0);
+assertExit(
+  'pix-log: console.log cpf bloqueia',
+  'no-log-pix-key',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/pix.ts', content: 'console.log("cpf:", cpf);' },
+  }),
+  2,
+);
+assertExit(
+  'pix-log: com mask libera',
+  'no-log-pix-key',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/pix.ts', content: 'console.log("cpf:", mask(cpf));' },
+  }),
+  0,
+);
 
 // paths-frontmatter-validator
-assertExit('frontmatter: sem header bloqueia', 'paths-frontmatter-validator',
-  JSON.stringify({ tool_input: { file_path: '/proj/docs/x.md', content: '# Titulo' } }), 2);
+assertExit(
+  'frontmatter: sem header bloqueia',
+  'paths-frontmatter-validator',
+  JSON.stringify({ tool_input: { file_path: '/proj/docs/x.md', content: '# Titulo' } }),
+  2,
+);
 
 // block-todo-without-issue
-assertExit('todo: sem id bloqueia', 'block-todo-without-issue',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: '// TODO refactor depois' } }), 2);
-assertExit('todo: com US-NNN libera', 'block-todo-without-issue',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: '// TODO(US-042): doc' } }), 0);
+assertExit(
+  'todo: sem id bloqueia',
+  'block-todo-without-issue',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/x.js', content: '// TODO refactor depois' },
+  }),
+  2,
+);
+assertExit(
+  'todo: com US-NNN libera',
+  'block-todo-without-issue',
+  JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: '// TODO(US-042): doc' } }),
+  0,
+);
 
 // validate-story-approvals
-assertExit('story-approvals: entregue sem aprovacoes bloqueia', 'validate-story-approvals',
-  JSON.stringify({ tool_input: { file_path: '/proj/docs/stories/US-001-x.md', content: 'id: US-001\nstatus: entregue' } }), 2);
+assertExit(
+  'story-approvals: entregue sem aprovacoes bloqueia',
+  'validate-story-approvals',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/docs/stories/US-001-x.md',
+      content: 'id: US-001\nstatus: entregue',
+    },
+  }),
+  2,
+);
 
 // commit-message-validator (sem state)
-assertExit('commit-msg: tipo invalido bloqueia', 'commit-message-validator',
-  JSON.stringify({ tool_input: { command: 'git commit -m "wip: trabalho"' } }), 2);
-assertExit('commit-msg: msg valida libera', 'commit-message-validator',
-  JSON.stringify({ tool_input: { command: 'git commit -m "fix: ajusta validacao"' } }), 0);
+assertExit(
+  'commit-msg: tipo invalido bloqueia',
+  'commit-message-validator',
+  JSON.stringify({ tool_input: { command: 'git commit -m "wip: trabalho"' } }),
+  2,
+);
+assertExit(
+  'commit-msg: msg valida libera',
+  'commit-message-validator',
+  JSON.stringify({ tool_input: { command: 'git commit -m "fix: ajusta validacao"' } }),
+  0,
+);
 
 // ============================================================================
 // Pares positivo+negativo dos soft-blocks e validators sem state
@@ -225,41 +429,70 @@ assertExit('commit-msg: msg valida libera', 'commit-message-validator',
 // ============================================================================
 
 // block-jargon-pt-br (PostToolUse, JSON decision:block) — INV-AGENT-001
-assertBlockDecision('jargon: resposta com "commit/push/merge" bloqueia',
+assertBlockDecision(
+  'jargon: resposta com "commit/push/merge" bloqueia',
   'block-jargon-pt-br',
-  JSON.stringify({ response: 'Fiz commit do push e dei merge na branch principal.' }));
-assertExit('jargon: resposta PT-BR clara libera',
+  JSON.stringify({ response: 'Fiz commit do push e dei merge na branch principal.' }),
+);
+assertExit(
+  'jargon: resposta PT-BR clara libera',
   'block-jargon-pt-br',
-  JSON.stringify({ response: 'Salvei a correcao no sistema e ja esta valendo no servidor.' }), 0);
+  JSON.stringify({ response: 'Salvei a correcao no sistema e ja esta valendo no servidor.' }),
+  0,
+);
 
 // block-confirmation-questions (PostToolUse, JSON decision:block) — INV-AGENT-006
-assertBlockDecision('confirmation: "quer que eu faca X?" bloqueia',
+assertBlockDecision(
+  'confirmation: "quer que eu faca X?" bloqueia',
   'block-confirmation-questions',
-  JSON.stringify({ response: 'Quer que eu crie a release agora ou prefere fazer depois?' }));
-assertExit('confirmation: resposta sem pergunta de confirmacao libera',
+  JSON.stringify({ response: 'Quer que eu crie a release agora ou prefere fazer depois?' }),
+);
+assertExit(
+  'confirmation: resposta sem pergunta de confirmacao libera',
   'block-confirmation-questions',
-  JSON.stringify({ response: 'Criei a release v1.0.2 com 3 correcoes. Conferi tudo verde.' }), 0);
-assertExit('confirmation: confirmacao legitima sobre destrutivo libera',
+  JSON.stringify({ response: 'Criei a release v1.0.2 com 3 correcoes. Conferi tudo verde.' }),
+  0,
+);
+assertExit(
+  'confirmation: confirmacao legitima sobre destrutivo libera',
   'block-confirmation-questions',
-  JSON.stringify({ response: 'Posso fazer git push --force pra sobrescrever a branch principal?' }), 0);
+  JSON.stringify({ response: 'Posso fazer git push --force pra sobrescrever a branch principal?' }),
+  0,
+);
 
 // lgpd-base-legal-reminder (PreToolUse, soft warning — sempre exit 0)
-assertExit('lgpd-base-legal: codigo sem PII libera silencioso',
+assertExit(
+  'lgpd-base-legal: codigo sem PII libera silencioso',
   'lgpd-base-legal-reminder',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/util.js', content: 'export const soma = (a,b) => a+b;' } }), 0);
-assertExit('lgpd-base-legal: codigo com PII em md/test/docs libera silencioso',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/util.js', content: 'export const soma = (a,b) => a+b;' },
+  }),
+  0,
+);
+assertExit(
+  'lgpd-base-legal: codigo com PII em md/test/docs libera silencioso',
   'lgpd-base-legal-reminder',
-  JSON.stringify({ tool_input: { file_path: '/proj/docs/cpf.md', content: 'campo cpf obrigatorio' } }), 0);
+  JSON.stringify({
+    tool_input: { file_path: '/proj/docs/cpf.md', content: 'campo cpf obrigatorio' },
+  }),
+  0,
+);
 
 // mcp-validator (PreToolUse, exit 2 se MCP fora da allowlist)
-assertExit('mcp-validator: ferramenta sem mcp__ libera',
+assertExit(
+  'mcp-validator: ferramenta sem mcp__ libera',
   'mcp-validator',
-  JSON.stringify({ tool_name: 'Read', tool_input: { file_path: '/proj/x.js' } }), 0);
+  JSON.stringify({ tool_name: 'Read', tool_input: { file_path: '/proj/x.js' } }),
+  0,
+);
 
 // validate-test-pyramid (PostToolUse, exit 2 se E2E criado sem unit)
-assertExit('test-pyramid: arquivo nao-teste libera',
+assertExit(
+  'test-pyramid: arquivo nao-teste libera',
   'validate-test-pyramid',
-  JSON.stringify({ tool_input: { file_path: '/proj/src/app.js', content: 'export const x = 1;' } }), 0);
+  JSON.stringify({ tool_input: { file_path: '/proj/src/app.js', content: 'export const x = 1;' } }),
+  0,
+);
 
 console.log(`\nhooks-node-only: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);

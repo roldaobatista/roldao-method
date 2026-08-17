@@ -29,8 +29,13 @@ const SESS = 'testehash';
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 function setupRepo() {
@@ -55,11 +60,17 @@ function setupRepo() {
 }
 
 function cleanup(dir) {
-  try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
+  try {
+    fs.rmSync(dir, { recursive: true, force: true });
+  } catch {
+    /* best-effort */
+  }
 }
 
 function getDiffSha(dir) {
-  const diff = spawnSync('git', ['-C', dir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] }).stdout.toString();
+  const diff = spawnSync('git', ['-C', dir, 'diff', 'HEAD'], {
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).stdout.toString();
   return crypto.createHash('sha256').update(diff).digest('hex');
 }
 
@@ -68,7 +79,12 @@ function runHook(dir, legacy = false) {
   if (legacy) env.ROLDAO_METHOD_LEGACY_MARKERS = '1';
   else delete env.ROLDAO_METHOD_LEGACY_MARKERS;
   const input = JSON.stringify({ tool_input: { command: 'git commit -m "feat(T-002): teste"' } });
-  const r = spawnSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'], env, timeout: 15000 });
+  const r = spawnSync('node', [HOOK], {
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+    timeout: 15000,
+  });
   return { exit: r.status, stderr: (r.stderr || '').toString() };
 }
 
@@ -84,7 +100,9 @@ function writeMarker(runtime, content) {
   fs.writeFileSync(path.join(runtime, `checkpoint-done-${SESS}`), content);
 }
 
-console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoint-before-merge.js\n');
+console.log(
+  '\nhooks-checkpoint-marker: testes adversariais do require-checkpoint-before-merge.js\n',
+);
 
 // Cenario 0 (controle): sem feature-active → exit 0
 {
@@ -100,7 +118,11 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
   const { dir } = setupRepo();
   const r = runHook(dir);
   check('cenario 1a: marker ausente → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 1b: stderr menciona AUSENTE', /AUSENTE/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 1b: stderr menciona AUSENTE',
+    /AUSENTE/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -109,15 +131,22 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
   const { dir, runtime } = setupRepo();
   const chkRel = writeChkFile(dir);
   const sha = getDiffSha(dir);
-  writeMarker(runtime, JSON.stringify({
-    session: SESS,
-    checkpoint_path: chkRel,
-    audit_sha: sha,
-    timestamp: '2026-05-24T12:00:00Z',
-    us: 'US-111',
-  }));
+  writeMarker(
+    runtime,
+    JSON.stringify({
+      session: SESS,
+      checkpoint_path: chkRel,
+      audit_sha: sha,
+      timestamp: '2026-05-24T12:00:00Z',
+      us: 'US-111',
+    }),
+  );
   const r = runHook(dir);
-  check('cenario 2: JSON canonico + CHK + sha correto → exit 0', r.exit === 0, `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`);
+  check(
+    'cenario 2: JSON canonico + CHK + sha correto → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
   cleanup(dir);
 }
 
@@ -127,8 +156,16 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
   writeMarker(runtime, '');
   const r = runHook(dir);
   check('cenario 3a: marker vazio → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 3b: stderr menciona VAZIO', /VAZIO/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
-  check('cenario 3c: stderr NAO ensina touch como bypass', !/touch\s+["'][^"']*checkpoint-done/.test(r.stderr), 'stderr ainda ensina touch');
+  check(
+    'cenario 3b: stderr menciona VAZIO',
+    /VAZIO/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
+  check(
+    'cenario 3c: stderr NAO ensina touch como bypass',
+    !/touch\s+["'][^"']*checkpoint-done/.test(r.stderr),
+    'stderr ainda ensina touch',
+  );
   cleanup(dir);
 }
 
@@ -138,7 +175,11 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
   writeMarker(runtime, '{nao eh json');
   const r = runHook(dir);
   check('cenario 4a: JSON malformado → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 4b: stderr menciona MALFORMADO', /MALFORMADO/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 4b: stderr menciona MALFORMADO',
+    /MALFORMADO/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -146,17 +187,28 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
 {
   const { dir, runtime } = setupRepo();
   const chkRel = writeChkFile(dir);
-  writeMarker(runtime, JSON.stringify({
-    session: SESS,
-    checkpoint_path: chkRel,
-    // audit_sha faltando
-    timestamp: '2026-05-24T12:00:00Z',
-    us: 'US-111',
-  }));
+  writeMarker(
+    runtime,
+    JSON.stringify({
+      session: SESS,
+      checkpoint_path: chkRel,
+      // audit_sha faltando
+      timestamp: '2026-05-24T12:00:00Z',
+      us: 'US-111',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 5a: campo audit_sha faltando → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 5b: stderr menciona INCOMPLETO', /INCOMPLETO/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
-  check('cenario 5c: stderr lista audit_sha como faltando', /audit_sha/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 5b: stderr menciona INCOMPLETO',
+    /INCOMPLETO/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
+  check(
+    'cenario 5c: stderr lista audit_sha como faltando',
+    /audit_sha/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -164,16 +216,23 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
 {
   const { dir, runtime } = setupRepo();
   const sha = getDiffSha(dir);
-  writeMarker(runtime, JSON.stringify({
-    session: SESS,
-    checkpoint_path: 'docs/checkpoints/CHK-2026-05-24-fantasma.md',
-    audit_sha: sha,
-    timestamp: '2026-05-24T12:00:00Z',
-    us: 'US-111',
-  }));
+  writeMarker(
+    runtime,
+    JSON.stringify({
+      session: SESS,
+      checkpoint_path: 'docs/checkpoints/CHK-2026-05-24-fantasma.md',
+      audit_sha: sha,
+      timestamp: '2026-05-24T12:00:00Z',
+      us: 'US-111',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 6a: CHK aponta pra arquivo fantasma → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 6b: stderr menciona FANTASMA', /FANTASMA/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 6b: stderr menciona FANTASMA',
+    /FANTASMA/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -181,16 +240,23 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
 {
   const { dir, runtime } = setupRepo();
   const chkRel = writeChkFile(dir);
-  writeMarker(runtime, JSON.stringify({
-    session: SESS,
-    checkpoint_path: chkRel,
-    audit_sha: 'a'.repeat(64), // sha errado
-    timestamp: '2026-05-24T12:00:00Z',
-    us: 'US-111',
-  }));
+  writeMarker(
+    runtime,
+    JSON.stringify({
+      session: SESS,
+      checkpoint_path: chkRel,
+      audit_sha: 'a'.repeat(64), // sha errado
+      timestamp: '2026-05-24T12:00:00Z',
+      us: 'US-111',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 7a: audit_sha errado → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 7b: stderr menciona STALE', /STALE/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 7b: stderr menciona STALE',
+    /STALE/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -199,9 +265,21 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
   const { dir, runtime } = setupRepo();
   writeMarker(runtime, '');
   const r = runHook(dir, true /* legacy */);
-  check('cenario 8a: marker vazio + LEGACY=1 → exit 0', r.exit === 0, `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`);
-  check('cenario 8b: stderr emite AVISO', /AVISO/.test(r.stderr), 'stderr nao emite AVISO de legacy');
-  check('cenario 8c: stderr menciona v2.2.0', /v2\.2\.0/.test(r.stderr), 'stderr nao menciona v2.2.0');
+  check(
+    'cenario 8a: marker vazio + LEGACY=1 → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
+  check(
+    'cenario 8b: stderr emite AVISO',
+    /AVISO/.test(r.stderr),
+    'stderr nao emite AVISO de legacy',
+  );
+  check(
+    'cenario 8c: stderr menciona v2.2.0',
+    /v2\.2\.0/.test(r.stderr),
+    'stderr nao menciona v2.2.0',
+  );
   cleanup(dir);
 }
 
@@ -210,7 +288,12 @@ console.log('\nhooks-checkpoint-marker: testes adversariais do require-checkpoin
   const { dir } = setupRepo();
   const input = JSON.stringify({ tool_input: { command: 'git commit -m "docs: ajuste readme"' } });
   const env = { ...process.env, CLAUDE_PROJECT_DIR: dir, ROLDAO_SKIP_METRICS: '1' };
-  const r = spawnSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'], env, timeout: 15000 });
+  const r = spawnSync('node', [HOOK], {
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+    timeout: 15000,
+  });
   check('cenario 9: prefixo docs: pula hook → exit 0', r.status === 0, `exit=${r.status}`);
   cleanup(dir);
 }

@@ -17,14 +17,21 @@
 const { execFileSync } = require('child_process');
 const { readStdinJson, gitSafeEnv } = require('./_lib.js');
 
-const EXCLUDED_PATH_RE = /(^|\/)(templates|\.specify\/templates)\/|\.example(\.[a-z]+)?$|\.template\.[a-z]+$/i;
+const EXCLUDED_PATH_RE =
+  /(^|\/)(templates|\.specify\/templates)\/|\.example(\.[a-z]+)?$|\.template\.[a-z]+$/i;
 const TARGET_EXT_RE = /\.md$/i;
 
 function gitUserName() {
   try {
-    return execFileSync('git', ['config', 'user.name'], { stdio: ['ignore', 'pipe', 'ignore'], env: gitSafeEnv() })
-      .toString().trim();
-  } catch { return ''; }
+    return execFileSync('git', ['config', 'user.name'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: gitSafeEnv(),
+    })
+      .toString()
+      .trim();
+  } catch {
+    return '';
+  }
 }
 
 function fallbackUser() {
@@ -43,7 +50,10 @@ function reescreverFrontmatter(content) {
   // Acha 2o '---' (fim do frontmatter)
   let fim = -1;
   for (let i = 1; i < Math.min(linhas.length, 50); i++) {
-    if (linhas[i].trim() === '---') { fim = i; break; }
+    if (linhas[i].trim() === '---') {
+      fim = i;
+      break;
+    }
   }
   if (fim === -1) return null;
 
@@ -89,8 +99,12 @@ function reescreverFrontmatter(content) {
   if (!reescrito) process.exit(0);
 
   // Soft warning (exit 0) sugerindo o frontmatter atualizado
-  process.stderr.write(`[AVISO] [auto-frontmatter] Detectei placeholder em frontmatter de ${filePath}.\n`);
-  process.stderr.write(`Sugestao mecanica: substituir 'AAAA-MM-DD' por '${hojeIso()}' e 'owner: <preencher>' por '${fallbackUser()}' antes de salvar.\n`);
+  process.stderr.write(
+    `[AVISO] [auto-frontmatter] Detectei placeholder em frontmatter de ${filePath}.\n`,
+  );
+  process.stderr.write(
+    `Sugestao mecanica: substituir 'AAAA-MM-DD' por '${hojeIso()}' e 'owner: <preencher>' por '${fallbackUser()}' antes de salvar.\n`,
+  );
   process.stderr.write(`(T-302 / E2+E8 — nao bloqueia, so lembra.)\n`);
   process.exit(0);
 })().catch(() => process.exit(0));

@@ -97,7 +97,7 @@ t('parseFlags --check-interval respeita chao de 5s', () => {
 
 t('parseFlags --tokens-per-byte inverte pro lib (3.7 -> 1/3.7)', () => {
   const f = lib.parseFlags(['--tokens-per-byte', '3.7']);
-  assert.ok(Math.abs(f.tokensPerByte - (1 / 3.7)) < 1e-9);
+  assert.ok(Math.abs(f.tokensPerByte - 1 / 3.7) < 1e-9);
 });
 
 t('parseFlags --dry-run e --quiet sao boolean', () => {
@@ -139,7 +139,10 @@ t('parseFlags --tokens-per-byte 0 (zero) vira warning', () => {
 
 t('parseFlags acumula multiplos warnings de flags ruins', () => {
   const f = lib.parseFlags(['--threshold', 'x', '--check-interval', 'y', '--tokens-per-byte', 'z']);
-  assert.ok(f._warnings && f._warnings.length === 3, `esperava 3 warnings, veio ${f._warnings && f._warnings.length}`);
+  assert.ok(
+    f._warnings && f._warnings.length === 3,
+    `esperava 3 warnings, veio ${f._warnings && f._warnings.length}`,
+  );
 });
 
 console.log(`\n${pass} OK / ${fail} FAIL`);

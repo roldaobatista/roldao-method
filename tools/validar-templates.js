@@ -24,7 +24,9 @@ const TEMPLATES = path.join(ROOT, 'templates');
 const issues = [];
 const okCount = { agents: 0, commands: 0, hooks: 0, skills: 0, specTemplates: 0 };
 
-function fail(msg) { issues.push(msg); }
+function fail(msg) {
+  issues.push(msg);
+}
 
 function readFrontmatter(file) {
   // Normaliza CRLF (checkout Windows) e BOM antes de casar o frontmatter,
@@ -55,7 +57,10 @@ for (const file of listDir(agentsDir)) {
   if (file.startsWith('_')) continue;
   if (/[A-Z]/.test(file.replace(/\.md$/, ''))) continue;
   const fm = readFrontmatter(path.join(agentsDir, file));
-  if (!fm) { fail(`agent sem frontmatter: ${file}`); continue; }
+  if (!fm) {
+    fail(`agent sem frontmatter: ${file}`);
+    continue;
+  }
   if (!fm.name) fail(`agent sem name: ${file}`);
   if (!fm.description) fail(`agent sem description: ${file}`);
   if (!fm.tools && !fm.model) fail(`agent sem tools nem model: ${file}`);
@@ -67,7 +72,10 @@ const cmdsDir = path.join(TEMPLATES, '.claude/commands');
 for (const file of listDir(cmdsDir)) {
   if (!file.endsWith('.md')) continue;
   const fm = readFrontmatter(path.join(cmdsDir, file));
-  if (!fm) { fail(`command sem frontmatter: ${file}`); continue; }
+  if (!fm) {
+    fail(`command sem frontmatter: ${file}`);
+    continue;
+  }
   if (!fm.description) fail(`command sem description: ${file}`);
   okCount.commands++;
 }
@@ -93,9 +101,15 @@ for (const skill of listDir(skillsDir)) {
   const skillPath = path.join(skillsDir, skill);
   if (!fs.statSync(skillPath).isDirectory()) continue;
   const skillMd = path.join(skillPath, 'SKILL.md');
-  if (!fs.existsSync(skillMd)) { fail(`skill sem SKILL.md: ${skill}`); continue; }
+  if (!fs.existsSync(skillMd)) {
+    fail(`skill sem SKILL.md: ${skill}`);
+    continue;
+  }
   const fm = readFrontmatter(skillMd);
-  if (!fm) { fail(`skill sem frontmatter: ${skill}`); continue; }
+  if (!fm) {
+    fail(`skill sem frontmatter: ${skill}`);
+    continue;
+  }
   if (!fm.name) fail(`skill sem name: ${skill}`);
   if (!fm.description) fail(`skill sem description: ${skill}`);
   // arquivos referenciados em ${CLAUDE_SKILL_DIR} devem existir
@@ -115,14 +129,19 @@ const specDir = path.join(TEMPLATES, '.specify/templates');
 for (const file of listDir(specDir)) {
   if (!file.endsWith('.md') || file === 'README.md') continue;
   const fm = readFrontmatter(path.join(specDir, file));
-  if (!fm) { fail(`spec template sem frontmatter: ${file}`); continue; }
+  if (!fm) {
+    fail(`spec template sem frontmatter: ${file}`);
+    continue;
+  }
   if (!fm.tipo) fail(`spec template sem tipo: ${file}`);
   okCount.specTemplates++;
 }
 
 // settings.json
 try {
-  const settings = JSON.parse(fs.readFileSync(path.join(TEMPLATES, '.claude/settings.json'), 'utf8'));
+  const settings = JSON.parse(
+    fs.readFileSync(path.join(TEMPLATES, '.claude/settings.json'), 'utf8'),
+  );
   const hookCmds = JSON.stringify(settings.hooks || {});
   const matches = hookCmds.match(/\.claude\/hooks\/[\w\-_]+\.js/g) || [];
   const unique = [...new Set(matches.map((m) => m.replace('.claude/hooks/', '')))];
@@ -138,7 +157,9 @@ try {
   for (const f of listDir(hooksDir)) {
     if (!f.endsWith('.js') || /^_/.test(f)) continue;
     if (!registered.has(f)) {
-      fail(`hook órfão: templates/.claude/hooks/${f} existe mas não está registrado em settings.json (nunca dispara)`);
+      fail(
+        `hook órfão: templates/.claude/hooks/${f} existe mas não está registrado em settings.json (nunca dispara)`,
+      );
     }
   }
 } catch (e) {
@@ -179,19 +200,26 @@ for (const addon of listDir(ADDONS_DIR)) {
   const status = getYamlValue(text, 'status');
 
   if (!name) fail(`addon ${addon}: campo 'name' ausente em addon.yaml`);
-  else if (!NAME_RE.test(name)) fail(`addon ${addon}: name='${name}' fora do padrao kebab-case (${NAME_RE}).`);
-  else if (name !== addon) fail(`addon ${addon}: name='${name}' diverge do nome do diretorio '${addon}'.`);
+  else if (!NAME_RE.test(name))
+    fail(`addon ${addon}: name='${name}' fora do padrao kebab-case (${NAME_RE}).`);
+  else if (name !== addon)
+    fail(`addon ${addon}: name='${name}' diverge do nome do diretorio '${addon}'.`);
 
   if (!version) fail(`addon ${addon}: campo 'version' ausente em addon.yaml`);
-  else if (!VERSION_RE.test(version)) fail(`addon ${addon}: version='${version}' fora do padrao SemVer (${VERSION_RE}).`);
+  else if (!VERSION_RE.test(version))
+    fail(`addon ${addon}: version='${version}' fora do padrao SemVer (${VERSION_RE}).`);
 
   if (!description) fail(`addon ${addon}: campo 'description' ausente em addon.yaml`);
 
   if (!license) fail(`addon ${addon}: campo 'license' ausente em addon.yaml`);
-  else if (!LICENCAS_VALIDAS.includes(license)) fail(`addon ${addon}: license='${license}' fora do enum (${LICENCAS_VALIDAS.join('|')}).`);
+  else if (!LICENCAS_VALIDAS.includes(license))
+    fail(`addon ${addon}: license='${license}' fora do enum (${LICENCAS_VALIDAS.join('|')}).`);
 
   if (!status) fail(`addon ${addon}: campo 'status' ausente em addon.yaml`);
-  else if (!STATUS_VALIDOS.includes(status)) fail(`addon ${addon}: status='${status}' fora do enum addon.schema.json (${STATUS_VALIDOS.join('|')}).`);
+  else if (!STATUS_VALIDOS.includes(status))
+    fail(
+      `addon ${addon}: status='${status}' fora do enum addon.schema.json (${STATUS_VALIDOS.join('|')}).`,
+    );
 }
 
 // package.json
@@ -211,7 +239,7 @@ try {
   // Aceita semver completo incluindo prerelease (1.0.0-rc1, 1.0.0-beta.2).
   const SEMVER = '([0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?)';
   const badge = readme.match(new RegExp(`badge\\/vers%C3%A3o-${SEMVER}|badge\\/versão-${SEMVER}`));
-  const badgeVer = badge ? (badge[1] || badge[2]) : null;
+  const badgeVer = badge ? badge[1] || badge[2] : null;
   if (badgeVer && badgeVer !== ver) {
     fail(`versao dessincronizada: package.json=${ver} mas badge do README=${badgeVer}`);
   }
@@ -221,11 +249,15 @@ try {
     fail(`versao dessincronizada: package.json=${ver} mas topo do CHANGELOG=${clTop[1]}`);
   }
   try {
-    const plug = JSON.parse(fs.readFileSync(path.join(TEMPLATES, '.claude-plugin/plugin.json'), 'utf8'));
+    const plug = JSON.parse(
+      fs.readFileSync(path.join(TEMPLATES, '.claude-plugin/plugin.json'), 'utf8'),
+    );
     if (plug.version && plug.version !== ver) {
       fail(`versao dessincronizada: package.json=${ver} mas plugin.json=${plug.version}`);
     }
-  } catch (e) { fail(`plugin.json invalido: ${e.message}`); }
+  } catch (e) {
+    fail(`plugin.json invalido: ${e.message}`);
+  }
   const contYml = fs.readFileSync(path.join(TEMPLATES, '.continue/config.yaml'), 'utf8');
   const contVer = contYml.match(new RegExp(`^version:\\s*["']?${SEMVER}`, 'm'));
   if (contVer && contVer[1] !== ver) {
@@ -238,9 +270,16 @@ try {
   // BLOQUEIA (exit 1), fechando a classe inteira de bug.
   const addonsSkills = listDir(ADDONS_DIR).reduce((n, a) => {
     const sd = path.join(ADDONS_DIR, a, '.claude/skills');
-    return n + listDir(sd).filter((x) => {
-      try { return fs.statSync(path.join(sd, x)).isDirectory(); } catch { return false; }
-    }).length;
+    return (
+      n +
+      listDir(sd).filter((x) => {
+        try {
+          return fs.statSync(path.join(sd, x)).isDirectory();
+        } catch {
+          return false;
+        }
+      }).length
+    );
   }, 0);
   // Bloqueio acontece via `exit 2` (PreToolUse) OU JSON `{"decision":"block"}` (PostToolUse/Stop).
   // Contar ambos pra refletir a realidade — ver ADR `.claude/rules/roldao-method.md`.
@@ -248,11 +287,15 @@ try {
     if (!f.endsWith('.js') || /^_/.test(f)) return false;
     const content = fs.readFileSync(path.join(hooksDir, f), 'utf8');
     // process.exit(2) (Node) ou exit 2 (bash legacy) ou JSON decision:block
-    return /process\.exit\(2\)/.test(content) || /\bexit 2(?!\d)/.test(content)
-      || /decision\s*[:=>]+\s*['"]block['"]/.test(content);
+    return (
+      /process\.exit\(2\)/.test(content) ||
+      /\bexit 2(?!\d)/.test(content) ||
+      /decision\s*[:=>]+\s*['"]block['"]/.test(content)
+    );
   }).length;
   const addonCount = listDir(ADDONS_DIR).filter((a) =>
-    fs.existsSync(path.join(ADDONS_DIR, a, 'addon.yaml'))).length;
+    fs.existsSync(path.join(ADDONS_DIR, a, 'addon.yaml')),
+  ).length;
   const real = {
     agentes: okCount.agents,
     'hooks bloqueadores': blockingHooks,

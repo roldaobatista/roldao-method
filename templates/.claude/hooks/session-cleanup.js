@@ -28,9 +28,9 @@ const EPHEMERAL_PREFIXES = [
   'bug-active-',
   'bug-trigger-',
   'feature-active-',
-  'prd-active-',          // futuro (T-113 / Modo PRD Maestro)
-  'brownfield-active-',   // futuro (T-113 / Modo BROWNFIELD Maestro)
-  'ar-active-',           // futuro (T-113 / Modo AR Maestro)
+  'prd-active-', // futuro (T-113 / Modo PRD Maestro)
+  'brownfield-active-', // futuro (T-113 / Modo BROWNFIELD Maestro)
+  'ar-active-', // futuro (T-113 / Modo AR Maestro)
   'sofia-done-',
   'detetive-done-',
   'rafael-done-',
@@ -50,7 +50,11 @@ const EPHEMERAL_PREFIXES = [
 
 (async () => {
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(0); /* best-effort, nao bloqueia */ }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(0); /* best-effort, nao bloqueia */
+  }
   const sess = sanitizeSessionHash(undefined, projdir);
   const runtime = path.join(projdir, '.claude', '.runtime');
 
@@ -65,11 +69,17 @@ const EPHEMERAL_PREFIXES = [
         fs.unlinkSync(fullpath);
         removidos++;
       }
-    } catch { /* permissao/disco — segue */ }
+    } catch {
+      /* permissao/disco — segue */
+    }
   }
 
   if (removidos > 0) {
-    recordMetric('cleanup', 'session-cleanup', `${removidos} markers da sessao ${sess.slice(0, 8)}`);
+    recordMetric(
+      'cleanup',
+      'session-cleanup',
+      `${removidos} markers da sessao ${sess.slice(0, 8)}`,
+    );
   }
   process.exit(0);
 })().catch(() => process.exit(0));

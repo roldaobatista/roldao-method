@@ -53,11 +53,11 @@ jobs:
           SIZE=$(node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const a=JSON.parse(s);console.log(a[0].unpackedSize)})" <<< "$OUT")
           MAX=$((3*1024*1024))  # bump v1.2.4 (alinhado com validar.yml)
           if [ "$SIZE" -gt "$MAX" ]; then
-            echo "FAIL: tarball $SIZE bytes (>2MB)"
+            echo "FAIL: tarball $SIZE bytes (>3MB)"
             exit 1
           fi
-          if grep -q "docs/PUBLICAR-NPM.md" <<< "$OUT"; then
-            echo "FAIL: docs/PUBLICAR-NPM.md vazou pro tarball"
+          if grep -Eq '"path": *"(docs|manutencao|evals|test)/' <<< "$OUT"; then
+            echo "FAIL: material interno (docs/, manutencao/, evals/ ou test/) vazou pro tarball"
             exit 1
           fi
           echo "OK: tarball válido ($SIZE bytes)"

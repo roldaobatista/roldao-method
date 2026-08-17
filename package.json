@@ -81,7 +81,6 @@
     "name": "Roldão Batista",
     "url": "https://github.com/roldaobatista"
   },
-  "main": "bin/install.js",
   "bin": {
     "roldao-method": "./bin/install.js",
     "roldao": "./bin/install.js"
@@ -90,7 +89,6 @@
     "bin",
     "templates",
     "addons",
-    "docs",
     "tools",
     "README.md",
     "CHANGELOG.md",

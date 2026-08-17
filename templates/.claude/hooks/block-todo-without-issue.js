@@ -6,7 +6,8 @@ const { readStdinJson, recordMetric, normalizeFilePath } = require('./_lib.js');
 
 const SKIP_PATH_RE = /\.md$|\.mdx$|CHANGELOG|\.txt$/;
 const TODO_RE = /\b(TODO|FIXME|XXX|HACK)\b/;
-const ID_RE = /(#[0-9]+|US-[0-9]+|T-[0-9]+|AC-[0-9]+|INV-[0-9]+|SEC-[0-9]+|TST-[0-9]+|LGPD-[0-9]+|FISCAL-[0-9]+|ADR-[0-9]+)/;
+const ID_RE =
+  /(#[0-9]+|US-[0-9]+|T-[0-9]+|AC-[0-9]+|INV-[0-9]+|SEC-[0-9]+|TST-[0-9]+|LGPD-[0-9]+|FISCAL-[0-9]+|ADR-[0-9]+)/;
 
 (async () => {
   const input = await readStdinJson();
@@ -17,14 +18,18 @@ const ID_RE = /(#[0-9]+|US-[0-9]+|T-[0-9]+|AC-[0-9]+|INV-[0-9]+|SEC-[0-9]+|TST-[
   if (!content) process.exit(0);
 
   const violations = [];
-  String(content).split(/\r?\n/).forEach((line, i) => {
-    if (TODO_RE.test(line) && !ID_RE.test(line)) {
-      violations.push(`L${i + 1}: ${line}`);
-    }
-  });
+  String(content)
+    .split(/\r?\n/)
+    .forEach((line, i) => {
+      if (TODO_RE.test(line) && !ID_RE.test(line)) {
+        violations.push(`L${i + 1}: ${line}`);
+      }
+    });
 
   if (violations.length > 0) {
-    process.stderr.write(`[block-todo-without-issue] BLOQUEADO: TODO/FIXME/XXX/HACK sem ID rastreavel.\n\n`);
+    process.stderr.write(
+      `[block-todo-without-issue] BLOQUEADO: TODO/FIXME/XXX/HACK sem ID rastreavel.\n\n`,
+    );
     process.stderr.write(`Arquivo: ${filePath}\n\nViolacoes encontradas:\n`);
     for (const v of violations) process.stderr.write(`  - ${v}\n`);
     process.stderr.write(`\nRegra: INV-004 — IDs rastreaveis.\n\n`);
@@ -32,7 +37,9 @@ const ID_RE = /(#[0-9]+|US-[0-9]+|T-[0-9]+|AC-[0-9]+|INV-[0-9]+|SEC-[0-9]+|TST-[
     process.stderr.write(`  // TODO(#123): descricao\n`);
     process.stderr.write(`  // FIXME(US-042): explicacao\n`);
     process.stderr.write(`  // HACK(T-007): contexto\n\n`);
-    process.stderr.write(`IDs aceitos: #N, US-N, T-N, AC-N, INV-N, SEC-N, TST-N, LGPD-N, FISCAL-N, ADR-N.\n`);
+    process.stderr.write(
+      `IDs aceitos: #N, US-N, T-N, AC-N, INV-N, SEC-N, TST-N, LGPD-N, FISCAL-N, ADR-N.\n`,
+    );
     recordMetric('block', 'block-todo-without-issue', violations[0]);
     process.exit(2);
   }

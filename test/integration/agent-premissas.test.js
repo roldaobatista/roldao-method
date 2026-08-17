@@ -21,11 +21,18 @@ const AGENTS_DIR = path.join(ROOT, 'templates', '.claude', 'agents');
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
-console.log('test/integration/agent-premissas.test.js — agentes registram premissa em vez de devolver pergunta (AC-112-4)\n');
+console.log(
+  'test/integration/agent-premissas.test.js — agentes registram premissa em vez de devolver pergunta (AC-112-4)\n',
+);
 
 const agentes = ['analista.md', 'dba-dados.md', 'devops-infra.md'];
 
@@ -36,11 +43,12 @@ for (const arq of agentes) {
   // P1: Doc declara mecanismo anti-pergunta-evitavel — pode ser premissa
   // (quem produz spec), "investiga/assume" (quem consome contexto), ou
   // "escolhe pelo contexto" / "aplica direto" (quem age sobre o repo).
-  const temMecanismo = /premissa/i.test(conteudo)
-                    || /assume\s+(valores?\s+)?razo[áa]veis?/i.test(conteudo)
-                    || /investiga\s+/i.test(conteudo)
-                    || /escolhe\s+pelo\s+contexto/i.test(conteudo)
-                    || /aplica\s+direto/i.test(conteudo);
+  const temMecanismo =
+    /premissa/i.test(conteudo) ||
+    /assume\s+(valores?\s+)?razo[áa]veis?/i.test(conteudo) ||
+    /investiga\s+/i.test(conteudo) ||
+    /escolhe\s+pelo\s+contexto/i.test(conteudo) ||
+    /aplica\s+direto/i.test(conteudo);
   check(
     `${arq}: doc declara mecanismo anti-pergunta-evitavel`,
     temMecanismo,
@@ -55,8 +63,9 @@ for (const arq of agentes) {
   );
 
   // P3: Doc NAO contem frase canonica de bypass ("perguntas pendentes pro PM" / "pergunta padrao de X")
-  const temAntipattern = /perguntas?\s+pendentes?\s+(?:pro|para)\s+(?:o\s+)?PM/i.test(conteudo)
-                      || /pergunta\s+padr[ãa]o\s+de/i.test(conteudo);
+  const temAntipattern =
+    /perguntas?\s+pendentes?\s+(?:pro|para)\s+(?:o\s+)?PM/i.test(conteudo) ||
+    /pergunta\s+padr[ãa]o\s+de/i.test(conteudo);
   check(
     `${arq}: doc NAO tem antipattern 'perguntas pendentes pro PM' ou 'pergunta padrao de X'`,
     !temAntipattern,

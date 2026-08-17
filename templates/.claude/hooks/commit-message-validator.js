@@ -53,8 +53,11 @@ function extractMessages(cmd) {
 
   // Aplica: -m/--message/-F/--file OU --amend. Commit via editor sem nenhum
   // desses (sem -m): exit 0 (COMMIT_EDITMSG nao existe em PreToolUse).
-  const hasInline = /-m\s/.test(cmd) || /--message[=\s]/.test(cmd)
-    || /(?:^|\s)-F\s/.test(cmd) || /--file[=\s]/.test(cmd);
+  const hasInline =
+    /-m\s/.test(cmd) ||
+    /--message[=\s]/.test(cmd) ||
+    /(?:^|\s)-F\s/.test(cmd) ||
+    /--file[=\s]/.test(cmd);
   const isAmend = /--amend/.test(cmd);
   if (!hasInline && !isAmend) process.exit(0);
 
@@ -69,7 +72,9 @@ function extractMessages(cmd) {
 
   // Regra 1: primeira linha <= 72
   if (primeiraLinha.length > 72) {
-    violations.push(`primeira linha tem ${primeiraLinha.length} caracteres (maximo 72): ${primeiraLinha}`);
+    violations.push(
+      `primeira linha tem ${primeiraLinha.length} caracteres (maximo 72): ${primeiraLinha}`,
+    );
   }
 
   // Identifica tipo declarado no formato `tipo(escopo)?: ...` (1a ocorrencia)
@@ -87,20 +92,26 @@ function extractMessages(cmd) {
   let sm;
   while ((sm = segMatchRe.exec(segText)) !== null) segTipos.add(sm[1].toLowerCase());
   if (segTipos.size > 1) {
-    violations.push(`commit mistura prefixos: ${[...segTipos].join(' ')} — separe em commits atomicos (INV-AGENT-005)`);
+    violations.push(
+      `commit mistura prefixos: ${[...segTipos].join(' ')} — separe em commits atomicos (INV-AGENT-005)`,
+    );
   }
 
   // Regra 3a: tipo declarado deve estar na lista canonica
   if (tipoDeclarado) {
     const validos = new Set(TIPOS_STYLE.split('|'));
     if (!validos.has(tipoDeclarado)) {
-      violations.push(`tipo '${tipoDeclarado}:' nao e Conventional Commit — use feat/fix/refactor/chore/docs/test/perf/build/ci/revert/style`);
+      violations.push(
+        `tipo '${tipoDeclarado}:' nao e Conventional Commit — use feat/fix/refactor/chore/docs/test/perf/build/ci/revert/style`,
+      );
     }
   }
 
   // Regra 3b: warning sem prefixo (nao bloqueia)
   if (!tipoDeclarado) {
-    process.stderr.write(`[commit-message-validator] AVISO: sem prefixo (feat/fix/refactor/chore/docs/test): ${primeiraLinha}\n`);
+    process.stderr.write(
+      `[commit-message-validator] AVISO: sem prefixo (feat/fix/refactor/chore/docs/test): ${primeiraLinha}\n`,
+    );
   }
 
   // Regra 4: T-NNN obrigatorio em sessao /feature ou /bug ativa
@@ -114,14 +125,20 @@ function extractMessages(cmd) {
       const relevantes = ['feat', 'fix', 'refactor', 'perf'];
       const overlap = relevantes.some((p) => prefixos.has(p));
       if (overlap && !/\b(US-\d+|T-\d+)\b/.test(msg)) {
-        violations.push('sessao /feature ou /bug ativa — commit precisa citar (US-NNN T-NNN) ou (T-NNN) na mensagem para rastreabilidade');
+        violations.push(
+          'sessao /feature ou /bug ativa — commit precisa citar (US-NNN T-NNN) ou (T-NNN) na mensagem para rastreabilidade',
+        );
       }
     }
-  } catch { /* sem projdir, skip rastreabilidade */ }
+  } catch {
+    /* sem projdir, skip rastreabilidade */
+  }
 
   if (violations.length === 0) process.exit(0);
 
-  process.stderr.write(`[BLOQUEIO] [commit-message-validator] mensagem da gravacao nao segue a regra do projeto.\n\n`);
+  process.stderr.write(
+    `[BLOQUEIO] [commit-message-validator] mensagem da gravacao nao segue a regra do projeto.\n\n`,
+  );
   process.stderr.write(`Efeito: a gravacao foi recusada — nada mudou no historico.\n`);
   process.stderr.write(`Causa:\n`);
   for (const v of violations) process.stderr.write(`  - ${v}\n`);
@@ -134,9 +151,15 @@ function extractMessages(cmd) {
   process.stderr.write(`      chore:      manutencao tecnica que nao afeta o usuario\n`);
   process.stderr.write(`      refactor:   reorganizacao sem mudar comportamento\n`);
   process.stderr.write(`      test:       so testes\n`);
-  process.stderr.write(`  - Misturar 2 categorias na mesma gravacao e proibido — separe em 2 gravacoes.\n`);
-  process.stderr.write(`  - Em sessao /feature ou /bug ativa: precisa citar US-NNN (story) ou T-NNN (task) na mensagem.\n`);
-  process.stderr.write(`  - Corpo (explicacao mais longa) e opcional, separado da primeira linha por linha em branco.\n\n`);
+  process.stderr.write(
+    `  - Misturar 2 categorias na mesma gravacao e proibido — separe em 2 gravacoes.\n`,
+  );
+  process.stderr.write(
+    `  - Em sessao /feature ou /bug ativa: precisa citar US-NNN (story) ou T-NNN (task) na mensagem.\n`,
+  );
+  process.stderr.write(
+    `  - Corpo (explicacao mais longa) e opcional, separado da primeira linha por linha em branco.\n\n`,
+  );
   process.stderr.write(`Exemplos validos:\n`);
   process.stderr.write(`  feat(T-001): adiciona validacao de CNPJ alfanumerico\n`);
   process.stderr.write(`  fix(US-042): boleto saia com valor em dobro pra clientes PJ\n`);

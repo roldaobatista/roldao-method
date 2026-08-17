@@ -26,12 +26,12 @@ const { spawn } = require('child_process');
 
 // ---------- Constantes (defaults documentados no ADR-022) ----------
 
-const DEFAULT_THRESHOLD_TOKENS = 500000;       // 50% de 1M (Opus 4.7 1M)
-const DEFAULT_TOKENS_PER_BYTE = 1 / 3.7;       // 3.7 bytes -> 1 token (heuristica PT-BR + JSON)
-const DEFAULT_CHECK_INTERVAL_MS = 30 * 1000;   // 30s
-const MIN_CHECK_INTERVAL_MS = 5 * 1000;        // chao 5s
+const DEFAULT_THRESHOLD_TOKENS = 500000; // 50% de 1M (Opus 4.7 1M)
+const DEFAULT_TOKENS_PER_BYTE = 1 / 3.7; // 3.7 bytes -> 1 token (heuristica PT-BR + JSON)
+const DEFAULT_CHECK_INTERVAL_MS = 30 * 1000; // 30s
+const MIN_CHECK_INTERVAL_MS = 5 * 1000; // chao 5s
 const CHECKPOINT_WAIT_TIMEOUT_MS = 5 * 60 * 1000; // 5min pra Claude processar /checkpoint
-const SIGTERM_GRACEFUL_TIMEOUT_MS = 30 * 1000;    // 30s antes do SIGKILL
+const SIGTERM_GRACEFUL_TIMEOUT_MS = 30 * 1000; // 30s antes do SIGKILL
 const TRANSCRIPT_DISCOVERY_TIMEOUT_MS = 10 * 1000; // 10s pra .jsonl aparecer
 const DEFAULT_CLAUDE_BIN = 'claude';
 
@@ -128,7 +128,7 @@ function measureUsage(transcript, opts) {
   } catch {
     return null;
   }
-  const tokens = bytesToTokens(bytes, (opts && opts.tokensPerByte));
+  const tokens = bytesToTokens(bytes, opts && opts.tokensPerByte);
   return { bytes, tokens };
 }
 
@@ -193,7 +193,9 @@ async function waitForSnapshot({ projectDir, baselineMs, timeoutMs, pollMs, log 
     if (m > baselineMs) return true;
     await sleep(tick);
   }
-  (log || console.warn)('[session-relay] AVISO: timeout esperando o Claude salvar. seguindo mesmo assim.');
+  (log || console.warn)(
+    '[session-relay] AVISO: timeout esperando o Claude salvar. seguindo mesmo assim.',
+  );
   return false;
 }
 
@@ -218,8 +220,12 @@ async function closeSession(child, { timeoutMs, log } = {}) {
   }
   const exited = await waitForExit(child, t);
   if (exited) return { exited: true, signal: 'SIGTERM' };
-  (log || console.warn)('[session-relay] AVISO: Claude nao respondeu em 30s. forcando encerramento.');
-  try { child.kill('SIGKILL'); } catch {}
+  (log || console.warn)(
+    '[session-relay] AVISO: Claude nao respondeu em 30s. forcando encerramento.',
+  );
+  try {
+    child.kill('SIGKILL');
+  } catch {}
   await waitForExit(child, 5000);
   return { exited: true, signal: 'SIGKILL' };
 }
@@ -228,9 +234,19 @@ function waitForExit(child, ms) {
   return new Promise((resolve) => {
     if (child.exitCode !== null) return resolve(true);
     let done = false;
-    const onExit = () => { if (!done) { done = true; resolve(true); } };
+    const onExit = () => {
+      if (!done) {
+        done = true;
+        resolve(true);
+      }
+    };
     child.once('exit', onExit);
-    setTimeout(() => { if (!done) { done = true; resolve(false); } }, ms);
+    setTimeout(() => {
+      if (!done) {
+        done = true;
+        resolve(false);
+      }
+    }, ms);
   });
 }
 
@@ -330,9 +346,13 @@ async function runRelay(opts) {
       });
 
       if (transcript) {
-        log(`vigiando a conversa (arquivo em disco: ${path.basename(transcript.file)}). vou medir a cada ${Math.round(cfg.checkIntervalMs / 1000)}s.`);
+        log(
+          `vigiando a conversa (arquivo em disco: ${path.basename(transcript.file)}). vou medir a cada ${Math.round(cfg.checkIntervalMs / 1000)}s.`,
+        );
       } else {
-        log('AVISO: nao achei o arquivo da conversa em 10s. vou seguir vigiando, mas o disparo automatico pode falhar.');
+        log(
+          'AVISO: nao achei o arquivo da conversa em 10s. vou seguir vigiando, mas o disparo automatico pode falhar.',
+        );
       }
 
       // Loop de medicao desta sessao
@@ -346,7 +366,9 @@ async function runRelay(opts) {
         const t = transcript ? refreshTranscript(transcript) : null;
         const usage = t ? measureUsage(t, { tokensPerByte: cfg.tokensPerByte }) : null;
         if (usage && shouldCheckpoint(usage, cfg.threshold)) {
-          log(`passou da metade da memoria (~${Math.round(usage.tokens / 1000)}k tokens). vou pedir pro Claude salvar tudo antes de continuar.`);
+          log(
+            `passou da metade da memoria (~${Math.round(usage.tokens / 1000)}k tokens). vou pedir pro Claude salvar tudo antes de continuar.`,
+          );
           triggerCheckpoint(child, { dryRun: cfg.dryRun, log });
           log('pedi pro Claude salvar. aguardando ele terminar.');
           const saved = await waitForSnapshot({
@@ -428,10 +450,12 @@ function normalizeOpts(o) {
     o.checkIntervalMs || DEFAULT_CHECK_INTERVAL_MS,
   );
   // Default log: prefixo PT-BR amigavel
-  const log = o.log || ((msg) => {
-    if (o.quiet) return;
-    console.log(`[robo-relay] ${msg}`);
-  });
+  const log =
+    o.log ||
+    ((msg) => {
+      if (o.quiet) return;
+      console.log(`[robo-relay] ${msg}`);
+    });
   return {
     threshold: o.threshold || DEFAULT_THRESHOLD_TOKENS,
     tokensPerByte: o.tokensPerByte || DEFAULT_TOKENS_PER_BYTE,
@@ -459,8 +483,14 @@ function parseFlags(rawArgs) {
   const out = {};
   for (let i = 0; i < rawArgs.length; i++) {
     const a = rawArgs[i];
-    if (a === '--dry-run') { out.dryRun = true; continue; }
-    if (a === '--quiet' || a === '-q') { out.quiet = true; continue; }
+    if (a === '--dry-run') {
+      out.dryRun = true;
+      continue;
+    }
+    if (a === '--quiet' || a === '-q') {
+      out.quiet = true;
+      continue;
+    }
     if (a === '--threshold' && rawArgs[i + 1]) {
       const v = parseInt(rawArgs[++i], 10);
       if (Number.isFinite(v) && v > 0) {
@@ -478,7 +508,9 @@ function parseFlags(rawArgs) {
         out.threshold = Math.round(1_000_000 * (p / 100));
       } else {
         out._warnings = out._warnings || [];
-        out._warnings.push(`--threshold-percent precisa ser entre 0 e 100 (recebi ${rawArgs[i]}), mantive o default.`);
+        out._warnings.push(
+          `--threshold-percent precisa ser entre 0 e 100 (recebi ${rawArgs[i]}), mantive o default.`,
+        );
       }
       continue;
     }

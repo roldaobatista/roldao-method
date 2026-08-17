@@ -19,13 +19,17 @@ function checkNodeVersion({
   const major = parseInt(String(current).split('.')[0], 10);
   if (Number.isNaN(major) || major >= required) return true;
   write(
-    '\n[roldao-method] Node ' + required + '+ necessario. Voce esta usando: ' + current + '\n' +
-    '\n' +
-    'Como atualizar:\n' +
-    '  - Windows/macOS: baixe instalador em https://nodejs.org (versao LTS)\n' +
-    '  - Linux: use nvm (https://github.com/nvm-sh/nvm) ou pacote da distro\n' +
-    '\n' +
-    'Depois rode novamente: npx roldao-method install\n\n'
+    '\n[roldao-method] Node ' +
+      required +
+      '+ necessario. Voce esta usando: ' +
+      current +
+      '\n' +
+      '\n' +
+      'Como atualizar:\n' +
+      '  - Windows/macOS: baixe instalador em https://nodejs.org (versao LTS)\n' +
+      '  - Linux: use nvm (https://github.com/nvm-sh/nvm) ou pacote da distro\n' +
+      '\n' +
+      'Depois rode novamente: npx roldao-method install\n\n',
   );
   exit(1);
   return false;

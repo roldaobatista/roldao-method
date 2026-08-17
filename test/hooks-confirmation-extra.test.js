@@ -17,15 +17,24 @@ const HOOK = path.join(ROOT, 'templates', '.claude', 'hooks', 'block-confirmatio
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 function run(response) {
   const input = JSON.stringify({ response });
   const r = spawnSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'], timeout: 15000 });
   let decision = null;
-  try { decision = JSON.parse(r.stdout || '{}').decision; } catch { /* */ }
+  try {
+    decision = JSON.parse(r.stdout || '{}').decision;
+  } catch {
+    /* */
+  }
   return { exit: r.status, decision };
 }
 
@@ -40,7 +49,11 @@ const novos1 = [
 ];
 for (const f of novos1) {
   const r = run(f);
-  check(`novo 1 — "${f.slice(0, 40)}..." → block`, r.decision === 'block', `decision=${r.decision}`);
+  check(
+    `novo 1 — "${f.slice(0, 40)}..." → block`,
+    r.decision === 'block',
+    `decision=${r.decision}`,
+  );
 }
 
 // Pattern novo 2: "vou X?"
@@ -52,7 +65,11 @@ const novos2 = [
 ];
 for (const f of novos2) {
   const r = run(f);
-  check(`novo 2 — "${f.slice(0, 40)}..." → block`, r.decision === 'block', `decision=${r.decision}`);
+  check(
+    `novo 2 — "${f.slice(0, 40)}..." → block`,
+    r.decision === 'block',
+    `decision=${r.decision}`,
+  );
 }
 
 // Regressao: padroes antigos continuam pegando
@@ -68,17 +85,29 @@ for (const f of novos2) {
 // Legitimo (nao bloquear)
 {
   const r = run('Fiz a correcao e validei. Esta funcionando.');
-  check('legitimo 1: declaracao sem pergunta → libera', r.decision !== 'block', `decision=${r.decision}`);
+  check(
+    'legitimo 1: declaracao sem pergunta → libera',
+    r.decision !== 'block',
+    `decision=${r.decision}`,
+  );
 }
 {
   const r = run('Tudo certo aqui — segui em frente.');
-  check('legitimo 2: "tudo certo" SEM ponto de interrogacao → libera', r.decision !== 'block', `decision=${r.decision}`);
+  check(
+    'legitimo 2: "tudo certo" SEM ponto de interrogacao → libera',
+    r.decision !== 'block',
+    `decision=${r.decision}`,
+  );
 }
 
 // Excecao legitima: pergunta de confirmacao sobre operacao destrutiva libera
 {
   const r = run('Vou rodar git push --force agora — confirma?');
-  check('excecao 1: pergunta sobre git push --force libera (destrutivo)', r.decision !== 'block', `decision=${r.decision}`);
+  check(
+    'excecao 1: pergunta sobre git push --force libera (destrutivo)',
+    r.decision !== 'block',
+    `decision=${r.decision}`,
+  );
 }
 
 console.log(`\nResultado: ${pass} OK, ${fail} FAIL`);

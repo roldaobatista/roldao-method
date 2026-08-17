@@ -12,7 +12,9 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const { makeColors, ANSI } = require(path.join(ROOT, 'bin', 'lib', 'colors'));
-const { USER_OWNED, isUserOwned, isCustomizable } = require(path.join(ROOT, 'bin', 'lib', 'user-owned'));
+const { USER_OWNED, isUserOwned, isCustomizable } = require(
+  path.join(ROOT, 'bin', 'lib', 'user-owned'),
+);
 const { checkNodeVersion } = require(path.join(ROOT, 'bin', 'lib', 'node-version-check'));
 const { makeGlyphs, UNICODE, ASCII } = require(path.join(ROOT, 'bin', 'lib', 'glyphs'));
 const { validarCPF } = require(path.join(ROOT, 'bin', 'lib', 'demo'));
@@ -87,7 +89,9 @@ it('node-version-check: Node 20 passa (≥18)', () => {
     required: 18,
     current: '20.10.0',
     write: () => {},
-    exit: (code) => { exited = code; },
+    exit: (code) => {
+      exited = code;
+    },
   });
   assert.strictEqual(ok, true);
   assert.strictEqual(exited, null, 'não deveria ter saído');
@@ -98,8 +102,12 @@ it('node-version-check: Node 16 reprova e chama exit(1)', () => {
   checkNodeVersion({
     required: 18,
     current: '16.20.0',
-    write: (msg) => { stderr += msg; },
-    exit: (code) => { exited = code; },
+    write: (msg) => {
+      stderr += msg;
+    },
+    exit: (code) => {
+      exited = code;
+    },
   });
   assert.strictEqual(exited, 1);
   assert.ok(stderr.includes('Node 18+'), 'stderr deveria mencionar Node 18+');
@@ -110,7 +118,9 @@ it('node-version-check: versão vazia (process.versions ausente) não trava', ()
   const ok = checkNodeVersion({
     current: '',
     write: () => {},
-    exit: (code) => { exited = code; },
+    exit: (code) => {
+      exited = code;
+    },
   });
   assert.strictEqual(ok, true);
   assert.strictEqual(exited, null);
@@ -169,7 +179,11 @@ it('snapshot: createSnapshot + recordFile + restoreSnapshot ciclo completo', () 
     const arq = path.join(tmp, 'arquivo.txt');
     fs.writeFileSync(arq, original);
 
-    const snapId = snapshotLib.createSnapshot({ cwd: tmp, fromVersion: '1.0.0', toVersion: '1.0.1' });
+    const snapId = snapshotLib.createSnapshot({
+      cwd: tmp,
+      fromVersion: '1.0.0',
+      toVersion: '1.0.1',
+    });
     assert.ok(snapId, 'snapshot deveria ter id');
 
     snapshotLib.recordFile(snapId, tmp, 'arquivo.txt', 'updated');
@@ -195,7 +209,11 @@ it('snapshot: createSnapshot + recordFile + restoreSnapshot ciclo completo', () 
 it('snapshot: arquivo criado pelo update (existed=false) e removido no rollback', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'roldao-snap-'));
   try {
-    const snapId = snapshotLib.createSnapshot({ cwd: tmp, fromVersion: '1.0.0', toVersion: '1.0.1' });
+    const snapId = snapshotLib.createSnapshot({
+      cwd: tmp,
+      fromVersion: '1.0.0',
+      toVersion: '1.0.1',
+    });
     // Registra ANTES de criar (arquivo ainda nao existia)
     snapshotLib.recordFile(snapId, tmp, 'novo.txt', 'created');
     // Update cria

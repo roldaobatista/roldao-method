@@ -27,8 +27,13 @@ const SESS = 'testehash';
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 // Setup: cria runtime com bug-trigger, investigator-invoked e bug-active.
@@ -47,7 +52,11 @@ function setupRuntime(opts = {}) {
 }
 
 function cleanup(dir) {
-  try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
+  try {
+    fs.rmSync(dir, { recursive: true, force: true });
+  } catch {
+    /* best-effort */
+  }
 }
 
 function runHook(dir, legacy = false) {
@@ -56,7 +65,12 @@ function runHook(dir, legacy = false) {
   else delete env.ROLDAO_METHOD_LEGACY_MARKERS;
   // Hook so dispara em Edit/Write de arquivo de codigo
   const input = JSON.stringify({ tool_input: { file_path: path.join(dir, 'src/calculo.js') } });
-  const r = spawnSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'], env, timeout: 15000 });
+  const r = spawnSync('node', [HOOK], {
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+    timeout: 15000,
+  });
   return { exit: r.status, stderr: (r.stderr || '').toString() };
 }
 
@@ -78,21 +92,37 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
 {
   const { dir } = setupRuntime();
   const r = runHook(dir);
-  check('cenario 1a: bug-active + sem investigation-*.json → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 1b: stderr menciona "prova mecânica"', /prova mec[aâ]nica/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 1a: bug-active + sem investigation-*.json → exit 2',
+    r.exit === 2,
+    `exit=${r.exit}`,
+  );
+  check(
+    'cenario 1b: stderr menciona "prova mecânica"',
+    /prova mec[aâ]nica/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
 // Cenario 2: JSON canonico valido → pass
 {
   const { dir, runtime } = setupRuntime();
-  writeInvJson(runtime, 'bug-001', JSON.stringify({
-    ref: 'bug-001',
-    lido: ['src/calculo.js:42', 'SELECT * FROM pedidos WHERE id=15'],
-    achado: 'O calculo do total estava somando o frete duas vezes quando o cliente eh PJ.',
-  }));
+  writeInvJson(
+    runtime,
+    'bug-001',
+    JSON.stringify({
+      ref: 'bug-001',
+      lido: ['src/calculo.js:42', 'SELECT * FROM pedidos WHERE id=15'],
+      achado: 'O calculo do total estava somando o frete duas vezes quando o cliente eh PJ.',
+    }),
+  );
   const r = runHook(dir);
-  check('cenario 2: JSON canonico valido → exit 0', r.exit === 0, `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`);
+  check(
+    'cenario 2: JSON canonico valido → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
   cleanup(dir);
 }
 
@@ -102,7 +132,11 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
   writeInvJson(runtime, 'vazio', '');
   const r = runHook(dir);
   check('cenario 3a: investigation vazio → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 3b: stderr menciona shape valido', /shape v[aá]lido/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 3b: stderr menciona shape valido',
+    /shape v[aá]lido/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -112,72 +146,116 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
   writeInvJson(runtime, 'malformado', '{quebrado');
   const r = runHook(dir);
   check('cenario 4a: JSON malformado → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 4b: stderr menciona estado=malformed', /estado=malformed/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 4b: stderr menciona estado=malformed',
+    /estado=malformed/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
 // Cenario 5: lido nao e array → block
 {
   const { dir, runtime } = setupRuntime();
-  writeInvJson(runtime, 'lido-str', JSON.stringify({
-    lido: 'string em vez de array',
-    achado: 'A descricao do problema esta aqui com muitos caracteres pra passar',
-  }));
+  writeInvJson(
+    runtime,
+    'lido-str',
+    JSON.stringify({
+      lido: 'string em vez de array',
+      achado: 'A descricao do problema esta aqui com muitos caracteres pra passar',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 5: lido nao-array → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 5b: stderr menciona lido-not-array', /estado=lido-not-array/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 5b: stderr menciona lido-not-array',
+    /estado=lido-not-array/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
 // Cenario 6: lido vazio → block
 {
   const { dir, runtime } = setupRuntime();
-  writeInvJson(runtime, 'lido-vazio', JSON.stringify({
-    lido: [],
-    achado: 'A descricao do problema esta aqui com muitos caracteres pra passar',
-  }));
+  writeInvJson(
+    runtime,
+    'lido-vazio',
+    JSON.stringify({
+      lido: [],
+      achado: 'A descricao do problema esta aqui com muitos caracteres pra passar',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 6: lido vazio → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 6b: stderr menciona lido-empty', /estado=lido-empty/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 6b: stderr menciona lido-empty',
+    /estado=lido-empty/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
 // Cenario 7: achado curto (< 20 chars) → block
 {
   const { dir, runtime } = setupRuntime();
-  writeInvJson(runtime, 'curto', JSON.stringify({
-    lido: ['src/x.js:10'],
-    achado: 'curto',
-  }));
+  writeInvJson(
+    runtime,
+    'curto',
+    JSON.stringify({
+      lido: ['src/x.js:10'],
+      achado: 'curto',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 7: achado curto → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 7b: stderr menciona achado-curto', /estado=achado-curto/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 7b: stderr menciona achado-curto',
+    /estado=achado-curto/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
 // Cenario 8: achado contem "trivial" → block
 {
   const { dir, runtime } = setupRuntime();
-  writeInvJson(runtime, 'trivial', JSON.stringify({
-    lido: ['src/x.js:10'],
-    achado: 'Mudanca trivial em layout, sem impacto em comportamento ou logica.',
-  }));
+  writeInvJson(
+    runtime,
+    'trivial',
+    JSON.stringify({
+      lido: ['src/x.js:10'],
+      achado: 'Mudanca trivial em layout, sem impacto em comportamento ou logica.',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 8a: achado contem "trivial" → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 8b: stderr menciona achado-bypass', /estado=achado-bypass/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 8b: stderr menciona achado-bypass',
+    /estado=achado-bypass/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
 // Cenario 9: lido contem "bypass" → block
 {
   const { dir, runtime } = setupRuntime();
-  writeInvJson(runtime, 'bypass', JSON.stringify({
-    lido: ['bypass: confiei no usuario'],
-    achado: 'Causa raiz identificada apos analise profunda no banco e no log.',
-  }));
+  writeInvJson(
+    runtime,
+    'bypass',
+    JSON.stringify({
+      lido: ['bypass: confiei no usuario'],
+      achado: 'Causa raiz identificada apos analise profunda no banco e no log.',
+    }),
+  );
   const r = runHook(dir);
   check('cenario 9a: lido com "bypass" → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 9b: stderr menciona achado-bypass', /estado=achado-bypass/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 9b: stderr menciona achado-bypass',
+    /estado=achado-bypass/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -186,8 +264,16 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
   const { dir, runtime } = setupRuntime();
   writeInvJson(runtime, 'legacy', '');
   const r = runHook(dir, true /* legacy */);
-  check('cenario 10a: JSON vazio + LEGACY=1 → exit 0', r.exit === 0, `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`);
-  check('cenario 10b: stderr emite AVISO', /AVISO/.test(r.stderr), 'stderr nao emite AVISO de legacy');
+  check(
+    'cenario 10a: JSON vazio + LEGACY=1 → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
+  check(
+    'cenario 10b: stderr emite AVISO',
+    /AVISO/.test(r.stderr),
+    'stderr nao emite AVISO de legacy',
+  );
   cleanup(dir);
 }
 
@@ -195,13 +281,21 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
 {
   const { dir, runtime } = setupRuntime();
   writeInvJson(runtime, 'inv1', '');
-  writeInvJson(runtime, 'inv2', JSON.stringify({
-    ref: 'bug-002',
-    lido: ['src/y.js:5'],
-    achado: 'Outro bug investigado de verdade com bastante detalhe descrito aqui.',
-  }));
+  writeInvJson(
+    runtime,
+    'inv2',
+    JSON.stringify({
+      ref: 'bug-002',
+      lido: ['src/y.js:5'],
+      achado: 'Outro bug investigado de verdade com bastante detalhe descrito aqui.',
+    }),
+  );
   const r = runHook(dir);
-  check('cenario 11: 1 invalido + 1 valido → exit 0', r.exit === 0, `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`);
+  check(
+    'cenario 11: 1 invalido + 1 valido → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
   cleanup(dir);
 }
 
@@ -210,7 +304,12 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
   const { dir } = setupRuntime();
   const env = { ...process.env, CLAUDE_PROJECT_DIR: dir, ROLDAO_SKIP_METRICS: '1' };
   const input = JSON.stringify({ tool_input: { file_path: path.join(dir, 'docs/x.md') } });
-  const r = spawnSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'], env, timeout: 15000 });
+  const r = spawnSync('node', [HOOK], {
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+    timeout: 15000,
+  });
   check('cenario 12: arquivo .md → exit 0', r.status === 0, `exit=${r.status}`);
   cleanup(dir);
 }

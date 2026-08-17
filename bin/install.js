@@ -33,6 +33,9 @@ const crypto = require('crypto');
 const https = require('https');
 
 const FRAMEWORK_ROOT = path.resolve(__dirname, '..');
+// Docs de leitura ficam no pacote/GitHub, NÃO são copiados pro projeto do
+// usuário — mensagens pós-install apontam pra URL, nunca pra caminho local.
+const DOCS_URL = 'https://github.com/roldaobatista/roldao-method/blob/main/docs';
 const TEMPLATES_DIR = path.join(FRAMEWORK_ROOT, 'templates');
 const ADDONS_DIR = path.join(FRAMEWORK_ROOT, 'addons');
 const CWD = process.cwd();
@@ -54,9 +57,11 @@ const rawArgs = process.argv.slice(2);
 // rodando `install` em vez do help. Auditoria 10-agentes 2ª passada 2026-05-24.
 const HELP_FLAGS = new Set(['--help', '-h', '-?']);
 const VERSION_FLAGS = new Set(['--version', '-v', '-V']);
-const earlyCommand = rawArgs.find((a) => HELP_FLAGS.has(a)) ? 'help'
-                   : rawArgs.find((a) => VERSION_FLAGS.has(a)) ? 'version'
-                   : null;
+const earlyCommand = rawArgs.find((a) => HELP_FLAGS.has(a))
+  ? 'help'
+  : rawArgs.find((a) => VERSION_FLAGS.has(a))
+    ? 'version'
+    : null;
 const positional = rawArgs.filter((a) => !a.startsWith('-'));
 // T-020 (J16): `npx roldao-method` sem argumentos em TTY interativo mostra
 // menu de proximos passos em vez de cair em `install` cego. Em CI/script
@@ -64,7 +69,9 @@ const positional = rawArgs.filter((a) => !a.startsWith('-'));
 const isInteractiveBare = rawArgs.length === 0 && process.stdout.isTTY;
 const command = earlyCommand || positional[0] || (isInteractiveBare ? 'menu' : 'install');
 const subArg = positional[1];
-const flags = new Set(rawArgs.filter((a) => a.startsWith('-') && !HELP_FLAGS.has(a) && !VERSION_FLAGS.has(a)));
+const flags = new Set(
+  rawArgs.filter((a) => a.startsWith('-') && !HELP_FLAGS.has(a) && !VERSION_FLAGS.has(a)),
+);
 const YES = flags.has('--yes') || flags.has('-y');
 const FORCE = flags.has('--force');
 const DRY_RUN = flags.has('--dry-run');
@@ -97,15 +104,25 @@ function spinner(msg) {
 const counters = { criados: 0, pulados: 0, atualizados: 0, preservados: 0, erros: 0 };
 const detalhes = { criados: [], pulados: [], atualizados: [], preservados: [], erros: [] };
 
-function log(msg) { if (!QUIET) console.log(`${c.cyan}[roldao-method]${c.reset} ${msg}`); }
-function ok(msg) { if (!QUIET) console.log(`${c.green}${g.ok}${c.reset} ${msg}`); }
-function warn(msg) { console.warn(`${c.yellow}[roldao-method]${c.reset} ${c.yellow}AVISO:${c.reset} ${msg}`); }
-function err(msg) { console.error(`${c.red}[roldao-method]${c.reset} ${c.red}ERRO:${c.reset} ${msg}`); }
+function log(msg) {
+  if (!QUIET) console.log(`${c.cyan}[roldao-method]${c.reset} ${msg}`);
+}
+function ok(msg) {
+  if (!QUIET) console.log(`${c.green}${g.ok}${c.reset} ${msg}`);
+}
+function warn(msg) {
+  console.warn(`${c.yellow}[roldao-method]${c.reset} ${c.yellow}AVISO:${c.reset} ${msg}`);
+}
+function err(msg) {
+  console.error(`${c.red}[roldao-method]${c.reset} ${c.red}ERRO:${c.reset} ${msg}`);
+}
 
 function banner() {
   if (YES || QUIET) return;
   console.log('');
-  console.log(`${c.cyan}${c.bold}  ROLDAO-METHOD${c.reset} ${c.dim}— framework de desenvolvimento agil com IA em PT-BR${c.reset}`);
+  console.log(
+    `${c.cyan}${c.bold}  ROLDAO-METHOD${c.reset} ${c.dim}— framework de desenvolvimento agil com IA em PT-BR${c.reset}`,
+  );
   console.log(`${c.dim}  https://github.com/roldaobatista/roldao-method${c.reset}`);
   console.log('');
 }
@@ -113,20 +130,29 @@ function banner() {
 function ask(question) {
   if (YES) return Promise.resolve('s');
   if (!process.stdin.isTTY) {
-    err('estou rodando dentro de um script ou outro programa que nao consegue te perguntar nada (terminal nao-interativo).');
+    err(
+      'estou rodando dentro de um script ou outro programa que nao consegue te perguntar nada (terminal nao-interativo).',
+    );
     err('Adicione --yes (ou -y) no final do comando pra eu assumir o caminho padrao seguro.');
     err('Exemplo: npx roldao-method install --yes');
     process.exit(2);
   }
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise((resolve) => rl.question(question, (a) => { rl.close(); resolve(a.trim()); }));
+  return new Promise((resolve) =>
+    rl.question(question, (a) => {
+      rl.close();
+      resolve(a.trim());
+    }),
+  );
 }
 
 // Aceita "s", "sim", "y", "yes" como confirmacao positiva. Auditoria 10-agentes
 // 3ª passada (2026-05-24): leigo brasileiro digita "sim" e cancela silenciosamente
 // porque o codigo so reconhecia "s".
 function isYes(answer) {
-  const a = String(answer || '').trim().toLowerCase();
+  const a = String(answer || '')
+    .trim()
+    .toLowerCase();
   return a === 's' || a === 'sim' || a === 'y' || a === 'yes';
 }
 
@@ -155,9 +181,12 @@ function detectTools() {
   if (fs.existsSync(path.join(CWD, '.windsurf'))) tools.push('windsurf');
   if (fs.existsSync(path.join(CWD, '.continue'))) tools.push('continue');
   if (fs.existsSync(path.join(CWD, '.aider.conf.yml'))) tools.push('aider');
-  if (fs.existsSync(path.join(CWD, '.clinerules')) || fs.existsSync(path.join(CWD, '.cline'))) tools.push('cline');
-  if (fs.existsSync(path.join(CWD, '.roorules')) || fs.existsSync(path.join(CWD, '.roo'))) tools.push('roo');
-  if (fs.existsSync(path.join(CWD, 'GEMINI.md')) || fs.existsSync(path.join(CWD, '.gemini'))) tools.push('gemini-cli');
+  if (fs.existsSync(path.join(CWD, '.clinerules')) || fs.existsSync(path.join(CWD, '.cline')))
+    tools.push('cline');
+  if (fs.existsSync(path.join(CWD, '.roorules')) || fs.existsSync(path.join(CWD, '.roo')))
+    tools.push('roo');
+  if (fs.existsSync(path.join(CWD, 'GEMINI.md')) || fs.existsSync(path.join(CWD, '.gemini')))
+    tools.push('gemini-cli');
   if (fs.existsSync(path.join(CWD, '.codex'))) tools.push('codex-cli');
   return tools;
 }
@@ -195,7 +224,11 @@ function resolveAdapters() {
   if (rawArgs.some((a) => a === '--all-adapters')) return ALL_ADAPTERS;
   const explicit = rawArgs.find((a) => a.startsWith('--adapters='));
   if (explicit) {
-    const list = explicit.slice('--adapters='.length).split(',').map((s) => s.trim()).filter(Boolean);
+    const list = explicit
+      .slice('--adapters='.length)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
     const valid = list.filter((a) => ALL_ADAPTERS.includes(a));
     if (!valid.includes('claude-code')) valid.unshift('claude-code');
     return valid;
@@ -224,7 +257,11 @@ function isDangerousCwd() {
     '/Applications',
   ];
   return candidates.some((p) => {
-    try { return path.resolve(p) === resolved; } catch { return false; }
+    try {
+      return path.resolve(p) === resolved;
+    } catch {
+      return false;
+    }
   });
 }
 
@@ -255,7 +292,11 @@ function ensureExecutable(dest) {
   if (process.platform === 'win32') return;
   if (!/\.(sh|js)$/.test(dest)) return;
   if (!dest.includes(`${path.sep}.claude${path.sep}hooks${path.sep}`)) return;
-  try { fs.chmodSync(dest, 0o755); } catch { /* best effort */ }
+  try {
+    fs.chmodSync(dest, 0o755);
+  } catch {
+    /* best effort */
+  }
 }
 
 // copyFileSync que NUNCA crasha o instalador no meio do walk. Disco cheio,
@@ -295,7 +336,9 @@ function atomicWriteJson(filePath, obj) {
   for (const wait of backoffsMs) {
     if (wait > 0) {
       const until = Date.now() + wait;
-      while (Date.now() < until) { /* busy-wait curto (sync) */ }
+      while (Date.now() < until) {
+        /* busy-wait curto (sync) */
+      }
     }
     try {
       fs.renameSync(tmp, filePath);
@@ -306,11 +349,19 @@ function atomicWriteJson(filePath, obj) {
     }
   }
   // Limpa .tmp orfao
-  try { fs.unlinkSync(tmp); } catch { /* */ }
+  try {
+    fs.unlinkSync(tmp);
+  } catch {
+    /* */
+  }
   // Se ha .bak do destino, restaura — destino corrompido e pior que nao escrever
   const bak = `${filePath}.bak`;
   if (fs.existsSync(bak)) {
-    try { fs.copyFileSync(bak, filePath); } catch { /* best effort */ }
+    try {
+      fs.copyFileSync(bak, filePath);
+    } catch {
+      /* best effort */
+    }
   }
   throw lastErr;
 }
@@ -322,7 +373,8 @@ function copyFile(src, dest, mode) {
   if (DRY_RUN) {
     if (!exists) detalhes.criados.push(rel);
     else if (mode === 'update' && !isUserOwned(path.relative(CWD, dest))) {
-      const a = fileHash(src); const b = fileHash(dest);
+      const a = fileHash(src);
+      const b = fileHash(dest);
       if (a !== b) detalhes.atualizados.push(rel);
       else detalhes.pulados.push(`${rel} (igual)`);
     } else if (mode === 'update' && isUserOwned(path.relative(CWD, dest))) {
@@ -355,7 +407,8 @@ function copyFile(src, dest, mode) {
     return;
   }
 
-  const a = fileHash(src); const b = fileHash(dest);
+  const a = fileHash(src);
+  const b = fileHash(dest);
   if (a === b) {
     counters.pulados++;
     detalhes.pulados.push(`${rel} (igual)`);
@@ -364,8 +417,16 @@ function copyFile(src, dest, mode) {
 
   // Registra no snapshot ANTES de mexer (rollback precisa do estado anterior).
   if (currentSnapshot && mode === 'update') {
-    try { snapshotLib.recordFile(currentSnapshot, CWD, rel, isCustomizable(rel) ? 'customized' : 'updated'); }
-    catch { /* best effort — snapshot quebrar nao deve impedir update */ }
+    try {
+      snapshotLib.recordFile(
+        currentSnapshot,
+        CWD,
+        rel,
+        isCustomizable(rel) ? 'customized' : 'updated',
+      );
+    } catch {
+      /* best effort — snapshot quebrar nao deve impedir update */
+    }
   }
 
   // Arquivo em pasta customizavel (.claude/agents, .claude/commands etc) com hash
@@ -387,7 +448,9 @@ function copyFile(src, dest, mode) {
         const ts = new Date().toISOString().replace(/[:.]/g, '-');
         bak = `${dest}.bak.${ts}`;
       }
-    } catch { /* se falhar a leitura, segue pro try abaixo */ }
+    } catch {
+      /* se falhar a leitura, segue pro try abaixo */
+    }
   }
   try {
     fs.copyFileSync(dest, bak);
@@ -397,7 +460,9 @@ function copyFile(src, dest, mode) {
     // pode reaplicar a atualizacao depois de corrigir o ambiente, OU
     // forcar com --force pra aceitar o risco explicitamente.
     if (!FORCE) {
-      detalhes.erros.push(`${rel}: backup falhou (${e.message}) — arquivo PRESERVADO. Use --force para sobrescrever mesmo assim.`);
+      detalhes.erros.push(
+        `${rel}: backup falhou (${e.message}) — arquivo PRESERVADO. Use --force para sobrescrever mesmo assim.`,
+      );
       counters.erros++;
       return;
     }
@@ -423,16 +488,20 @@ function walkAndCopy(src, dest, mode, sp) {
   }
   if (ADDON_META_FILES.has(path.basename(src))) return;
   if (sp) {
-    const totalFiles = counters.criados + counters.atualizados + counters.pulados + counters.preservados;
+    const totalFiles =
+      counters.criados + counters.atualizados + counters.pulados + counters.preservados;
     sp.tick(`copiando arquivos... ${totalFiles}`);
   }
   // Permissao negada em src (lstat/readdir) nao deve crashar — registra erro
   // e segue pra outros arquivos. Caso comum em Windows: AV/Defender prendeu.
   let stat;
-  try { stat = fs.lstatSync(src); }
-  catch (e) {
+  try {
+    stat = fs.lstatSync(src);
+  } catch (e) {
     counters.erros++;
-    detalhes.erros.push(`${path.relative(FRAMEWORK_ROOT, src)}: lstat falhou (${e.code || ''} ${e.message})`);
+    detalhes.erros.push(
+      `${path.relative(FRAMEWORK_ROOT, src)}: lstat falhou (${e.code || ''} ${e.message})`,
+    );
     return;
   }
   if (stat.isSymbolicLink()) {
@@ -444,14 +513,19 @@ function walkAndCopy(src, dest, mode, sp) {
       if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
     } catch (e) {
       counters.erros++;
-      detalhes.erros.push(`${path.relative(CWD, dest)}: mkdir falhou (${e.code || ''} ${e.message})`);
+      detalhes.erros.push(
+        `${path.relative(CWD, dest)}: mkdir falhou (${e.code || ''} ${e.message})`,
+      );
       return;
     }
     let entries;
-    try { entries = fs.readdirSync(src); }
-    catch (e) {
+    try {
+      entries = fs.readdirSync(src);
+    } catch (e) {
       counters.erros++;
-      detalhes.erros.push(`${path.relative(FRAMEWORK_ROOT, src)}: readdir falhou (${e.code || ''} ${e.message})`);
+      detalhes.erros.push(
+        `${path.relative(FRAMEWORK_ROOT, src)}: readdir falhou (${e.code || ''} ${e.message})`,
+      );
       return;
     }
     for (const entry of entries) {
@@ -473,9 +547,15 @@ function resumo() {
   const prefixo = DRY_RUN ? '[dry-run] ' : '';
   console.log('');
   console.log(`${c.bold}--- ${prefixo}resumo ---${c.reset}`);
-  console.log(`  ${c.green}criados:${c.reset}      ${cri}${DRY_RUN ? ` ${c.dim}(seriam criados)${c.reset}` : ''}`);
-  console.log(`  ${c.cyan}atualizados:${c.reset}  ${atu}${DRY_RUN ? ` ${c.dim}(seriam atualizados)${c.reset}` : ''}`);
-  console.log(`  ${c.magenta}preservados:${c.reset}  ${pre} ${c.dim}(customizacao do usuario)${c.reset}`);
+  console.log(
+    `  ${c.green}criados:${c.reset}      ${cri}${DRY_RUN ? ` ${c.dim}(seriam criados)${c.reset}` : ''}`,
+  );
+  console.log(
+    `  ${c.cyan}atualizados:${c.reset}  ${atu}${DRY_RUN ? ` ${c.dim}(seriam atualizados)${c.reset}` : ''}`,
+  );
+  console.log(
+    `  ${c.magenta}preservados:${c.reset}  ${pre} ${c.dim}(customizacao do usuario)${c.reset}`,
+  );
   console.log(`  ${c.dim}pulados:${c.reset}      ${pul}`);
   if (counters.erros > 0) console.log(`  ${c.red}erros:${c.reset}        ${counters.erros}`);
   console.log('');
@@ -483,18 +563,29 @@ function resumo() {
 
 function fetchRemoteVersion(timeoutMs = 2000) {
   return new Promise((resolve) => {
-    const req = https.get('https://registry.npmjs.org/roldao-method/latest', { timeout: timeoutMs }, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(data);
-          resolve(typeof parsed.version === 'string' ? parsed.version : null);
-        } catch { resolve(null); }
-      });
-    });
+    const req = https.get(
+      'https://registry.npmjs.org/roldao-method/latest',
+      { timeout: timeoutMs },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(data);
+            resolve(typeof parsed.version === 'string' ? parsed.version : null);
+          } catch {
+            resolve(null);
+          }
+        });
+      },
+    );
     req.on('error', () => resolve(null));
-    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.on('timeout', () => {
+      req.destroy();
+      resolve(null);
+    });
   });
 }
 
@@ -507,7 +598,10 @@ async function checkUpdate() {
   // Comparação X.Y.Z, ignorando sufixo de pré-release (ex: 0.14.0-rc.1).
   // Sem o strip, split('.').map(Number) produzia NaN e o aviso de update errava.
   const cmp = (a, b) => {
-    const core = (v) => String(v).replace(/[-+].*$/, '').split('.');
+    const core = (v) =>
+      String(v)
+        .replace(/[-+].*$/, '')
+        .split('.');
     const aa = core(a).map((n) => parseInt(n, 10) || 0);
     const bb = core(b).map((n) => parseInt(n, 10) || 0);
     for (let i = 0; i < 3; i++) {
@@ -516,10 +610,13 @@ async function checkUpdate() {
     return 0;
   };
   if (cmp(remote, local) > 0) {
-    drawBox([
-      `${c.bold}Nova versao disponivel:${c.reset} ${c.green}v${remote}${c.reset} (voce: v${local})`,
-      `Rode: ${c.cyan}npx roldao-method@latest update${c.reset}`,
-    ], { color: c.yellow });
+    drawBox(
+      [
+        `${c.bold}Nova versao disponivel:${c.reset} ${c.green}v${remote}${c.reset} (voce: v${local})`,
+        `Rode: ${c.cyan}npx roldao-method@latest update${c.reset}`,
+      ],
+      { color: c.yellow },
+    );
   }
 }
 
@@ -530,7 +627,10 @@ function drawBox(lines, { color = '' } = {}) {
   // Calcula largura visível (sem códigos ANSI). Limita a colunas do terminal.
   const stripAnsi = (s) => s.replace(/\x1b\[[0-9;]*m/g, '');
   const maxCol = Math.max(40, Math.min(process.stdout.columns || 80, 100));
-  const inner = Math.min(maxCol - 4, lines.reduce((m, l) => Math.max(m, stripAnsi(l).length), 0));
+  const inner = Math.min(
+    maxCol - 4,
+    lines.reduce((m, l) => Math.max(m, stripAnsi(l).length), 0),
+  );
   const reset = c.reset;
   const h = g.box.h.repeat(inner + 2);
   console.log('');
@@ -546,13 +646,11 @@ function drawBox(lines, { color = '' } = {}) {
 
 function listAddonsAvailable() {
   if (!fs.existsSync(ADDONS_DIR)) return [];
-  return fs
-    .readdirSync(ADDONS_DIR)
-    .filter((f) => {
-      const p = path.join(ADDONS_DIR, f);
-      if (!fs.statSync(p).isDirectory()) return false;
-      return fs.existsSync(path.join(p, 'addon.yaml'));
-    });
+  return fs.readdirSync(ADDONS_DIR).filter((f) => {
+    const p = path.join(ADDONS_DIR, f);
+    if (!fs.statSync(p).isDirectory()) return false;
+    return fs.existsSync(path.join(p, 'addon.yaml'));
+  });
 }
 
 // Le o primeiro agent listado em provoca: do addon.yaml — usamos como marker
@@ -574,7 +672,10 @@ function addonMarker(addonName) {
       continue;
     }
     if (!inProvoca) continue;
-    if (/^\s+agents:\s*$/.test(line)) { inAgents = true; continue; }
+    if (/^\s+agents:\s*$/.test(line)) {
+      inAgents = true;
+      continue;
+    }
     if (inAgents) {
       const m = line.match(/^\s+-\s*([\w-]+)\s*$/);
       if (m) return `.claude/agents/${m[1]}.md`;
@@ -617,7 +718,9 @@ async function install() {
     err(`recusa: diretorio atual (${CWD}) parece sensivel (raiz, home, system).`);
     err('"pasta de projeto" = um diretorio com seu codigo dentro (ex: ~/projetos/meu-app),');
     err('NAO sua home (~), nao a raiz do disco (/), nao /tmp.');
-    err('Crie ou entre na pasta do projeto primeiro: cd ~/projetos/meu-app && npx roldao-method install');
+    err(
+      'Crie ou entre na pasta do projeto primeiro: cd ~/projetos/meu-app && npx roldao-method install',
+    );
     process.exit(2);
   }
 
@@ -628,15 +731,21 @@ async function install() {
   const tools = detectTools();
   const adapters = resolveAdapters();
   if (tools.length === 0) {
-    log(`${c.yellow}nenhum assistente de IA detectado${c.reset} — instalando ${c.bold}Claude Code${c.reset} (padrao).`);
-    log(`${c.dim}para outros assistentes use --adapters=cursor,windsurf ou --all-adapters${c.reset}`);
+    log(
+      `${c.yellow}nenhum assistente de IA detectado${c.reset} — instalando ${c.bold}Claude Code${c.reset} (padrao).`,
+    );
+    log(
+      `${c.dim}para outros assistentes use --adapters=cursor,windsurf ou --all-adapters${c.reset}`,
+    );
   } else {
     log(`detectado: ${c.green}${tools.join(', ')}${c.reset}`);
   }
   log(`assistentes que vao receber o framework: ${c.cyan}${adapters.join(', ')}${c.reset}`);
   const nonClaude = adapters.filter((a) => a !== 'claude-code');
   if (nonClaude.length > 0) {
-    log(`${c.dim}nota: em ${nonClaude.join(', ')}, os freios automaticos (hooks) e os atalhos (slash commands) do Claude Code nao rodam — a disciplina vem por instrucao no proprio prompt.${c.reset}`);
+    log(
+      `${c.dim}nota: em ${nonClaude.join(', ')}, os freios automaticos (hooks) e os atalhos (slash commands) do Claude Code nao rodam — a disciplina vem por instrucao no proprio prompt.${c.reset}`,
+    );
   }
 
   if (!fs.existsSync(TEMPLATES_DIR)) {
@@ -653,7 +762,10 @@ async function install() {
   let addonsEscolhidos = [];
   if (!YES && !FORCE && process.stdin.isTTY) {
     const perfis = loadProfiles();
-    const escolhido = await askMenu('Qual o perfil do projeto?', perfis.map((p) => p.label));
+    const escolhido = await askMenu(
+      'Qual o perfil do projeto?',
+      perfis.map((p) => p.label),
+    );
     const matched = perfis.find((p) => p.label === escolhido);
     addonsEscolhidos = matched ? matched.addons : [];
 
@@ -671,7 +783,10 @@ async function install() {
     }
 
     const a = await ask(`${c.bold}Confirmar instalacao em ${CWD}?${c.reset} [s/N] `);
-    if (!isYes(a)) { log('cancelado.'); return; }
+    if (!isYes(a)) {
+      log('cancelado.');
+      return;
+    }
   }
 
   const t0 = Date.now();
@@ -681,7 +796,8 @@ async function install() {
     if (adapter && !adapters.includes(adapter)) continue;
     walkAndCopy(path.join(TEMPLATES_DIR, entry), path.join(CWD, entry), 'install', sp);
   }
-  const totalCore = counters.criados + counters.atualizados + counters.preservados + counters.pulados;
+  const totalCore =
+    counters.criados + counters.atualizados + counters.preservados + counters.pulados;
   sp.succeed(`core copiado (${totalCore} arquivos · ${((Date.now() - t0) / 1000).toFixed(1)}s)`);
 
   resumo();
@@ -699,12 +815,21 @@ async function install() {
     }
   }
   if (addonFailures.length) {
-    err(`addons que falharam: ${addonFailures.join(', ')} — rode 'add <nome>' depois pra tentar de novo.`);
+    err(
+      `addons que falharam: ${addonFailures.join(', ')} — rode 'add <nome>' depois pra tentar de novo.`,
+    );
   }
 
-  if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`); return; }
+  if (DRY_RUN) {
+    log(`${c.yellow}dry-run: nenhuma mudanca aplicada.${c.reset}`);
+    return;
+  }
   // Registra projeto no registry global pra `update --all` poder achar depois.
-  try { registry.addProject(CWD); } catch { /* best effort */ }
+  try {
+    registry.addProject(CWD);
+  } catch {
+    /* best effort */
+  }
   // Grava versao instalada pra /status saber qual versao do framework foi aplicada
   // mesmo em projeto que nao declarar `roldao-method` em package.json.
   try {
@@ -712,21 +837,37 @@ async function install() {
     const versaoFile = path.join(CWD, '.specify', '.installed-version');
     fs.mkdirSync(path.dirname(versaoFile), { recursive: true });
     fs.writeFileSync(versaoFile, pkg.version + '\n', 'utf8');
-  } catch { /* best effort */ }
+  } catch {
+    /* best effort */
+  }
   ok('instalei o framework no seu projeto.');
-  console.log(`  ${c.dim}— o que mudou: ${counters.criados} arquivos novos do framework, seus arquivos foram preservados${c.reset}`);
+  console.log(
+    `  ${c.dim}— o que mudou: ${counters.criados} arquivos novos do framework, seus arquivos foram preservados${c.reset}`,
+  );
   console.log('');
   console.log(`${c.bold}Proximos passos (do mais simples pro mais avancado):${c.reset}`);
-  console.log(`  ${c.cyan}1.${c.reset} ${c.green}npx roldao-method tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce (2 minutos)${c.reset}`);
-  console.log(`  ${c.cyan}2.${c.reset} no Claude Code (ou outro assistente): ${c.green}/inicio${c.reset} pra criar a primeira funcionalidade`);
-  console.log(`  ${c.cyan}3.${c.reset} ${c.dim}(se seu projeto ja tem codigo rodando)${c.reset} ${c.green}/brownfield${c.reset} pra adotar no projeto atual`);
-  console.log(`  ${c.cyan}4.${c.reset} ${c.dim}(opcional)${c.reset} extensoes BR (addons): ${c.cyan}npx roldao-method search${c.reset}`);
+  console.log(
+    `  ${c.cyan}1.${c.reset} ${c.green}npx roldao-method tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce (2 minutos)${c.reset}`,
+  );
+  console.log(
+    `  ${c.cyan}2.${c.reset} no Claude Code (ou outro assistente): ${c.green}/inicio${c.reset} pra criar a primeira funcionalidade`,
+  );
+  console.log(
+    `  ${c.cyan}3.${c.reset} ${c.dim}(se seu projeto ja tem codigo rodando)${c.reset} ${c.green}/brownfield${c.reset} pra adotar no projeto atual`,
+  );
+  console.log(
+    `  ${c.cyan}4.${c.reset} ${c.dim}(opcional)${c.reset} extensoes BR (addons): ${c.cyan}npx roldao-method search${c.reset}`,
+  );
   console.log('');
   console.log(`${c.bold}Nao programa? Comece aqui:${c.reset}`);
-  console.log(`  ${c.cyan}->${c.reset} ${c.green}docs/PARA-DONO-DE-PRODUTO.md${c.reset}  ${c.dim}— manual pro dono de produto que nao escreve codigo${c.reset}`);
+  console.log(
+    `  ${c.cyan}->${c.reset} ${c.green}${DOCS_URL}/PARA-DONO-DE-PRODUTO.md${c.reset}  ${c.dim}— manual pro dono de produto que nao escreve codigo${c.reset}`,
+  );
   console.log('');
-  console.log(`${c.dim}Detalhes tecnicos (CLAUDE.local.md, MCP, GitHub Action): docs/QUICKSTART.md${c.reset}`);
-  console.log(`${c.dim}Glossario sem jargao: docs/GLOSSARIO.md${c.reset}`);
+  console.log(
+    `${c.dim}Detalhes tecnicos (CLAUDE.local.md, MCP, GitHub Action): ${DOCS_URL}/QUICKSTART.md${c.reset}`,
+  );
+  console.log(`${c.dim}Glossario sem jargao: ${DOCS_URL}/GLOSSARIO.md${c.reset}`);
   console.log('');
   // Aguarda a checagem de versao terminar (com timeout interno) pra o banner
   // de update aparecer ordenado, sem vazar no meio do output do proximo comando.
@@ -743,15 +884,24 @@ async function update() {
   // Antes era ignorada totalmente e podia vazar no output do proximo comando.
   const updateCheckP = checkUpdate().catch(() => {});
   if (!YES && !FORCE) {
-    const a = await ask('Update sobrescreve arquivos do framework (preservando AGENTS.md, CLAUDE.md, REGRAS, settings.local.json). Snapshot criado antes (use `rollback` pra desfazer). Confirmar? [s/N] ');
-    if (!isYes(a)) { log('cancelado.'); return; }
+    const a = await ask(
+      'Update sobrescreve arquivos do framework (preservando AGENTS.md, CLAUDE.md, REGRAS, settings.local.json). Snapshot criado antes (use `rollback` pra desfazer). Confirmar? [s/N] ',
+    );
+    if (!isYes(a)) {
+      log('cancelado.');
+      return;
+    }
   }
 
   // Cria snapshot ANTES de qualquer mudanca — rollback precisa.
   if (!DRY_RUN) {
     try {
       const pkg = require(path.join(FRAMEWORK_ROOT, 'package.json'));
-      currentSnapshot = snapshotLib.createSnapshot({ cwd: CWD, fromVersion: 'instalado', toVersion: pkg.version });
+      currentSnapshot = snapshotLib.createSnapshot({
+        cwd: CWD,
+        fromVersion: 'instalado',
+        toVersion: pkg.version,
+      });
       log(`${c.dim}snapshot criado: ${currentSnapshot}${c.reset}`);
     } catch (e) {
       warn(`falhou ao criar snapshot (${e.message}) — update segue mas rollback nao funcionara.`);
@@ -771,18 +921,29 @@ async function update() {
   const total = counters.criados + counters.atualizados + counters.preservados + counters.pulados;
   sp.succeed(`update concluido (${total} arquivos · ${((Date.now() - t0) / 1000).toFixed(1)}s)`);
   resumo();
-  if (DRY_RUN) { log('dry-run: nenhuma mudanca aplicada.'); return; }
+  if (DRY_RUN) {
+    log('dry-run: nenhuma mudanca aplicada.');
+    return;
+  }
   log('update concluido.');
-  log('arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, settings.local.json).');
+  log(
+    'arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS-INEGOCIAVEIS.md, settings.local.json).',
+  );
   log(`pra desfazer este update: ${c.cyan}npx roldao-method rollback${c.reset}`);
   if (!DRY_RUN) {
-    try { registry.markUpdated(CWD); } catch { /* best effort */ }
+    try {
+      registry.markUpdated(CWD);
+    } catch {
+      /* best effort */
+    }
     try {
       const pkg = require(path.join(FRAMEWORK_ROOT, 'package.json'));
       const versaoFile = path.join(CWD, '.specify', '.installed-version');
       fs.mkdirSync(path.dirname(versaoFile), { recursive: true });
       fs.writeFileSync(versaoFile, pkg.version + '\n', 'utf8');
-    } catch { /* best effort */ }
+    } catch {
+      /* best effort */
+    }
   }
   currentSnapshot = null;
   await updateCheckP;
@@ -791,16 +952,26 @@ async function update() {
 async function updateAll() {
   const projects = registry.listProjects();
   if (projects.length === 0) {
-    log('nenhum projeto registrado ainda. Rode `npx roldao-method install` em cada um pra registrar.');
+    log(
+      'nenhum projeto registrado ainda. Rode `npx roldao-method install` em cada um pra registrar.',
+    );
     return;
   }
   log(`encontrei ${c.bold}${projects.length}${c.reset} projeto(s) registrado(s):`);
-  projects.forEach((p, i) => console.log(`  ${c.cyan}${i + 1}.${c.reset} ${p.path} ${c.dim}(ultimo update: ${p.lastUpdate || 'nunca'})${c.reset}`));
+  projects.forEach((p, i) =>
+    console.log(
+      `  ${c.cyan}${i + 1}.${c.reset} ${p.path} ${c.dim}(ultimo update: ${p.lastUpdate || 'nunca'})${c.reset}`,
+    ),
+  );
   if (!YES && !FORCE) {
     const a = await ask(`Atualizar todos? [s/N] `);
-    if (!isYes(a)) { log('cancelado.'); return; }
+    if (!isYes(a)) {
+      log('cancelado.');
+      return;
+    }
   }
-  let okCount = 0, failCount = 0;
+  let okCount = 0,
+    failCount = 0;
   for (const proj of projects) {
     console.log('');
     log(`${c.bold}=> ${proj.path}${c.reset}`);
@@ -810,7 +981,8 @@ async function updateAll() {
       const projPath = path.resolve(proj.path);
       const stat = fs.statSync(projPath);
       if (!stat.isDirectory()) throw new Error('nao e diretorio');
-      if (!fs.existsSync(path.join(projPath, '.specify'))) throw new Error('nao tem .specify/ — nao parece projeto roldao-method');
+      if (!fs.existsSync(path.join(projPath, '.specify')))
+        throw new Error('nao tem .specify/ — nao parece projeto roldao-method');
     } catch (e) {
       failCount++;
       err(`pulado ${proj.path}: ${e.message}`);
@@ -822,11 +994,17 @@ async function updateAll() {
     if (DRY_RUN) args.push('--dry-run');
     const res = spawnSync(process.execPath, args, { cwd: proj.path, stdio: 'inherit' });
     if (res.status === 0) okCount++;
-    else { failCount++; err(`falhou em ${proj.path} (exit=${res.status})`); }
+    else {
+      failCount++;
+      err(`falhou em ${proj.path} (exit=${res.status})`);
+    }
   }
   console.log('');
   if (failCount === 0) ok(`${okCount} projeto(s) atualizados com sucesso.`);
-  else warn(`${okCount} OK, ${failCount} falharam. Rode individualmente nos que falharam pra ver detalhe.`);
+  else
+    warn(
+      `${okCount} OK, ${failCount} falharam. Rode individualmente nos que falharam pra ver detalhe.`,
+    );
 }
 
 async function rollback() {
@@ -834,20 +1012,28 @@ async function rollback() {
   const snapshots = snapshotLib.listSnapshots(CWD);
   if (snapshots.length === 0) {
     err('nenhum snapshot encontrado neste projeto.');
-    err(`snapshots sao criados automaticamente em todo ${c.cyan}npx roldao-method update${c.reset}.`);
+    err(
+      `snapshots sao criados automaticamente em todo ${c.cyan}npx roldao-method update${c.reset}.`,
+    );
     process.exit(1);
   }
   if (rawArgs.includes('--list')) {
     console.log(`${c.bold}Snapshots disponiveis (mais recente primeiro):${c.reset}`);
     snapshots.forEach((s, i) => {
-      console.log(`  ${c.cyan}${i + 1}.${c.reset} ${s.id} ${c.dim}(${s.fileCount} arquivo(s))${c.reset}`);
+      console.log(
+        `  ${c.cyan}${i + 1}.${c.reset} ${s.id} ${c.dim}(${s.fileCount} arquivo(s))${c.reset}`,
+      );
     });
     console.log('');
-    console.log(`Pra restaurar: ${c.cyan}npx roldao-method rollback${c.reset} ${c.dim}(ultimo)${c.reset}`);
+    console.log(
+      `Pra restaurar: ${c.cyan}npx roldao-method rollback${c.reset} ${c.dim}(ultimo)${c.reset}`,
+    );
     console.log(`Pra restaurar especifico: ${c.cyan}npx roldao-method rollback <id>${c.reset}`);
     return;
   }
-  const target = subId ? snapshots.find((s) => s.id === subId || s.id.startsWith(subId)) : snapshots[0];
+  const target = subId
+    ? snapshots.find((s) => s.id === subId || s.id.startsWith(subId))
+    : snapshots[0];
   if (!target) {
     err(`snapshot "${subId}" nao encontrado. Liste com --list.`);
     process.exit(1);
@@ -855,7 +1041,10 @@ async function rollback() {
   log(`vou restaurar snapshot: ${c.bold}${target.id}${c.reset} (${target.fileCount} arquivo(s))`);
   if (!YES && !FORCE) {
     const a = await ask(`Confirmar rollback? Isso vai desfazer o ultimo update. [s/N] `);
-    if (!isYes(a)) { log('cancelado.'); return; }
+    if (!isYes(a)) {
+      log('cancelado.');
+      return;
+    }
   }
   const result = snapshotLib.restoreSnapshot(CWD, target.id);
   if (result.errors.length > 0) {
@@ -885,7 +1074,10 @@ async function installAddon(name, skipConfirm = false, throwOnError = false) {
 
   if (!skipConfirm && !YES && !FORCE) {
     const a = await ask(`Confirmar instalacao do addon ${name}? [s/N] `);
-    if (!isYes(a)) { log('cancelado.'); return false; }
+    if (!isYes(a)) {
+      log('cancelado.');
+      return false;
+    }
   }
 
   // Copia .claude/ do addon pro .claude/ do projeto (merge)
@@ -980,7 +1172,9 @@ function applyAddonSettingsPatch(name) {
 
   if (changed) {
     atomicWriteJson(settingsPath, settings);
-    log(`  ${c.green}+${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} ativadas`);
+    log(
+      `  ${c.green}+${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} ativadas`,
+    );
   }
 }
 
@@ -1017,7 +1211,9 @@ function reverseAddonSettingsPatch(name) {
         const group = settings.hooks[event].find((g) => (g.matcher || '') === matcher);
         if (!group || !Array.isArray(group.hooks)) continue;
         const before = group.hooks.length;
-        group.hooks = group.hooks.filter((existing) => !patchHooks.some((h) => h.command === existing.command));
+        group.hooks = group.hooks.filter(
+          (existing) => !patchHooks.some((h) => h.command === existing.command),
+        );
         if (group.hooks.length !== before) changed = true;
         if (group.hooks.length === 0) {
           settings.hooks[event] = settings.hooks[event].filter((g) => g !== group);
@@ -1032,7 +1228,9 @@ function reverseAddonSettingsPatch(name) {
     for (const k of ['allow', 'ask', 'deny']) {
       if (Array.isArray(patch.permissions[k]) && Array.isArray(settings.permissions[k])) {
         const before = settings.permissions[k].length;
-        settings.permissions[k] = settings.permissions[k].filter((item) => !patch.permissions[k].includes(item));
+        settings.permissions[k] = settings.permissions[k].filter(
+          (item) => !patch.permissions[k].includes(item),
+        );
         if (settings.permissions[k].length !== before) changed = true;
       }
     }
@@ -1040,7 +1238,9 @@ function reverseAddonSettingsPatch(name) {
 
   if (changed) {
     atomicWriteJson(settingsPath, settings);
-    log(`  ${c.green}-${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} removidas`);
+    log(
+      `  ${c.green}-${c.reset} settings.json: hooks/permissoes do addon ${c.bold}${name}${c.reset} removidas`,
+    );
   }
 }
 
@@ -1072,7 +1272,9 @@ function addonDescription(name) {
     const yml = fs.readFileSync(path.join(ADDONS_DIR, name, 'addon.yaml'), 'utf8');
     const m = yml.match(/description:\s*(.+)/);
     return m ? m[1].trim() : '';
-  } catch { return ''; }
+  } catch {
+    return '';
+  }
 }
 
 // remove <addon> — tira do projeto so os arquivos que ESTE addon trouxe,
@@ -1099,11 +1301,17 @@ async function removeAddon(name) {
   const addonProjDir = path.join(CWD, 'addons', name);
   console.log(`${c.bold}Vai remover do projeto:${c.reset}`);
   claudeFiles.forEach((f) => console.log(`  - ${f}`));
-  if (fs.existsSync(addonProjDir)) console.log(`  - addons/${name}/ ${c.dim}(README, addon.yaml, templates do addon)${c.reset}`);
+  if (fs.existsSync(addonProjDir))
+    console.log(`  - addons/${name}/ ${c.dim}(README, addon.yaml, templates do addon)${c.reset}`);
 
   if (!YES && !FORCE && !DRY_RUN) {
-    const a = await ask(`Confirmar remocao do addon ${c.bold}${name}${c.reset}? O framework core fica intacto. [s/N] `);
-    if (!isYes(a)) { log('cancelado.'); return; }
+    const a = await ask(
+      `Confirmar remocao do addon ${c.bold}${name}${c.reset}? O framework core fica intacto. [s/N] `,
+    );
+    if (!isYes(a)) {
+      log('cancelado.');
+      return;
+    }
   }
 
   // Reverte settings.json.patch ANTES do delete dos arquivos. Ordem importa:
@@ -1125,14 +1333,26 @@ async function removeAddon(name) {
     }
     // Re-checa que nao virou symlink entre o walk e agora.
     let st;
-    try { st = fs.lstatSync(full); } catch { continue; }
+    try {
+      st = fs.lstatSync(full);
+    } catch {
+      continue;
+    }
     if (st.isSymbolicLink()) {
       console.log(`  ${c.yellow}PULADO${c.reset} ${rel}: symlink (recusado por seguranca)`);
       continue;
     }
-    if (DRY_RUN) { console.log(`  REMOVERIA ${rel}`); continue; }
-    try { fs.rmSync(full, { force: true }); removed++; console.log(`  removido: ${rel}`); }
-    catch (e) { console.log(`  ${c.red}ERRO${c.reset} ${rel}: ${e.message}`); }
+    if (DRY_RUN) {
+      console.log(`  REMOVERIA ${rel}`);
+      continue;
+    }
+    try {
+      fs.rmSync(full, { force: true });
+      removed++;
+      console.log(`  removido: ${rel}`);
+    } catch (e) {
+      console.log(`  ${c.red}ERRO${c.reset} ${rel}: ${e.message}`);
+    }
   }
   if (fs.existsSync(addonProjDir)) {
     const resolvedProj = path.resolve(addonProjDir);
@@ -1142,11 +1362,19 @@ async function removeAddon(name) {
     } else if (DRY_RUN) {
       console.log(`  REMOVERIA addons/${name}/`);
     } else {
-      try { fs.rmSync(addonProjDir, { recursive: true, force: true }); removed++; console.log(`  removido: addons/${name}/`); }
-      catch (e) { console.log(`  ${c.red}ERRO${c.reset} addons/${name}: ${e.message}`); }
+      try {
+        fs.rmSync(addonProjDir, { recursive: true, force: true });
+        removed++;
+        console.log(`  removido: addons/${name}/`);
+      } catch (e) {
+        console.log(`  ${c.red}ERRO${c.reset} addons/${name}: ${e.message}`);
+      }
     }
   }
-  if (DRY_RUN) { log(`${c.yellow}dry-run: nada removido.${c.reset}`); return; }
+  if (DRY_RUN) {
+    log(`${c.yellow}dry-run: nada removido.${c.reset}`);
+    return;
+  }
   ok(`addon ${name} removido (${removed} caminho(s)). Core e demais addons preservados.`);
 }
 
@@ -1167,7 +1395,8 @@ function readFrontmatterField(file, field) {
 function loadCommandsCatalog() {
   const dir = path.join(TEMPLATES_DIR, '.claude', 'commands');
   if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir)
+  return fs
+    .readdirSync(dir)
     .filter((f) => f.endsWith('.md'))
     .map((f) => ({
       name: '/' + f.replace(/\.md$/, ''),
@@ -1195,14 +1424,56 @@ function loadSkillsCatalog() {
 // casadas. Ignora stopwords PT-BR ("preciso", "quero", "como") pra permitir
 // frase natural ("preciso reportar bug" → casa /bug via palavra "bug").
 const STOPWORDS_PTBR = new Set([
-  'a', 'o', 'as', 'os', 'um', 'uma', 'uns', 'umas', 'de', 'do', 'da', 'dos', 'das',
-  'em', 'no', 'na', 'nos', 'nas', 'por', 'para', 'pra', 'com', 'que', 'e', 'ou',
-  'preciso', 'quero', 'como', 'fazer', 'isso', 'esse', 'essa', 'eu', 'me', 'mim',
-  'algum', 'alguma', 'meu', 'minha', 'qual', 'tem', 'ter', 'estou', 'sobre',
+  'a',
+  'o',
+  'as',
+  'os',
+  'um',
+  'uma',
+  'uns',
+  'umas',
+  'de',
+  'do',
+  'da',
+  'dos',
+  'das',
+  'em',
+  'no',
+  'na',
+  'nos',
+  'nas',
+  'por',
+  'para',
+  'pra',
+  'com',
+  'que',
+  'e',
+  'ou',
+  'preciso',
+  'quero',
+  'como',
+  'fazer',
+  'isso',
+  'esse',
+  'essa',
+  'eu',
+  'me',
+  'mim',
+  'algum',
+  'alguma',
+  'meu',
+  'minha',
+  'qual',
+  'tem',
+  'ter',
+  'estou',
+  'sobre',
 ]);
 function fuzzyScore(term, haystack) {
   if (!term) return 1;
-  const tokens = term.toLowerCase().split(/\s+/)
+  const tokens = term
+    .toLowerCase()
+    .split(/\s+/)
     .filter(Boolean)
     .filter((t) => !STOPWORDS_PTBR.has(t) && t.length > 1);
   if (tokens.length === 0) return 1;
@@ -1235,14 +1506,21 @@ function searchCommand(term) {
   const matchedAddons = addons
     .map((addon) => {
       const desc = addonDescription(addon);
-      return { name: addon, desc, inst: installed.includes(addon), score: fuzzyScore(q, `${addon} ${desc}`) };
+      return {
+        name: addon,
+        desc,
+        inst: installed.includes(addon),
+        score: fuzzyScore(q, `${addon} ${desc}`),
+      };
     })
     .filter((x) => x.score > 0);
 
   const total = matchedCmds.length + matchedSkills.length + matchedAddons.length;
   if (total === 0) {
     log(q ? `nenhum comando, skill ou addon casa com "${q}".` : 'nada encontrado.');
-    log(`tente: ${c.cyan}npx roldao-method search bug${c.reset} ou ${c.cyan}npx roldao-method search pix${c.reset}`);
+    log(
+      `tente: ${c.cyan}npx roldao-method search bug${c.reset} ou ${c.cyan}npx roldao-method search pix${c.reset}`,
+    );
     return;
   }
 
@@ -1251,18 +1529,24 @@ function searchCommand(term) {
   if (matchedCmds.length > 0) {
     console.log(`${c.bold}Comandos${filtroLabel}:${c.reset}`);
     for (const r of matchedCmds.slice(0, 15)) {
-      console.log(`  ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`);
+      console.log(
+        `  ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`,
+      );
     }
-    if (matchedCmds.length > 15) console.log(`  ${c.dim}... e mais ${matchedCmds.length - 15} comando(s)${c.reset}`);
+    if (matchedCmds.length > 15)
+      console.log(`  ${c.dim}... e mais ${matchedCmds.length - 15} comando(s)${c.reset}`);
     console.log('');
   }
 
   if (matchedSkills.length > 0) {
     console.log(`${c.bold}Skills${filtroLabel}:${c.reset}`);
     for (const r of matchedSkills.slice(0, 15)) {
-      console.log(`  ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`);
+      console.log(
+        `  ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`,
+      );
     }
-    if (matchedSkills.length > 15) console.log(`  ${c.dim}... e mais ${matchedSkills.length - 15} skill(s)${c.reset}`);
+    if (matchedSkills.length > 15)
+      console.log(`  ${c.dim}... e mais ${matchedSkills.length - 15} skill(s)${c.reset}`);
     console.log('');
   }
 
@@ -1270,10 +1554,14 @@ function searchCommand(term) {
     console.log(`${c.bold}Addons${filtroLabel}:${c.reset}`);
     for (const r of matchedAddons) {
       const flag = r.inst ? `${c.green}[instalado]${c.reset}` : `${c.dim}[disponivel]${c.reset}`;
-      console.log(`  ${flag} ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`);
+      console.log(
+        `  ${flag} ${c.cyan}${r.name}${c.reset} ${c.dim}${(r.desc || '').substring(0, 90)}${c.reset}`,
+      );
     }
     console.log('');
-    console.log(`${c.dim}instalar:${c.reset} ${c.cyan}npx roldao-method add <addon>${c.reset}    ${c.dim}remover:${c.reset} ${c.cyan}npx roldao-method remove <addon>${c.reset}`);
+    console.log(
+      `${c.dim}instalar:${c.reset} ${c.cyan}npx roldao-method add <addon>${c.reset}    ${c.dim}remover:${c.reset} ${c.cyan}npx roldao-method remove <addon>${c.reset}`,
+    );
   }
 }
 
@@ -1286,7 +1574,9 @@ async function tasksToIssues() {
   try {
     execFileSync('gh', ['--version'], { stdio: 'pipe' });
   } catch {
-    err('GitHub CLI (gh) nao encontrado. Instale em https://cli.github.com e rode `gh auth login`.');
+    err(
+      'GitHub CLI (gh) nao encontrado. Instale em https://cli.github.com e rode `gh auth login`.',
+    );
     process.exit(1);
   }
   const storiesDir = path.join(CWD, 'docs', 'stories');
@@ -1299,7 +1589,9 @@ async function tasksToIssues() {
   try {
     if (fs.existsSync(mapFile)) map = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
   } catch (e) {
-    warn(`mapa ${path.relative(CWD, mapFile)} corrompido (${e.message}) — usando mapa vazio (issues duplicadas podem ser criadas)`);
+    warn(
+      `mapa ${path.relative(CWD, mapFile)} corrompido (${e.message}) — usando mapa vazio (issues duplicadas podem ser criadas)`,
+    );
   }
 
   const seen = new Set();
@@ -1313,8 +1605,12 @@ async function tasksToIssues() {
       const id = `T-${m[1]}`;
       if (seen.has(id)) continue;
       seen.add(id);
-      const title = line.replace(/^[\s\-*>]+/, '').replace(/^\[[ xX]\]\s*/, '')
-        .replace(/[\r\n\t]+/g, ' ').trim().slice(0, 200);
+      const title = line
+        .replace(/^[\s\-*>]+/, '')
+        .replace(/^\[[ xX]\]\s*/, '')
+        .replace(/[\r\n\t]+/g, ' ')
+        .trim()
+        .slice(0, 200);
       tasks.push({ id, title: title || id, story: f });
     }
   }
@@ -1327,15 +1623,25 @@ async function tasksToIssues() {
     return false;
   });
   if (pending.length === 0) {
-    log(`nenhuma task nova. ${Object.keys(map).length} ja exportada(s), ${tasks.length} no projeto.`);
+    log(
+      `nenhuma task nova. ${Object.keys(map).length} ja exportada(s), ${tasks.length} no projeto.`,
+    );
     return;
   }
   log(`${pending.length} task(s) sem issue (de ${tasks.length} no projeto):`);
-  pending.forEach((t) => console.log(`  ${c.cyan}${t.id}${c.reset} ${t.title} ${c.dim}(${t.story})${c.reset}`));
-  if (DRY_RUN) { log(`${c.yellow}dry-run: nenhuma issue criada.${c.reset}`); return; }
+  pending.forEach((t) =>
+    console.log(`  ${c.cyan}${t.id}${c.reset} ${t.title} ${c.dim}(${t.story})${c.reset}`),
+  );
+  if (DRY_RUN) {
+    log(`${c.yellow}dry-run: nenhuma issue criada.${c.reset}`);
+    return;
+  }
   if (!YES && !FORCE) {
     const a = await ask(`Criar ${pending.length} issue(s) no GitHub deste repositorio? [s/N] `);
-    if (!isYes(a)) { log('cancelado.'); return; }
+    if (!isYes(a)) {
+      log('cancelado.');
+      return;
+    }
   }
   let created = 0;
   // Auditoria 2026-05-25 (instalador, regra #49): mapa era persistido SO no
@@ -1354,7 +1660,13 @@ async function tasksToIssues() {
     map[t.id] = { status: 'pending', story: t.story, since: Date.now() };
     persistMap();
     try {
-      const out = execFileSync('gh', ['issue', 'create', '--title', `${t.id}: ${t.title}`, '--body', body], { cwd: CWD, stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
+      const out = execFileSync(
+        'gh',
+        ['issue', 'create', '--title', `${t.id}: ${t.title}`, '--body', body],
+        { cwd: CWD, stdio: ['pipe', 'pipe', 'pipe'] },
+      )
+        .toString()
+        .trim();
       const num = (out.match(/\/issues\/(\d+)/) || [])[1] || out;
       map[t.id] = num;
       persistMap();
@@ -1367,7 +1679,9 @@ async function tasksToIssues() {
       // real da issue (caso ja exista) ou removendo a entrada (pra recriar).
     }
   }
-  ok(`${created} issue(s) criada(s). Mapa em .specify/.tasks-to-issues.json (rode de novo = so o que falta).`);
+  ok(
+    `${created} issue(s) criada(s). Mapa em .specify/.tasks-to-issues.json (rode de novo = so o que falta).`,
+  );
 }
 
 async function listCommand() {
@@ -1403,9 +1717,13 @@ async function listCommand() {
   const remote = await fetchRemoteVersion(3000);
   if (remote) {
     if (remote !== pkg.version) {
-      console.log(`${c.bold}Versao remota:${c.reset} ${c.yellow}v${remote}${c.reset} ${c.yellow}(atualizar!)${c.reset}`);
+      console.log(
+        `${c.bold}Versao remota:${c.reset} ${c.yellow}v${remote}${c.reset} ${c.yellow}(atualizar!)${c.reset}`,
+      );
     } else {
-      console.log(`${c.bold}Versao remota:${c.reset} ${c.green}v${remote}${c.reset} ${c.dim}(atualizado)${c.reset}`);
+      console.log(
+        `${c.bold}Versao remota:${c.reset} ${c.green}v${remote}${c.reset} ${c.dim}(atualizado)${c.reset}`,
+      );
     }
   } else {
     console.log(`${c.bold}Versao remota:${c.reset} ${c.dim}(npm registry indisponivel)${c.reset}`);
@@ -1413,7 +1731,9 @@ async function listCommand() {
   console.log('');
   console.log(`${c.bold}Comandos uteis:${c.reset}`);
   console.log(`  ${c.cyan}npx roldao-method add <addon>${c.reset}     instalar addon`);
-  console.log(`  ${c.cyan}npx roldao-method remove <addon>${c.reset}  remover addon (core preservado)`);
+  console.log(
+    `  ${c.cyan}npx roldao-method remove <addon>${c.reset}  remover addon (core preservado)`,
+  );
   console.log(`  ${c.cyan}npx roldao-method search [termo]${c.reset}  buscar addons disponiveis`);
   console.log(`  ${c.cyan}npx roldao-method update${c.reset}          atualizar framework`);
   console.log(`  ${c.cyan}npx roldao-method doctor${c.reset}          diagnosticar instalacao`);
@@ -1472,15 +1792,23 @@ function doctor() {
     { path: 'REGRAS-INEGOCIAVEIS.md', exigido: true },
     { path: 'CLAUDE.local.md.example', exigido: false, label: 'v0.15+' },
   ];
-  let okCount = 0; let faltando = 0; let opcionalFaltando = 0;
+  let okCount = 0;
+  let faltando = 0;
+  let opcionalFaltando = 0;
   for (const ck of checks) {
     const full = path.join(CWD, ck.path);
     const e = fs.existsSync(full);
-    if (e) { okCount++; console.log(`  ${c.green}OK   ${c.reset} ${ck.path}`); }
-    else if (ck.exigido) { faltando++; console.log(`  ${c.red}FALTA${c.reset} ${ck.path}`); }
-    else {
+    if (e) {
+      okCount++;
+      console.log(`  ${c.green}OK   ${c.reset} ${ck.path}`);
+    } else if (ck.exigido) {
+      faltando++;
+      console.log(`  ${c.red}FALTA${c.reset} ${ck.path}`);
+    } else {
       opcionalFaltando++;
-      console.log(`  ${c.yellow}NOVO ${c.reset} ${ck.path} ${c.dim}(opcional — ${ck.label || ''})${c.reset}`);
+      console.log(
+        `  ${c.yellow}NOVO ${c.reset} ${ck.path} ${c.dim}(opcional — ${ck.label || ''})${c.reset}`,
+      );
     }
   }
   console.log('');
@@ -1492,16 +1820,15 @@ function doctor() {
   console.log(`  ${c.green}OK   ${c.reset} node ${process.version} (hooks são Node puro)`);
 
   console.log('');
-  console.log(`${c.bold}Total:${c.reset} ${checks.length}  |  ${c.green}OK:${c.reset} ${okCount}  |  ${c.red}FALTA:${c.reset} ${faltando}  |  ${c.yellow}NOVO:${c.reset} ${opcionalFaltando}`);
+  console.log(
+    `${c.bold}Total:${c.reset} ${checks.length}  |  ${c.green}OK:${c.reset} ${okCount}  |  ${c.red}FALTA:${c.reset} ${faltando}  |  ${c.yellow}NOVO:${c.reset} ${opcionalFaltando}`,
+  );
 
   // E9 — alerta se placeholders _(preencher)_ ainda existirem nos docs canônicos
   // do projeto. Não bloqueia (warning), mas chama atenção: dono que esqueceu
   // preencher AGENTS.md vai ter agente decidindo coisa sem identidade do projeto.
   const placeholderFiles = [];
-  const docsParaVerificar = [
-    'AGENTS.md',
-    'REGRAS-INEGOCIAVEIS.md',
-  ];
+  const docsParaVerificar = ['AGENTS.md', 'REGRAS-INEGOCIAVEIS.md'];
   for (const docFile of docsParaVerificar) {
     const full = path.join(CWD, docFile);
     if (!fs.existsSync(full)) continue;
@@ -1511,15 +1838,21 @@ function doctor() {
       if (matches && matches.length > 0) {
         placeholderFiles.push({ file: docFile, count: matches.length });
       }
-    } catch { /* leitura falhou, ignora */ }
+    } catch {
+      /* leitura falhou, ignora */
+    }
   }
   if (placeholderFiles.length > 0) {
     console.log('');
-    console.log(`${c.yellow}AVISO:${c.reset} ${placeholderFiles.length} arquivo(s) com campos vazios pra preencher (${c.cyan}_(preencher)_${c.reset}):`);
+    console.log(
+      `${c.yellow}AVISO:${c.reset} ${placeholderFiles.length} arquivo(s) com campos vazios pra preencher (${c.cyan}_(preencher)_${c.reset}):`,
+    );
     for (const p of placeholderFiles) {
       console.log(`  ${c.yellow}-${c.reset} ${p.file} (${p.count} campo(s) vazio(s))`);
     }
-    console.log(`  ${c.dim}rode${c.reset} ${c.cyan}npx roldao-method tutorial${c.reset} ${c.dim}pra preencher AGENTS.md em 5 perguntas guiadas.${c.reset}`);
+    console.log(
+      `  ${c.dim}rode${c.reset} ${c.cyan}npx roldao-method tutorial${c.reset} ${c.dim}pra preencher AGENTS.md em 5 perguntas guiadas.${c.reset}`,
+    );
   }
 
   // J11 (US-116 T-012) — projeto vindo da v1.x: detecta hooks .sh antigos OU
@@ -1532,25 +1865,36 @@ function doctor() {
       const arquivos = fs.readdirSync(hooksDir);
       const hooksAntigos = arquivos.filter((f) => f.endsWith('.sh'));
       if (hooksAntigos.length > 0) {
-        sinaisV1.push(`hooks bash antigos: ${hooksAntigos.length} arquivo(s) .sh em .claude/hooks/ — v2.0 usa só Node.`);
+        sinaisV1.push(
+          `hooks bash antigos: ${hooksAntigos.length} arquivo(s) .sh em .claude/hooks/ — v2.0 usa só Node.`,
+        );
       }
-    } catch { /* sem permissão de leitura — ignora */ }
+    } catch {
+      /* sem permissão de leitura — ignora */
+    }
   }
   const runtimeDir = path.join(CWD, '.claude', '.runtime');
   if (fs.existsSync(runtimeDir)) {
     try {
-      const markersAntigos = fs.readdirSync(runtimeDir)
+      const markersAntigos = fs
+        .readdirSync(runtimeDir)
         .filter((f) => f.startsWith('checkpoint-passed-'))
         .filter((f) => {
           try {
             const conteudo = fs.readFileSync(path.join(runtimeDir, f), 'utf8').trim();
             return conteudo === '' || !conteudo.includes('audit_sha');
-          } catch { return false; }
+          } catch {
+            return false;
+          }
         });
       if (markersAntigos.length > 0) {
-        sinaisV1.push(`marker(s) de checkpoint sem audit_sha: ${markersAntigos.length} (formato v1.x).`);
+        sinaisV1.push(
+          `marker(s) de checkpoint sem audit_sha: ${markersAntigos.length} (formato v1.x).`,
+        );
       }
-    } catch { /* ignora */ }
+    } catch {
+      /* ignora */
+    }
   }
   if (sinaisV1.length > 0) {
     console.log('');
@@ -1558,8 +1902,12 @@ function doctor() {
     for (const sinal of sinaisV1) {
       console.log(`  ${c.yellow}-${c.reset} ${sinal}`);
     }
-    console.log(`  ${c.dim}detalhes da migração:${c.reset} ${c.cyan}docs/migrations/MIGRATION-v2.md${c.reset}`);
-    console.log(`  ${c.dim}aplicar atualização:${c.reset} ${c.cyan}npx roldao-method@latest update${c.reset} ${c.dim}(snapshot automático antes)${c.reset}`);
+    console.log(
+      `  ${c.dim}detalhes da migração:${c.reset} ${c.cyan}${DOCS_URL}/migrations/MIGRATION-v2.md${c.reset}`,
+    );
+    console.log(
+      `  ${c.dim}aplicar atualização:${c.reset} ${c.cyan}npx roldao-method@latest update${c.reset} ${c.dim}(snapshot automático antes)${c.reset}`,
+    );
   }
 
   if (faltando > 0) {
@@ -1578,13 +1926,18 @@ function doctor() {
 async function uninstall() {
   log(`removendo ROLDAO-METHOD de: ${CWD}`);
   if (!YES && !FORCE) {
-    const a = await ask('Remove arquivos do framework (preserva AGENTS.md, CLAUDE.md, REGRAS, settings.local.json, .mcp.json, docs/, addons/). Confirmar? [s/N] ');
-    if (!isYes(a)) { log('cancelado.'); return; }
+    const a = await ask(
+      'Remove arquivos do framework (preserva AGENTS.md, CLAUDE.md, REGRAS, settings.local.json, .mcp.json, docs/, addons/). Confirmar? [s/N] ',
+    );
+    if (!isYes(a)) {
+      log('cancelado.');
+      return;
+    }
   }
   const candidatos = [
     '.claude/settings.json',
-    '.claude/statusline.sh',    // resquício de instalações pré-v1.0 — removido pelo uninstall
-    '.claude/statusline.js',    // v1.0+ (port Node — ADR-012)
+    '.claude/statusline.sh', // resquício de instalações pré-v1.0 — removido pelo uninstall
+    '.claude/statusline.js', // v1.0+ (port Node — ADR-012)
     '.claude/agents',
     '.claude/hooks',
     '.claude/commands',
@@ -1603,7 +1956,10 @@ async function uninstall() {
   for (const p of candidatos) {
     const full = path.join(CWD, p);
     if (!fs.existsSync(full)) continue;
-    if (DRY_RUN) { console.log(`  MOVERIA ${p} -> ${path.basename(backupRoot)}/${p}`); continue; }
+    if (DRY_RUN) {
+      console.log(`  MOVERIA ${p} -> ${path.basename(backupRoot)}/${p}`);
+      continue;
+    }
     try {
       const dest = path.join(backupRoot, p);
       fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -1614,8 +1970,12 @@ async function uninstall() {
       console.log(`  ERRO ${p}: ${e.message}`);
     }
   }
-  log(`${removidos} caminho(s) movido(s) para ${path.basename(backupRoot)}/ (não apagados — customizações suas preservadas; apague a pasta manualmente se quiser).`);
-  log('arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS, .mcp.json, settings.local.json).');
+  log(
+    `${removidos} caminho(s) movido(s) para ${path.basename(backupRoot)}/ (não apagados — customizações suas preservadas; apague a pasta manualmente se quiser).`,
+  );
+  log(
+    'arquivos do usuario preservados (AGENTS.md, CLAUDE.md, REGRAS, .mcp.json, settings.local.json).',
+  );
 }
 
 // menu — chamado por `npx roldao-method` sem argumento em TTY interativo.
@@ -1633,8 +1993,18 @@ async function undo() {
   let coAuthored = false;
   try {
     const { execFileSync } = require('child_process');
-    ultimoHash = execFileSync('git', ['-C', CWD, 'rev-parse', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
-    ultimoMsg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s%n%b'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
+    ultimoHash = execFileSync('git', ['-C', CWD, 'rev-parse', 'HEAD'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: GIT_SAFE_ENV,
+    })
+      .toString()
+      .trim();
+    ultimoMsg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s%n%b'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: GIT_SAFE_ENV,
+    })
+      .toString()
+      .trim();
     coAuthored = /Co-Authored-By: Claude/i.test(ultimoMsg);
   } catch {
     err('nao consegui ler git log. Voce esta numa pasta com repositorio git?');
@@ -1647,11 +2017,15 @@ async function undo() {
   }
 
   console.log(`${c.bold}Ultima gravacao do projeto:${c.reset}`);
-  console.log(`  ${c.cyan}${ultimoHash.slice(0, 12)}${c.reset} — ${ultimoMsg.split('\n')[0].slice(0, 80)}`);
+  console.log(
+    `  ${c.cyan}${ultimoHash.slice(0, 12)}${c.reset} — ${ultimoMsg.split('\n')[0].slice(0, 80)}`,
+  );
   console.log('');
 
   if (!coAuthored) {
-    console.log(`${c.yellow}AVISO:${c.reset} a ultima gravacao NAO foi feita pelo assistente Claude (sem 'Co-Authored-By: Claude').`);
+    console.log(
+      `${c.yellow}AVISO:${c.reset} a ultima gravacao NAO foi feita pelo assistente Claude (sem 'Co-Authored-By: Claude').`,
+    );
     console.log('Pode ter sido voce ou outra pessoa.');
     console.log('');
   }
@@ -1662,7 +2036,9 @@ async function undo() {
   console.log('  - Seguro: nao reescreve historico, voce pode desfazer o undo depois.');
   console.log('');
   console.log(`${c.bold}O que voce DEVE conferir antes:${c.reset}`);
-  console.log('  - Se a mudanca ja foi enviada pro servidor (`git log origin/main..HEAD`), o undo tambem vai pro servidor depois.');
+  console.log(
+    '  - Se a mudanca ja foi enviada pro servidor (`git log origin/main..HEAD`), o undo tambem vai pro servidor depois.',
+  );
   console.log('  - Se outros desenvolvedores ja baixaram a mudanca, eles vao ver o undo.');
   console.log('');
 
@@ -1670,7 +2046,14 @@ async function undo() {
     process.stdout.write(`Confirma o undo? Digite 'sim' pra continuar: `);
     const resposta = await new Promise((resolve) => {
       const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-      rl.question('', (ans) => { rl.close(); resolve(String(ans || '').trim().toLowerCase()); });
+      rl.question('', (ans) => {
+        rl.close();
+        resolve(
+          String(ans || '')
+            .trim()
+            .toLowerCase(),
+        );
+      });
     });
     if (!['sim', 's', 'yes', 'y'].includes(resposta)) {
       log('cancelado.');
@@ -1685,12 +2068,17 @@ async function undo() {
 
   try {
     const { execFileSync } = require('child_process');
-    execFileSync('git', ['-C', CWD, 'revert', '--no-edit', 'HEAD'], { stdio: 'inherit', env: GIT_SAFE_ENV });
+    execFileSync('git', ['-C', CWD, 'revert', '--no-edit', 'HEAD'], {
+      stdio: 'inherit',
+      env: GIT_SAFE_ENV,
+    });
     ok('undo concluido. Nova gravacao criada desfazendo a anterior.');
     console.log(`${c.dim}Pra ver: git log -2 --oneline${c.reset}`);
   } catch (e) {
     err(`git revert falhou: ${e.message}`);
-    err('Causa provavel: mudanca pendente (uncommitted). Salve ou descarte antes de tentar de novo.');
+    err(
+      'Causa provavel: mudanca pendente (uncommitted). Salve ou descarte antes de tentar de novo.',
+    );
     process.exit(1);
   }
 }
@@ -1702,7 +2090,13 @@ async function statusProjeto() {
   banner();
   const { execFileSync } = require('child_process');
 
-  function safeFs(fn) { try { return fn(); } catch { return null; } }
+  function safeFs(fn) {
+    try {
+      return fn();
+    } catch {
+      return null;
+    }
+  }
 
   function countMdFilesByStatus(pasta, statusEsperado, statusInverso = false) {
     const dir = path.join(CWD, pasta);
@@ -1715,7 +2109,9 @@ async function statusProjeto() {
         const matchStatus = conteudo.match(/^status:\s*(\S+)/m);
         const status = matchStatus ? matchStatus[1].toLowerCase().trim() : '';
         if (statusInverso ? status !== statusEsperado : status === statusEsperado) abertas++;
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
     return { total: arquivos.length, abertas };
   }
@@ -1731,26 +2127,45 @@ async function statusProjeto() {
   let ultimoCommit = 'nao identificado';
   let diasDesde = '?';
   try {
-    const tsStr = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%ai'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
-    const msg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
+    const tsStr = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%ai'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: GIT_SAFE_ENV,
+    })
+      .toString()
+      .trim();
+    const msg = execFileSync('git', ['-C', CWD, 'log', '-1', '--pretty=%s'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: GIT_SAFE_ENV,
+    })
+      .toString()
+      .trim();
     if (tsStr) {
       const ts = new Date(tsStr);
       const agora = new Date();
       diasDesde = Math.floor((agora - ts) / (1000 * 60 * 60 * 24));
       ultimoCommit = `${msg.slice(0, 60)} (ha ${diasDesde} dia${diasDesde !== 1 ? 's' : ''})`;
     }
-  } catch { /* sem git */ }
+  } catch {
+    /* sem git */
+  }
 
   // Mudanca pendente
   let pendente = false;
   let arquivosPendentes = 0;
   try {
-    const status = execFileSync('git', ['-C', CWD, 'status', '--porcelain'], { stdio: ['ignore', 'pipe', 'ignore'], env: GIT_SAFE_ENV }).toString().trim();
+    const status = execFileSync('git', ['-C', CWD, 'status', '--porcelain'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: GIT_SAFE_ENV,
+    })
+      .toString()
+      .trim();
     if (status) {
       pendente = true;
       arquivosPendentes = status.split('\n').filter(Boolean).length;
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 
   // Versao do framework — preferencia: arquivo .specify/.installed-version
   // (gravado por install/update). Fallback: package.json do projeto.
@@ -1759,15 +2174,23 @@ async function statusProjeto() {
   if (fs.existsSync(versaoFile)) {
     try {
       versaoFramework = fs.readFileSync(versaoFile, 'utf8').trim() || '?';
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
   if (versaoFramework === '?') {
     const pkgFile = path.join(CWD, 'package.json');
     if (fs.existsSync(pkgFile)) {
       try {
         const pkgData = JSON.parse(fs.readFileSync(pkgFile, 'utf8'));
-        versaoFramework = pkgData.dependencies?.['roldao-method'] || pkgData.devDependencies?.['roldao-method'] || pkgData.version || '?';
-      } catch { /* skip */ }
+        versaoFramework =
+          pkgData.dependencies?.['roldao-method'] ||
+          pkgData.devDependencies?.['roldao-method'] ||
+          pkgData.version ||
+          '?';
+      } catch {
+        /* skip */
+      }
     }
   }
 
@@ -1778,7 +2201,9 @@ async function statusProjeto() {
   console.log('');
   console.log(`  ${c.cyan}Ultima atividade:${c.reset} ${ultimoCommit}`);
   if (pendente) {
-    console.log(`  ${c.yellow}Mudancas pendentes nao gravadas:${c.reset} ${arquivosPendentes} arquivo${arquivosPendentes !== 1 ? 's' : ''}`);
+    console.log(
+      `  ${c.yellow}Mudancas pendentes nao gravadas:${c.reset} ${arquivosPendentes} arquivo${arquivosPendentes !== 1 ? 's' : ''}`,
+    );
   } else {
     console.log(`  ${c.green}Nada pendente${c.reset} — tudo gravado.`);
   }
@@ -1788,13 +2213,19 @@ async function statusProjeto() {
 
   console.log(`${c.bold}Proximo passo sugerido:${c.reset}`);
   if (stories.abertas > 0) {
-    console.log(`  ${c.green}/feature${c.reset} pra fechar uma das ${stories.abertas} stories abertas`);
+    console.log(
+      `  ${c.green}/feature${c.reset} pra fechar uma das ${stories.abertas} stories abertas`,
+    );
   } else if (adrs.abertas > 0) {
-    console.log(`  Aceitar ${adrs.abertas} ADR${adrs.abertas !== 1 ? 's' : ''} pendente${adrs.abertas !== 1 ? 's' : ''} (mudar 'status: proposta' pra 'status: aceito')`);
+    console.log(
+      `  Aceitar ${adrs.abertas} ADR${adrs.abertas !== 1 ? 's' : ''} pendente${adrs.abertas !== 1 ? 's' : ''} (mudar 'status: proposta' pra 'status: aceito')`,
+    );
   } else if (pendente) {
     console.log(`  Gravar mudancas pendentes (pedir pro agente fazer commit)`);
   } else if (diasDesde !== '?' && diasDesde >= 7) {
-    console.log(`  ${c.green}/o-que-aconteceu${c.reset} pra ver o que mudou desde a ultima atividade`);
+    console.log(
+      `  ${c.green}/o-que-aconteceu${c.reset} pra ver o que mudou desde a ultima atividade`,
+    );
   } else {
     console.log(`  Pedir nova feature: ${c.green}/feature <descricao em PT-BR>${c.reset}`);
   }
@@ -1804,12 +2235,22 @@ async function statusProjeto() {
 function menu() {
   banner();
   console.log(`${c.bold}O que voce quer fazer?${c.reset}\n`);
-  console.log(`  ${c.cyan}npx roldao-method ${c.green}demo${c.reset}      ${c.dim}— testa 3 verificacoes em 30s, sem instalar nada${c.reset}`);
-  console.log(`  ${c.cyan}npx roldao-method ${c.green}install${c.reset}   ${c.dim}— copia o framework pra pasta atual${c.reset}`);
-  console.log(`  ${c.cyan}npx roldao-method ${c.green}tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce${c.reset}`);
-  console.log(`  ${c.cyan}npx roldao-method ${c.green}doctor${c.reset}    ${c.dim}— diagnostica instalacao existente${c.reset}`);
+  console.log(
+    `  ${c.cyan}npx roldao-method ${c.green}demo${c.reset}      ${c.dim}— testa 3 verificacoes em 30s, sem instalar nada${c.reset}`,
+  );
+  console.log(
+    `  ${c.cyan}npx roldao-method ${c.green}install${c.reset}   ${c.dim}— copia o framework pra pasta atual${c.reset}`,
+  );
+  console.log(
+    `  ${c.cyan}npx roldao-method ${c.green}tutorial${c.reset}  ${c.dim}— 5 perguntas em PT-BR preenchem o AGENTS.md por voce${c.reset}`,
+  );
+  console.log(
+    `  ${c.cyan}npx roldao-method ${c.green}doctor${c.reset}    ${c.dim}— diagnostica instalacao existente${c.reset}`,
+  );
   console.log('');
-  console.log(`${c.bold}Nao programa?${c.reset} Veja primeiro: ${c.green}docs/PARA-DONO-DE-PRODUTO.md${c.reset}`);
+  console.log(
+    `${c.bold}Nao programa?${c.reset} Veja primeiro: ${c.green}${DOCS_URL}/PARA-DONO-DE-PRODUTO.md${c.reset}`,
+  );
   console.log(`${c.bold}Mais comandos?${c.reset}  ${c.cyan}npx roldao-method --help${c.reset}`);
   console.log('');
 }
@@ -1919,18 +2360,15 @@ function version() {
 function levenshtein(a, b) {
   if (!a) return b.length;
   if (!b) return a.length;
-  const m = a.length, n = b.length;
+  const m = a.length,
+    n = b.length;
   const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
   for (let i = 0; i <= m; i++) dp[i][0] = i;
   for (let j = 0; j <= n; j++) dp[0][j] = j;
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + cost,
-      );
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
     }
   }
   return dp[m][n];
@@ -1939,17 +2377,33 @@ function levenshtein(a, b) {
 // Lista canonica de subcomandos pra sugerir quando usuario digita errado.
 // Em sincronia manual com o switch principal. Atualizar quando adicionar comando.
 const KNOWN_COMMANDS = [
-  'install', 'update', 'add', 'remove', 'search', 'find',
-  'tasks-to-issues', 'list', 'doctor', 'uninstall', 'demo',
-  'tutorial', 'rollback', 'undo', 'status', 'menu', 'help', 'version',
+  'install',
+  'update',
+  'add',
+  'remove',
+  'search',
+  'find',
+  'tasks-to-issues',
+  'list',
+  'doctor',
+  'uninstall',
+  'demo',
+  'tutorial',
+  'rollback',
+  'undo',
+  'status',
+  'menu',
+  'help',
+  'version',
   'session-relay',
 ];
 
 function suggestCommand(typed) {
   if (!typed) return null;
-  const candidates = KNOWN_COMMANDS
-    .map((cmd) => ({ cmd, dist: levenshtein(typed.toLowerCase(), cmd) }))
-    .sort((a, b) => a.dist - b.dist);
+  const candidates = KNOWN_COMMANDS.map((cmd) => ({
+    cmd,
+    dist: levenshtein(typed.toLowerCase(), cmd),
+  })).sort((a, b) => a.dist - b.dist);
   const best = candidates[0];
   // Tolera ate 2 erros pra evitar sugestao absurda (typed='xyz' nao deve
   // sugerir 'install' so porque eh o mais curto).
@@ -1963,7 +2417,16 @@ function suggestCommand(typed) {
 // Estrategia: tokenize query em PT-BR + score por presenca em nome ou descricao,
 // peso extra pra palavras-chave reservadas (reportar/erro/bug → /bug etc).
 const HELP_KEYWORDS = {
-  bug: ['bug', 'erro', 'problema', 'comportamento', 'reportar', 'tela errada', 'calculo errado', 'mensagem confusa'],
+  bug: [
+    'bug',
+    'erro',
+    'problema',
+    'comportamento',
+    'reportar',
+    'tela errada',
+    'calculo errado',
+    'mensagem confusa',
+  ],
   feature: ['feature', 'funcionalidade', 'nova', 'adicionar', 'criar funcao', 'pedir feature'],
   inicio: ['iniciar', 'comecar', 'projeto novo', 'do zero', 'novo projeto', 'comeco'],
   brownfield: ['legado', 'adotar', 'projeto existente', 'codigo antigo', 'repo legado'],
@@ -1995,7 +2458,9 @@ const HELP_KEYWORDS = {
 
 function fuzzyHelp(query) {
   banner();
-  const q = String(query || '').toLowerCase().trim();
+  const q = String(query || '')
+    .toLowerCase()
+    .trim();
   if (!q) {
     help();
     return;
@@ -2007,10 +2472,36 @@ function fuzzyHelp(query) {
   }
   const arquivos = fs.readdirSync(commandsDir).filter((f) => f.endsWith('.md'));
   // Tokenize query: separa em palavras, remove stopwords curtas
-  const stopwords = new Set(['o', 'a', 'os', 'as', 'um', 'uma', 'de', 'do', 'da', 'em', 'no', 'na', 'pra', 'pro', 'pelo', 'pela', 'que', 'eu', 'se', 'meu', 'minha', 'isso', 'tudo']);
+  const stopwords = new Set([
+    'o',
+    'a',
+    'os',
+    'as',
+    'um',
+    'uma',
+    'de',
+    'do',
+    'da',
+    'em',
+    'no',
+    'na',
+    'pra',
+    'pro',
+    'pelo',
+    'pela',
+    'que',
+    'eu',
+    'se',
+    'meu',
+    'minha',
+    'isso',
+    'tudo',
+  ]);
   const tokens = q.split(/[\s,!?;.]+/).filter((t) => t.length >= 2 && !stopwords.has(t));
   if (tokens.length === 0) {
-    log(`nao consegui interpretar a busca '${query}'. Use palavras como 'bug', 'feature', 'release'.`);
+    log(
+      `nao consegui interpretar a busca '${query}'. Use palavras como 'bug', 'feature', 'release'.`,
+    );
     return;
   }
   const resultados = [];
@@ -2021,7 +2512,9 @@ function fuzzyHelp(query) {
       const conteudo = fs.readFileSync(path.join(commandsDir, arq), 'utf8').slice(0, 1500);
       const match = conteudo.match(/^description:\s*(.+)$/m);
       if (match) descricao = match[1].trim();
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
     const keywords = HELP_KEYWORDS[nome] || [];
     let score = 0;
     for (const tok of tokens) {
@@ -2045,69 +2538,124 @@ function fuzzyHelp(query) {
   if (resultados.length === 0) {
     log(`nao achei comando que case com '${query}'.`);
     console.log('');
-    console.log(`Tente: ${c.cyan}npx roldao-method help${c.reset} (sem argumentos) pra ver lista completa.`);
+    console.log(
+      `Tente: ${c.cyan}npx roldao-method help${c.reset} (sem argumentos) pra ver lista completa.`,
+    );
     return;
   }
   const top = resultados.slice(0, 3);
-  console.log(`${c.bold}Comandos do Claude Code que casam com '${c.cyan}${query}${c.reset}${c.bold}':${c.reset}\n`);
+  console.log(
+    `${c.bold}Comandos do Claude Code que casam com '${c.cyan}${query}${c.reset}${c.bold}':${c.reset}\n`,
+  );
   for (const r of top) {
     console.log(`  ${c.green}/${r.nome}${c.reset}`);
     if (r.descricao) console.log(`    ${c.dim}${r.descricao}${c.reset}`);
     console.log('');
   }
-  console.log(`${c.dim}Esses sao comandos pra rodar dentro do Claude Code (digite /nome no chat).${c.reset}`);
-  console.log(`${c.dim}Pra ver subcomandos do CLI: ${c.cyan}npx roldao-method help${c.dim} (sem argumento).${c.reset}`);
+  console.log(
+    `${c.dim}Esses sao comandos pra rodar dentro do Claude Code (digite /nome no chat).${c.reset}`,
+  );
+  console.log(
+    `${c.dim}Pra ver subcomandos do CLI: ${c.cyan}npx roldao-method help${c.dim} (sem argumento).${c.reset}`,
+  );
 }
 
-(async () => {
-  switch (command) {
-    case 'install': await install(); break;
-    case 'update': await update(); break;
-    case 'add':
-      if (!subArg) { err('uso: add <nome-do-addon>'); help(); process.exit(1); }
-      await installAddon(subArg);
-      break;
-    case 'remove': case 'rm':
-      if (!subArg) { err('uso: remove <nome-do-addon>'); help(); process.exit(1); }
-      await removeAddon(subArg);
-      break;
-    case 'search': case 'find': searchCommand(subArg); break;
-    case 'tasks-to-issues': case 'tasks2issues': await tasksToIssues(); break;
-    case 'list': await listCommand(); break;
-    case 'doctor': doctor(); break;
-    case 'uninstall': await uninstall(); break;
-    case 'demo': {
-      const { demo } = require('./lib/demo');
-      const code = await demo({ colors: c, glyphs: g, root: FRAMEWORK_ROOT, fast: YES || QUIET });
-      process.exit(code);
-      break;
-    }
-    case 'tutorial': case 'tut': {
-      const { tutorial } = require('./lib/tutorial');
-      const code = await tutorial({ cwd: CWD, colors: c, glyphs: g, force: FORCE });
-      process.exit(code);
-      break;
-    }
-    case 'rollback': await rollback(); break;
-    case 'undo': await undo(); break;
-    case 'status': await statusProjeto(); break;
-    case 'session-relay': await runSessionRelayCmd(); break;
-    case 'menu': menu(); break;
-    case 'help': case '--help': case '-h':
-      // AC-115-4: `help "<frase>"` -> fuzzy search nos slash commands
-      if (subArg) fuzzyHelp(positional.slice(1).join(' '));
-      else help();
-      break;
-    case 'version': case '--version': case '-v': version(); break;
-    default: {
-      err(`comando desconhecido: ${command}`);
-      const sugestao = suggestCommand(command);
-      if (sugestao) {
-        console.error(`${c.yellow}Voce quis dizer:${c.reset} ${c.cyan}npx roldao-method ${sugestao}${c.reset} ?`);
-        console.error('');
+// Guarda: só executa quando invocado como CLI. `require('roldao-method')` por
+// scanner/bundler NÃO pode disparar install silencioso no cwd (auditoria 2026-08-17).
+if (require.main === module)
+  (async () => {
+    switch (command) {
+      case 'install':
+        await install();
+        break;
+      case 'update':
+        await update();
+        break;
+      case 'add':
+        if (!subArg) {
+          err('uso: add <nome-do-addon>');
+          help();
+          process.exit(1);
+        }
+        await installAddon(subArg);
+        break;
+      case 'remove':
+      case 'rm':
+        if (!subArg) {
+          err('uso: remove <nome-do-addon>');
+          help();
+          process.exit(1);
+        }
+        await removeAddon(subArg);
+        break;
+      case 'search':
+      case 'find':
+        searchCommand(subArg);
+        break;
+      case 'tasks-to-issues':
+      case 'tasks2issues':
+        await tasksToIssues();
+        break;
+      case 'list':
+        await listCommand();
+        break;
+      case 'doctor':
+        doctor();
+        break;
+      case 'uninstall':
+        await uninstall();
+        break;
+      case 'demo': {
+        const { demo } = require('./lib/demo');
+        const code = await demo({ colors: c, glyphs: g, root: FRAMEWORK_ROOT, fast: YES || QUIET });
+        process.exit(code);
+        break;
       }
-      help();
-      process.exit(1);
+      case 'tutorial':
+      case 'tut': {
+        const { tutorial } = require('./lib/tutorial');
+        const code = await tutorial({ cwd: CWD, colors: c, glyphs: g, force: FORCE });
+        process.exit(code);
+        break;
+      }
+      case 'rollback':
+        await rollback();
+        break;
+      case 'undo':
+        await undo();
+        break;
+      case 'status':
+        await statusProjeto();
+        break;
+      case 'session-relay':
+        await runSessionRelayCmd();
+        break;
+      case 'menu':
+        menu();
+        break;
+      case 'help':
+      case '--help':
+      case '-h':
+        // AC-115-4: `help "<frase>"` -> fuzzy search nos slash commands
+        if (subArg) fuzzyHelp(positional.slice(1).join(' '));
+        else help();
+        break;
+      case 'version':
+      case '--version':
+      case '-v':
+        version();
+        break;
+      default: {
+        err(`comando desconhecido: ${command}`);
+        const sugestao = suggestCommand(command);
+        if (sugestao) {
+          console.error(
+            `${c.yellow}Voce quis dizer:${c.reset} ${c.cyan}npx roldao-method ${sugestao}${c.reset} ?`,
+          );
+          console.error('');
+        }
+        help();
+        process.exit(1);
+      }
     }
-  }
-})();
+  })();

@@ -32,8 +32,13 @@ const EXPECT_TRUE_TOBE = 'expe' + 'ct(true).t' + 'oBe(true)';
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 function run(filePath, content) {
@@ -49,7 +54,10 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 // ============================================================================
 
 {
-  const r = run('/tmp/financeiro.test.js', `${XDESCRIBE}('financeiro', () => { it('soma', () => {}); });`);
+  const r = run(
+    '/tmp/financeiro.test.js',
+    `${XDESCRIBE}('financeiro', () => { it('soma', () => {}); });`,
+  );
   check('B4.1: token x-describe em teste -> block', r.exit === 2, `exit=${r.exit}`);
 }
 
@@ -77,7 +85,11 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 {
   // Codigo de prod (nao .test/.spec) — if(false) PASSA (pode ser feature flag)
   const r = run('/tmp/src/featureflag.js', `if (false) {\n  console.log('feature desligada');\n}`);
-  check('J6.3: if(false) em codigo de prod -> pass (feature flag)', r.exit === 0, `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`);
+  check(
+    'J6.3: if(false) em codigo de prod -> pass (feature flag)',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`,
+  );
 }
 
 // ============================================================================
@@ -86,12 +98,20 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 
 {
   const r = run('/tmp/x.test.js', `// it('vai falhar', () => {});`);
-  check('J6.4: chamada it() comentada (linha comeca com //) em teste -> block', r.exit === 2, `exit=${r.exit}`);
+  check(
+    'J6.4: chamada it() comentada (linha comeca com //) em teste -> block',
+    r.exit === 2,
+    `exit=${r.exit}`,
+  );
 }
 
 {
   const r = run('/tmp/x.spec.js', `/* describe('grupo', () => {}); */`);
-  check('J6.5: describe() em comentario de bloco em teste -> block', r.exit === 2, `exit=${r.exit}`);
+  check(
+    'J6.5: describe() em comentario de bloco em teste -> block',
+    r.exit === 2,
+    `exit=${r.exit}`,
+  );
 }
 
 {
@@ -104,7 +124,11 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 {
   // Em arquivo de teste, string literal no meio da linha NAO casa (anchored ^)
   const r = run('/tmp/x.test.js', `const msg = "no fim da linha: it('teste')";`);
-  check('J6.7: string literal com "it(" no meio da linha -> pass', r.exit === 0, `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`);
+  check(
+    'J6.7: string literal com "it(" no meio da linha -> pass',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`,
+  );
 }
 
 // ============================================================================
@@ -119,7 +143,11 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 {
   // Limitacao deliberada: regex casa por linha — return na mesma linha do test()
   const r = run('/tmp/x.test.js', `test('algo', async () => { return; await api(); });`);
-  check('J7.2: test async com return precoce na mesma linha -> block', r.exit === 2, `exit=${r.exit}`);
+  check(
+    'J7.2: test async com return precoce na mesma linha -> block',
+    r.exit === 2,
+    `exit=${r.exit}`,
+  );
 }
 
 {
@@ -130,7 +158,11 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 {
   // it com return de promise (uso legitimo)
   const r = run('/tmp/x.test.js', `it('algo', () => promise().then(r => r));`);
-  check('J7.4: it com return implicito de promise (uso legitimo) -> pass', r.exit === 0, `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`);
+  check(
+    'J7.4: it com return implicito de promise (uso legitimo) -> pass',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`,
+  );
 }
 
 // ============================================================================
@@ -154,8 +186,15 @@ console.log('\nhooks-anti-mascaramento-extra: padroes novos T-004 (B4 + J6 + J7)
 
 {
   // TST-001-exception em comentario na mesma linha — passa
-  const r = run('/tmp/x.test.js', `it${DOT_SKIP}('algo'); // TST-001-exception: API externa fora ate 2026-05-25`);
-  check('controle 4: TST-001-exception continua liberando', r.exit === 0, `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`);
+  const r = run(
+    '/tmp/x.test.js',
+    `it${DOT_SKIP}('algo'); // TST-001-exception: API externa fora ate 2026-05-25`,
+  );
+  check(
+    'controle 4: TST-001-exception continua liberando',
+    r.exit === 0,
+    `exit=${r.exit}, stderr=${r.stderr.slice(0, 100)}`,
+  );
 }
 
 {

@@ -26,12 +26,14 @@ const PATTERNS = [
   /\bvou (prosseguir|seguir|continuar|aplicar|fazer|implementar|criar|mexer|ajustar)\b[^?]{0,80}\?/i,
 ];
 
-const LEGIT_RE = /\bnpm publish\b|\bdrop (table|database)\b|\bgit push --force\b|\brm -rf\b|\breset --hard\b|\brotacion(ar|ado) credencial|\bdeletar (producao|prod|dados)\b|\bcobrar\b|\bgastar\b|\bpagar\b|\bcredencial\b|\bgastos com terceiros\b/i;
+const LEGIT_RE =
+  /\bnpm publish\b|\bdrop (table|database)\b|\bgit push --force\b|\brm -rf\b|\breset --hard\b|\brotacion(ar|ado) credencial|\bdeletar (producao|prod|dados)\b|\bcobrar\b|\bgastar\b|\bpagar\b|\bcredencial\b|\bgastos com terceiros\b/i;
 
 // Exceção adicional: walkthrough de checkpoint, retrospectiva e clarificações sao
 // fluxos de aprovacao humana legitimos onde a pergunta de confirmacao FAZ parte do
 // processo (Roldão é o aprovador). Hook ignora contexto que cita checkpoint/retro/clarificar.
-const APPROVAL_WORKFLOW_RE = /\b(checkpoint|walkthrough|retro(spectiva)?|clarificar|escalar (humano|usuario|roldao))\b/i;
+const APPROVAL_WORKFLOW_RE =
+  /\b(checkpoint|walkthrough|retro(spectiva)?|clarificar|escalar (humano|usuario|roldao))\b/i;
 
 (async () => {
   const input = await readStdinJson();
@@ -52,7 +54,10 @@ const APPROVAL_WORKFLOW_RE = /\b(checkpoint|walkthrough|retro(spectiva)?|clarifi
     const line = lines[i];
     let hitPat = null;
     for (const pat of PATTERNS) {
-      if (pat.test(line)) { hitPat = pat; break; }
+      if (pat.test(line)) {
+        hitPat = pat;
+        break;
+      }
     }
     if (!hitPat) continue;
     // Excecao: legit em qualquer das 4 linhas (3 anteriores + atual)
@@ -70,23 +75,39 @@ const APPROVAL_WORKFLOW_RE = /\b(checkpoint|walkthrough|retro(spectiva)?|clarifi
   if (violations.length === 0) process.exit(0);
 
   const MAX = 3;
-  const violationsStr = violations.slice(0, MAX).map((v) => `  - ${v}`).join('\n');
+  const violationsStr = violations
+    .slice(0, MAX)
+    .map((v) => `  - ${v}`)
+    .join('\n');
   let extra = '';
   if (violations.length > MAX) extra = `  (... e mais ${violations.length - MAX} ocorrencia(s))`;
 
   // stderr humano
-  process.stderr.write(`[block-confirmation-questions] resposta empurrou decisao pro usuario (INV-AGENT-006).\n\n`);
-  process.stderr.write(`O usuario nao programa. Pergunta como "quer que eu...?" / "posso X?" / "devo continuar?"\n`);
-  process.stderr.write(`quebra o fluxo. Voce tem a ferramenta — execute o melhor caminho e reporte depois.\n\n`);
+  process.stderr.write(
+    `[block-confirmation-questions] resposta empurrou decisao pro usuario (INV-AGENT-006).\n\n`,
+  );
+  process.stderr.write(
+    `O usuario nao programa. Pergunta como "quer que eu...?" / "posso X?" / "devo continuar?"\n`,
+  );
+  process.stderr.write(
+    `quebra o fluxo. Voce tem a ferramenta — execute o melhor caminho e reporte depois.\n\n`,
+  );
   process.stderr.write(`Violacoes (limite ${MAX}):\n${violationsStr}\n${extra}\n\n`);
-  process.stderr.write(`Como corrigir: refaca a resposta executando direto. Se for operacao destrutiva\n`);
-  process.stderr.write(`(rm -rf, push --force, drop table, npm publish, gasto financeiro, credencial),\n`);
+  process.stderr.write(
+    `Como corrigir: refaca a resposta executando direto. Se for operacao destrutiva\n`,
+  );
+  process.stderr.write(
+    `(rm -rf, push --force, drop table, npm publish, gasto financeiro, credencial),\n`,
+  );
   process.stderr.write(`cite isso EXPLICITAMENTE na mesma linha da pergunta.\n`);
 
   recordMetric('block', 'block-confirmation-questions', violations[0]);
-  process.stdout.write(JSON.stringify({
-    decision: 'block',
-    reason: 'Resposta contem pergunta de confirmacao que poderia ser executada direto (INV-AGENT-006). Execute e reporte depois.',
-  }));
+  process.stdout.write(
+    JSON.stringify({
+      decision: 'block',
+      reason:
+        'Resposta contem pergunta de confirmacao que poderia ser executada direto (INV-AGENT-006). Execute e reporte depois.',
+    }),
+  );
   process.exit(0);
 })().catch(() => process.exit(0));

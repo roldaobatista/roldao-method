@@ -56,7 +56,8 @@ const TOPICS_CANONICOS = [
   {
     id: 'sequencia',
     nome: 'Sequência obrigatória de agentes (Sofia → Detetive → Rafael)',
-    regex: /sofia|detetive|rafael|sequ[êe]ncia\s+(obrigat[óo]ria|de\s+agentes)|gerente-produto.*investigador/i,
+    regex:
+      /sofia|detetive|rafael|sequ[êe]ncia\s+(obrigat[óo]ria|de\s+agentes)|gerente-produto.*investigador/i,
     sugestao: [
       '## Sequência obrigatória em /feature',
       '',
@@ -112,19 +113,21 @@ const TOPICS_CANONICOS = [
 ];
 
 const ADAPTERS = [
-  { name: 'cursor',     file: '.cursor/rules/roldao-method.mdc' },
-  { name: 'windsurf',   file: '.windsurf/rules/roldao-method.md' },
-  { name: 'continue',   file: '.continue/config.yaml' },
-  { name: 'cline',      file: '.clinerules' },
-  { name: 'roo',        file: '.roorules' },
-  { name: 'aider',      file: '.aider.conf.yml' },
+  { name: 'cursor', file: '.cursor/rules/roldao-method.mdc' },
+  { name: 'windsurf', file: '.windsurf/rules/roldao-method.md' },
+  { name: 'continue', file: '.continue/config.yaml' },
+  { name: 'cline', file: '.clinerules' },
+  { name: 'roo', file: '.roorules' },
+  { name: 'aider', file: '.aider.conf.yml' },
   { name: 'gemini-cli', file: 'GEMINI.md' },
-  { name: 'codex-cli',  file: '.codex/instructions.md' },
+  { name: 'codex-cli', file: '.codex/instructions.md' },
 ];
 
 const filtered = ONLY ? ADAPTERS.filter((a) => a.name === ONLY) : ADAPTERS;
 if (ONLY && filtered.length === 0) {
-  console.error(`Adapter desconhecido: ${ONLY}. Disponiveis: ${ADAPTERS.map((a) => a.name).join(', ')}`);
+  console.error(
+    `Adapter desconhecido: ${ONLY}. Disponiveis: ${ADAPTERS.map((a) => a.name).join(', ')}`,
+  );
   process.exit(2);
 }
 
@@ -177,7 +180,9 @@ if (totalGaps === 0) {
 } else {
   console.log(`${totalGaps} gap(s) detectado(s) em ${filtered.length} adapter(s).`);
   if (CHECK) {
-    console.log('Modo --check: drift de adapter bloqueia release. Corrija os patches sugeridos antes de publicar.');
+    console.log(
+      'Modo --check: drift de adapter bloqueia release. Corrija os patches sugeridos antes de publicar.',
+    );
     process.exit(1);
   }
   console.log('Esta ferramenta e diagnostica. Use --check no CI/prepublish pra falhar em drift.');

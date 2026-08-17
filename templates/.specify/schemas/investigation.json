@@ -4,12 +4,7 @@
   "title": "investigation",
   "description": "Saída do agente investigador (Detetive). Lida pelo dev-senior (Bruno) e revisor (Inês). Contrato entre etapas do pipeline /feature e /bug.",
   "type": "object",
-  "required": [
-    "id_referencia",
-    "data",
-    "causa_raiz",
-    "arquivos_relevantes"
-  ],
+  "required": ["id_referencia", "data", "causa_raiz", "arquivos_relevantes"],
   "properties": {
     "id_referencia": {
       "type": "string",

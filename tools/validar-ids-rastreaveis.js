@@ -56,7 +56,8 @@ PONTOS_DE_RASTREIO.push(
 );
 
 // Regex que casa qualquer ID rastreavel
-const ID_REGEX = /\b(INV-AGENT-\d{3}|INV-\d{3}|SEC-\d{3}|TST-\d{3}|LGPD-\d{3}|FISCAL-\d{3}|PIX-\d{3})\b/g;
+const ID_REGEX =
+  /\b(INV-AGENT-\d{3}|INV-\d{3}|SEC-\d{3}|TST-\d{3}|LGPD-\d{3}|FISCAL-\d{3}|PIX-\d{3})\b/g;
 
 function extrairIds(arquivo) {
   if (!fs.existsSync(arquivo)) return new Set();
@@ -81,12 +82,15 @@ function main() {
     if (!fs.existsSync(arq)) continue;
     const texto = lerTextoSeguro(arq);
     // captura ID no titulo `### XXX-NNN — ...`
-    const def = /^###\s+(INV-AGENT-\d{3}|INV-\d{3}|SEC-\d{3}|TST-\d{3}|LGPD-\d{3}|FISCAL-\d{3}|PIX-\d{3})\b/gm;
+    const def =
+      /^###\s+(INV-AGENT-\d{3}|INV-\d{3}|SEC-\d{3}|TST-\d{3}|LGPD-\d{3}|FISCAL-\d{3}|PIX-\d{3})\b/gm;
     for (const m of texto.matchAll(def)) definidos.add(m[1]);
   }
 
   if (definidos.size === 0) {
-    console.error('[validar-ids] Nenhum ID encontrado em REGRAS-INEGOCIAVEIS.md (nem raiz nem templates).');
+    console.error(
+      '[validar-ids] Nenhum ID encontrado em REGRAS-INEGOCIAVEIS.md (nem raiz nem templates).',
+    );
     process.exit(1);
   }
 
@@ -107,15 +111,21 @@ function main() {
   }
 
   console.log(`[validar-ids] IDs definidos: ${definidos.size}`);
-  console.log(`[validar-ids] IDs rastreados em algum ponto operacional: ${[...definidos].filter((id) => rastreados.has(id)).length}`);
+  console.log(
+    `[validar-ids] IDs rastreados em algum ponto operacional: ${[...definidos].filter((id) => rastreados.has(id)).length}`,
+  );
 
   if (orfaos.length === 0) {
-    console.log('[validar-ids] OK — todos os IDs sao mencionados em pelo menos 1 ponto operacional (hook, agente, regra ou checklist).');
+    console.log(
+      '[validar-ids] OK — todos os IDs sao mencionados em pelo menos 1 ponto operacional (hook, agente, regra ou checklist).',
+    );
     process.exit(0);
   }
 
   console.error('');
-  console.error('[validar-ids] FALHA — IDs orfaos (definidos em REGRAS-INEGOCIAVEIS.md mas sem mencao em nenhum hook/agente/regra/checklist):');
+  console.error(
+    '[validar-ids] FALHA — IDs orfaos (definidos em REGRAS-INEGOCIAVEIS.md mas sem mencao em nenhum hook/agente/regra/checklist):',
+  );
   for (const id of orfaos) {
     console.error(`  - ${id}`);
   }

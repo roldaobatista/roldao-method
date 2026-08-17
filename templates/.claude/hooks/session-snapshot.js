@@ -11,32 +11,54 @@ const { sanitizeProjdir, sanitizeSessionHash, safeRuntimeDir, gitSafeEnv } = req
 
 function listFiles(dir, prefixes) {
   let entries;
-  try { entries = fs.readdirSync(dir); } catch { return []; }
-  return entries
-    .filter((n) => prefixes.some((p) => n.startsWith(p)))
-    .map((n) => path.join(dir, n));
+  try {
+    entries = fs.readdirSync(dir);
+  } catch {
+    return [];
+  }
+  return entries.filter((n) => prefixes.some((p) => n.startsWith(p))).map((n) => path.join(dir, n));
 }
 
 function listFilesWithPredicate(dir, predicate) {
   let entries;
-  try { entries = fs.readdirSync(dir); } catch { return []; }
+  try {
+    entries = fs.readdirSync(dir);
+  } catch {
+    return [];
+  }
   return entries.filter(predicate).map((n) => path.join(dir, n));
 }
 
 function head1(file) {
-  try { return fs.readFileSync(file, 'utf8').split(/\r?\n/)[0]; }
-  catch { return ''; }
+  try {
+    return fs.readFileSync(file, 'utf8').split(/\r?\n/)[0];
+  } catch {
+    return '';
+  }
 }
 
 function git(args, cwd) {
   try {
-    return execFileSync('git', args, { cwd, stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000, env: gitSafeEnv() }).toString().trim();
-  } catch { return ''; }
+    return execFileSync('git', args, {
+      cwd,
+      stdio: ['ignore', 'pipe', 'ignore'],
+      timeout: 5000,
+      env: gitSafeEnv(),
+    })
+      .toString()
+      .trim();
+  } catch {
+    return '';
+  }
 }
 
 (async () => {
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(0); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(0);
+  }
   const runtime = safeRuntimeDir(projdir);
   const snapshot = path.join(runtime, 'session-snapshot.md');
   const state = path.join(runtime, 'session-state.json');
@@ -49,8 +71,14 @@ function git(args, cwd) {
   let markers = listFilesWithPredicate(runtime, (n) => /(-done-|-skipped-)/.test(n));
   // Ordena por mtime desc, top 10
   try {
-    markers = markers.map((f) => ({ f, m: fs.statSync(f).mtimeMs })).sort((a, b) => b.m - a.m).slice(0, 10).map((x) => x.f);
-  } catch { markers = markers.slice(0, 10); }
+    markers = markers
+      .map((f) => ({ f, m: fs.statSync(f).mtimeMs }))
+      .sort((a, b) => b.m - a.m)
+      .slice(0, 10)
+      .map((x) => x.f);
+  } catch {
+    markers = markers.slice(0, 10);
+  }
 
   // ----- 1. Snapshot textual -----
   try {
@@ -73,12 +101,16 @@ function git(args, cwd) {
     out.push(`- Branch: \`${branch}\`\n`);
     const status = git(['status', '--short'], projdir);
     if (status) {
-      out.push(`- Working tree:\n\n\`\`\`\n${status.split(/\r?\n/).slice(0, 20).join('\n')}\n\`\`\`\n`);
+      out.push(
+        `- Working tree:\n\n\`\`\`\n${status.split(/\r?\n/).slice(0, 20).join('\n')}\n\`\`\`\n`,
+      );
     } else {
       out.push(`- Working tree: limpo\n`);
     }
     fs.writeFileSync(snapshot, out.join(''));
-  } catch { /* best-effort */ }
+  } catch {
+    /* best-effort */
+  }
 
   // ----- 2. State machine-readable -----
   // PERSISTENTES (sobrevivem a --continue/--resume): markers de workflow multi-sessao.
@@ -87,10 +119,10 @@ function git(args, cwd) {
   // — limpava efemeros e o restore os recriava obsoletos na sessao seguinte.
   // Agora persistimos apenas o que faz sentido cruzar sessao.
   const PATTERNS = [
-    'readiness-passed-',   // valido pro epico inteiro, persiste entre stories
-    'prd-active-',         // modo PRD multi-sessao
-    'brownfield-active-',  // modo BROWNFIELD multi-sessao
-    'ar-active-',          // modo AR multi-sessao
+    'readiness-passed-', // valido pro epico inteiro, persiste entre stories
+    'prd-active-', // modo PRD multi-sessao
+    'brownfield-active-', // modo BROWNFIELD multi-sessao
+    'ar-active-', // modo AR multi-sessao
   ];
   // SUFFIX_PATTERNS removidos: -done-/-skipped- sao efemeros do pipeline atual,
   // session-cleanup limpa e nao devem ressurgir na proxima sessao.
@@ -103,7 +135,9 @@ function git(args, cwd) {
         allMarkers.push(path.join(runtime, n));
       }
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 
   try {
     const obj = {
@@ -112,12 +146,17 @@ function git(args, cwd) {
       active_markers: allMarkers.map((file) => {
         const name = path.basename(file);
         let content = head1(file);
-        content = content.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\n\t]/g, ' ');
+        content = content
+          .replace(/\\/g, '\\\\')
+          .replace(/"/g, '\\"')
+          .replace(/[\n\t]/g, ' ');
         return { name, content };
       }),
     };
     fs.writeFileSync(state, JSON.stringify(obj, null, 2) + '\n');
-  } catch { /* best-effort */ }
+  } catch {
+    /* best-effort */
+  }
 
   process.exit(0);
 })().catch(() => process.exit(0));

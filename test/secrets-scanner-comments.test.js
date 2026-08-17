@@ -18,18 +18,38 @@ const S = 'sen' + 'ha';
 
 const CASES = [
   // Falsos positivos da round 11 (devem LIBERAR)
-  { name: 'comentario JS com senha exemplo', file: 'src/auth.js',
-    content: '// ' + P + ' = abc12345 (exemplo, nao real)\nfunction login() {}', shouldBlock: false },
-  { name: 'comentario # Python com senha', file: 'app.py',
-    content: '# ' + S + ' = minhasenha123 (default doc)\nprint("ok")', shouldBlock: false },
+  {
+    name: 'comentario JS com senha exemplo',
+    file: 'src/auth.js',
+    content: '// ' + P + ' = abc12345 (exemplo, nao real)\nfunction login() {}',
+    shouldBlock: false,
+  },
+  {
+    name: 'comentario # Python com senha',
+    file: 'app.py',
+    content: '# ' + S + ' = minhasenha123 (default doc)\nprint("ok")',
+    shouldBlock: false,
+  },
 
   // Continuam bloqueando (positivos verdadeiros)
-  { name: 'password atribuido em codigo', file: 'config.js',
-    content: 'const c = { ' + P + ': "supersecret123" };', shouldBlock: true },
-  { name: 'senha bare em YAML', file: 'config.yaml',
-    content: P + ' = supersecret123abc\nuser = admin', shouldBlock: true },
-  { name: 'token AWS real em comentario AINDA bloqueia', file: 'notes.md',
-    content: '// chave vazada: AKIA' + 'IOSFODNN7EXAMPLE', shouldBlock: true },
+  {
+    name: 'password atribuido em codigo',
+    file: 'config.js',
+    content: 'const c = { ' + P + ': "supersecret123" };',
+    shouldBlock: true,
+  },
+  {
+    name: 'senha bare em YAML',
+    file: 'config.yaml',
+    content: P + ' = supersecret123abc\nuser = admin',
+    shouldBlock: true,
+  },
+  {
+    name: 'token AWS real em comentario AINDA bloqueia',
+    file: 'notes.md',
+    content: '// chave vazada: AKIA' + 'IOSFODNN7EXAMPLE',
+    shouldBlock: true,
+  },
 ];
 
 let ok = 0;
@@ -47,7 +67,9 @@ for (const c of CASES) {
     console.log(`OK   ${c.name} -> ${blocked ? 'bloqueado' : 'liberado'}`);
   } else {
     fail++;
-    console.log(`FAIL ${c.name} -> esperava ${c.shouldBlock ? 'bloquear' : 'liberar'}, ${blocked ? 'bloqueou' : 'liberou'}`);
+    console.log(
+      `FAIL ${c.name} -> esperava ${c.shouldBlock ? 'bloquear' : 'liberar'}, ${blocked ? 'bloqueou' : 'liberou'}`,
+    );
     console.log(`     stderr: ${(r.stderr || '').split('\n')[0]}`);
   }
 }

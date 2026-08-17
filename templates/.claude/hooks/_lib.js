@@ -64,16 +64,25 @@ function sanitizeSessionHash(raw, projdir) {
   const candidate = raw ?? process.env.CLAUDE_SESSION_ID ?? '';
   let resolvedProjdir = projdir;
   if (!resolvedProjdir) {
-    try { resolvedProjdir = sanitizeProjdir(); } catch { resolvedProjdir = ''; }
+    try {
+      resolvedProjdir = sanitizeProjdir();
+    } catch {
+      resolvedProjdir = '';
+    }
   }
 
   // Tenta ler hash persistido primeiro (preserva entre --continue/--resume)
   if (resolvedProjdir) {
     const hashFile = path.join(resolvedProjdir, '.claude', '.runtime', '.session-hash');
     try {
-      const persisted = fs.readFileSync(hashFile, 'utf8').split(/\r?\n/)[0].replace(/[^a-zA-Z0-9]/g, '');
+      const persisted = fs
+        .readFileSync(hashFile, 'utf8')
+        .split(/\r?\n/)[0]
+        .replace(/[^a-zA-Z0-9]/g, '');
       if (persisted) return persisted;
-    } catch { /* nao existe ou erro de leitura, gera novo */ }
+    } catch {
+      /* nao existe ou erro de leitura, gera novo */
+    }
   }
 
   let hash = String(candidate).replace(/[^a-zA-Z0-9]/g, '');
@@ -82,7 +91,8 @@ function sanitizeSessionHash(raw, projdir) {
     // Hash crypto curto (8 chars) e estavel por projdir.
     try {
       const crypto = require('crypto');
-      const projHash = crypto.createHash('sha256')
+      const projHash = crypto
+        .createHash('sha256')
         .update(resolvedProjdir || process.cwd())
         .digest('hex')
         .slice(0, 8);
@@ -98,7 +108,9 @@ function sanitizeSessionHash(raw, projdir) {
     try {
       fs.mkdirSync(runtime, { recursive: true });
       fs.writeFileSync(path.join(runtime, '.session-hash'), hash + '\n');
-    } catch { /* silencia disco cheio / permissao */ }
+    } catch {
+      /* silencia disco cheio / permissao */
+    }
   }
 
   return hash;
@@ -110,7 +122,11 @@ function sanitizeSessionHash(raw, projdir) {
 function safeRuntimeDir(projdir) {
   if (!projdir) throw new Error('safeRuntimeDir: PROJDIR obrigatorio');
   const dir = path.join(projdir, '.claude', '.runtime');
-  try { fs.mkdirSync(dir, { recursive: true }); } catch { /* best-effort */ }
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+  } catch {
+    /* best-effort */
+  }
   return dir;
 }
 
@@ -132,7 +148,9 @@ function safeTmpfile(prefix = 'hook') {
     try {
       fs.mkdirSync(safeDir, { recursive: true });
       fs.chmodSync(safeDir, 0o700);
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
     const file = path.join(safeDir, `${prefix}.${process.pid}`);
     fs.writeFileSync(file, '');
     return file;
@@ -236,9 +254,17 @@ function recordMetric(kind, label, reason) {
   // dezenas de eventos que nao refletem uso real.
   if (process.env.ROLDAO_SKIP_METRICS === '1') return;
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { return; }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    return;
+  }
   const runtime = path.join(projdir, '.claude', '.runtime');
-  try { fs.mkdirSync(runtime, { recursive: true }); } catch { return; }
+  try {
+    fs.mkdirSync(runtime, { recursive: true });
+  } catch {
+    return;
+  }
   const ts = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
   // Escapa aspas e barra na razao pra JSON valido. tr equivalente a perl no _lib.sh.
   const cleanReason = String(reason || '')
@@ -246,7 +272,11 @@ function recordMetric(kind, label, reason) {
     .replace(/"/g, '\\"')
     .replace(/[\n\t]/g, ' ');
   const line = `{"ts":"${ts}","kind":"${kind || '?'}","label":"${label || '?'}","reason":"${cleanReason}"}\n`;
-  try { fs.appendFileSync(path.join(runtime, 'metrics.jsonl'), line); } catch { /* best-effort */ }
+  try {
+    fs.appendFileSync(path.join(runtime, 'metrics.jsonl'), line);
+  } catch {
+    /* best-effort */
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -258,13 +288,24 @@ function recordMetric(kind, label, reason) {
 async function readStdinJson() {
   return new Promise((resolve) => {
     let raw = '';
-    if (process.stdin.isTTY) { resolve({}); return; }
+    if (process.stdin.isTTY) {
+      resolve({});
+      return;
+    }
     process.stdin.setEncoding('utf8');
-    process.stdin.on('data', (chunk) => { raw += chunk; });
+    process.stdin.on('data', (chunk) => {
+      raw += chunk;
+    });
     process.stdin.on('end', () => {
-      if (!raw) { resolve({}); return; }
-      try { resolve(JSON.parse(raw)); }
-      catch { resolve({}); }
+      if (!raw) {
+        resolve({});
+        return;
+      }
+      try {
+        resolve(JSON.parse(raw));
+      } catch {
+        resolve({});
+      }
     });
     process.stdin.on('error', () => resolve({}));
   });
@@ -291,13 +332,18 @@ function parseFrontmatter(text) {
   const fields = {};
   while (i < lines.length && lines[i] !== '---') {
     const line = lines[i];
-    if (line.trim() === '' || line.trim().startsWith('#')) { i++; continue; }
+    if (line.trim() === '' || line.trim().startsWith('#')) {
+      i++;
+      continue;
+    }
     const m = line.match(/^([A-Za-z_][\w-]*)\s*:\s*(.*)$/);
     if (m) {
       const key = m[1];
       let value = m[2].trim();
-      if ((value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))) {
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
         value = value.slice(1, -1);
       }
       fields[key] = value;
@@ -344,12 +390,16 @@ function failClosedMessage(hookName, err) {
 //                  'secret detectado em src/x.js');
 // ---------------------------------------------------------------------------
 function recordApproval(agente, refStory, auditSha, status, motivo) {
-  recordMetric('approval', agente, JSON.stringify({
-    story: refStory || 'US-?',
-    audit_sha: auditSha || '',
-    status: status || 'aprovado',
-    motivo: motivo || '',
-  }));
+  recordMetric(
+    'approval',
+    agente,
+    JSON.stringify({
+      story: refStory || 'US-?',
+      audit_sha: auditSha || '',
+      status: status || 'aprovado',
+      motivo: motivo || '',
+    }),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -399,21 +449,38 @@ function gitSafeEnv(extra) {
 function emitSoftWarning(hookId, regra, msgPtbr, arquivoRelacionado) {
   if (process.env.ROLDAO_SKIP_METRICS === '1') return;
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { return; }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    return;
+  }
   const runtime = path.join(projdir, '.claude', '.runtime');
-  try { fs.mkdirSync(runtime, { recursive: true }); } catch { return; }
+  try {
+    fs.mkdirSync(runtime, { recursive: true });
+  } catch {
+    return;
+  }
 
   // Hash leve do projdir pra correlação cross-sessão sem expor o path completo.
-  const projetoHash = require('crypto').createHash('sha1').update(projdir).digest('hex').slice(0, 16);
+  const projetoHash = require('crypto')
+    .createHash('sha1')
+    .update(projdir)
+    .digest('hex')
+    .slice(0, 16);
   const ts = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
 
-  const clean = (s) => String(s || '')
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/[\n\t]/g, ' ');
+  const clean = (s) =>
+    String(s || '')
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/[\n\t]/g, ' ');
 
   const line = `{"hook_id":"${clean(hookId)}","severidade":"soft-warning","ts":"${ts}","projeto_hash":"${projetoHash}","msg_ptbr":"${clean(msgPtbr)}","regra":"${clean(regra)}","arquivo_relacionado":"${clean(arquivoRelacionado)}"}\n`;
-  try { fs.appendFileSync(path.join(runtime, 'warnings.jsonl'), line); } catch { /* best-effort */ }
+  try {
+    fs.appendFileSync(path.join(runtime, 'warnings.jsonl'), line);
+  } catch {
+    /* best-effort */
+  }
 }
 
 module.exports = {

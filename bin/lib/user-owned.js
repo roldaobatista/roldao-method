@@ -25,9 +25,7 @@ const USER_OWNED = new Set([
 ]);
 
 // Caminhos com prefixo: todo conteúdo dentro deles pertence ao usuário.
-const USER_OWNED_PREFIXES = [
-  '.specify/overrides/',
-];
+const USER_OWNED_PREFIXES = ['.specify/overrides/'];
 
 // Pastas onde o usuário costuma customizar (editar agente, hook, command, skill).
 // Hash diferente do template = customização local. Update vai sobrescrever mas
@@ -60,4 +58,10 @@ function isCustomizable(relPath) {
   return CUSTOMIZABLE_PREFIXES.some((p) => norm.startsWith(p));
 }
 
-module.exports = { USER_OWNED, USER_OWNED_PREFIXES, CUSTOMIZABLE_PREFIXES, isUserOwned, isCustomizable };
+module.exports = {
+  USER_OWNED,
+  USER_OWNED_PREFIXES,
+  CUSTOMIZABLE_PREFIXES,
+  isUserOwned,
+  isCustomizable,
+};

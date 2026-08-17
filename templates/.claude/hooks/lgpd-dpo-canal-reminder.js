@@ -11,11 +11,19 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, sanitizeSessionHash, normalizeFilePath, emitSoftWarning } = require('./_lib.js');
+const {
+  readStdinJson,
+  sanitizeProjdir,
+  sanitizeSessionHash,
+  normalizeFilePath,
+  emitSoftWarning,
+} = require('./_lib.js');
 
-const EXCLUDED_PATH_RE = /\.md$|\/docs\/|README|CHANGELOG|\/test\/|\/tests\/|\.test\.|\.spec\.|\/fixtures\/|\/mocks\/|\.json$|\.ya?ml$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
+const EXCLUDED_PATH_RE =
+  /\.md$|\/docs\/|README|CHANGELOG|\/test\/|\/tests\/|\.test\.|\.spec\.|\/fixtures\/|\/mocks\/|\.json$|\.ya?ml$|\.env|\.sh$|\.ps1$|\.bat$|\.claude\/\.runtime\//;
 const CODE_EXT_RE = /\.(js|jsx|ts|tsx|py|go|rb|java|kt|cs|php|rs|swift|dart|sql|prisma)$/;
-const PII_RE = /\bcpf\b|\bcnpj\b|\brg\b|\bemail\b|\btelefone\b|\bcelular\b|\bnascimento\b|\bnome_completo\b|\bsaude\b/i;
+const PII_RE =
+  /\bcpf\b|\bcnpj\b|\brg\b|\bemail\b|\btelefone\b|\bcelular\b|\bnascimento\b|\bnome_completo\b|\bsaude\b/i;
 
 function findDpoEvidence(projdir) {
   // (a) doc dedicado: docs/lgpd/canal-titular.md ou docs/lgpd/dpo.md
@@ -25,7 +33,9 @@ function findDpoEvidence(projdir) {
       for (const f of fs.readdirSync(lgpdDir)) {
         if (/^(canal-titular|dpo|encarregado)\.md$/i.test(f)) return `docs/lgpd/${f}`;
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
   // (b) variavel de ambiente: DPO_EMAIL ou CANAL_TITULAR_EMAIL em .env.example
   const envExample = path.join(projdir, '.env.example');
@@ -33,16 +43,21 @@ function findDpoEvidence(projdir) {
     try {
       const txt = fs.readFileSync(envExample, 'utf8');
       if (/\b(DPO_EMAIL|CANAL_TITULAR|ENCARREGADO_EMAIL)\b/i.test(txt)) return '.env.example';
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
   // (c) ADR mencionando DPO
   const decisionsDir = path.join(projdir, 'docs', 'decisions');
   if (fs.existsSync(decisionsDir)) {
     try {
       for (const f of fs.readdirSync(decisionsDir)) {
-        if (/^ADR-.*\b(dpo|encarregado|canal[-_]titular)\b.*\.md$/i.test(f)) return `docs/decisions/${f}`;
+        if (/^ADR-.*\b(dpo|encarregado|canal[-_]titular)\b.*\.md$/i.test(f))
+          return `docs/decisions/${f}`;
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
   return null;
 }
@@ -58,7 +73,11 @@ function findDpoEvidence(projdir) {
   if (!content || !PII_RE.test(content)) process.exit(0);
 
   let projdir;
-  try { projdir = sanitizeProjdir(); } catch { process.exit(0); }
+  try {
+    projdir = sanitizeProjdir();
+  } catch {
+    process.exit(0);
+  }
   const sess = sanitizeSessionHash(undefined, projdir);
   const marker = path.join(projdir, '.claude', '.runtime', `dpo-canal-checked-${sess}`);
   // 1x por sessao
@@ -69,21 +88,29 @@ function findDpoEvidence(projdir) {
   try {
     fs.mkdirSync(path.dirname(marker), { recursive: true });
     fs.writeFileSync(marker, '');
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 
   if (evid) process.exit(0); // ja documentado
 
   process.stderr.write(`[lgpd-dpo-canal-reminder] AVISO (nao bloqueio, 1x por sessao):\n\n`);
-  process.stderr.write(`O projeto manuseia dado pessoal (detectado em ${filePath}), mas nao encontrei:\n`);
+  process.stderr.write(
+    `O projeto manuseia dado pessoal (detectado em ${filePath}), mas nao encontrei:\n`,
+  );
   process.stderr.write(`  - docs/lgpd/canal-titular.md ou docs/lgpd/dpo.md\n`);
   process.stderr.write(`  - DPO_EMAIL / CANAL_TITULAR_EMAIL em .env.example\n`);
   process.stderr.write(`  - ADR-NNNN-dpo-*.md em docs/decisions/\n\n`);
-  process.stderr.write(`LGPD-009 exige: encarregado (DPO) nomeado + canal funcional pro titular exercer\n`);
+  process.stderr.write(
+    `LGPD-009 exige: encarregado (DPO) nomeado + canal funcional pro titular exercer\n`,
+  );
   process.stderr.write(`direitos (acesso, correcao, exclusao, portabilidade, revogacao).\n\n`);
   process.stderr.write(`Como destravar:\n`);
   process.stderr.write(`  (a) Crie docs/lgpd/canal-titular.md com email + SLA + processo\n`);
   process.stderr.write(`  (b) Adicione DPO_EMAIL=<email> em .env.example\n`);
-  process.stderr.write(`  (c) addon lgpd-compliance tem skill \`gerar-canal-dpo\` que monta modelo\n\n`);
+  process.stderr.write(
+    `  (c) addon lgpd-compliance tem skill \`gerar-canal-dpo\` que monta modelo\n\n`,
+  );
   process.stderr.write(`Regra: LGPD-009 (REGRAS-INEGOCIAVEIS.md).\n`);
 
   emitSoftWarning(

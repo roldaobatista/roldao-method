@@ -19,7 +19,12 @@ function pythonBin() {
   // py: Windows Python Launcher (vem com installer oficial Python no Windows;
   //     resolve a versão preferida automaticamente).
   for (const bin of ['python3', 'python', 'py']) {
-    try { execFileSync(bin, ['--version'], { stdio: 'pipe' }); return bin; } catch { /* tenta próximo */ }
+    try {
+      execFileSync(bin, ['--version'], { stdio: 'pipe' });
+      return bin;
+    } catch {
+      /* tenta próximo */
+    }
   }
   return null;
 }
@@ -27,7 +32,9 @@ function pythonBin() {
 const PY = pythonBin();
 if (!PY) {
   console.log('SKIP skills Python: interpretador não encontrado (python3/python/py).');
-  console.log('  Instale Python 3.8+ em https://python.org (Windows) ou via gestor da distro (Linux/Mac).');
+  console.log(
+    '  Instale Python 3.8+ em https://python.org (Windows) ou via gestor da distro (Linux/Mac).',
+  );
   console.log('  CI tem job dedicado (validar-skills-python); este skip é só do dev local.');
   process.exit(0);
 }
@@ -42,8 +49,13 @@ function run(label, script, arg, expectOk) {
   } catch {
     ok = false;
   }
-  if (ok === expectOk) { pass++; console.log(`  OK   ${label}`); }
-  else { fail++; console.log(`  FAIL ${label} (esperado ${expectOk ? 'válido' : 'inválido'})`); }
+  if (ok === expectOk) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label} (esperado ${expectOk ? 'válido' : 'inválido'})`);
+  }
 }
 
 const cpfCnpj = path.join(S, 'validar-cpf-cnpj', 'scripts', 'validar.py');
@@ -54,14 +66,28 @@ const boleto = path.join(S, 'validar-boleto', 'scripts', 'validar-boleto.py');
 const brCode = path.join(S, 'gerar-br-code', 'scripts', 'gerar-br-code.py');
 const chaveNfe = path.join(S, 'validar-chave-acesso-nfe', 'scripts', 'validar.py');
 const pisS = path.join(PIS, 'scripts', 'validar-pis.py');
-const munIbge = path.join(S, 'validar-codigo-municipio-ibge', 'scripts', 'validar-codigo-municipio-ibge.py');
+const munIbge = path.join(
+  S,
+  'validar-codigo-municipio-ibge',
+  'scripts',
+  'validar-codigo-municipio-ibge.py',
+);
 
 // IE precisa de 2 argumentos. Wrapper local pra reusar `run` que assume arg unico.
 function runIE(label, uf, valor, expectOk) {
   let ok = true;
-  try { execFileSync(PY, [ie, uf, valor], { stdio: 'pipe' }); } catch { ok = false; }
-  if (ok === expectOk) { pass++; console.log(`  OK   ${label}`); }
-  else { fail++; console.log(`  FAIL ${label} (esperado ${expectOk ? 'valido' : 'invalido'})`); }
+  try {
+    execFileSync(PY, [ie, uf, valor], { stdio: 'pipe' });
+  } catch {
+    ok = false;
+  }
+  if (ok === expectOk) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label} (esperado ${expectOk ? 'valido' : 'invalido'})`);
+  }
 }
 
 run('CPF válido', cpfCnpj, '111.444.777-35', true);
@@ -83,7 +109,12 @@ runIE('IE RJ DV invalido rejeitado', 'RJ', '99999999', false);
 runIE('IE UF invalida', 'ZZ', '12345', false);
 // Auditoria 10-agentes 2026-05-24: UF sem algoritmo retorna valido:false (antes era true,
 // confundia operador SEFAZ). Skill avisa pra validar com Sintegra/SEFAZ.
-runIE('IE de UF sem algoritmo dedicado (CE) — nao confirma DV, exige Sintegra', 'CE', '12345678', false);
+runIE(
+  'IE de UF sem algoritmo dedicado (CE) — nao confirma DV, exige Sintegra',
+  'CE',
+  '12345678',
+  false,
+);
 
 // validar-boleto: linha digitavel real de teste (44 digitos numerico)
 // O codigo gera DV correto na hora do calculo; usamos uma string que sabemos invalida
@@ -107,15 +138,34 @@ const dvSp = calcDvChave(chave43Sp);
 const chaveValidaSp = chave43Sp + dvSp;
 run('chave NF-e SP valida (DV calculado)', chaveNfe, chaveValidaSp, true);
 run('chave NF-e tamanho invalido (43 digitos)', chaveNfe, chave43Sp, false);
-run('chave NF-e UF invalida (99)', chaveNfe, '9924061122233300018155001000000000111234567' + dvSp, false);
-run('chave NF-e modelo desconhecido (99)', chaveNfe, '3524061122233300018199001000000000111234567' + dvSp, false);
+run(
+  'chave NF-e UF invalida (99)',
+  chaveNfe,
+  '9924061122233300018155001000000000111234567' + dvSp,
+  false,
+);
+run(
+  'chave NF-e modelo desconhecido (99)',
+  chaveNfe,
+  '3524061122233300018199001000000000111234567' + dvSp,
+  false,
+);
 run('chave NF-e DV errado (forca 0)', chaveNfe, chave43Sp + ((dvSp + 1) % 10), false);
 run('chave NF-e CNPJ zerado', chaveNfe, '35240600000000000000550010000000001112345670', false);
 
 // validar-cns-cartao-sus (addon healthtech-br): 15 digitos com modulo 11.
 // CNS definitivo: comeca com 1/2 + PIS de 11 digitos + sufixo + DV.
 // CNS provisorio: comeca com 7/8/9 + soma ponderada total multiplo de 11.
-const cnsSus = path.join(ROOT, 'addons', 'healthtech-br', '.claude', 'skills', 'validar-cns-cartao-sus', 'scripts', 'validar-cns.py');
+const cnsSus = path.join(
+  ROOT,
+  'addons',
+  'healthtech-br',
+  '.claude',
+  'skills',
+  'validar-cns-cartao-sus',
+  'scripts',
+  'validar-cns.py',
+);
 run('CNS definitivo valido (100000000000007)', cnsSus, '100000000000007', true);
 run('CNS provisorio valido (800000000000001)', cnsSus, '800000000000001', true);
 run('CNS provisorio valido com 7 (700000000000005)', cnsSus, '700000000000005', true);
@@ -141,49 +191,73 @@ run('codigo IBGE tamanho invalido (8 digitos)', munIbge, '35503080', false);
 // script Python — bug silencioso em algum TLV ou offset do CRC quebraria
 // o QR sem o teste pegar.
 function crc16Ccitt(payload) {
-  let crc = 0xFFFF;
+  let crc = 0xffff;
   for (let i = 0; i < payload.length; i++) {
     crc ^= payload.charCodeAt(i) << 8;
     for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-      crc &= 0xFFFF;
+      crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
+      crc &= 0xffff;
     }
   }
   return crc.toString(16).toUpperCase().padStart(4, '0');
 }
 try {
-  const emv = execFileSync(PY, [brCode, 'estatico', '--chave', 'teste@exemplo.com.br', '--nome', 'TESTE', '--cidade', 'SAO PAULO'], { encoding: 'utf8' }).trim();
+  const emv = execFileSync(
+    PY,
+    [
+      brCode,
+      'estatico',
+      '--chave',
+      'teste@exemplo.com.br',
+      '--nome',
+      'TESTE',
+      '--cidade',
+      'SAO PAULO',
+    ],
+    { encoding: 'utf8' },
+  ).trim();
   // Prefixo EMV pra Pix estatico: tag 00 (Payload Format = 01) + tag 01
   // (POI Method = 11 estatico / 12 dinamico) + tag 26 (Merchant Account
   // Info — comeca com sub-tag 00 "br.gov.bcb.pix").
   if (emv.startsWith('00020101021126') && emv.length > 40 && /6304[0-9A-F]{4}$/.test(emv)) {
-    pass++; console.log('  OK   gerar-br-code estatico gera EMV valido (prefixo + CRC presente)');
+    pass++;
+    console.log('  OK   gerar-br-code estatico gera EMV valido (prefixo + CRC presente)');
   } else {
-    fail++; console.log(`  FAIL gerar-br-code formato inesperado: ${emv}`);
+    fail++;
+    console.log(`  FAIL gerar-br-code formato inesperado: ${emv}`);
   }
   // CRC do EMV gerado: pega tudo MENOS os 4 ultimos chars + recalcula
   const payloadComTagCrc = emv.slice(0, -4);
   const crcEmv = emv.slice(-4);
   const crcEsperado = crc16Ccitt(payloadComTagCrc);
   if (crcEmv === crcEsperado) {
-    pass++; console.log(`  OK   gerar-br-code CRC16-CCITT bate (${crcEmv}) — implementacao Python validada contra recalculo JS independente`);
+    pass++;
+    console.log(
+      `  OK   gerar-br-code CRC16-CCITT bate (${crcEmv}) — implementacao Python validada contra recalculo JS independente`,
+    );
   } else {
-    fail++; console.log(`  FAIL gerar-br-code CRC divergente: script=${crcEmv} JS=${crcEsperado}`);
+    fail++;
+    console.log(`  FAIL gerar-br-code CRC divergente: script=${crcEmv} JS=${crcEsperado}`);
   }
   // Decodifica os principais TLV pra confirmar estrutura
-  const temPayloadFormat = emv.includes('000201');         // Tag 00 = "01"
-  const temPoiEstatico   = emv.includes('010211');         // Tag 01 = "11" (estatico)
-  const temMerchantPix   = emv.includes('0014br.gov.bcb.pix');  // sub-tag 00 do Tag 26
-  const temCurrency      = emv.includes('5303986');        // Tag 53 = "986" (BRL)
-  const temCountry       = emv.includes('5802BR');         // Tag 58 = "BR"
+  const temPayloadFormat = emv.includes('000201'); // Tag 00 = "01"
+  const temPoiEstatico = emv.includes('010211'); // Tag 01 = "11" (estatico)
+  const temMerchantPix = emv.includes('0014br.gov.bcb.pix'); // sub-tag 00 do Tag 26
+  const temCurrency = emv.includes('5303986'); // Tag 53 = "986" (BRL)
+  const temCountry = emv.includes('5802BR'); // Tag 58 = "BR"
   const todosOk = temPayloadFormat && temPoiEstatico && temMerchantPix && temCurrency && temCountry;
   if (todosOk) {
-    pass++; console.log('  OK   gerar-br-code estrutura TLV (00,01,26,53,58) presente');
+    pass++;
+    console.log('  OK   gerar-br-code estrutura TLV (00,01,26,53,58) presente');
   } else {
-    fail++; console.log(`  FAIL gerar-br-code TLV faltando: pf=${temPayloadFormat} poi=${temPoiEstatico} pix=${temMerchantPix} curr=${temCurrency} br=${temCountry}`);
+    fail++;
+    console.log(
+      `  FAIL gerar-br-code TLV faltando: pf=${temPayloadFormat} poi=${temPoiEstatico} pix=${temMerchantPix} curr=${temCurrency} br=${temCountry}`,
+    );
   }
 } catch (err) {
-  fail++; console.log(`  FAIL gerar-br-code crashou: ${err.message}`);
+  fail++;
+  console.log(`  FAIL gerar-br-code crashou: ${err.message}`);
 }
 
 // CNH (11 dígitos, mod 11 com dsc — algoritmo Detran).
@@ -214,9 +288,18 @@ run('Titulo eleitor DV errado', titulo, '123456780100', false);
 const conta = path.join(S, 'validar-conta-bancaria', 'scripts', 'validar.py');
 function runConta(label, banco, ag, c, expectOk) {
   let ok = true;
-  try { execFileSync(PY, [conta, banco, ag, c], { stdio: 'pipe' }); } catch { ok = false; }
-  if (ok === expectOk) { pass++; console.log(`  OK   ${label}`); }
-  else { fail++; console.log(`  FAIL ${label} (esperado ${expectOk ? 'valido' : 'invalido'})`); }
+  try {
+    execFileSync(PY, [conta, banco, ag, c], { stdio: 'pipe' });
+  } catch {
+    ok = false;
+  }
+  if (ok === expectOk) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label} (esperado ${expectOk ? 'valido' : 'invalido'})`);
+  }
 }
 runConta('Conta BB DV correto (mod11_98_to_2)', '001', '1234', '12345679', true);
 runConta('Conta BB DV errado', '001', '1234', '12345670', false);
@@ -233,29 +316,76 @@ function runMascarar(label, tipo, valor, esperado) {
   try {
     out = execFileSync(PY, [mascarar, tipo, valor], { encoding: 'utf8' }).trim();
   } catch (err) {
-    fail++; console.log(`  FAIL ${label} (crashou: ${err.message})`); return;
+    fail++;
+    console.log(`  FAIL ${label} (crashou: ${err.message})`);
+    return;
   }
-  if (out === esperado) { pass++; console.log(`  OK   ${label}`); }
-  else { fail++; console.log(`  FAIL ${label} (esperado "${esperado}", recebido "${out}")`); }
+  if (out === esperado) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label} (esperado "${esperado}", recebido "${out}")`);
+  }
 }
 runMascarar('mascarar CPF preserva so DV', 'cpf', '123.456.789-09', '***.***.***-09');
 runMascarar('mascarar CPF invalido vira asterisco', 'cpf', '123', '***.***.***-**');
 runMascarar('mascarar CNPJ preserva ordem+DV', 'cnpj', '11.222.333/0001-81', '**.***.***/0001-81');
-runMascarar('mascarar CNPJ alfanumerico FISCAL-005', 'cnpj', '12ABC34501DE35', '**.***.***/01DE-35');
+runMascarar(
+  'mascarar CNPJ alfanumerico FISCAL-005',
+  'cnpj',
+  '12ABC34501DE35',
+  '**.***.***/01DE-35',
+);
 runMascarar('mascarar RG preserva ultimos 2', 'rg', '12.345.678-9', '**.***.***8-9');
 runMascarar('mascarar IE preserva ultimos 3', 'ie', '110042490114', '*********114');
 runMascarar('mascarar CNH preserva 2 ultimos', 'cnh', '12345678900', '*********00');
 runMascarar('mascarar RENAVAM preserva 2 ultimos', 'renavam', '12345678900', '*********00');
-runMascarar('mascarar titulo eleitor preserva 2 ultimos', 'titulo', '123456780191', '**** **** **91');
-runMascarar('mascarar cartao preserva 4 ultimos', 'cartao', '5555555555554444', '**** **** **** 4444');
-runMascarar('mascarar UUID preserva inicio+fim', 'uuid', '123e4567-e89b-42d3-a456-426614174000', '123e4567-****-****-****-****14174000');
+runMascarar(
+  'mascarar titulo eleitor preserva 2 ultimos',
+  'titulo',
+  '123456780191',
+  '**** **** **91',
+);
+runMascarar(
+  'mascarar cartao preserva 4 ultimos',
+  'cartao',
+  '5555555555554444',
+  '**** **** **** 4444',
+);
+runMascarar(
+  'mascarar UUID preserva inicio+fim',
+  'uuid',
+  '123e4567-e89b-42d3-a456-426614174000',
+  '123e4567-****-****-****-****14174000',
+);
 runMascarar('mascarar pix-CPF 11 digitos sem mascara', 'pix', '12345678909', '***.***.***-09');
 // Onda 6 — mascaramento de email e telefone mais agressivo (B3).
-runMascarar('mascarar email mascara dominio tambem (B3)', 'email', 'joao.silva@exemplo.com', 'j**@e**.com');
+runMascarar(
+  'mascarar email mascara dominio tambem (B3)',
+  'email',
+  'joao.silva@exemplo.com',
+  'j**@e**.com',
+);
 runMascarar('mascarar email com .com.br (B3)', 'email', 'fulano@empresa.com.br', 'f**@e**.br');
-runMascarar('mascarar email sem ponto no dominio (fallback)', 'email', 'teste@localhost', 't**@***');
-runMascarar('mascarar telefone E.164 preserva so 4 ultimos (B3)', 'telefone', '+5511987654321', '+*********4321');
-runMascarar('mascarar telefone sem prefixo preserva so 4 ultimos', 'telefone', '11987654321', '*******4321');
+runMascarar(
+  'mascarar email sem ponto no dominio (fallback)',
+  'email',
+  'teste@localhost',
+  't**@***',
+);
+runMascarar(
+  'mascarar telefone E.164 preserva so 4 ultimos (B3)',
+  'telefone',
+  '+5511987654321',
+  '+*********4321',
+);
+runMascarar(
+  'mascarar telefone sem prefixo preserva so 4 ultimos',
+  'telefone',
+  '11987654321',
+  '*******4321',
+);
 // Bug Onda 6 — pix com CPF/CNPJ com pontuacao (len > 13) cai na rama de telefone
 // por causa da heuristica "s[0].isdigit() and len(s) > 13". Idem UUID que comeca
 // com digito. Esses casos vao ser cobertos quando a Onda 6 reescrever a heuristica
@@ -272,7 +402,8 @@ try {
     run(`PIS sintetico de gerar-test-fixture-br aceito pelo validador (${p})`, pisS, p, true);
   }
 } catch (err) {
-  fail++; console.log(`  FAIL geracao de PIS: ${err.message}`);
+  fail++;
+  console.log(`  FAIL geracao de PIS: ${err.message}`);
 }
 
 console.log(`\nskills Python: ${pass} OK, ${fail} FAIL`);

@@ -24,14 +24,25 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
-const HOOK = path.join(ROOT, 'templates', '.claude', 'hooks', 'require-auditors-pass-before-commit.js');
+const HOOK = path.join(
+  ROOT,
+  'templates',
+  '.claude',
+  'hooks',
+  'require-auditors-pass-before-commit.js',
+);
 const SESS = 'testehash';
 
 let pass = 0;
 let fail = 0;
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 // Cria repo git temporario com .claude/.runtime/ e marker de feature ativa.
@@ -57,12 +68,18 @@ function setupRepo() {
 }
 
 function cleanup(dir) {
-  try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
+  try {
+    fs.rmSync(dir, { recursive: true, force: true });
+  } catch {
+    /* best-effort */
+  }
 }
 
 function getDiffSha(dir) {
   const crypto = require('crypto');
-  const diff = spawnSync('git', ['-C', dir, 'diff', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] }).stdout.toString();
+  const diff = spawnSync('git', ['-C', dir, 'diff', 'HEAD'], {
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).stdout.toString();
   return crypto.createHash('sha256').update(diff).digest('hex');
 }
 
@@ -71,7 +88,12 @@ function runHook(dir, legacy = false) {
   if (legacy) env.ROLDAO_METHOD_LEGACY_MARKERS = '1';
   else delete env.ROLDAO_METHOD_LEGACY_MARKERS;
   const input = JSON.stringify({ tool_input: { command: 'git commit -m "feat(T-001): teste"' } });
-  const r = spawnSync('node', [HOOK], { input, stdio: ['pipe', 'pipe', 'pipe'], env, timeout: 15000 });
+  const r = spawnSync('node', [HOOK], {
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env,
+    timeout: 15000,
+  });
   return { exit: r.status, stderr: (r.stderr || '').toString() };
 }
 
@@ -79,12 +101,19 @@ function writeMarkers(runtime, contents) {
   // contents = { seg, qual, prod } — cada valor e string a escrever (ou null pra nao criar)
   for (const k of ['seg', 'qual', 'prod']) {
     const p = path.join(runtime, `auditor-${k}-pass-${SESS}`);
-    if (contents[k] === null) { try { fs.unlinkSync(p); } catch {} continue; }
+    if (contents[k] === null) {
+      try {
+        fs.unlinkSync(p);
+      } catch {}
+      continue;
+    }
     fs.writeFileSync(p, contents[k]);
   }
 }
 
-console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass-before-commit.js (ADR-020)\n');
+console.log(
+  '\nhooks-auditors-pass: testes adversariais do require-auditors-pass-before-commit.js (ADR-020)\n',
+);
 
 // ---------------------------------------------------------------------------
 // Cenario 0 (controle): sem feature-active → exit 0 (não dispara)
@@ -105,8 +134,16 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
   writeMarkers(runtime, { seg: '', qual: '', prod: '' });
   const r = runHook(dir);
   check('cenario 1a: marker vazio → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 1b: stderr menciona VAZIO', /VAZIO/.test(r.stderr), `stderr nao tem VAZIO: ${r.stderr.slice(0, 200)}`);
-  check('cenario 1c: stderr NAO ensina touch', !/touch\s+["'][^"']*auditor-\w+-pass/.test(r.stderr), 'stderr ainda ensina touch como bypass');
+  check(
+    'cenario 1b: stderr menciona VAZIO',
+    /VAZIO/.test(r.stderr),
+    `stderr nao tem VAZIO: ${r.stderr.slice(0, 200)}`,
+  );
+  check(
+    'cenario 1c: stderr NAO ensina touch',
+    !/touch\s+["'][^"']*auditor-\w+-pass/.test(r.stderr),
+    'stderr ainda ensina touch como bypass',
+  );
   cleanup(dir);
 }
 
@@ -116,20 +153,25 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
 {
   const { dir, runtime } = setupRepo();
   const sha = getDiffSha(dir);
-  const validMarker = (agent) => JSON.stringify({
-    session: SESS,
-    agent,
-    audit_sha: sha,
-    timestamp: new Date().toISOString(),
-    lido_de: ['mudanca.txt'],
-  });
+  const validMarker = (agent) =>
+    JSON.stringify({
+      session: SESS,
+      agent,
+      audit_sha: sha,
+      timestamp: new Date().toISOString(),
+      lido_de: ['mudanca.txt'],
+    });
   writeMarkers(runtime, {
     seg: validMarker('auditor-seguranca'),
     qual: validMarker('auditor-qualidade'),
     prod: validMarker('auditor-produto'),
   });
   const r = runHook(dir);
-  check('cenario 2: 3 markers JSON validos + sha correto → exit 0', r.exit === 0, `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`);
+  check(
+    'cenario 2: 3 markers JSON validos + sha correto → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
   cleanup(dir);
 }
 
@@ -139,13 +181,14 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
 {
   const { dir, runtime } = setupRepo();
   const shaErrado = 'a'.repeat(64);
-  const staleMarker = (agent) => JSON.stringify({
-    session: SESS,
-    agent,
-    audit_sha: shaErrado,
-    timestamp: new Date().toISOString(),
-    lido_de: ['mudanca.txt'],
-  });
+  const staleMarker = (agent) =>
+    JSON.stringify({
+      session: SESS,
+      agent,
+      audit_sha: shaErrado,
+      timestamp: new Date().toISOString(),
+      lido_de: ['mudanca.txt'],
+    });
   writeMarkers(runtime, {
     seg: staleMarker('auditor-seguranca'),
     qual: staleMarker('auditor-qualidade'),
@@ -153,7 +196,11 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
   });
   const r = runHook(dir);
   check('cenario 3a: audit_sha errado → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 3b: stderr menciona STALE', /STALE/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 3b: stderr menciona STALE',
+    /STALE/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -172,8 +219,16 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
   writeMarkers(runtime, { seg: incompleto, qual: incompleto, prod: incompleto });
   const r = runHook(dir);
   check('cenario 4a: campo audit_sha faltando → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 4b: stderr menciona INCOMPLETO', /INCOMPLETO/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
-  check('cenario 4c: stderr lista campo faltando', /audit_sha/.test(r.stderr), `stderr nao lista audit_sha`);
+  check(
+    'cenario 4b: stderr menciona INCOMPLETO',
+    /INCOMPLETO/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
+  check(
+    'cenario 4c: stderr lista campo faltando',
+    /audit_sha/.test(r.stderr),
+    `stderr nao lista audit_sha`,
+  );
   cleanup(dir);
 }
 
@@ -185,7 +240,11 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
   writeMarkers(runtime, { seg: '{nao eh json', qual: 'nada', prod: '[invalido' });
   const r = runHook(dir);
   check('cenario 5a: JSON malformado → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 5b: stderr menciona MALFORMADO', /MALFORMADO/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 5b: stderr menciona MALFORMADO',
+    /MALFORMADO/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -196,9 +255,21 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
   const { dir, runtime } = setupRepo();
   writeMarkers(runtime, { seg: '', qual: '', prod: '' });
   const r = runHook(dir, true /* legacy */);
-  check('cenario 6a: marker vazio + LEGACY=1 → exit 0', r.exit === 0, `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`);
-  check('cenario 6b: stderr emite AVISO', /AVISO/.test(r.stderr), 'stderr nao emite AVISO de legacy');
-  check('cenario 6c: stderr menciona v2.2.0', /v2\.2\.0/.test(r.stderr), 'stderr nao menciona v2.2.0');
+  check(
+    'cenario 6a: marker vazio + LEGACY=1 → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
+  check(
+    'cenario 6b: stderr emite AVISO',
+    /AVISO/.test(r.stderr),
+    'stderr nao emite AVISO de legacy',
+  );
+  check(
+    'cenario 6c: stderr menciona v2.2.0',
+    /v2\.2\.0/.test(r.stderr),
+    'stderr nao menciona v2.2.0',
+  );
   cleanup(dir);
 }
 
@@ -210,7 +281,11 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
   // Nao escreve markers
   const r = runHook(dir);
   check('cenario 7: marker ausente → exit 2', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 7b: stderr menciona "nao rodaram"', /nao rodaram/i.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 7b: stderr menciona "nao rodaram"',
+    /nao rodaram/i.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 
@@ -220,12 +295,26 @@ console.log('\nhooks-auditors-pass: testes adversariais do require-auditors-pass
 {
   const { dir, runtime } = setupRepo();
   const sha = getDiffSha(dir);
-  const valid = JSON.stringify({ session: SESS, agent: 'auditor-seguranca', audit_sha: sha, timestamp: '2026-01-01T00:00:00Z', lido_de: ['x'] });
+  const valid = JSON.stringify({
+    session: SESS,
+    agent: 'auditor-seguranca',
+    audit_sha: sha,
+    timestamp: '2026-01-01T00:00:00Z',
+    lido_de: ['x'],
+  });
   writeMarkers(runtime, { seg: valid, qual: valid, prod: valid });
   fs.writeFileSync(path.join(runtime, `auditor-seg-blocked-${SESS}`), 'bloqueado por motivo X');
   const r = runHook(dir);
-  check('cenario 8a: blocked + pass valido → exit 2 (blocked vence)', r.exit === 2, `exit=${r.exit}`);
-  check('cenario 8b: stderr menciona BLOQUEARAM', /BLOQUEARAM/.test(r.stderr), `stderr: ${r.stderr.slice(0, 200)}`);
+  check(
+    'cenario 8a: blocked + pass valido → exit 2 (blocked vence)',
+    r.exit === 2,
+    `exit=${r.exit}`,
+  );
+  check(
+    'cenario 8b: stderr menciona BLOQUEARAM',
+    /BLOQUEARAM/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 200)}`,
+  );
   cleanup(dir);
 }
 

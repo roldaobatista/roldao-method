@@ -26,7 +26,9 @@ const SQL_TABELAS = [
   'sat_?cfe_?emitidos?',
 ];
 const SQL_UPDATE_DELETE_RE = new RegExp(
-  '\\b(UPDATE|DELETE\\s+FROM|TRUNCATE(?:\\s+TABLE)?|DROP\\s+TABLE)\\s+(' + SQL_TABELAS.join('|') + ')\\b',
+  '\\b(UPDATE|DELETE\\s+FROM|TRUNCATE(?:\\s+TABLE)?|DROP\\s+TABLE)\\s+(' +
+    SQL_TABELAS.join('|') +
+    ')\\b',
   'i',
 );
 
@@ -37,8 +39,12 @@ function bloqueia(motivo, contexto) {
   process.stderr.write(`[nfe-imutavel] BLOQUEADO: ${motivo}\n\n`);
   process.stderr.write(`Contexto: ${contexto}\n\n`);
   process.stderr.write(`Regra: FISCAL-001 — documento fiscal autorizado nao pode ser alterado.\n`);
-  process.stderr.write(`Correcao exige: Carta de Correcao Eletronica (CC-e) OU cancelamento dentro do prazo legal.\n`);
-  process.stderr.write(`Mudar o documento armazenado, ou rodar UPDATE na tabela do registro emitido, muda estado fiscal sem rastro — incidente em fiscalizacao.\n\n`);
+  process.stderr.write(
+    `Correcao exige: Carta de Correcao Eletronica (CC-e) OU cancelamento dentro do prazo legal.\n`,
+  );
+  process.stderr.write(
+    `Mudar o documento armazenado, ou rodar UPDATE na tabela do registro emitido, muda estado fiscal sem rastro — incidente em fiscalizacao.\n\n`,
+  );
   process.stderr.write(`Como destravar (se for intencional e LEGAL):\n`);
   process.stderr.write(`- Documente a razao em ADR aprovado pelo fiscal/contador.\n`);
   process.stderr.write(`- Adicione marca // FISCAL-001-exception: <ADR-NNN ou razao> na linha.\n`);
@@ -55,7 +61,10 @@ function bloqueia(motivo, contexto) {
     if (!cmd) process.exit(0);
     if (EXCEPTION_RE.test(cmd)) process.exit(0);
     if (SQL_UPDATE_DELETE_RE.test(cmd)) {
-      bloqueia('UPDATE/DELETE/TRUNCATE/DROP em tabela de documento fiscal emitido', cmd.slice(0, 200));
+      bloqueia(
+        'UPDATE/DELETE/TRUNCATE/DROP em tabela de documento fiscal emitido',
+        cmd.slice(0, 200),
+      );
     }
     process.exit(0);
   }
@@ -64,15 +73,13 @@ function bloqueia(motivo, contexto) {
     const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
     if (!filePath) process.exit(0);
 
-    const isXmlEmitido =
-      XML_EMITIDO_PATH_RE.test(filePath) || XML_NOME_CHAVE_RE.test(filePath);
+    const isXmlEmitido = XML_EMITIDO_PATH_RE.test(filePath) || XML_NOME_CHAVE_RE.test(filePath);
 
     if (isXmlEmitido) {
       bloqueia('edicao de arquivo de documento fiscal emitido', filePath);
     }
 
-    const content =
-      input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
+    const content = input?.tool_input?.content ?? input?.tool_input?.new_string ?? '';
     if (!content) process.exit(0);
 
     const lines = String(content).split(/\r?\n/);

@@ -22,8 +22,13 @@ let pass = 0;
 let fail = 0;
 
 function check(label, cond, detalhe) {
-  if (cond) { pass++; console.log(`  OK   ${label}`); }
-  else      { fail++; console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`); }
+  if (cond) {
+    pass++;
+    console.log(`  OK   ${label}`);
+  } else {
+    fail++;
+    console.log(`  FAIL ${label}${detalhe ? ` — ${detalhe}` : ''}`);
+  }
 }
 
 function rodaCliHelp(...args) {
@@ -35,11 +40,11 @@ console.log('test/help-fuzzy.test.js — busca fuzzy em PT-BR no help (AC-115-4)
 
 // 5 cenarios obrigatorios — query PT-BR -> comando esperado NO TOPO
 const cenarios = [
-  { query: 'preciso reportar bug',     esperado: '/bug' },
-  { query: 'iniciar projeto novo',     esperado: '/inicio' },
-  { query: 'fechar versao',            esperado: '/release' },
-  { query: 'feature nova',             esperado: '/feature' },
-  { query: 'adotar legado',            esperado: '/brownfield' },
+  { query: 'preciso reportar bug', esperado: '/bug' },
+  { query: 'iniciar projeto novo', esperado: '/inicio' },
+  { query: 'fechar versao', esperado: '/release' },
+  { query: 'feature nova', esperado: '/feature' },
+  { query: 'adotar legado', esperado: '/brownfield' },
 ];
 
 for (const { query, esperado } of cenarios) {
@@ -47,9 +52,7 @@ for (const { query, esperado } of cenarios) {
   // Primeira linha que comeca com `  /<comando>` apos o cabecalho de resultados
   const linhas = r.stdout.split('\n').map((l) => l.trimEnd());
   const idxResultados = linhas.findIndex((l) => l.includes('Comandos do Claude Code que casam'));
-  const primeiroComando = linhas
-    .slice(idxResultados + 1)
-    .find((l) => l.match(/^  \/[a-z-]+$/i));
+  const primeiroComando = linhas.slice(idxResultados + 1).find((l) => l.match(/^  \/[a-z-]+$/i));
   check(
     `query '${query}' -> ${esperado} no topo`,
     primeiroComando === `  ${esperado}`,
