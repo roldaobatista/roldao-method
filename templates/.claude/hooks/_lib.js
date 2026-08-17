@@ -483,6 +483,82 @@ function emitSoftWarning(hookId, regra, msgPtbr, arquivoRelacionado) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// commitHeaderFromCommand — extrai a PRIMEIRA linha da mensagem de um
+// `git commit` presente no comando (via -m/--message/heredoc). Retorna '' se
+// nao ha commit com mensagem inline. Usado pelos gates que isentam commits
+// docs:/chore:/ci: — a isencao deve olhar o CABECALHO da mensagem, nunca o
+// comando inteiro (auditoria 2026-08-17: sufixo "ver docs: guia" em qualquer
+// lugar do comando furava require-auditors/checkpoint/postmortem).
+// ---------------------------------------------------------------------------
+function commitHeaderFromCommand(cmd) {
+  if (typeof cmd !== 'string' || !cmd.includes('git commit')) return '';
+  const normalized = cmd.replace(/\r\n/g, '\n');
+  let m = normalized.match(/(?:-m|--message[=\s])\s*(["'])([\s\S]*?)\1/);
+  if (m) return m[2].split('\n')[0];
+  m = normalized.match(/<<\s*'?(\w+)'?\s*\n([\s\S]*?)\n\1\b/);
+  if (m) return m[2].split('\n')[0];
+  return '';
+}
+
+// ---------------------------------------------------------------------------
+// readLastAssistantText — extrai a ultima resposta em texto do assistente.
+// PostToolUse (e testes) mandam response/message/tool_response direto no JSON.
+// O evento Stop NAO manda nada disso — so transcript_path (JSONL). Sem ler o
+// transcript, todo hook de Stop que dependa da resposta e inerte em producao
+// (auditoria 2026-08-17). Le so o rabo do arquivo (256 KB) e varre de tras
+// pra frente ate a ultima entry `assistant` com bloco de texto nao-vazio.
+// Fail-open: transcript ausente/ilegivel retorna '' (hook nao bloqueia).
+// ---------------------------------------------------------------------------
+function readLastAssistantText(input) {
+  let resp = input?.response || input?.message || '';
+  if (!resp && input?.tool_response) {
+    if (typeof input.tool_response === 'object') {
+      resp = input.tool_response.content || input.tool_response.text || '';
+    } else {
+      resp = input.tool_response;
+    }
+  }
+  if (typeof resp === 'string' && resp) return resp;
+  const tp = input?.transcript_path;
+  if (!tp || typeof tp !== 'string') return '';
+  try {
+    const st = fs.statSync(tp);
+    const TAIL = 256 * 1024;
+    const start = Math.max(0, st.size - TAIL);
+    const buf = Buffer.alloc(st.size - start);
+    const fd = fs.openSync(tp, 'r');
+    try {
+      fs.readSync(fd, buf, 0, buf.length, start);
+    } finally {
+      fs.closeSync(fd);
+    }
+    let lines = buf.toString('utf8').split('\n');
+    if (start > 0) lines = lines.slice(1); // primeira linha do tail pode vir cortada
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      let entry;
+      try {
+        entry = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      const msg = entry && entry.message;
+      if (!msg || msg.role !== 'assistant') continue;
+      const content = Array.isArray(msg.content) ? msg.content : [];
+      const text = content
+        .filter((b) => b && b.type === 'text' && typeof b.text === 'string')
+        .map((b) => b.text)
+        .join('\n');
+      if (text.trim()) return text;
+    }
+  } catch {
+    /* fail-open */
+  }
+  return '';
+}
+
 module.exports = {
   sanitizeProjdir,
   sanitizeSessionHash,
@@ -501,4 +577,6 @@ module.exports = {
   normalizeFilePath,
   gitSafeEnv,
   emitSoftWarning,
+  readLastAssistantText,
+  commitHeaderFromCommand,
 };

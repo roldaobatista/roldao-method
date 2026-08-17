@@ -53,6 +53,8 @@
     "test:mensagens-leigas": "node test/hooks-mensagens-leigas.test.js",
     "test:jargon-expanded": "node test/hooks-jargon-expanded.test.js",
     "test:session-cleanup": "node test/hooks-session-cleanup.test.js",
+    "test:stop-transcript": "node test/hooks-stop-transcript.test.js",
+    "test:gates-header": "node test/hooks-gates-header.test.js",
     "test:audit-sha-story": "node test/hooks-audit-sha-story.test.js",
     "test:confirmation-extra": "node test/hooks-confirmation-extra.test.js",
     "test:lib-next-id": "node test/lib-next-id.test.js",
@@ -72,7 +74,7 @@
     "test:session-relay-threshold": "node test/session-relay-threshold.test.js",
     "test:session-relay-checkpoint-trigger": "node test/session-relay-checkpoint-trigger.test.js",
     "test:session-relay-dry-run": "node test/session-relay-dry-run.test.js",
-    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:dogfood-sync && npm run test:plugin-manifest-drift && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:block-destructive-bypass && npm run test:secrets-scanner-comments && npm run test:auditors-pass && npm run test:checkpoint-marker && npm run test:investigador-gate2 && npm run test:anti-mascaramento-extra && npm run test:mensagens-leigas && npm run test:jargon-expanded && npm run test:session-cleanup && npm run test:audit-sha-story && npm run test:confirmation-extra && npm run test:lib-next-id && npm run test:skills && npm run test:addons && npm run test:nfe-imutavel && npm run test:resolver-template && npm run test:adapters && npm run test:agents-commands-statusline && npm run test:session-relay-detect-transcript && npm run test:session-relay-threshold && npm run test:session-relay-checkpoint-trigger && npm run test:session-relay-dry-run",
+    "test": "npm run validar && npm run validar:ids && npm run validar:cobertura-hooks && npm run lint:self-masking && npm run test:tools && npm run test:claude-md-sync && npm run test:dogfood-sync && npm run test:plugin-manifest-drift && npm run test:lib-contract && npm run test:install-lib && npm run test:install && npm run test:hooks-node-only && npm run test:block-destructive-bypass && npm run test:secrets-scanner-comments && npm run test:auditors-pass && npm run test:checkpoint-marker && npm run test:investigador-gate2 && npm run test:anti-mascaramento-extra && npm run test:mensagens-leigas && npm run test:jargon-expanded && npm run test:stop-transcript && npm run test:gates-header && npm run test:session-cleanup && npm run test:audit-sha-story && npm run test:confirmation-extra && npm run test:lib-next-id && npm run test:skills && npm run test:addons && npm run test:nfe-imutavel && npm run test:resolver-template && npm run test:adapters && npm run test:agents-commands-statusline && npm run test:session-relay-detect-transcript && npm run test:session-relay-threshold && npm run test:session-relay-checkpoint-trigger && npm run test:session-relay-dry-run",
     "prepublishOnly": "npm test && npm run test:adapter-drift"
   },
   "homepage": "https://github.com/roldaobatista/roldao-method",

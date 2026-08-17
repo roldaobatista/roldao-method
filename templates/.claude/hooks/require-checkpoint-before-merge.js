@@ -18,6 +18,7 @@ const {
   sanitizeSessionHash,
   recordMetric,
   gitSafeEnv,
+  commitHeaderFromCommand,
 } = require('./_lib.js');
 
 // computeDiffShas — retorna { sha256, gitBlobSha } do diff HEAD atual.
@@ -47,7 +48,8 @@ function computeDiffShas(projdir) {
   }
 }
 
-const SKIP_PREFIXES_RE = /(docs|chore|ci|build|style):/;
+// Auditoria 2026-08-17: isencao ancorada no cabecalho da mensagem (ver gate de auditores).
+const SKIP_PREFIXES_RE = /^(docs|chore|ci|build|style)(\([^)]*\))?\s*!?:/;
 const REQUIRED_FIELDS = ['session', 'checkpoint_path', 'audit_sha', 'timestamp', 'us'];
 const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
 
@@ -109,7 +111,8 @@ function validateCheckpointMarker(markPath, projdir, currentShas) {
   const cmd = input?.tool_input?.command || '';
   if (!cmd) process.exit(0);
   if (!/git commit|git merge|git push/.test(cmd)) process.exit(0);
-  if (SKIP_PREFIXES_RE.test(cmd)) process.exit(0);
+  const header = commitHeaderFromCommand(cmd);
+  if (header && SKIP_PREFIXES_RE.test(header)) process.exit(0);
 
   let projdir;
   try {

@@ -20,7 +20,10 @@ const path = require('path');
 const { readStdinJson, sanitizeProjdir, sanitizeSessionHash } = require('./_lib.js');
 
 (async () => {
-  await readStdinJson(); // consome stdin (Stop hook recebe JSON do Claude Code)
+  const input = await readStdinJson();
+  // Anti-loop: se este Stop ja veio de um block anterior de hook Stop, libera —
+  // senao um pipeline aberto vira bloqueio infinito de encerramento (auditoria 2026-08-17).
+  if (input?.stop_hook_active) process.exit(0);
 
   let projdir;
   try {

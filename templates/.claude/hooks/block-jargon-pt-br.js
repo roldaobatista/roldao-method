@@ -2,7 +2,7 @@
 // block-jargon-pt-br.js — bloqueia resposta com jargao tecnico ao usuario nao-programador.
 // Hook PostToolUse / Stop. JSON decision:block. INV-AGENT-001.
 
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { readStdinJson, recordMetric, readLastAssistantText } = require('./_lib.js');
 
 // Termos jargao (concatenados pra evitar trigger do proprio scanner em string-literal).
 // T-009 (F1) — sincronizado com tabela canonica de traduzir-jargao/SKILL.md.
@@ -58,15 +58,10 @@ const COMBINED_RE = new RegExp(JARGON_TERMS.join('|'), 'gi');
 
 (async () => {
   const input = await readStdinJson();
-  let resp = input?.response || input?.message || '';
-  if (!resp && input?.tool_response) {
-    if (typeof input.tool_response === 'object') {
-      resp = input.tool_response.content || input.tool_response.text || '';
-    } else {
-      resp = input.tool_response;
-    }
-  }
-  resp = typeof resp === 'string' ? resp : '';
+  // Anti-loop: se o Stop atual ja foi provocado por um hook block, nao re-bloqueia.
+  if (input?.stop_hook_active) process.exit(0);
+  // Stop nao manda a resposta no payload — vem via transcript_path (JSONL).
+  const resp = readLastAssistantText(input);
   if (!resp) process.exit(0);
 
   // Remove blocos de codigo (markdown ``` ... ``` + inline `...`)

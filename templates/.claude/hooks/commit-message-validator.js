@@ -82,18 +82,20 @@ function extractMessages(cmd) {
   const tipoDeclarado = prefixDeclMatch ? prefixDeclMatch[1].toLowerCase() : '';
   const prefixos = tipoDeclarado ? new Set([tipoDeclarado]) : new Set();
 
-  // Regra 2: nao misturar prefixos NO HEADER (ex: "feat: fix: ..." ou "feat:fix:").
-  // Antes: acumulava qualquer mencao de outro tipo no corpo da primeira linha —
-  // "feat(US-014): refactor do modulo X" virava feat+refactor (falso positivo).
-  // Agora so olha o segText (parte ANTES do primeiro `:`).
-  const segText = primeiraLinha.split(':')[0] || '';
-  const segMatchRe = new RegExp(`\\b(${TIPOS})\\b`, 'gi');
-  const segTipos = new Set();
-  let sm;
-  while ((sm = segMatchRe.exec(segText)) !== null) segTipos.add(sm[1].toLowerCase());
-  if (segTipos.size > 1) {
+  // Regra 2: nao misturar prefixos NO HEADER (ex: "feat: fix: ..." ou "feat(x): fix: ...").
+  // Auditoria 2026-08-17: a versao anterior escaneava a parte antes do primeiro `:`
+  // INCLUINDO o escopo — `fix(docs):` e `feat(test):` viravam "mistura" (falso
+  // positivo em Conventional Commits legitimo) e o caso alvo real "feat: fix: ..."
+  // passava (split(':')[0] so via "feat"). Agora exige DOIS prefixos declarados
+  // encadeados, escopo nunca conta.
+  const mixRe = new RegExp(
+    `^(${TIPOS_STYLE})(?:\\([^)]*\\))?\\s*!?:\\s*(${TIPOS_STYLE})\\s*!?:`,
+    'i',
+  );
+  const mix = primeiraLinha.match(mixRe);
+  if (mix) {
     violations.push(
-      `commit mistura prefixos: ${[...segTipos].join(' ')} — separe em commits atomicos (INV-AGENT-005)`,
+      `commit mistura prefixos: ${mix[1].toLowerCase()} ${mix[2].toLowerCase()} — separe em commits atomicos (INV-AGENT-005)`,
     );
   }
 

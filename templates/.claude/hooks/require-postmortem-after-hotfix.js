@@ -12,13 +12,19 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readStdinJson, sanitizeProjdir, recordMetric } = require('./_lib.js');
+const {
+  readStdinJson,
+  sanitizeProjdir,
+  recordMetric,
+  commitHeaderFromCommand,
+} = require('./_lib.js');
 
 const LIMITE_HORAS = 48;
 const MS_HORA = 60 * 60 * 1000;
 // Tipos de commit que liberados mesmo sob marker (manutencao basica, docs e
 // proprio postmortem) — nao bloqueamos quem esta tentando fechar o ciclo.
-const ALLOW_PREFIXES_RE = /\b(docs|chore|test|ci|postmortem):/i;
+// Auditoria 2026-08-17: isencao ancorada no cabecalho da mensagem do commit.
+const ALLOW_PREFIXES_RE = /^(docs|chore|test|ci|postmortem)(\([^)]*\))?\s*!?:/i;
 
 (async () => {
   const input = await readStdinJson();
@@ -27,7 +33,8 @@ const ALLOW_PREFIXES_RE = /\b(docs|chore|test|ci|postmortem):/i;
   if (!cmd.includes('git commit')) process.exit(0);
 
   // Libera commit de docs/chore/test/ci/postmortem (precisa fechar o ciclo)
-  if (ALLOW_PREFIXES_RE.test(cmd)) process.exit(0);
+  const header = commitHeaderFromCommand(cmd);
+  if (header && ALLOW_PREFIXES_RE.test(header)) process.exit(0);
 
   let projdir;
   try {

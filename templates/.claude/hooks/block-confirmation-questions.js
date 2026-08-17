@@ -2,7 +2,7 @@
 // block-confirmation-questions.js — bloqueia "quer que eu...?" / "posso X?".
 // Hook PostToolUse / Stop. JSON decision:block. INV-AGENT-006.
 
-const { readStdinJson, recordMetric } = require('./_lib.js');
+const { readStdinJson, recordMetric, readLastAssistantText } = require('./_lib.js');
 
 const PATTERNS = [
   /\bquer (que eu|q eu)\b/i,
@@ -37,15 +37,10 @@ const APPROVAL_WORKFLOW_RE =
 
 (async () => {
   const input = await readStdinJson();
-  let resp = input?.response || input?.message || '';
-  if (!resp && input?.tool_response) {
-    if (typeof input.tool_response === 'object') {
-      resp = input.tool_response.content || input.tool_response.text || '';
-    } else {
-      resp = input.tool_response;
-    }
-  }
-  resp = typeof resp === 'string' ? resp : '';
+  // Anti-loop: se o Stop atual ja foi provocado por um hook block, nao re-bloqueia.
+  if (input?.stop_hook_active) process.exit(0);
+  // Stop nao manda a resposta no payload — vem via transcript_path (JSONL).
+  const resp = readLastAssistantText(input);
   if (!resp) process.exit(0);
 
   const lines = resp.split(/\r?\n/);
