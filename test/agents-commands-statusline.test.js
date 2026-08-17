@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * test/agents-commands-statusline.test.js — valida frontmatter dos 22 agentes
- * (+ docs auxiliares) e 28 commands em templates/.claude/, e smoke do statusline.js.
+ * (+ docs auxiliares) e 34 commands em templates/.claude/, e smoke do statusline.js.
  *
  * Auditoria 10-agentes 2026-05-24 identificou que 41 .md críticos (agents+commands)
  * NÃO tinham teste — frontmatter quebrado ou referência cruzada inválida passava
@@ -88,8 +88,8 @@ for (const f of auxFiles) {
 console.log('\n[commands — frontmatter + allowed-tools]');
 const cmdFiles = fs.readdirSync(COMMANDS_DIR).filter((f) => f.endsWith('.md'));
 check(
-  '28 commands em templates/.claude/commands/',
-  cmdFiles.length === 28,
+  '34 commands em templates/.claude/commands/',
+  cmdFiles.length === 34,
   `achou ${cmdFiles.length}`,
 );
 

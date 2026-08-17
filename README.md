@@ -44,7 +44,7 @@ npx roldao-method install        # copia o framework pra pasta atual
 npx roldao-method tutorial       # 5 perguntas em PT-BR preenchem o resto por você
 ```
 
-Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código rodando). `/help` lista os 28 roteiros disponíveis. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Nunca abriu o terminal? [`docs/ABRIR-TERMINAL.md`](docs/ABRIR-TERMINAL.md) explica.
+Depois, no seu assistente de IA: `/inicio` (projeto novo) ou `/brownfield` (já tem código rodando). `/help` lista os 34 roteiros disponíveis. Glossário sem jargão em [`docs/GLOSSARIO.md`](docs/GLOSSARIO.md). Quem não programa começa em [`docs/PARA-DONO-DE-PRODUTO.md`](docs/PARA-DONO-DE-PRODUTO.md). Nunca abriu o terminal? [`docs/ABRIR-TERMINAL.md`](docs/ABRIR-TERMINAL.md) explica.
 
 ### Vindo da versão 1.x?
 
@@ -107,7 +107,7 @@ Flags: `--yes` (CI), `--force`, `--dry-run`, `--no-color`. Aliases: `roldao-meth
 ## O que vem instalado
 
 - **22 especialistas virtuais com personalidade** — 17 do core: Maestro (orquestrador), Sofia (PM), Detetive (investigador), Rafael (tech-lead), Bruno (dev), Helena (DBA), Lucas (DevOps/infra), Bia (QA E2E), Marcos (SRE on-call), Inês (revisor), Caio/Júlia/Pedro (3 auditores), Mariana (analista), Lia (UX), Dona Marta (fiscal-BR), Camila (tech-writer). +5 meta-cognitivos da v2/v3: **Otávio (meta-cético, auto-audita o próprio framework)**, **Olívia (vigia-fluxo, SRE do fluxo interno)**, **audit-arbiter (mediador quando 2 auditores divergem)**, **documentation-master (orquestra `/documentar-repo`)**, **memory-skeptic (auditor de `memory/`)**. Catálogo em [`.claude/agents/MAPA-VISUAL.md`](.claude/agents/MAPA-VISUAL.md). Detalhes em [`AGENTS.md §4`](AGENTS.md).
-- **28 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
+- **34 workflows (slash commands)** — `/inicio`, `/brownfield`, `/prd`, `/epico`, `/historia`, `/clarificar`, `/feature`, `/quick-dev`, `/bug`, `/hotfix`, `/incident-postmortem`, `/refactor`, `/qa`, `/auditoria`, `/auditoria-reversa`, `/consistencia`, `/explicar-para-cliente`, `/retro`, `/replanejar`, `/sprint`, `/status`, `/checkpoint`, `/release`, `/readiness`, `/help`, `/shard`, `/agentes`, `/o-que-aconteceu`, `/comeco`, `/retomar`, `/painel`, `/saude`, `/avisos`, `/documentar-repo`. Detalhes em [`AGENTS.md §5`](AGENTS.md).
 - **44 verificações automáticas** em `.claude/hooks/` — barram comportamentos comuns que dariam errado (apagar sem volta, segredo no código, fix sem investigar, NF-e alterada após emissão, dado pessoal vazando em log, etc.). Detalhe técnico (matchers PostToolUse/SubagentStop/lifecycle, lista completa com IDs) em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) + tabela em [`.claude/rules/roldao-method.md`](.claude/rules/roldao-method.md).
 - **20 skills BR core** — validar-cpf-cnpj (com CNPJ alfanumérico jul/2026), validar-chave-acesso-nfe (44 dígitos NF-e/NFC-e/CT-e/MDF-e), validar-codigo-municipio-ibge (DV modulo 10), validar-pix, validar-cep, validar-ie (DV em 6 UFs), validar-boleto, validar-nfse-abrasf, **validar-titulo-eleitor (TSE)**, **validar-cnh (Denatran)**, **validar-renavam**, **validar-conta-bancaria (BB/Santander/Caixa/Bradesco/Itaú + digitais)**, **validar-pis-pasep**, **mascarar-dado-pessoal (CPF/email/Pix/cartão — LGPD-004 + PIX-004)**, gerar-br-code, gerar-test-fixture-br, gerar-adr-pt-br, traduzir-jargao, brainstormar-ideia, checklist-lgpd. +17 nos addons = **37 skills** (inclui `calculadora-reforma-paralela` pra LC 214/2025 e `validar-cns-cartao-sus` pra SUS).
 - **12 templates de spec** PT-BR (PRD, story, architecture, fullstack-arch, brownfield-PRD, PRD-fiscal, decision-log, PRFAQ, product-brief, UX-design, headless-schemas, épico).
@@ -163,7 +163,7 @@ Hooks Node puros rodam **só no Claude Code** (único IDE que expõe o ciclo Pre
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | Agentes (17) | ✅ exec | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto | 📝 texto |
 | Hooks bloqueadores (28) | ✅ exit 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Comandos (28) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Comandos (34) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Skills (20 core) | ✅ exec | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Spec-driven + PT-BR | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 

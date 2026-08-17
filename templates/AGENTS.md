@@ -97,7 +97,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 5. Workflows
 
-**28 workflows** codificados em `.claude/commands/`. Lista canônica:
+**34 workflows** codificados em `.claude/commands/`. Lista canônica:
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
@@ -129,6 +129,12 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/retro` | Retrospectiva pós-marco | (sem agente específico — 4L) |
 | `/agentes` | Mapa visual dos 15 especialistas (quem faz o quê) | (sem agente — índice) |
 | `/o-que-aconteceu` | Resumo PT-BR do que mudou no projeto desde a última sessão | (sem agente — git log + diff) |
+| `/comeco` | Entrevista guiada (5 perguntas) que preenche AGENTS.md na primeira sessão | (sem agente — entrevista guiada) |
+| `/retomar` | Retomar pipeline interrompido de onde parou | (sem agente — lê pipeline-state e chama o próximo agente) |
+| `/painel` | Painel único: pipeline ativo, custo, linha do tempo, saúde | (sem agente — leitura consolidada) |
+| `/saude` | Semáforo do projeto (git/testes/stories/segurança/LGPD) | (sem agente — leitura consolidada) |
+| `/avisos` | Lista soft warnings (LGPD/regra-zero/jargão) acumulados na sessão | (sem agente — leitura de warnings.jsonl) |
+| `/documentar-repo` | Gera doc retroativa em repo legado sem documentação | documentation-master (orquestra 23 fases) |
 
 ---
 
