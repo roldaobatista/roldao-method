@@ -23,7 +23,7 @@ origem:
 
 ## Contexto
 
-A memoria do Roldao em `C:/Users/rolda/.claude/projects/C--projetos-roldao-method/memory/` tem hoje 8 arquivos `.md` (cresceu de 3 pra 8 em ~2 meses). `MEMORY.md` (o index) lista todos em 8 bullets. **Toda sessao carrega TUDO** — incluindo `project-auditoria-10-10-decisoes.md` (9KB de detalhe de sprint) pra responder "qual a stack?".
+A memoria do Roldao em `~/.claude/projects/<projeto>/memory/` tem hoje 8 arquivos `.md` (cresceu de 3 pra 8 em ~2 meses). `MEMORY.md` (o index) lista todos em 8 bullets. **Toda sessao carrega TUDO** — incluindo `project-auditoria-10-10-decisoes.md` (9KB de detalhe de sprint) pra responder "qual a stack?".
 
 Auditoria de 2026-05-26 (§2 F1):
 

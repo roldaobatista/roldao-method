@@ -88,4 +88,4 @@ Pontos de entrada principais:
 
 ## Licenca
 
-Proprietaria. Autor: balancassolution (Roldao).
+Proprietaria. Autor: Fulana Exemplo.
