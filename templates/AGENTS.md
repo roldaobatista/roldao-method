@@ -97,7 +97,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 
 ## 5. Workflows
 
-**34 workflows** codificados em `.claude/commands/`. Lista canônica:
+**35 workflows** codificados em `.claude/commands/`. Lista canônica:
 
 | Comando | Quando | Agentes principais |
 |---|---|---|
@@ -119,6 +119,7 @@ Ver `.specify/memory/constitution.md` (6 princípios universais) + `REGRAS-INEGO
 | `/consistencia` | Cross-check doc↔código | investigador → 3 auditores (em paralelo) |
 | `/explicar-para-cliente` | Traduz último output técnico pra linguagem de cliente não-técnico | tech-writer + skill traduzir-jargao |
 | `/quick-dev` | Mudança trivial (≤3 arquivos) | dev-senior → revisor |
+| `/tier` | Classificar pedido no tier de risco da Fábrica (0-4); tier 3+ trava subida sem checklist, tier 4 exige aval do dono | — (classificação + marker) |
 | `/readiness` | Gate `/epico` → `/feature` | investigador → tech-lead |
 | `/shard` | Quebrar PRD/ARQ longo em chunks | (sem agente — fatiamento) |
 | `/sprint` | Plano sequencial das próximas stories | gerente-produto |

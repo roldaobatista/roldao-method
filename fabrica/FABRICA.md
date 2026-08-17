@@ -94,6 +94,12 @@ de tier 2 pra cima, viram arquivo.
 
 A Fábrica é o roteiro; quem **força** o roteiro são os hooks e comandos do guarda-corpos:
 
+- **Tiers mecanizados (fase 2, ago/2026):** `/tier` classifica o pedido, grava a
+  classificação da sessão, e o hook `enforce-tier-ceremony.js` **bloqueia a subida**
+  (push/deploy) de tier 3+ sem `docs/fabrica/checklist-release-*.md` preenchido —
+  e, em tier 4, sem aprovação explícita do dono respondida em pergunta direta
+  (marker gravado só após a resposta; agente não se auto-aprova).
+
 - **REGRA #0 automática:** ao detectar palavras de bug no pedido ("erro", "não funciona",
   "valor errado"), o hook `regra-zero-reminder.js` arma um marcador e o
   `require-investigador-before-fix.js` **bloqueia qualquer edição de código** até a
@@ -104,8 +110,10 @@ A Fábrica é o roteiro; quem **força** o roteiro são os hooks e comandos do g
 - **Pipeline com gates:** `/feature` e `/prd` armam marcadores de sessão que exigem
   sequência de agentes, auditores aprovados e checkpoint antes de commit/merge.
 
-Etapa da Fábrica sem comando correspondente (ex.: preencher `tarefa`/`evidencia`)
-é disciplina de roteiro — o agente segue porque está escrito, não porque um hook trava.
+Etapa da Fábrica sem comando/hook correspondente (ex.: preencher `tarefa`/`evidencia`
+em tier ≤2) é disciplina de roteiro — o agente segue porque está escrito, não porque
+um hook trava. O que tem trava mecânica hoje: REGRA #0, limites do `/quick-dev`,
+gates do `/feature`, e a cerimônia de subida dos tiers 3-4 (`/tier`).
 
 ## O que a Fábrica nunca faz
 
