@@ -1,5 +1,38 @@
 **Como ler este arquivo:** cada bloco `## [X.Y.Z]` é uma versão do framework. Você instalou a mais nova com `npx roldao-method update`. Em cada bloco, leia primeiro **"O que muda pra você"** (1-3 linhas em PT-BR claro). Os blocos "Adicionado / Corrigido / Mudado" são detalhe técnico — só leia se quiser entender o motivo.
 
+## [2.1.0] — 2026-08-17
+
+**Mutirão dos guarda-corpos + Fábrica fase 2: os vigias que eram teatro agora funcionam, os furáveis fecharam, cada edição ficou ~20x mais leve, e mudança de risco alto não sobe mais sem cerimônia.**
+
+### O que muda pra você (não-programador)
+
+- **Respostas mais rápidas do assistente:** antes, cada vez que ele salvava um arquivo, 22 vigias eram acordados um a um (~6 segundos de espera na sua máquina). Agora um despachante acorda todos de uma vez num processo só — medimos queda pra décimos de segundo.
+- **Os vigias de linguagem funcionam de verdade:** o que impede jargão técnico e perguntas do tipo "quer que eu...?" estava desligado sem ninguém saber. Agora dispara.
+- **Mudança arriscada não sobe sem cerimônia:** novo comando `/tier` classifica cada pedido pelo risco (de experimento a regulado pelo Inmetro). Risco alto só sobe pro servidor com checklist preenchido — e, no nível máximo, só com VOCÊ aprovando numa pergunta direta. O assistente não consegue se auto-aprovar.
+- **Menos bloqueios injustos:** o sistema parou de travar trabalho legítimo (limpeza de arquivos regeneráveis, buscas, código de análise de dados) e de deixar passar burlas reais (envio forçado disfarçado, mensagens com etiqueta falsa).
+
+### Adicionado
+
+- **`_dispatcher.js` (ADR-033)**: roda cada grupo de hooks num único processo node (antes 22 processos por Write/Edit; `pre-bash` medido em 127–244 ms). Contrato `runHook`/`onErrorExit` com modo CLI preservado em todo hook; fallback por subprocesso pra hook não convertido; fail-closed em grupo/mapa inválido. Fonte única: `_dispatcher-groups.json`.
+- **`/tier` + `enforce-tier-ceremony.js`** (Fábrica fase 2): tiers 0-4 mecanizados — tier 3+ bloqueia push/deploy sem `docs/fabrica/checklist-release-*.md` mais novo que a classificação; tier 4 exige marker `dono-aprovou-*` gravado só após AskUserQuestion (touch vazio não vale).
+- Testes novos: `hooks-dispatcher` (17), `hooks-tier` (10), `hooks-stop-transcript` (11), `hooks-gates-header` (16) + dezenas de casos regressivos nas suítes existentes.
+
+### Corrigido (auditoria adversarial 2026-08-17 — todos provados por execução)
+
+- **Hooks de Stop inertes**: block-jargon-pt-br e block-confirmation-questions liam campo que o evento Stop não envia — nunca disparavam. Agora leem a resposta real via transcript (`readLastAssistantText` na _lib) e checam `stop_hook_active` (anti-laço, também no enforce-pipeline-completion).
+- **Gates furáveis por sufixo**: require-auditors-pass, require-checkpoint e require-postmortem isentavam por `docs:`/`ci:` em QUALQUER lugar do comando — agora só no cabeçalho real da mensagem (`commitHeaderFromCommand`).
+- **commit-message-validator**: bloqueava `fix(docs):`/`feat(test):` (escopo lido como tipo) e não pegava `feat: fix:` real.
+- **block-destructive**: fecha `git push origin +main`, `git -c x push --force`, `npx rimraf`, corrente com segundo rm perigoso e stdin malformado (fail-closed real); libera terraform, `rm -rf node_modules && npm install` e greps de SQL.
+- **anti-mascaramento**: padrões de teste-desabilitado só valem em arquivo de teste (model.fit de ML e .skip( de query builder liberados); docs que citam os padrões em prosa isentos.
+- **Vigias inertes**: validate-test-pyramid (rejeitava path absoluto — o único formato real) e subagent-handoff-audit (campo inexistente) agora funcionam.
+- **Prova velha não destrava**: GATE 2 do investigador exige investigation mais novo que o gatilho do bug; session-cleanup limpa investigations +7 dias.
+- **NotebookEdit** entra nos matchers de escrita (furava os 22 gates); paths com \ do Windows normalizados em require-agent-sequence e validate-quick-dev-scope; auto-format-on-write funciona no Windows pela primeira vez; mcp-validator aceita o MCP oficial da Anthropic; sugestão do addon fiscal deixou de morrer em erro silencioso de regex; secrets-scanner não bloqueia mais `password = variavel`; recordMetric grava JSON sempre válido.
+
+### Mudado
+
+- 4 agentes meta-cognitivos atualizados pra geração atual de modelos (claude-sonnet-5 / claude-opus-5).
+- Aritmética de hooks na descrição: 29 bloqueadores + 7 soft + 8 lifecycle + 2 utilitários = 46.
+
 ## [2.0.1] — 2026-08-17
 
 **Versão de correção da auditoria completa de 17/08: instalador seguro, pacote enxuto e sem material interno, permissões distribuídas sem furo, 6 comandos que ficaram pra trás agora chegam a você.**

@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "roldao-method",
-  "version": "2.0.1",
-  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 22 agentes, 44 hooks Node puros (bloqueadores + soft warnings + lifecycle), 34 workflows, 20 skills BR core + 17 em addons = 37 skills, 7 addons BR. Para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
+  "version": "2.1.0",
+  "description": "Framework de desenvolvimento ágil assistido por IA em português brasileiro. 22 agentes, 46 hooks Node puros (bloqueadores + soft warnings + lifecycle), 35 workflows, 20 skills BR core + 17 em addons = 37 skills, 7 addons BR. Para Claude Code, Cursor, Windsurf, Cline, Roo, Aider, Gemini CLI, Codex CLI.",
   "author": "Roldão Batista",
   "homepage": "https://github.com/roldaobatista/roldao-method",
   "license": "MIT",
@@ -76,7 +76,8 @@
     "commands/saude.md",
     "commands/shard.md",
     "commands/sprint.md",
-    "commands/status.md"
+    "commands/status.md",
+    "commands/tier.md"
   ],
   "skills": [
     "skills/brainstormar-ideia",
