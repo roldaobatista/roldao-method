@@ -224,6 +224,31 @@ assertExit(
   }),
   0,
 );
+// Auditoria 2026-08-17: falso positivo provado — src/integrations/stripe.test.ts
+// (teste UNITARIO de um modulo que mora na pasta de producao integrations/)
+// era bloqueado pelo regex antigo, que casava qualquer path contendo "integration".
+assertExit(
+  'mock-integ: teste unitario em src/integrations/ com mock -> libera',
+  'block-mock-in-integration',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/integrations/stripe.test.ts',
+      content: 'vi.mock("./stripe-client");',
+    },
+  }),
+  0,
+);
+assertExit(
+  'mock-integ: sufixo *.integration.test.ts com mock -> bloqueia',
+  'block-mock-in-integration',
+  JSON.stringify({
+    tool_input: {
+      file_path: '/proj/src/checkout.integration.test.ts',
+      content: 'vi.mock("./payment-gateway");',
+    },
+  }),
+  2,
+);
 
 // no-test-data-in-fixtures
 assertExit(
@@ -395,6 +420,33 @@ assertExit(
   JSON.stringify({ tool_input: { file_path: '/proj/src/x.js', content: '// TODO(US-042): doc' } }),
   0,
 );
+// Auditoria 2026-08-17: falso positivo provado — `export const STATUS = { TODO: 1 }`
+// era bloqueado pelo regex antigo (\bTODO\b casava o identificador, nao so o
+// comentario). Regra e sobre comentario "// TODO" sem issue, nao sobre o token.
+assertExit(
+  'todo: TODO como identificador/constante (sem marcador de comentario) -> libera',
+  'block-todo-without-issue',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/status.js', content: 'export const STATUS = { TODO: 1 };' },
+  }),
+  0,
+);
+assertExit(
+  'todo: FIXME sem id em comentario Python (#) -> bloqueia',
+  'block-todo-without-issue',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/parser.py', content: '# FIXME parser quebra com unicode' },
+  }),
+  2,
+);
+assertExit(
+  'todo: HACK sem id em comentario de bloco (/* */) -> bloqueia',
+  'block-todo-without-issue',
+  JSON.stringify({
+    tool_input: { file_path: '/proj/src/x.js', content: '/* HACK contorna bug do driver */' },
+  }),
+  2,
+);
 
 // validate-story-approvals
 assertExit(
@@ -493,6 +545,91 @@ assertExit(
   JSON.stringify({ tool_input: { file_path: '/proj/src/app.js', content: 'export const x = 1;' } }),
   0,
 );
+
+// validate-test-pyramid: path ABSOLUTO (Auditoria 2026-08-17).
+// Defeito comprovado: UNSAFE_PATH_RE rejeitava path absoluto e o hook saia 0
+// sempre — mas o Claude Code SEMPRE manda file_path absoluto, entao o hook
+// nunca analisava nada de verdade (path relativo, o unico que disparava a
+// analise, nunca ocorre na pratica). Corrigido pra relativizar ao projeto
+// ANTES de validar. Os testes abaixo provam que o hook volta a bloquear com
+// path absoluto Windows e Unix.
+function runJsHookEnv(hookName, input, envExtra) {
+  const hookPath = path.join(HOOKS_DIR, `${hookName}.js`);
+  const r = spawnSync('node', [hookPath], {
+    input: String(input),
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env: { ...process.env, ROLDAO_SKIP_METRICS: '1', ...envExtra },
+    timeout: 15000,
+  });
+  return {
+    exit: r.status,
+    stdout: (r.stdout || '').toString(),
+    stderr: (r.stderr || '').toString(),
+  };
+}
+
+// Windows absoluto (drive letter): projeto em C:/proj, E2E sem unit no modulo.
+{
+  const r = runJsHookEnv(
+    'validate-test-pyramid',
+    JSON.stringify({ tool_input: { file_path: 'C:/proj/src/feature/x.e2e.test.js' } }),
+    { CLAUDE_PROJECT_DIR: 'C:/proj' },
+  );
+  check(
+    'test-pyramid: path absoluto Windows (C:/proj/...) é analisado e BLOQUEIA (exit 2)',
+    r.exit === 2,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 150)}"`,
+  );
+}
+
+// Windows absoluto com backslash cru (como o Claude Code manda de fato).
+{
+  const r = runJsHookEnv(
+    'validate-test-pyramid',
+    JSON.stringify({ tool_input: { file_path: 'C:\\proj\\src\\feature\\x.e2e.test.js' } }),
+    { CLAUDE_PROJECT_DIR: 'C:\\proj' },
+  );
+  check(
+    'test-pyramid: path absoluto Windows com backslash é analisado e BLOQUEIA (exit 2)',
+    r.exit === 2,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 150)}"`,
+  );
+}
+
+// Unix absoluto: projeto em /proj, E2E sem unit no modulo.
+{
+  const r = runJsHookEnv(
+    'validate-test-pyramid',
+    JSON.stringify({ tool_input: { file_path: '/proj/src/feature/x.e2e.test.js' } }),
+    { CLAUDE_PROJECT_DIR: '/proj' },
+  );
+  check(
+    'test-pyramid: path absoluto Unix (/proj/...) é analisado e BLOQUEIA (exit 2)',
+    r.exit === 2,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 150)}"`,
+  );
+}
+
+// Controle com filesystem real: modulo COM unit test → path absoluto libera
+// (prova que o hook nao so bloqueia sempre, ele realmente CONTA os arquivos).
+{
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pyramid-abs-'));
+  const moduleDir = path.join(dir, 'src', 'feature');
+  fs.mkdirSync(moduleDir, { recursive: true });
+  fs.writeFileSync(path.join(moduleDir, 'logica.test.js'), '// unit test real');
+  const absFile = path.join(moduleDir, 'x.e2e.test.js').replace(/\\/g, '/');
+  const r = runJsHookEnv(
+    'validate-test-pyramid',
+    JSON.stringify({ tool_input: { file_path: absFile } }),
+    { CLAUDE_PROJECT_DIR: dir.replace(/\\/g, '/') },
+  );
+  check(
+    'test-pyramid: path absoluto com unit test real no modulo → libera (exit 0)',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 150)}"`,
+  );
+  fs.rmSync(dir, { recursive: true, force: true });
+}
 
 console.log(`\nhooks-node-only: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);

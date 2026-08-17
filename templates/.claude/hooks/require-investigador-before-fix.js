@@ -27,11 +27,17 @@ const ACHADO_MIN_CHARS = 20;
 // Aceita so a versao MAIUSCULA estilo placeholder de codigo (montada via concat
 // pra nao disparar block-todo-without-issue neste proprio arquivo).
 const _PLACEHOLDER_MAIUSCULO = 'T' + 'ODO';
-const BYPASS_PHRASES_RE = new RegExp(
-  '\\b(bypass|trivial|confiei no usu[aá]rio|skip|n[aã]o investigad|placeholder|tbd|' +
-    _PLACEHOLDER_MAIUSCULO +
-    ':?)\\b',
-);
+const BYPASS_WORDS = `bypass|trivial|confiei no usu[aá]rio|skip|n[aã]o investigad[oa]?|placeholder|tbd|${_PLACEHOLDER_MAIUSCULO}`;
+// BYPASS_PHRASES_RE — usado pra validar itens de "lido" (evidencia estruturada
+// tipo "arquivo:linha" ou query; substring basta, pois nao e prosa natural).
+const BYPASS_PHRASES_RE = new RegExp(`\\b(${BYPASS_WORDS}):?\\b`);
+// ACHADO_PLACEHOLDER_RE — usado pra validar "achado" (texto narrativo). So
+// bloqueia quando o campo INTEIRO e composto so de frases de bypass (com
+// pontuacao/espacos entre elas) — nao quando a palavra aparece dentro de uma
+// frase real com conteudo de verdade. Auditoria 2026-08-17: a substring match
+// antiga rejeitava achado legitimo tipo "o codigo faz skip da validacao de
+// CPF quando o cliente e estrangeiro", que E uma causa raiz real.
+const ACHADO_PLACEHOLDER_RE = new RegExp(`^(?:\\s*(?:${BYPASS_WORDS})[\\s,;:.\\-]*)+$`, 'i');
 const LEGACY_MODE = process.env.ROLDAO_METHOD_LEGACY_MARKERS === '1';
 
 // validateInvestigationJson — le e classifica um arquivo investigation-*.json.
@@ -71,11 +77,12 @@ function validateInvestigationJson(filepath) {
     };
   }
 
-  // Rejeita frase de bypass explicita
-  if (BYPASS_PHRASES_RE.test(achado)) {
+  // Rejeita achado que e INTEIRO placeholder/bypass (nao so uma palavra dentro
+  // de frase real — ver comentario de ACHADO_PLACEHOLDER_RE acima).
+  if (ACHADO_PLACEHOLDER_RE.test(achado)) {
     return {
       state: 'achado-bypass',
-      reason: `"achado" contem palavra de bypass: "${achado.slice(0, 80)}..."`,
+      reason: `"achado" e so placeholder/bypass, sem causa raiz real: "${achado.slice(0, 80)}..."`,
     };
   }
   // Tambem rejeita se algum elemento de 'lido' for frase de bypass
@@ -152,10 +159,36 @@ function validateInvestigationJson(filepath) {
 
   if (!bugActive) process.exit(0);
 
-  // Encontra todos os investigation-*.json
-  const provaFiles = runtimeFiles
+  // Escopo temporal (auditoria 2026-08-17): so aceita investigation-*.json
+  // GRAVADO DEPOIS do gatilho do bug atual (bug-trigger-${sess}). Sem isso, um
+  // investigation-*.json de OUTRO bug — sessao antiga, nunca limpo — satisfaz
+  // o GATE 2 pra sempre (a prova precisa ser POSTERIOR ao gatilho, nao so
+  // existir). session-cleanup.js nunca apaga investigation-*.json (e
+  // persistente de proposito, pra auditoria), entao so o mtime protege aqui.
+  let triggerMtime = 0;
+  try {
+    triggerMtime = fs.statSync(markBug).mtimeMs;
+  } catch {
+    triggerMtime = 0; // markBug existe (GATE 1 ja confirmou) — defensivo
+  }
+
+  // Encontra todos os investigation-*.json e descarta os ANTERIORES ao gatilho
+  // do bug atual (prova velha de outro bug nao conta).
+  const allProvaFiles = runtimeFiles
     .filter((n) => /^investigation-.*\.json$/.test(n))
     .map((n) => path.join(runtime, n));
+  // >= (nao so >): mtime tem resolucao limitada em alguns FS/OS — escrever
+  // bug-trigger e investigation-*.json em sequencia rapida (mesmo ms) e comum
+  // no fluxo real e nos testes. So queremos excluir prova INEQUIVOCAMENTE
+  // anterior ao gatilho, nao empates.
+  const provaFiles = allProvaFiles.filter((f) => {
+    try {
+      return fs.statSync(f).mtimeMs >= triggerMtime;
+    } catch {
+      return false;
+    }
+  });
+  const staleCount = allProvaFiles.length - provaFiles.length;
 
   if (provaFiles.length === 0) {
     process.stderr.write(
@@ -165,10 +198,21 @@ function validateInvestigationJson(filepath) {
     process.stderr.write(
       `Motivo: REGRA #0 exige LEITURA REAL antes do fix (banco, log, payload, config).\n`,
     );
-    process.stderr.write(
-      `Marker 'investigator-invoked' existe mas NAO ha .claude/.runtime/investigation-*.json\n`,
-    );
-    process.stderr.write(`registrando o que foi lido. Sem prova mecânica, marker vira teatro.\n\n`);
+    if (staleCount > 0) {
+      process.stderr.write(
+        `Encontrado(s) ${staleCount} investigation-*.json, mas ${staleCount === 1 ? 'e' : 'sao'} ANTERIOR${staleCount === 1 ? '' : 'ES'} ao gatilho\n`,
+      );
+      process.stderr.write(
+        `deste bug (mtime <= bug-trigger-${sess}) — prova de outro bug/sessao, nao vale pra este.\n\n`,
+      );
+    } else {
+      process.stderr.write(
+        `Marker 'investigator-invoked' existe mas NAO ha .claude/.runtime/investigation-*.json\n`,
+      );
+      process.stderr.write(
+        `registrando o que foi lido. Sem prova mecânica, marker vira teatro.\n\n`,
+      );
+    }
     process.stderr.write(
       `Como resolver: investigador deve gravar JSON canônico antes de devolver controle:\n`,
     );

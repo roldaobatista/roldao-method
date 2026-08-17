@@ -217,7 +217,10 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
   cleanup(dir);
 }
 
-// Cenario 8: achado contem "trivial" → block
+// Cenario 8 (Auditoria 2026-08-17): achado com a palavra "trivial" DENTRO de
+// uma frase real (nao e so placeholder) → PASSA. Antes a checagem era por
+// substring e rejeitava investigacao legitima so por conter a palavra —
+// corrigido pra so bloquear quando o campo INTEIRO e placeholder/bypass.
 {
   const { dir, runtime } = setupRuntime();
   writeInvJson(
@@ -229,9 +232,52 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
     }),
   );
   const r = runHook(dir);
-  check('cenario 8a: achado contem "trivial" → exit 2', r.exit === 2, `exit=${r.exit}`);
   check(
-    'cenario 8b: stderr menciona achado-bypass',
+    'cenario 8: achado real contendo "trivial" numa frase → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
+  cleanup(dir);
+}
+
+// Cenario 8c (Auditoria 2026-08-17): achado real contendo a palavra "skip"
+// como parte de uma explicacao de causa raiz de verdade → PASSA.
+{
+  const { dir, runtime } = setupRuntime();
+  writeInvJson(
+    runtime,
+    'skip-real',
+    JSON.stringify({
+      lido: ['src/validacao.js:22'],
+      achado:
+        'O codigo faz skip da validacao de CPF quando o cliente e cadastrado como estrangeiro.',
+    }),
+  );
+  const r = runHook(dir);
+  check(
+    'cenario 8c: achado real contendo "skip" numa frase → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
+  cleanup(dir);
+}
+
+// Cenario 8d (Auditoria 2026-08-17): achado que e SO frases de bypass
+// concatenadas (sem conteudo real) → continua bloqueado mesmo com >=20 chars.
+{
+  const { dir, runtime } = setupRuntime();
+  writeInvJson(
+    runtime,
+    'so-placeholder',
+    JSON.stringify({
+      lido: ['src/x.js:10'],
+      achado: 'TBD, placeholder, nao investigado, confiei no usuario.',
+    }),
+  );
+  const r = runHook(dir);
+  check('cenario 8d: achado so placeholder/bypass → exit 2', r.exit === 2, `exit=${r.exit}`);
+  check(
+    'cenario 8d-b: stderr menciona achado-bypass',
     /estado=achado-bypass/.test(r.stderr),
     `stderr: ${r.stderr.slice(0, 200)}`,
   );
@@ -311,6 +357,67 @@ console.log('\nhooks-investigador-gate2: testes adversariais do GATE 2 (T-003 / 
     timeout: 15000,
   });
   check('cenario 12: arquivo .md → exit 0', r.status === 0, `exit=${r.status}`);
+  cleanup(dir);
+}
+
+// Cenario 13 (Auditoria 2026-08-17): investigation-*.json mais ANTIGO que o
+// gatilho do bug atual (bug-trigger-${SESS}) NAO satisfaz o GATE 2 — e prova
+// mecanica de um bug anterior (ou de outra sessao nunca limpa), nao deste.
+// Corrige o defeito: antes QUALQUER investigation-*.json existente valia
+// pra sempre, sem escopo de sessao/bug.
+{
+  const { dir, runtime } = setupRuntime();
+  writeInvJson(
+    runtime,
+    'antigo',
+    JSON.stringify({
+      lido: ['src/x.js:10'],
+      achado: 'Causa raiz real de um bug ANTERIOR, investigada com bastante detalhe.',
+    }),
+  );
+  const invFile = path.join(runtime, 'investigation-antigo.json');
+  const triggerFile = path.join(runtime, `bug-trigger-${SESS}`);
+  const now = Date.now() / 1000;
+  // investigation gravado 1h ANTES do bug-trigger atual → prova velha.
+  fs.utimesSync(invFile, now - 3600, now - 3600);
+  fs.utimesSync(triggerFile, now, now);
+  const r = runHook(dir);
+  check(
+    'cenario 13a: investigation mais antigo que bug-trigger → exit 2',
+    r.exit === 2,
+    `exit=${r.exit}`,
+  );
+  check(
+    'cenario 13b: stderr menciona prova ANTERIOR ao gatilho',
+    /ANTERIOR/.test(r.stderr),
+    `stderr: ${r.stderr.slice(0, 300)}`,
+  );
+  cleanup(dir);
+}
+
+// Cenario 14: investigation-*.json mais NOVO que bug-trigger → satisfaz GATE 2
+// normalmente (fluxo legitimo: bug dispara, investigador roda depois).
+{
+  const { dir, runtime } = setupRuntime();
+  writeInvJson(
+    runtime,
+    'novo',
+    JSON.stringify({
+      lido: ['src/x.js:10'],
+      achado: 'Causa raiz real deste bug, investigada com detalhe suficiente.',
+    }),
+  );
+  const invFile = path.join(runtime, 'investigation-novo.json');
+  const triggerFile = path.join(runtime, `bug-trigger-${SESS}`);
+  const now = Date.now() / 1000;
+  fs.utimesSync(triggerFile, now - 3600, now - 3600);
+  fs.utimesSync(invFile, now, now);
+  const r = runHook(dir);
+  check(
+    'cenario 14: investigation mais novo que bug-trigger → exit 0',
+    r.exit === 0,
+    `exit=${r.exit}, stderr="${r.stderr.slice(0, 200)}"`,
+  );
   cleanup(dir);
 }
 

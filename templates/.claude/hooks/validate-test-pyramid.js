@@ -8,9 +8,13 @@ const { readStdinJson, sanitizeProjdir, recordMetric, normalizeFilePath } = requ
 
 const E2E_PATH_RE = /e2e\/|e2e-tests\/|end-to-end\/|\.e2e\.|playwright\/|cypress\/integration\//;
 const E2E_DIR_RE = /\/(e2e|e2e-tests|end-to-end|playwright|cypress|cypress\/integration)$/;
-// UNSAFE: path traversal OU path absoluto. Cobre absoluto Unix (/), Windows (C:/, C:\),
-// e Git Bash mount (/c/). Path normalizado tem so `/`, entao C:\foo vira C:/foo.
-const UNSAFE_PATH_RE = /\.\.|^\/|^[A-Za-z]:\//;
+// UNSAFE: so path traversal explicito. Path absoluto NAO e mais rejeitado aqui —
+// o Claude Code SEMPRE manda file_path absoluto (auditoria 2026-08-17: a regex
+// antiga rejeitava justamente o unico formato que chega na pratica, deixando o
+// hook inerte). Absoluto agora e relativizado ao projeto antes desta checagem;
+// so sobra ".." pra barrar.
+const UNSAFE_PATH_RE = /\.\./;
+const ABS_PATH_RE = /^\/|^[A-Za-z]:\//;
 
 const UNIT_TEST_EXTS = new Set([
   '.test.js',
@@ -55,16 +59,8 @@ function walkDir(dir, onFile) {
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
-  if (!filePath) process.exit(0);
-  if (!E2E_PATH_RE.test(filePath)) process.exit(0);
-
-  // Identifica modulo: sobe um nivel se MODULE_DIR termina em /e2e, /cypress, etc.
-  let moduleDir = normalizeFilePath(path.dirname(filePath));
-  if (E2E_DIR_RE.test(moduleDir)) moduleDir = path.dirname(moduleDir);
-
-  // Sanitizacao: rejeita .., path absoluto/windows
-  if (UNSAFE_PATH_RE.test(moduleDir)) process.exit(0);
+  const rawFilePath = normalizeFilePath(input?.tool_input?.file_path || '');
+  if (!rawFilePath) process.exit(0);
 
   let projdir;
   try {
@@ -72,6 +68,27 @@ function walkDir(dir, onFile) {
   } catch {
     process.exit(2);
   }
+  const projdirNorm = normalizeFilePath(projdir);
+
+  // Claude Code SEMPRE manda file_path absoluto. Relativiza ao projeto ANTES
+  // de validar, em vez de rejeitar absoluto de cara (o bug que deixava o hook
+  // inerte). Usa path.posix pois tudo ja esta normalizado com `/`.
+  let filePath = rawFilePath;
+  if (ABS_PATH_RE.test(rawFilePath)) {
+    const rel = normalizeFilePath(path.posix.relative(projdirNorm, rawFilePath));
+    // Fora do projeto (sobe diretorio ou e path absoluto de outro drive) — ignora.
+    if (rel.startsWith('..') || ABS_PATH_RE.test(rel)) process.exit(0);
+    filePath = rel;
+  }
+
+  if (!E2E_PATH_RE.test(filePath)) process.exit(0);
+
+  // Identifica modulo: sobe um nivel se MODULE_DIR termina em /e2e, /cypress, etc.
+  let moduleDir = normalizeFilePath(path.dirname(filePath));
+  if (E2E_DIR_RE.test(moduleDir)) moduleDir = path.dirname(moduleDir);
+
+  // Sanitizacao: rejeita traversal explicito (moduleDir ja e relativo ao projeto aqui).
+  if (UNSAFE_PATH_RE.test(moduleDir)) process.exit(0);
 
   const absModule = path.join(projdir, moduleDir);
 

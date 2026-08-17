@@ -163,5 +163,28 @@ console.log('\nhooks-session-cleanup: limpa markers efemeros da sessao atual (T-
   cleanup(dir);
 }
 
+// Cenario 6 (Auditoria 2026-08-17): investigation-*.json com mais de 7 dias e
+// removido; com 1 dia e preservado. GATE 2 de require-investigador-before-fix
+// aceitava prova velha de qualquer bug pra sempre — este cleanup por idade
+// fecha a brecha (session-cleanup nunca apagava investigation-*.json antes).
+{
+  const { dir, runtime } = setupRuntime();
+  const oldFile = path.join(runtime, 'investigation-bug-antigo.json');
+  const freshFile = path.join(runtime, 'investigation-bug-recente.json');
+  fs.writeFileSync(oldFile, '{}');
+  fs.writeFileSync(freshFile, '{}');
+
+  const eightDaysMs = 8 * 24 * 60 * 60 * 1000;
+  const oneDayMs = 1 * 24 * 60 * 60 * 1000;
+  const now = Date.now() / 1000;
+  fs.utimesSync(oldFile, now - eightDaysMs / 1000, now - eightDaysMs / 1000);
+  fs.utimesSync(freshFile, now - oneDayMs / 1000, now - oneDayMs / 1000);
+
+  runHook(dir);
+  check('cenario 6a: investigation com 8 dias e REMOVIDO', !fs.existsSync(oldFile));
+  check('cenario 6b: investigation com 1 dia e PRESERVADO', fs.existsSync(freshFile));
+  cleanup(dir);
+}
+
 console.log(`\nResultado: ${pass} OK, ${fail} FAIL`);
 process.exit(fail > 0 ? 1 : 0);
