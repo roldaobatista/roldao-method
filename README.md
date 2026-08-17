@@ -2,6 +2,18 @@
 
 > **Manual em português pro seu assistente de IA (Claude, Cursor, etc).** Você descreve em PT-BR o que quer ("quero cadastrar cliente", "o boleto saiu errado") e ele segue um roteiro pronto: investiga antes de mexer, valida CPF/CNPJ, respeita LGPD, te avisa em PT-BR claro — sem siglas. Pensado pra dono de produto que **não programa**, no contexto brasileiro (NF-e, Pix, eSocial).
 
+## As 3 camadas (produto único: a Fábrica)
+
+Desde agosto/2026 este repositório reúne, num lugar só, as três peças que antes viviam separadas:
+
+| Camada | Onde | Pra quê |
+|---|---|---|
+| **Guarda-corpos** | raiz (`npx roldao-method`) | Verificações automáticas que barram a ação perigosa antes dela acontecer |
+| **Nascimento** | [`metodo/`](metodo/) | Projeto novo do zero: estrutura documental completa antes da primeira linha de código (ex-repositório "Modelo Projeto Novo") |
+| **Operação** | [`fabrica/`](fabrica/) | Dia a dia em projeto existente: tiers de risco, especificação executável, evidência antes de "pronto", checklist de subida, bug-vira-teste |
+
+Porta de entrada: [`fabrica/FABRICA.md`](fabrica/FABRICA.md) explica quando usar cada camada.
+
 ## Para quem é (e pra quem NÃO é)
 
 **É pra você se:** você quer que a IA gere código pro seu produto e você **não é programador** (ou contrata desenvolvedor por fora), opera no Brasil (precisa LGPD/NF-e/Pix/SEFAZ), e cansou de resposta em inglês cheia de sigla. Você conduz, o assistente executa.
