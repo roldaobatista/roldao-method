@@ -10,6 +10,7 @@ const {
   sanitizeSessionHash,
   safeRuntimeDir,
   recordMetric,
+  normalizeFilePath,
 } = require('./_lib.js');
 
 const SKIP_PATH_RE =
@@ -22,7 +23,9 @@ const LIMIT = 3;
 
 (async () => {
   const input = await readStdinJson();
-  const filePath = input?.tool_input?.file_path || '';
+  // Auditoria 2026-08-17: normaliza \ do Windows — senao SKIP_PATH_RE (com /)
+  // nunca casa e o hook conta teste como arquivo de codigo no limite de 3.
+  const filePath = normalizeFilePath(input?.tool_input?.file_path || '');
   if (!filePath) process.exit(0);
 
   let projdir;
@@ -102,9 +105,15 @@ const LIMIT = 3;
     `  Dev, Revisor, Auditores) toma conta e o /quick-dev e encerrado pelo maestro.\n\n`,
   );
   process.stderr.write(
-    `Atencao: nao tente apagar markers em .claude/.runtime/ — block-destructive\n`,
+    `Atencao: nao tente apagar markers de PIPELINE (feature-active, auditor-*-pass,\n`,
   );
-  process.stderr.write(`bloqueia, e fazer isso conta como erosao silenciosa do framework.\n\n`);
+  process.stderr.write(
+    `checkpoint-done...) — block-destructive bloqueia e conta como erosao do framework.\n`,
+  );
+  process.stderr.write(
+    `Excecao unica: o proprio quick-dev-active-* pode ser removido ao encerrar o fluxo\n`,
+  );
+  process.stderr.write(`(passo documentado em /quick-dev.md).\n\n`);
   process.stderr.write(`Aplica: /quick-dev.md (cheklist obrigatorio), INV-AGENT-005.\n`);
   recordMetric('block', 'validate-quick-dev-scope', `escopo estourou: ${uniqueAfter} arquivos`);
   process.exit(2);

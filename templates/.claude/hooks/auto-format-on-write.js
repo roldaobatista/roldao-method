@@ -63,6 +63,19 @@ function run(cmd, args) {
 
   const ext = (file.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
   const localBin = (b) => path.join(projdir, 'node_modules', '.bin', b);
+  // Auditoria 2026-08-17: no Windows o shim de node_modules/.bin nao e executavel
+  // via spawnSync sem shell (e .cmd exige shell) — o hook era no-op na maquina do
+  // dono. Prettier local agora roda via `node <entry real do pacote>`.
+  const prettierJs = (() => {
+    for (const rel of [
+      ['prettier', 'bin', 'prettier.cjs'],
+      ['prettier', 'bin-prettier.js'],
+    ]) {
+      const p = path.join(projdir, 'node_modules', ...rel);
+      if (fs.existsSync(p)) return p;
+    }
+    return null;
+  })();
 
   // md fica fora — paths-frontmatter-validator inspeciona quebras de linha.
   if (
@@ -70,7 +83,8 @@ function run(cmd, args) {
       ext,
     )
   ) {
-    if (fs.existsSync(localBin('prettier'))) run(localBin('prettier'), ['--write', file]);
+    if (prettierJs) run(process.execPath, [prettierJs, '--write', file]);
+    else if (fs.existsSync(localBin('prettier'))) run(localBin('prettier'), ['--write', file]);
     else if (hasCommand('prettier')) run('prettier', ['--write', file]);
 
     if (['ts', 'tsx', 'js', 'jsx'].includes(ext) && fs.existsSync(localBin('eslint'))) {

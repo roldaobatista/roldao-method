@@ -124,7 +124,11 @@ const ALLOWLIST = [
     let authorized = false;
     for (const allowed of ALLOWLIST) {
       const esc = allowed.replace(/[.[\\*^$/]/g, '\\$&');
-      const re = new RegExp(`(^|\\s|@)${esc}(\\s|@|$)`);
+      // Auditoria 2026-08-17: entrada que termina em '/' e PREFIXO de pacote —
+      // exigir delimitador logo apos reprovava o MCP oficial da Anthropic
+      // (@modelcontextprotocol/server-filesystem nao tem espaco apos a barra).
+      const sufixo = allowed.endsWith('/') ? '' : '(\\s|@|$|/)';
+      const re = new RegExp(`(^|\\s|@)${esc}${sufixo}`);
       if (re.test(full)) {
         authorized = true;
         break;
@@ -154,9 +158,10 @@ const ALLOWLIST = [
       );
       process.exit(0);
     }
-    // Tabela em .claude/rules/roldao-method.md promete exit 2 — auditoria
-    // 2026-05-25 (hook #1) corrigiu: era exit 0 silencioso. SessionStart com
-    // exit 2 impede inicio da sessao no Claude Code.
+    // Tabela em .claude/rules/roldao-method.md promete exit 2. IMPORTANTE
+    // (auditoria 2026-08-17): em SessionStart o exit 2 NAO impede a sessao —
+    // o efeito real e o stderr aparecer como aviso destacado pro agente/usuario.
+    // O exit 2 fica pela semantica de "reprovado" e pela tabela de regras.
     process.exit(2);
   }
 

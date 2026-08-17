@@ -61,7 +61,10 @@ function buscarKeyword(projdir, re, max = 5) {
         'grep',
         '-l',
         '-iE',
-        re.source,
+        // Auditoria 2026-08-17: `(?:...)` do JS e invalido em ERE — o git grep
+        // morria ("Invalid preceding regular expression") e o catch devolvia []
+        // silenciosamente: a sugestao do addon fiscal nunca disparava.
+        re.source.replace(/\(\?:/g, '('),
         '--',
         '*.js',
         '*.ts',
